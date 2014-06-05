@@ -1,7 +1,7 @@
 QUSMA Performance Analysis Suite
 ====
 
-QPAS is a trading journal with detailed performance, risk, and execution analytics, designed for Interactive Brokers clients. 
+QPAS is a trading journal with detailed performance, risk, and execution analytics, designed for Interactive Brokers clients. For an overview of its main features, check out the [performance report](http://qusma.com/qpasdocs/index.php/Performance_Report#Settings) page in the documentation.
 
 * Installer
 * [Documentation](http://qusma.com/qpasdocs/index.php/Main_Page)
@@ -18,16 +18,16 @@ Features:
 
 Screenshots:
 ------------------------
-* Performance statistics
-* Trade statistics
-* Trade Overview
-* Trade Notes
-* Value at Risk and Expected Shortfall
-* Monte Carlo Simulation with Drawdown and Ratio Distributions
-* Maximum Favorable/Adverse Excursion
-* Benchmarking
-* Execution analysis
-* Charting with entries and exits
+* [Performance statistics](http://i.imgur.com/RhPRa6A.png)
+* [Trade statistics](http://i.imgur.com/MmEXyw2.png)
+* [Trade Overview](http://i.imgur.com/OfNf2cF.png)
+* [Trade Notes](http://i.imgur.com/MM15ZiF.png)
+* [Ex-post Value at Risk and Expected Shortfall](http://i.imgur.com/kEtqDSM.png)
+* [[Monte Carlo Simulation with Drawdown and Ratio Distributions](http://i.imgur.com/2W3jRXa.png)
+* [Maximum Favorable/Adverse Excursion](http://i.imgur.com/hnkfe1a.png)
+* [Benchmarking](http://i.imgur.com/Nnitn1M.png)
+* [Execution analysis](http://i.imgur.com/YyXAFPk.png)
+* [Charting with entries and exits](http://i.imgur.com/x2NmiTv.png)
 
 Requirements:
 ------------------------
