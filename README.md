@@ -23,7 +23,7 @@ Screenshots:
 * [Trade Overview](http://i.imgur.com/OfNf2cF.png)
 * [Trade Notes](http://i.imgur.com/MM15ZiF.png)
 * [Ex-post Value at Risk and Expected Shortfall](http://i.imgur.com/kEtqDSM.png)
-* [[Monte Carlo Simulation with Drawdown and Ratio Distributions](http://i.imgur.com/2W3jRXa.png)
+* [Monte Carlo Simulation with Drawdown and Ratio Distributions](http://i.imgur.com/2W3jRXa.png)
 * [Maximum Favorable/Adverse Excursion](http://i.imgur.com/hnkfe1a.png)
 * [Benchmarking](http://i.imgur.com/Nnitn1M.png)
 * [Execution analysis](http://i.imgur.com/YyXAFPk.png)
