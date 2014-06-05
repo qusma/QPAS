@@ -32,7 +32,8 @@ Screenshots:
 Requirements:
 ------------------------
 * [MySQL](http://dev.mysql.com/downloads/mysql/)/[MariaDB](https://downloads.mariadb.org/) or [SQL Server (2008+)](http://www.microsoft.com/en-us/download/details.aspx?id=29062)
-* [.NET 4.5](http://www.microsoft.com/en-us/download/details.aspx?id=30653)
+* [.NET 4.5.1](http://www.microsoft.com/en-us/download/details.aspx?id=40773)
+* [QDMS](http://qusma.com/software/qdms) (Needed only for some features: benchmarks, execution analysis, and charting)
 
 Contributing:
 ------------------------
