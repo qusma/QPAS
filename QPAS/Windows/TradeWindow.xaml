@@ -1,0 +1,304 @@
+﻿<controls:MetroWindow x:Class="QPAS.TradeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:qc="clr-namespace:QuickConverter;assembly=QuickConverter"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:qpas="clr-namespace:QPAS"
+        xmlns:oxy="http://oxyplot.codeplex.com"
+        Height="609" Width="1280"
+        BorderBrush="Black" BorderThickness="1"
+        FontFamily="Segoe UI Semibold"
+        Title="{Binding Trade.Name, StringFormat=Trade: {0}}" 
+        Icon="../Resources/icon.ico"
+        TitlebarHeight="32"
+        Closing="MetroWindow_Closing"
+        ResizeMode="NoResize"
+        DataContext="{Binding ViewModel}">
+    <Window.Resources>
+        <Style TargetType="Label" x:Key="OpenColor">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Trade.Open}" Value="True">
+                    <Setter Property="Foreground" Value="#4F81BD"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <qpas:PnLBrushConverter x:Key="PnlBrushConverter" />
+        <qpas:PctBrushConverter x:Key="PctBrushConverter" />
+        
+        <qpas:TradeViewModel x:Key="DummyTradeVM" />
+    </Window.Resources>
+
+    <TabControl>
+        <TabItem Header="Overview" Padding="0">
+            <Grid Margin="0,-10,0,0" >
+                <!-- DataContext="{Binding Source={StaticResource DummyTradeVM}}"-->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="38*"/>
+                    <ColumnDefinition Width="32*"/>
+                    <ColumnDefinition Width="55*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="65"/>
+                    <RowDefinition Height="45"/>
+                    <RowDefinition Height="36*"/>
+                    <RowDefinition Height="142*"/>
+                    <RowDefinition Height="45"/>
+                    <RowDefinition Height="153*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.ColumnSpan="2" Orientation="Horizontal">
+                    <Label Content="Status:" FontSize="48" Padding="0" Margin="5,0,0,0" Foreground="DimGray" />
+                    <Label Content="{Binding Trade.Open, Converter={qc:QuickConverter '$P ? \'Open\' : \'Closed\''}}"
+                           HorizontalAlignment="Stretch" Padding="0" Margin="10,0,0,0" 
+                           VerticalAlignment="Stretch" FontSize="48" 
+                           Foreground="Black"
+                           Style="{StaticResource OpenColor}" 
+                            />
+                </StackPanel>
+
+                <DockPanel Grid.Column="2" Grid.Row="0">
+                    <Label 
+            Content="Result:"
+               HorizontalAlignment="Left" Padding="0" Margin="8,0,0,8" 
+               VerticalAlignment="Bottom" FontSize="44" 
+               Foreground="DimGray"
+                />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Label 
+                            Name="TestLabel"
+                            Content="$"
+                               HorizontalAlignment="Right" Padding="0" Margin="10,0,0,14" 
+                               VerticalAlignment="Bottom" FontSize="26" 
+                               Foreground="{Binding Trade.TotalResultDollars, Converter={StaticResource PnlBrushConverter}}"
+                                />
+                        <Label 
+                           HorizontalAlignment="Right" Padding="0" Margin="0,-7,0,5" 
+                           FontSize="50" 
+                           Foreground="{Binding Trade.TotalResultDollars, Converter={StaticResource PnlBrushConverter}}">
+                            <TextBlock Text="{Binding Trade.TotalResultDollars, StringFormat={}{0:0.00}, ConverterCulture=en-US}"/>
+                        </Label>
+                        <Label 
+                           HorizontalAlignment="Right" Padding="0" Margin="0,-7,0,5" 
+                           FontSize="50" Content="/" />
+                        <Label 
+                           HorizontalAlignment="Right" Padding="0" Margin="0,-7,0,5" 
+                           FontSize="50" 
+                           Foreground="{Binding Trade.TotalResultPct, Converter={StaticResource PctBrushConverter}}">
+                            <TextBlock Text="{Binding Trade.TotalResultPct, StringFormat={}{0:p2}, ConverterCulture=en-US}"/>
+                        </Label>
+                    </StackPanel>
+                </DockPanel>
+
+                <DockPanel Grid.Row="1" Grid.Column="2">
+                    <StackPanel Margin="10,0,0,0">
+                        <Label 
+                            Content="Realized:"
+                               HorizontalAlignment="Left" Padding="0"
+                               VerticalAlignment="Bottom" FontSize="16" 
+                               Foreground="DimGray"
+                                />
+                        <Label 
+                            Content="Unrealized:"
+                               HorizontalAlignment="Left" Padding="0"
+                               VerticalAlignment="Bottom" FontSize="16" 
+                               Foreground="DimGray"
+                                />
+                    </StackPanel>
+
+                    <StackPanel HorizontalAlignment="Right" Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Label 
+                               HorizontalAlignment="Right" Padding="0"
+                               VerticalAlignment="Bottom" FontSize="16" 
+                               Foreground="{Binding Trade.ResultDollars, Converter={StaticResource PnlBrushConverter}}">
+                                <TextBlock Margin="0" Padding="0" Text="{Binding Trade.ResultDollars, StringFormat={}{0:c2}, ConverterCulture=en-US}" />
+                            </Label>
+                            <Label Content="/" FontSize="16" Margin="1,0,1,0" Padding="0" />
+                            <Label 
+                               HorizontalAlignment="Right" Padding="0"
+                               VerticalAlignment="Bottom" FontSize="16" 
+                               Foreground="{Binding Trade.ResultPct, Converter={StaticResource PctBrushConverter}}">
+                                <TextBlock Margin="0" Padding="0" Text="{Binding Trade.ResultPct, StringFormat={}{0:p2}}" />
+                            </Label>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label 
+                               HorizontalAlignment="Right" Padding="0"
+                               VerticalAlignment="Bottom" FontSize="16" 
+                               Foreground="{Binding Trade.UnrealizedResultDollars, Converter={StaticResource PnlBrushConverter}}"
+                                >
+                                <TextBlock Margin="0" Padding="0" Text="{Binding Trade.UnrealizedResultDollars, StringFormat={}{0:c2}, ConverterCulture=en-US}" />
+                            </Label>
+                            <Label Content="/" FontSize="16" Margin="1,0,1,0" Padding="0" />
+                            <Label 
+                                   HorizontalAlignment="Right" Padding="0"
+                                   VerticalAlignment="Bottom" FontSize="16" 
+                                   Foreground="{Binding Trade.UnrealizedResultPct, Converter={StaticResource PctBrushConverter}}">
+                                <TextBlock Margin="0" Padding="0" Text="{Binding Trade.UnrealizedResultPct, StringFormat={}{0:p2}}" />
+                            </Label>
+                        </StackPanel>
+                    </StackPanel>
+
+                </DockPanel>
+
+                <Label Grid.Row="1" Margin="1,0,0,0" Grid.Column="0" Content="Orders" Foreground="DimGray" FontSize="26" Grid.ColumnSpan="2" />
+                <DataGrid Grid.Row="2" Grid.Column="0" Grid.RowSpan="2" AutoGenerateColumns="False" IsReadOnly="True"
+                          Name="OrdersGrid" ItemsSource="{Binding Trade.Orders}" Grid.ColumnSpan="2">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Symbol" Binding="{Binding Path=Instrument.Symbol}" />
+                        <DataGridTextColumn Header="Date" Binding="{Binding Path=TradeDate, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
+                        <DataGridTextColumn Header="Side" Binding="{Binding Path=BuySell}" />
+                        <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Price" Binding="{Binding Path=Price, StringFormat={}{0:0.00###}}" />
+                        <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Quantity" Binding="{Binding Path=Quantity}" />
+                        <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="FIFO PnL" Binding="{Binding Path=PerTradeFIFOPnL, StringFormat={}{0:c2}}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Label Grid.Row="4" Grid.Column="0" Content="Cash Transactions" Foreground="DimGray" FontSize="26" />
+                <DataGrid Grid.Row="5" Grid.Column="0" Name="CashTransactionsGrid" ItemsSource="{Binding Trade.CashTransactions}" Margin="0,0,5,0"
+                          AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Symbol" Binding="{Binding Path=Instrument.Symbol}" />
+                        <DataGridTextColumn Header="Date" Binding="{Binding Path=TransactionDate, StringFormat={}{0:yyyy-MM-dd}}" />
+                        <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Amount" Binding="{Binding Path=AmountInBase, StringFormat={}{0:c2}}" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Path=Type}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <Label Grid.Row="4" Grid.Column="1" Content="FX Transactions" Foreground="DimGray" FontSize="26" />
+                <DataGrid Grid.Row="5" Grid.Column="1" Name="FXTransactionsGrid" Margin="5,0,0,0" ItemsSource="{Binding Trade.FXTransactions}"
+                          AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Symbol" Binding="{Binding FXCurrency.Name}" />
+                        <DataGridTextColumn Header="Date" Binding="{Binding Path=DateTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
+                        <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity, StringFormat={}{0:0.00}}" />
+                        <DataGridTextColumn Header="Proceeds" Binding="{Binding Proceeds, StringFormat={}{0:c2}}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <oxy:PlotView Name="PnLChart" Grid.Row="3" Grid.Column="2" PlotAreaBorderThickness="0" Margin="10,10,0,0">
+                    <oxy:PlotView.Axes>
+                        <oxy:LinearAxis Name="YAxis" Position="Right" StringFormat="c0" MajorGridlineStyle="Dash" />
+                        <oxy:DateTimeAxis Name="XAxis" Position="Bottom" StringFormat="yyyy-MM-dd" />
+                    </oxy:PlotView.Axes>
+                    <oxy:PlotView.Series>
+                        <oxy:TwoColorLineSeries Name="CumulativePnlSeries" 
+                                                ItemsSource="{Binding Tracker.CumulativePnL}"
+                                                Color="DodgerBlue" 
+                                                Color2="Red" 
+                                                MarkerType="None" 
+                                                DataFieldX="Key" 
+                                                DataFieldY="Value"
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;P/L: {4:c2}"
+                                                CanTrackerInterpolatePoints="False" />
+                    </oxy:PlotView.Series>
+                </oxy:PlotView>
+
+                <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Horizontal" Margin="5,0,0,0">
+                    <Label Content="Capital:" FontSize="22" Foreground="DimGray" />
+                    <Label>
+                        <TextBlock Text="{Binding Trade.CapitalTotal, StringFormat={}{0:c2}}" FontSize="22" Foreground="Black" />
+                    </Label>
+                    <Label Content="MFE:" Margin="10,0,0,0" FontSize="22" Foreground="DimGray" />
+                    <Label>
+                        <TextBlock Text="{Binding Tracker.MaxFavorableExcursion, StringFormat={}{0:p2}}" FontSize="22" Foreground="Black" />
+                    </Label>
+                    <Label Content="MAE:" Margin="10,0,0,0" FontSize="22" Foreground="DimGray" />
+                    <Label>
+                        <TextBlock Text="{Binding Tracker.MaxAdverseExcursion, StringFormat={}{0:p2}}" FontSize="22" Foreground="Black" />
+                    </Label>
+                </StackPanel>
+
+                    <Label 
+                         Grid.Row="4" Grid.Column="2" 
+        	        Content="Open Positions"
+        	        HorizontalAlignment="Left"
+        	        VerticalAlignment="Top" FontSize="26" 
+        	        Foreground="DimGray" 
+                        />
+
+
+                <!--open positions from trade tracker here-->
+                <DataGrid Grid.Column="2" Grid.Row="5" IsReadOnly="True" ItemsSource="{Binding Tracker.OpenPositions}"
+                    Name="PositionsGrid" AutoGenerateColumns="False" VerticalAlignment="Stretch" Margin="5,0,0,0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Symbol" Binding="{Binding Path=Instrument.Symbol}" />
+                        <DataGridTemplateColumn Header="Type" CellTemplate="{StaticResource InstrumentAssetClassCellTemplate}" />
+                        <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Quantity" Binding="{Binding Path=Quantity}" />
+                        <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Avg Price" 
+                                            Binding="{Binding Path=CostBasis, StringFormat={}{0:c2}}" Width="85" />
+                        <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Last Price" 
+                                            Binding="{Binding Path=LastPrice, StringFormat={}{0:0.00####}}" />
+                        <DataGridTextColumn  Header="Unrealized $" ElementStyle="{StaticResource CellRightAlign}"  Binding="{Binding Path=UnrealizedPnL, StringFormat={}{0:c2}}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </TabItem>
+
+        <TabItem Header="Notes" Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="457*"/>
+                </Grid.RowDefinitions>
+                <ToolBarTray Grid.Row="0" RenderOptions.BitmapScalingMode="NearestNeighbor">
+                    <ToolBar Band="1" BandIndex="1">
+                        <Button  Name="CutBtn" Command="{x:Static ApplicationCommands.Cut}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/Cut.png" />
+                        </Button>
+                        <Button Name="CopyBtn" Command="{x:Static ApplicationCommands.Copy}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/Copy.png" />
+                        </Button>
+                        <Button Name="PasteBtn" Command="{x:Static ApplicationCommands.Paste}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/Paste.png"  />
+                        </Button>
+                        <Separator/>
+                        <Button  Name="UndoBtn" Command="{x:Static ApplicationCommands.Undo}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/Undo.png" />
+                        </Button>
+                        <Button Name="RedoBtn" Command="{x:Static ApplicationCommands.Redo}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/Redo.png" />
+                        </Button>
+                        <Separator/>
+                        <ToggleButton Name="BoldBtn" Command="{x:Static EditingCommands.ToggleBold}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/Bold.png" />
+                        </ToggleButton>
+                        <ToggleButton Name="ItalicBtn" Command="{x:Static EditingCommands.ToggleItalic}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/Italic.png" />
+                        </ToggleButton>
+                        <ToggleButton Name="UnderlineBtn" Command="{x:Static EditingCommands.ToggleUnderline}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/Underline.png" />
+                        </ToggleButton>
+                        <Separator/>
+                        <ComboBox x:Name="FontFamilyComboBox" IsEditable="True" Width="110"
+                                  SelectionChanged="FontFamily_SelectionChanged"/>
+                        <ComboBox x:Name="FontSizeComboBox" IsEditable="True" Width="45"
+                                  SelectionChanged="FontSize_SelectionChanged"/>
+                        <Separator/>
+                        <ToggleButton Name="LeftBtn" Command="{x:Static EditingCommands.AlignLeft}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/LeftJustify.png" />
+                        </ToggleButton>
+                        <ToggleButton Name="RightBtn" Command="{x:Static EditingCommands.AlignRight}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/RightJustify.png" />
+                        </ToggleButton>
+                        <ToggleButton  Name="CenterBtn" Command="{x:Static EditingCommands.AlignCenter}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/Centered.png" />
+                        </ToggleButton>
+                        <ToggleButton Name="JustifyBtn" Command="{x:Static EditingCommands.AlignJustify}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/Justify.png" />
+                        </ToggleButton>
+                        <Separator/>
+                        <ToggleButton Name="BulletsBtn" Command="{x:Static EditingCommands.ToggleBullets}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/Bullets.png" />
+                        </ToggleButton>
+                        <ToggleButton Name="NumberedBtn" Command="{x:Static EditingCommands.ToggleNumbering}" CommandTarget="{Binding ElementName=NotesTextBox}">
+                            <Image Source="../Resources/Numbered.png" />
+                        </ToggleButton>
+                    </ToolBar>
+                </ToolBarTray>
+                <RichTextBox Grid.Row="1" Name="NotesTextBox" SelectionChanged="RichTextBox_SelectionChanged" />
+            </Grid>
+        </TabItem>
+    </TabControl>
+
+</controls:MetroWindow>

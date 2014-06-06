@@ -1,0 +1,18 @@
+﻿<controls:MetroWindow x:Class="QPAS.SplashScreen"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        Title="SplashScreen" Height="300" Width="235"
+                      ResizeMode="NoResize"
+                      WindowStyle="None"
+                      WindowStartupLocation="CenterScreen"
+                      TitlebarHeight="0">
+    <Grid Background="#41B1E1">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="235"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Image Source="../Resources/icon_big.png" Grid.Row="0"  RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+        <controls:ProgressRing IsActive="True" Grid.Row="1" Foreground="White" />
+    </Grid>
+</controls:MetroWindow>

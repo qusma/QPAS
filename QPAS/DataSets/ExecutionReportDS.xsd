@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="ExecutionReportDS" targetNamespace="http://tempuri.org/ExecutionReportDS.xsd" xmlns:mstns="http://tempuri.org/ExecutionReportDS.xsd" xmlns="http://tempuri.org/ExecutionReportDS.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+  <xs:annotation>
+    <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+        <Connections />
+        <Tables />
+        <Sources />
+      </DataSource>
+    </xs:appinfo>
+  </xs:annotation>
+  <xs:element name="ExecutionReportDS" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="ExecutionReportDS" msprop:Generator_UserDSName="ExecutionReportDS">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="SlippageByVenue" msprop:Generator_TableClassName="SlippageByVenueDataTable" msprop:Generator_TableVarName="tableSlippageByVenue" msprop:Generator_TablePropName="SlippageByVenue" msprop:Generator_RowDeletingName="SlippageByVenueRowDeleting" msprop:Generator_RowChangingName="SlippageByVenueRowChanging" msprop:Generator_RowEvHandlerName="SlippageByVenueRowChangeEventHandler" msprop:Generator_RowDeletedName="SlippageByVenueRowDeleted" msprop:Generator_UserTableName="SlippageByVenue" msprop:Generator_RowChangedName="SlippageByVenueRowChanged" msprop:Generator_RowEvArgName="SlippageByVenueRowChangeEvent" msprop:Generator_RowClassName="SlippageByVenueRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Venue" msprop:Generator_ColumnVarNameInTable="columnVenue" msprop:Generator_ColumnPropNameInRow="Venue" msprop:Generator_ColumnPropNameInTable="VenueColumn" msprop:Generator_UserColumnName="Venue" type="xs:string" minOccurs="0" />
+              <xs:element name="AvgDollarSlippage" msprop:Generator_ColumnVarNameInTable="columnAvgDollarSlippage" msprop:Generator_ColumnPropNameInRow="AvgDollarSlippage" msprop:Generator_ColumnPropNameInTable="AvgDollarSlippageColumn" msprop:Generator_UserColumnName="AvgDollarSlippage" type="xs:decimal" minOccurs="0" />
+              <xs:element name="AvgDollarSlippageWeighted" msprop:Generator_ColumnVarNameInTable="columnAvgDollarSlippageWeighted" msprop:Generator_ColumnPropNameInRow="AvgDollarSlippageWeighted" msprop:Generator_ColumnPropNameInTable="AvgDollarSlippageWeightedColumn" msprop:Generator_UserColumnName="AvgDollarSlippageWeighted" type="xs:decimal" minOccurs="0" />
+              <xs:element name="AvgPctSlippage" msprop:Generator_ColumnVarNameInTable="columnAvgPctSlippage" msprop:Generator_ColumnPropNameInRow="AvgPctSlippage" msprop:Generator_ColumnPropNameInTable="AvgPctSlippageColumn" msprop:Generator_UserColumnName="AvgPctSlippage" type="xs:double" minOccurs="0" />
+              <xs:element name="AvgPctSlippageWeighted" msprop:Generator_ColumnVarNameInTable="columnAvgPctSlippageWeighted" msprop:Generator_ColumnPropNameInRow="AvgPctSlippageWeighted" msprop:Generator_ColumnPropNameInTable="AvgPctSlippageWeightedColumn" msprop:Generator_UserColumnName="AvgPctSlippageWeighted" type="xs:double" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="SlippageByOrderType" msprop:Generator_TableClassName="SlippageByOrderTypeDataTable" msprop:Generator_TableVarName="tableSlippageByOrderType" msprop:Generator_TablePropName="SlippageByOrderType" msprop:Generator_RowDeletingName="SlippageByOrderTypeRowDeleting" msprop:Generator_RowChangingName="SlippageByOrderTypeRowChanging" msprop:Generator_RowEvHandlerName="SlippageByOrderTypeRowChangeEventHandler" msprop:Generator_RowDeletedName="SlippageByOrderTypeRowDeleted" msprop:Generator_UserTableName="SlippageByOrderType" msprop:Generator_RowChangedName="SlippageByOrderTypeRowChanged" msprop:Generator_RowEvArgName="SlippageByOrderTypeRowChangeEvent" msprop:Generator_RowClassName="SlippageByOrderTypeRow">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="OrderType" msdata:Caption="Venue" msprop:Generator_ColumnVarNameInTable="columnOrderType" msprop:Generator_ColumnPropNameInRow="OrderType" msprop:Generator_ColumnPropNameInTable="OrderTypeColumn" msprop:Generator_UserColumnName="OrderType" type="xs:string" minOccurs="0" />
+              <xs:element name="AvgDollarSlippage" msprop:Generator_ColumnVarNameInTable="columnAvgDollarSlippage" msprop:Generator_ColumnPropNameInRow="AvgDollarSlippage" msprop:Generator_ColumnPropNameInTable="AvgDollarSlippageColumn" msprop:Generator_UserColumnName="AvgDollarSlippage" type="xs:decimal" minOccurs="0" />
+              <xs:element name="AvgDollarSlippageWeighted" msprop:Generator_ColumnVarNameInTable="columnAvgDollarSlippageWeighted" msprop:Generator_ColumnPropNameInRow="AvgDollarSlippageWeighted" msprop:Generator_ColumnPropNameInTable="AvgDollarSlippageWeightedColumn" msprop:Generator_UserColumnName="AvgDollarSlippageWeighted" type="xs:decimal" minOccurs="0" />
+              <xs:element name="AvgPctSlippage" msprop:Generator_ColumnVarNameInTable="columnAvgPctSlippage" msprop:Generator_ColumnPropNameInRow="AvgPctSlippage" msprop:Generator_ColumnPropNameInTable="AvgPctSlippageColumn" msprop:Generator_UserColumnName="AvgPctSlippage" type="xs:double" minOccurs="0" />
+              <xs:element name="AvgPctSlippageWeighted" msprop:Generator_ColumnVarNameInTable="columnAvgPctSlippageWeighted" msprop:Generator_ColumnPropNameInRow="AvgPctSlippageWeighted" msprop:Generator_ColumnPropNameInTable="AvgPctSlippageWeightedColumn" msprop:Generator_UserColumnName="AvgPctSlippageWeighted" type="xs:double" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

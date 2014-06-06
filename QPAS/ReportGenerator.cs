@@ -1,0 +1,1354 @@
+﻿// -----------------------------------------------------------------------
+// <copyright file="ReportGenerator.cs" company="">
+// Copyright 2014 Alexander Soffronow Pagonidis
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Globalization;
+using System.Linq;
+using EntityModel;
+using MahApps.Metro.Controls.Dialogs;
+using MathNet.Numerics.Statistics;
+using NLog;
+using QDMS;
+using QPAS.DataSets;
+using Instrument = EntityModel.Instrument;
+using Tag = EntityModel.Tag;
+
+namespace QPAS
+{
+    public class ReportGenerator : IDisposable
+    {
+        public DBContext Context;
+
+        private PortfolioTracker _totalPortfolioTracker;
+        
+        private filterReportDS ds;
+        private List<Trade> _trades;
+        private DateTime _todaysDate;
+
+        private List<DateTime> _datesInPeriod;
+        private List<decimal> _capitalInPeriod;
+
+        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+
+        /// <summary>
+        /// Key: strategy name
+        /// </summary>
+        private Dictionary<string, PortfolioTracker> _strategyPfolioTrackers;
+
+        //Equity Curves
+        private EquityCurve _benchmarkEC;
+
+        private Dictionary<DateTime, double> _benchmarkSeries;
+
+        private List<double> _benchmarkReturns;
+
+        private DateTime _minDate;
+        private DateTime _maxDate;
+
+        private ProgressDialogController _progressDialog;
+
+        public void Dispose()
+        {
+            if (ds != null)
+            {
+                ds.Dispose();
+                ds = null;
+            }
+            if (Context != null)
+            {
+                Context.Dispose();
+                Context = null;
+            }
+        }
+
+        /// <summary>
+        /// Set the progress dialog stuff.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="progress">Progress: from 0 to 100</param>
+        private void SetProgress(string message, double progress)
+        {
+            if (_progressDialog != null)
+            {
+                _progressDialog.SetMessage(message);
+                _progressDialog.SetProgress(progress / 100);
+            }
+        }
+
+        /// <summary>
+        /// Fills a filterReportDS DataSet with trading statistics.
+        /// </summary>
+        /// <param name="tradeIDs">The IDs of the trades that are to be included.</param>
+        /// <param name="settings"></param>
+        /// <param name="datasourcer"></param>
+        /// <param name="progressDialog"></param>
+        public filterReportDS TradeStats(List<int> tradeIDs, ReportSettings settings, IDataSourcer datasourcer, ProgressDialogController progressDialog = null)
+        {
+            _progressDialog = progressDialog;
+            ds = new filterReportDS();
+
+            SetProgress("Loading Data", 0);
+
+            Context = new DBContext();
+
+            //get all the relevant trades
+            _trades = new List<Trade>();
+            foreach (int id in tradeIDs)
+            {
+                _trades.Add(Context.Trades.Include(x => x.Orders).Include(x => x.CashTransactions).First(x => x.ID == id));
+            }
+
+            if (_trades.Count == 0) return ds;
+
+            _trades = _trades.OrderBy(x => x.DateOpened).ToList();
+            
+            //first + last relevant date
+            _minDate = _trades.Min(x => x.DateOpened);
+            //if any trades are still open, last date is the last date with an equity summary
+            _maxDate = _trades.Any(x => x.Open)
+                ? Context.EquitySummaries.Max(x => x.Date)
+                : _trades.Max(x => x.DateClosed != null ? x.DateClosed.Value : x.DateOpened);
+
+            //grab dates in period and total capital at each of them
+            _datesInPeriod = Context.EquitySummaries.Where(x => x.Date >= _minDate.Date && x.Date <= _maxDate.Date).OrderBy(x => x.Date).Select(x => x.Date).ToList();
+            _capitalInPeriod = Context.EquitySummaries.Where(x => x.Date >= _minDate.Date && x.Date <= _maxDate.Date).OrderBy(x => x.Date).Select(x => x.Total).ToList();
+
+            if (_datesInPeriod.Count == 0)
+            {
+                throw new Exception("No equity summaries found for the selected period");
+            }
+
+            //grab the relevant instrument data...
+            Dictionary<int, TimeSeries> data = AcquireInstrumentData(datasourcer);
+
+            //Grab FX data
+            var fxData = AcquireFXData();
+
+            //also get the benchmark values for the period
+            if (settings.Benchmark != null)
+            {
+                _benchmarkEC = BenchmarkBuilder.GetBenchmarkReturns(settings.Benchmark.ID, Context, _datesInPeriod, datasourcer, out _benchmarkSeries, out _benchmarkReturns);
+            }
+
+            //start up the portfolio trackers
+            _totalPortfolioTracker = new PortfolioTracker(data, fxData, _trades, "Total Pfolio");
+
+            //tracker per-strategy
+            var distinctStrats = _trades.Select(x => x.Strategy).Distinct().ToList();
+            _strategyPfolioTrackers = distinctStrats
+                .ToDictionary(
+                    x => x.Name,
+                    x => new PortfolioTracker(data, fxData, _trades.Where(t => t.StrategyID == x.ID).ToList(), x.Name));
+
+
+            //then we do the calcs
+            //the capital in use in one day is calculated as the capital that was in use at the end of the previous day
+            //plus any positions opened today before an arbitrary cut-off point (for now I'll use 15:40:00 ET)
+            //anything before that is considered to be an intraday position and should have this day's returns included in the calculations
+            //anything after that is a position considered to be initiated "at the close" and thus not included in today's returns calculations
+            TimeSpan cutoffTime = new TimeSpan(15, 40, 0);
+
+            //capture data to be stored here
+            var instrumentUpGross = new Dictionary<string, double>();
+            var instrumentDnGross = new Dictionary<string, double>();
+            var instrumentUpCaptured = new Dictionary<string, double>();
+            var instrumentDnCaptured = new Dictionary<string, double>();
+            var instrumentUpLost = new Dictionary<string, double>();
+            var instrumentDnLost = new Dictionary<string, double>();
+
+
+            //then we start doing the actual work..
+            //now load all instrument transactions from the database in the right order
+            for (int i = 0; i < _datesInPeriod.Count; i++)
+            {
+                if (i % 10 == 0)
+                {
+                    SetProgress("Simulating Trades", 20 + ((double)i / _datesInPeriod.Count) * 75);
+                }
+
+                _todaysDate = _datesInPeriod[i];
+                decimal todaysTotalCapital = _capitalInPeriod[Math.Max(0, i-1)]; 
+
+                //send all the timeseries to the right date
+                foreach (TimeSeries t in data.Values)
+                {
+                    t.ProgressTo(_todaysDate);
+                }
+
+                foreach (TimeSeries t in fxData.Values)
+                {
+                    t.ProgressTo(_todaysDate);
+                }
+
+                //then add all the day's orders, cash transactions, etc.
+                _totalPortfolioTracker.ProcessItemsAt(_todaysDate);
+                foreach (PortfolioTracker pt in _strategyPfolioTrackers.Values)
+                {
+                    pt.ProcessItemsAt(_todaysDate);
+                }      
+
+                //update portfolio trackers at the end of the day, calculating curves, etc.
+                _totalPortfolioTracker.OnDayClose(_todaysDate, todaysTotalCapital);
+                foreach(PortfolioTracker pt in _strategyPfolioTrackers.Values)
+                {
+                    pt.OnDayClose(_todaysDate, todaysTotalCapital);
+                }
+
+                AddDollarEquityCurveRow();
+
+                //daily return on total capital equity curve
+                AddDailyEquityCurvePctOnTotalCapitalRow();
+
+                //daily return on allocated capital equity curve
+                AddROACEquityCurveRow();
+            } ///////////////////END OF MAIN LOOP!
+
+            SetProgress("Calculating Statistics", 95);
+
+            //generate stats and stuff
+            ProcessResults(settings);
+
+            Context.Dispose();   
+
+            return ds;
+        }
+
+        private Dictionary<int, TimeSeries> AcquireFXData()
+        {
+            List<int> fxIDs = GetNeededFxIDs().ToList();
+
+            var fxData = new Dictionary<int, TimeSeries>();
+            int counter = 0;
+            foreach (int id in fxIDs)
+            {
+                if (id == 1) continue;
+
+                int id1 = id;
+                fxData.Add(id, TimeSeriesFromFXRates(Context.FXRates.Where(x => x.FromCurrencyID == id1).OrderBy(x => x.Date)));
+
+                SetProgress(string.Format("Loading FX Data ({0}/{1})", counter, fxIDs.Count),
+                    15 + 5 * ((double)counter / (fxIDs.Count)));
+                counter++;
+            }
+
+            return fxData;
+        }
+
+        private Dictionary<int, TimeSeries> AcquireInstrumentData(IDataSourcer datasourcer)
+        {
+            //determine what dates we need each instrument for
+            //Instrument id - from date/to date
+            Dictionary<Instrument, KeyValuePair<DateTime, DateTime>> neededDates = GetNeededDates();
+
+            var data = new Dictionary<int, TimeSeries>();
+            int counter = 0;
+            foreach (var kvp in neededDates)
+            {
+                Instrument instrument = kvp.Key;
+                DateTime startingDate = kvp.Value.Key;
+                DateTime endingDate = kvp.Value.Value;
+
+                var series = datasourcer.GetData(instrument, startingDate, endingDate);
+                if (series == null || series.Count == 0)
+                {
+                    //couldn't find data at qdms, use prior period positions
+                    var pos = Context.PriorPositions.Where(x => x.InstrumentID == kvp.Key.ID).OrderBy(x => x.Date).ToList();
+                    data.Add(kvp.Key.ID, TimeSeriesFromPriorPositions(pos));
+                    _logger.Log(LogLevel.Warn, string.Format("Data for instrument {0} ({1}) not found from QDMS. Using prior positions instead.", kvp.Key.Symbol, kvp.Key.AssetCategory));
+                }
+                else
+                {
+                    data.Add(kvp.Key.ID, new TimeSeries(series));
+                }
+
+                if (counter % 5 == 0)
+                {
+                    SetProgress(string.Format("Loading Data ({0}/{1})", counter, neededDates.Count),
+                        15 * ((double)counter / (neededDates.Count)));
+                }
+                counter++;
+            }
+
+            return data;
+        }
+
+        /// <summary>
+        /// Takes the data generated, possibly transoforms it, and sticks it into various datatables.
+        /// </summary>
+        private void ProcessResults(ReportSettings settings)
+        {
+            //capital usage
+            DoCapitalUsage();
+
+            //add the monthly returns to the datatables and also calculate the total annual returns
+            AddMonthlyPnLRows();
+            AddMonthlyROACRows();
+            AddMonthlyROTCRowS();
+
+            //close to close pnl curve
+            DoCloseToClosePnLCurve();
+
+            //cash transaction type PnL
+            DoCashTransactionByTypeRows();
+
+            //Trade stats
+            DoTradeStats();
+            DoTradeStatsByStrategy();
+
+            //MAE/MFE
+            DoMAEMFE();
+
+            //generate the daily ROAC and ROTC stats, also benchmark stats
+            DoPortfolioStats();
+
+            //PnLByInstrument
+            DoPnLByInstrument(_totalPortfolioTracker.Positions.Values);
+
+            //instrument ROAC
+            AddInstrumentROACRows();
+
+            //Profit/loss by strategy
+            AddStrategyPLCurves();
+
+            //Capital Usage by strategy
+            AddCapitalUsageByStrategy();
+
+            //ROAC by strategy
+            DoStrategyROACCurves();
+
+            //strategy ROAC covariance matrix
+            DoStrategyROACCovMatrix();
+
+            //up/dn capture stats
+
+            //var captureDR = ds.captureStats.NewcaptureStatsRow();
+            //captureDR.ticker = symbol;
+            //captureDR.upsideCaptured = instrumentUpCaptured[symbol] / grossUp;
+            //captureDR.upsideLost = instrumentUpLost[symbol] / grossUp;
+            //captureDR.grossUpside = grossUp;
+            //captureDR.upsideMissed = (grossUp - instrumentUpCaptured[symbol] - instrumentUpLost[symbol]) / grossUp;
+
+            //captureDR.downsideCaptured = instrumentDnCaptured[symbol] / grossDn;
+            //captureDR.downsideLost = instrumentDnLost[symbol] / grossDn;
+            //captureDR.grossDownside = grossDn;
+            //captureDR.downsideMissed = (grossDn - instrumentDnCaptured[symbol] - instrumentDnLost[symbol]) / grossDn;
+
+            //ds.captureStats.AddcaptureStatsRow(captureDR);
+
+            //trade result histograms
+            AddTradeResultHistogramRows();
+
+            //holding period histogram
+            AddHoldingPeriodHistogramRows();
+
+            //daily return histograms
+            AddDailyReturnHistogramRows();
+
+            //trade size vs % return scatter plot
+            AddTradeSizeVsRetPlotrows();
+
+            //trade length vs % return scatter plot
+            AddTradeLengthVsRetPlotRows();
+
+            //benchmarking stats
+            if (_benchmarkReturns != null)
+            {
+                DoBenchmarkStats(settings.ReturnsToBenchmark);
+            }
+
+            //rolling alpha/beta
+            if (_benchmarkReturns != null)
+            {
+                DoRollingAlphaBeta(settings.ReturnsToBenchmark);
+            }
+
+            //Profit/loss by tag
+            DoPLByTag();
+
+            //Monte Carlo
+            DoMonteCarlo(settings);
+
+            //Value at Risk
+            DoValueAtRisk(settings);
+
+            //Expected shortfall
+            DoExpectedShortfall(settings);
+
+            //average cumulative daily trade rets
+            DoAverageCumulativeTradeReturns();
+
+            //acf and pacf
+
+        }
+
+        private void DoStrategyROACCurves()
+        {
+            Dictionary<string, EquityCurve> strategyRoacECs =
+                _strategyPfolioTrackers.ToDictionary(x => x.Key, x => x.Value.RoacEquityCurve);
+
+            if(strategyRoacECs.Count == 0) return;
+
+            foreach (string stratName in strategyRoacECs.Keys)
+            {
+                ds.StrategyROAC.Columns.Add(stratName, typeof(double));
+            }
+
+            for (int i = 0; i < _datesInPeriod.Count; i++)
+            {
+                var dr = ds.StrategyROAC.NewRow();
+
+                dr["Date"] = _datesInPeriod[i];foreach(var kvp in strategyRoacECs)
+                {
+                    dr[kvp.Key] = kvp.Value.Equity[i + 1] - 1;
+                }
+
+                ds.StrategyROAC.Rows.Add(dr);
+            }
+        }
+
+        private void DoStrategyROACCovMatrix()
+        {
+            Dictionary<string, EquityCurve> strategyRoacECs =
+                _strategyPfolioTrackers.ToDictionary(x => x.Key, x => x.Value.RoacEquityCurve);
+
+            foreach (string stratName in strategyRoacECs.Keys)
+            {
+                ds.StrategyCovMatrix.Columns.Add(stratName, typeof(double));
+            }
+
+            Dictionary<KeyValuePair<string, string>, double> correlations = new Dictionary<KeyValuePair<string, string>, double>();
+
+            foreach (string stratName in strategyRoacECs.Keys)
+            {
+                foreach (string stratName2 in strategyRoacECs.Keys)
+                {
+                    var key1 = new KeyValuePair<string, string>(stratName, stratName2);
+                    if (correlations.ContainsKey(key1)) continue;
+
+                    var key2 = new KeyValuePair<string, string>(stratName2, stratName);
+
+                    double corr = Correlation.Pearson(strategyRoacECs[stratName].Returns, strategyRoacECs[stratName2].Returns);
+                    correlations.Add(key1, corr);
+
+                    if(stratName != stratName2)
+                        correlations.Add(key2, corr);
+                }
+            }
+
+            foreach (string stratName in strategyRoacECs.Keys)
+            {
+                var dr = ds.StrategyCovMatrix.NewRow();
+                dr["Name"] = stratName;
+                foreach(string stratName2 in strategyRoacECs.Keys)
+                {
+                    dr[stratName2] = correlations[new KeyValuePair<string, string>(stratName, stratName2)];
+                }
+
+                ds.StrategyCovMatrix.Rows.Add(dr);
+            }
+        }
+
+        private void DoPortfolioStats()
+        {
+            int daysInPeriod = (int)(_datesInPeriod.Last() - _datesInPeriod.First()).TotalDays;
+            Dictionary<string, string> roacStats = PerformanceMeasurement.EquityCurveStats(_totalPortfolioTracker.RoacEquityCurve, daysInPeriod);
+            Dictionary<string, string> rotcStats = PerformanceMeasurement.EquityCurveStats(_totalPortfolioTracker.RotcEquityCurve, daysInPeriod);
+
+            Dictionary<string, string> benchmarkStats = null;
+            if (_benchmarkEC != null)
+            {
+                benchmarkStats = PerformanceMeasurement.EquityCurveStats(_benchmarkEC, daysInPeriod);
+            }
+
+            foreach (var kvp in roacStats)
+            {
+                var dr = ds.PortfolioStats.NewPortfolioStatsRow();
+                dr.stat = kvp.Key;
+                dr.roac = kvp.Value;
+                dr.rotc = rotcStats[kvp.Key];
+                if (benchmarkStats != null)
+                {
+                    dr.benchmark = benchmarkStats[kvp.Key];
+                }
+                ds.PortfolioStats.AddPortfolioStatsRow(dr);
+            }
+        }
+
+        private void AddCapitalUsageByStrategy()
+        {
+            Dictionary<string, List<decimal>> strategyCapitalUsage = 
+                _strategyPfolioTrackers.ToDictionary(x => x.Key, x => x.Value.Capital.Gross);
+
+            foreach (var kvp in strategyCapitalUsage)
+            {
+                ds.CapitalUsageByStrategy.Columns.Add(kvp.Key, typeof(double));
+                ds.RelativeCapitalUsageByStrategy.Columns.Add(kvp.Key, typeof(double));
+            }
+
+            var totalAllocation = new List<decimal>();
+
+            for (int i = 0; i < _datesInPeriod.Count; i++)
+            {
+                totalAllocation.Add(0);
+
+                var dr = ds.CapitalUsageByStrategy.NewRow();
+                dr["date"] = _datesInPeriod[i];
+                foreach (var kvp in strategyCapitalUsage)
+                {
+                    dr[kvp.Key] = (double)kvp.Value[i];
+                    totalAllocation[i] += kvp.Value[i];
+                }
+                ds.CapitalUsageByStrategy.Rows.Add(dr);
+            }
+
+            for (int i = 0; i < _datesInPeriod.Count; i++)
+            {
+                var dr = ds.RelativeCapitalUsageByStrategy.NewRow();
+                dr["date"] = _datesInPeriod[i];
+                foreach (var kvp in strategyCapitalUsage)
+                {
+                    if (totalAllocation[i] == 0)
+                    {
+                        dr[kvp.Key] = 0;
+                    }
+                    else
+                    {
+                        dr[kvp.Key] = (double)(kvp.Value[i] / totalAllocation[i]);
+                    }
+                }
+                ds.RelativeCapitalUsageByStrategy.Rows.Add(dr);
+            }
+        }
+
+        private void AddStrategyPLCurves()
+        {
+            foreach (var kvp in _strategyPfolioTrackers)
+            {
+                ds.StrategyPLCurves.Columns.Add(kvp.Key, typeof(double));
+            }
+
+            for (int i = 0; i < _datesInPeriod.Count; i++)
+            {
+                var dr = ds.StrategyPLCurves.NewRow();
+                dr["date"] = _datesInPeriod[i];
+                foreach (KeyValuePair<string, PortfolioTracker> kvp in _strategyPfolioTrackers)
+                {
+                    dr[kvp.Key] = kvp.Value.ProfitLossEquityCurve.Equity[i + 1];
+                }
+                ds.StrategyPLCurves.Rows.Add(dr);
+            }
+        }
+
+        private void DoPLByTag()
+        {
+            var distinctTags = _trades.Where(x => x.Tags != null).SelectMany(x => x.Tags).Distinct().OrderBy(x => x.Name).ToList();
+
+            //per tag
+            foreach (Tag tag in distinctTags)
+            {
+                var tagTrades = _trades.Where(x => x.Tags != null && x.Tags.Contains(tag)).ToList();
+                var dr = ds.PLByTag.NewPLByTagRow();
+                dr.tag = tag.Name;
+                dr.avgPL = (double)tagTrades.Average(x => x.ResultDollars + x.UnrealizedResultDollars);
+                dr.totalPL = (double)tagTrades.Sum(x => x.ResultDollars + x.UnrealizedResultDollars);
+                dr.count = tagTrades.Count();
+                ds.PLByTag.AddPLByTagRow(dr);
+            }
+
+            //tag combos -- we do them up to combinations of 3 tags
+            var combinations = new List<List<Tag>>();
+            combinations.AddRange(distinctTags.Combinations(2));
+            combinations.AddRange(distinctTags.Combinations(3));
+
+            foreach (List<Tag> combo in combinations)
+            {
+                var tagTrades = _trades.Where(x => x.Tags != null && x.Tags.Intersect(combo).Count() == combo.Count).ToList();
+
+                if(tagTrades.Count == 0) continue;
+
+                var dr = ds.PLByTagCombo.NewPLByTagComboRow();
+                dr.tags = string.Join(", ", combo.Select(x => x.Name));
+                dr.averagePL = (double)tagTrades.Average(x => x.ResultDollars + x.UnrealizedResultDollars);
+                dr.totalPL = (double)tagTrades.Sum(x => x.ResultDollars + x.UnrealizedResultDollars);
+                dr.count = tagTrades.Count();
+                ds.PLByTagCombo.AddPLByTagComboRow(dr);
+            }
+        }
+
+        private void DoAverageCumulativeTradeReturns()
+        {
+            var trackers = _totalPortfolioTracker.TradeTrackers.Values.ToList();
+
+            int maxLength = trackers.Max(x => x.CumulativeReturns.Count);
+            var cumRets = trackers.Select(x => x.CumulativeReturns.Values);
+            var winnerCumRets = trackers.Where(x => x.Trade.ResultDollars + x.Trade.UnrealizedResultDollars > 0).Select(x => x.CumulativeReturns.Values);
+            var loserCumRets = trackers.Where(x => x.Trade.ResultDollars + x.Trade.UnrealizedResultDollars <= 0).Select(x => x.CumulativeReturns.Values);
+
+            double allValue = 1, winnerValue = 1, loserValue = 1;
+
+            for (int i = 0; i < maxLength; i++)
+            {
+                int allCount = cumRets.Count(x => x.Count > i);
+
+                double allRet = cumRets.Where(x => x.Count > i).Average(x => x[i] / (i == 0 ? 1 : x[i-1]));
+                allValue *= allRet;
+
+                int winnersCount = winnerCumRets.Count(x => x.Count > i);
+
+                int losersCount = loserCumRets.Count(x => x.Count > i);
+
+                var dr = ds.AverageDailyRets.NewAverageDailyRetsRow();
+                dr.day = i;
+                dr.allRets = allValue - 1;
+                dr.allCount = allCount;
+                dr.winnersCount = winnersCount;
+                if (winnerCumRets.Count(x => x.Count > i) > 0)
+                {
+                    double ret = winnerCumRets.Where(x => x.Count > i).Average(x => x[i] / (i == 0 ? 1 : x[i-1]));
+                    winnerValue *= ret;
+                    dr.winnersRets = winnerValue - 1;
+                }
+                else
+                {
+                    dr["winnersRets"] = DBNull.Value;
+                }
+                dr.losersCount = losersCount;
+                if (loserCumRets.Count(x => x.Count > i) > 0)
+                {
+                    double ret = loserCumRets.Where(x => x.Count > i).Average(x => x[i] / (i == 0 ? 1 : x[i-1]));
+                    loserValue *= ret;
+                    dr.losersRets = loserValue - 1;
+                }
+                else
+                {
+                    dr["losersRets"] = DBNull.Value;
+                }
+                ds.AverageDailyRets.AddAverageDailyRetsRow(dr);
+            }
+        }
+
+        private void DoMAEMFE()
+        {
+            foreach (TradeTracker t in _totalPortfolioTracker.TradeTrackers.Values)
+            {
+                var maeRow = ds.TradeMAE.NewTradeMAERow();
+                maeRow.ret = (t.Trade.ResultPct + t.Trade.UnrealizedResultPct);
+                maeRow.absReturn = Math.Abs(maeRow.ret);
+                maeRow.mae = Math.Abs(t.MaxAdverseExcursion);
+                ds.TradeMAE.AddTradeMAERow(maeRow);
+
+                var mfeRow = ds.TradeMFE.NewTradeMFERow();
+                mfeRow.ret = (t.Trade.ResultPct + t.Trade.UnrealizedResultPct);
+                mfeRow.absReturn = Math.Abs(mfeRow.ret);
+                mfeRow.mfe = t.MaxFavorableExcursion;
+                ds.TradeMFE.AddTradeMFERow(mfeRow);
+            }
+        }
+
+        private TimeSeries TimeSeriesFromFXRates(IEnumerable<FXRate> rates)
+        {
+            var bars = new List<OHLCBar>();
+            foreach (var rate in rates)
+            {
+                var bar = new OHLCBar
+                {
+                    Open = rate.Rate,
+                    High = rate.Rate,
+                    Low = rate.Rate,
+                    Close = rate.Rate,
+                    AdjOpen = rate.Rate,
+                    AdjHigh = rate.Rate,
+                    AdjLow = rate.Rate,
+                    AdjClose = rate.Rate,
+                    DT = rate.Date
+                };
+                bars.Add(bar);
+            }
+
+            return new TimeSeries(bars);
+        }
+
+        private IEnumerable<int> GetNeededFxIDs()
+        {
+            var currencyIDs =
+                _trades
+                .Where(x => x.Orders != null)
+                .SelectMany(x => x.Orders)
+                .Select(x => x.CurrencyID)
+                .ToList();
+
+            currencyIDs
+                .AddRange(
+                    _trades
+                    .Where(x => x.CashTransactions != null)
+                    .SelectMany(x => x.CashTransactions)
+                    .Select(x => x.CurrencyID));
+
+            currencyIDs
+                .AddRange(
+                    _trades.Where(x => x.FXTransactions != null)
+                    .SelectMany(x => x.FXTransactions)
+                    .Select(x => x.FXCurrencyID));
+
+            return currencyIDs.Distinct().ToList();
+        }
+
+        private void DoValueAtRisk(ReportSettings settings)
+        {
+            QLNet.RiskStatistics riskStats = new QLNet.RiskStatistics();
+            var weights = new List<double>();
+            var varReturns = new List<double>(); //transform the returns...
+            var inputRets = 
+                settings.VaRReturnType == ReturnType.ROAC 
+                    ? _totalPortfolioTracker.RoacEquityCurve.Returns
+                    : _totalPortfolioTracker.RotcEquityCurve.Returns;
+
+            for (int i = 0; i < inputRets.Count - settings.VaRDays; i++)
+            {
+                varReturns.Add(inputRets.GetRange(i, settings.VaRDays).Aggregate(1.0, (x, y) => x * (1 + y)));
+            }
+            varReturns = varReturns.OrderBy(x => x).ToList();
+
+            for (int i = 0; i < varReturns.Count; i++)
+            {
+                weights.Add(1);
+            }
+            riskStats.addSequence(varReturns.Select(x => x - 1).ToList(), weights);
+
+            List<double> varLevels = new List<double> { 0.1, 0.05, 0.01, 0.004 };
+            foreach (double varLevel in varLevels)
+            {
+                var varDR = ds.ValueAtRisk.NewValueAtRiskRow();
+                varDR.level = varLevel;
+                varDR.var = -riskStats.valueAtRisk(1 - varLevel);
+                varDR.bootstrapVaR = varReturns.Percentile(varLevel, false) - 1;
+                ds.ValueAtRisk.AddValueAtRiskRow(varDR);
+            }
+        }
+
+        private void DoExpectedShortfall(ReportSettings settings)
+        {
+            QLNet.RiskStatistics riskStats = new QLNet.RiskStatistics();
+            var weights = new List<double>();
+            var esReturns = new List<double>(); //transform the returns...
+            var inputRets =
+                settings.VaRReturnType == ReturnType.ROAC
+                    ? _totalPortfolioTracker.RoacEquityCurve.Returns
+                    : _totalPortfolioTracker.RotcEquityCurve.Returns;
+
+            for (int i = 0; i < inputRets.Count - settings.VaRDays; i++)
+            {
+                esReturns.Add(inputRets.GetRange(i, settings.VaRDays).Aggregate(1.0, (x, y) => x * (1 + y)));
+            }
+            esReturns = esReturns.OrderBy(x => x).ToList();
+
+            for (int i = 0; i < esReturns.Count; i++)
+            {
+                weights.Add(1);
+            }
+            riskStats.addSequence(esReturns.Select(x => x - 1).ToList(), weights);
+
+            List<double> varLevels = new List<double> { 0.1, 0.05, 0.01, 0.004 };
+            foreach (double varLevel in varLevels)
+            {
+                var dr = ds.ExpectedShortfall.NewExpectedShortfallRow();
+                dr.level = varLevel;
+                try
+                {
+                    dr.es = -riskStats.expectedShortfall(1 - varLevel);
+                    double cutoff = esReturns.Percentile(varLevel, false);
+                    dr.bootstrapES = esReturns.Where(x => x < cutoff).Average() - 1;
+                }
+                catch (Exception ex)
+                {
+                    dr.es = 0;
+                    dr.bootstrapES = 0;
+                    _logger.Log(LogLevel.Error, "Could not calculate ES, error: " + ex.Message);
+                }
+                ds.ExpectedShortfall.AddExpectedShortfallRow(dr);
+            }
+        }
+
+        private void DoMonteCarlo(ReportSettings settings)
+        {
+            List<List<double>> equityCurves;
+            List<List<double>> drawdownCurves;
+
+            MonteCarlo.Bootstrap(
+                settings.MCPeriods,
+                settings.MCRuns,
+                settings.MCClusterSize,
+                settings.MCWithReplacement,
+                settings.MCReturnType == ReturnType.ROAC 
+                    ? _totalPortfolioTracker.RoacEquityCurve.Returns
+                    : _totalPortfolioTracker.RotcEquityCurve.Returns,
+                out equityCurves,
+                out drawdownCurves);
+
+            if (equityCurves.Count == 0) return;
+
+            //do the equity curves...
+            for (int i = 0; i < settings.MCPeriods; i++)
+            {
+                int i1 = i;
+                var mceDR = ds.MCEquity.NewMCEquityRow();
+                var dds = equityCurves.Select(x => x[i1]).ToList();
+                mceDR.count = i;
+
+                dds = dds.OrderBy(x => x).ToList();
+
+                mceDR.wideHigh = dds[(int)Math.Round(.95 * dds.Count())];
+                mceDR.wideLow = dds[(int)Math.Round(.05 * dds.Count())];
+                mceDR.narrowHigh = dds[(int)Math.Round(.75 * dds.Count())];
+                mceDR.narrowLow = dds[(int)Math.Round(.25 * dds.Count())];
+
+                ds.MCEquity.Rows.Add(mceDR);
+            }
+
+            //and now the drawdowns...
+            var maxDDs = drawdownCurves.Select(x => x.Min()).ToList();
+
+            //we want a cumulative line and a histogram...to it per % point
+            double startingPct = 0;
+            double endingPct = 0;
+            if (maxDDs.Count > 0)
+            {
+                startingPct = Math.Round(maxDDs.Max(), 3);
+                endingPct = Math.Round(maxDDs.Min(), 3);
+            }
+            int totalCount = 0;
+            for (double i = startingPct; i >= endingPct; i -= 0.0025)
+            {
+                var mcddDR = ds.MCDrawdowns.NewMCDrawdownsRow();
+
+                int pointCount = maxDDs.Count(x => x >= i && x < i + 0.0025);
+                totalCount += pointCount;
+                mcddDR.ddLevel = i;
+                mcddDR.point = pointCount;
+                mcddDR.cumulative = (double)totalCount / settings.MCRuns;
+                ds.MCDrawdowns.Rows.Add(mcddDR);
+            }
+
+            var sharpes = new List<double>();
+            var mars = new List<double>();
+            var kRatios = new List<double>();
+
+            //now the ratios
+            for (int i = 0; i < equityCurves.Count; i++)
+            {
+                double sharpe, mar, kRatio;
+                PerformanceMeasurement.GetRatios(equityCurves[i], drawdownCurves[i], (int)(settings.MCPeriods * (365.0 / 252)), out sharpe, out mar, out kRatio);
+                sharpes.Add(sharpe);
+                mars.Add(mar);
+                kRatios.Add(kRatio);
+            }
+
+            sharpes = sharpes.OrderBy(x => x).ToList();
+            mars = mars.OrderBy(x => x).ToList();
+            kRatios = kRatios.OrderBy(x => x).ToList();
+
+            for (int i = 0; i < equityCurves.Count; i++)
+            {
+                var ratiosDR = ds.MCRatios.NewMCRatiosRow();
+                ratiosDR.Sharpe = sharpes[i];
+                ratiosDR.SharpeCumulativePct = (double)i / equityCurves.Count;
+                ratiosDR.MAR = mars[i];
+                ratiosDR.MARCumulativePct = (double)i / equityCurves.Count;
+                ratiosDR.KRatio = kRatios[i];
+                ratiosDR.KRatioCumulativePct = (double)i / equityCurves.Count;
+                ds.MCRatios.AddMCRatiosRow(ratiosDR);
+            }
+        }
+
+        private void DoRollingAlphaBeta(ReturnType benchmarkingReturnsSource)
+        {
+            const int rollingPeriod = 100; //possibly allow changes to this...
+
+            double[] b;
+            var benchmarkingReturns =
+                benchmarkingReturnsSource == ReturnType.ROAC
+                    ? _totalPortfolioTracker.RoacEquityCurve.Returns
+                    : _totalPortfolioTracker.RotcEquityCurve.Returns;
+
+            if (_benchmarkEC.Returns.Count > rollingPeriod)
+            {
+                //start at 1 because the first item is just an empty data point from the EquityCurve
+                for (int i = 1; i < _benchmarkEC.Returns.Count - rollingPeriod - 1; i++)
+                {
+                    var dr = ds.rollingAlphaBeta.NewrollingAlphaBetaRow();
+                    //do regression of the returns on the benchmark to get alpha/beta/r^2 for the period
+                    double rsquared;
+                    double dailyRf = Properties.Settings.Default.assumedInterestRate / 252;
+
+                    Utils.MLR(benchmarkingReturns.GetRange(i, rollingPeriod).Select(x => x - dailyRf).ToList(),
+                                    new List<List<double>> { _benchmarkEC.Returns.GetRange(i, rollingPeriod).Select(x => x - dailyRf).ToList() },
+                                    out b,
+                                    out rsquared);
+                    double alpha = b[0];
+                    double beta = b[1];
+
+                    dr.date = _datesInPeriod[rollingPeriod + i];
+                    dr.alpha = Math.Pow(1 + alpha, 252) - 1; //annualization, currently used method may overstate alpha due to ignoring volatility
+                    dr.beta = beta;
+                    ds.rollingAlphaBeta.Rows.Add(dr);
+                }
+            }
+        }
+
+        private void DoBenchmarkStats(ReturnType benchmarkingReturnsSource)
+        {
+            var benchmarkingReturns =
+                (benchmarkingReturnsSource == ReturnType.ROAC
+                    ? _totalPortfolioTracker.RoacEquityCurve.Returns
+                    : _totalPortfolioTracker.RotcEquityCurve.Returns).Skip(1); //skip 1 because 1st data point is empty, from EquityCurve
+
+            double[] b;
+            double rsq;
+            double dailyRf = Properties.Settings.Default.assumedInterestRate / 252;
+
+            Utils.MLR(benchmarkingReturns.Select(x => x - dailyRf).ToList(),
+                        new List<List<double>> { _benchmarkReturns.Select(x => x - 1 - dailyRf).ToList() },
+                        out b,
+                        out rsq);
+
+            double alpha = b[0];
+            double beta = b[1];
+
+            var dr = ds.benchmarkStats.NewbenchmarkStatsRow();
+            dr.correlation = Correlation.Pearson(benchmarkingReturns, _benchmarkReturns);
+            dr.alpha = Math.Pow(1 + alpha, 252) - 1; //annualization, currently used method may overstate alpha due to ignoring volatility
+            dr.beta = beta;
+            dr.rsquare = rsq;
+            ds.benchmarkStats.Rows.Add(dr);
+        }
+
+        private void AddTradeLengthVsRetPlotRows()
+        {
+            foreach (Trade t in _trades)
+            {
+                var dr = ds.tradeLengthsVsReturns.NewtradeLengthsVsReturnsRow();
+                if (!t.Open && t.DateClosed.HasValue)
+                {
+                    dr.length = (t.DateClosed.Value - t.DateOpened).TotalDays;
+                    dr.ret = t.ResultPct;
+                    ds.tradeLengthsVsReturns.Rows.Add(dr);
+                }
+            }
+        }
+
+        private void AddTradeSizeVsRetPlotrows()
+        {
+            var es = Context
+                    .EquitySummaries
+                    .OrderByDescending(x => x.Date)
+                    .ToList();
+            foreach (Trade t in _trades)
+            {
+                var dr = ds.positionSizesVsReturns.NewpositionSizesVsReturnsRow();
+
+                var closestEquitySummary = es.FirstOrDefault(x => x.Date <= t.DateOpened);
+                if(closestEquitySummary == null) continue;
+
+                decimal accountCapital = closestEquitySummary.Total;
+                if (accountCapital == 0) return;
+                dr.size = (double)(t.CapitalTotal / accountCapital);
+                dr.ret = t.ResultPct;
+                ds.positionSizesVsReturns.Rows.Add(dr);
+            }
+        }
+
+        private void AddDailyReturnHistogramRows()
+        {
+            var returnsOnAllocatedCapital = _totalPortfolioTracker.RoacEquityCurve.Returns;
+            if (returnsOnAllocatedCapital.Any(x => Math.Abs(x) > 0.000001))
+            {
+                var dailyPctRetHistogram = new Histogram(returnsOnAllocatedCapital.Where(x => Math.Abs(x) > 0.000001).Select(x => x), 10);
+                for (int i = 0; i < dailyPctRetHistogram.BucketCount; i++)
+                {
+                    var dprbDR = ds.dailyPctRetBuckets.NewdailyPctRetBucketsRow();
+                    dprbDR.limits = string.Format("{0} - {1}",
+                        dailyPctRetHistogram[i].LowerBound.ToString("p2"),
+                        dailyPctRetHistogram[i].UpperBound.ToString("p2"));
+                    dprbDR.count = (int)(dailyPctRetHistogram[i].Count + 0.5);
+                    ds.dailyPctRetBuckets.Rows.Add(dprbDR);
+                }
+            }
+
+            var returnsOnTotalCapital = _totalPortfolioTracker.RotcEquityCurve.Returns;
+            if (returnsOnTotalCapital.Count(x => Math.Abs(x) > 0.000001) > 1)
+            {
+                var dailyPctRetHistogram = new Histogram(returnsOnTotalCapital.Where(x => Math.Abs(x) > 0.000001).Select(x => x), 10);
+                for (int i = 0; i < dailyPctRetHistogram.BucketCount; i++)
+                {
+                    var dtprbDR = ds.dailyTotalPctRetBuckets.NewdailyTotalPctRetBucketsRow();
+                    dtprbDR.limits = string.Format("{0} - {1}",
+                        dailyPctRetHistogram[i].LowerBound.ToString("p2"),
+                        dailyPctRetHistogram[i].UpperBound.ToString("p2"));
+                    dtprbDR.count = (int)(dailyPctRetHistogram[i].Count + 0.5);
+                    ds.dailyTotalPctRetBuckets.Rows.Add(dtprbDR);
+                }
+            }
+        }
+
+        private void AddHoldingPeriodHistogramRows()
+        {
+            //manually construct the categories here so they make a bit more sense
+            Dictionary<string, int> holdingPeriodLimits = new Dictionary<string, int>
+                {
+                    {"<= 5 minutes", 5 * 60},
+                    {"<= 1 hour", 60 * 60},
+                    {"<= 12 hours", 12 * 60 * 60},
+                    {"<= 1 day", 24 * 60 * 60},
+                    {"<= 2 days", 2 * 24 * 60 * 60},
+                    {"<= 1 week", 7 * 24 * 60 * 60},
+                    {"<= 1 month", 30 * 24 * 60 * 60},
+                    {"<= 3 months", 90 * 24 * 60 * 60},
+                    {"<= 1 year", 365 * 24 * 60 * 60},
+                    {"> 1 year", int.MaxValue}
+                };
+
+            List<int> lengths = _trades
+                .Select(x => (x.Open || !x.DateClosed.HasValue)
+                    ? (int)(DateTime.Now - x.DateOpened).TotalSeconds
+                    : (int)(x.DateClosed.Value - x.DateOpened).TotalSeconds).ToList();
+
+            foreach (var kvp in holdingPeriodLimits)
+            {
+                int lenLimit = kvp.Value;
+                var dr = ds.holdingPeriodBuckets.NewholdingPeriodBucketsRow();
+                dr.limits = kvp.Key;
+                dr.count = lengths.Count(x => x < lenLimit);
+                lengths.RemoveAll(x => x < lenLimit);
+                ds.holdingPeriodBuckets.Rows.Add(dr);
+            }
+        }
+
+        private void AddTradeResultHistogramRows()
+        {
+            //dollars
+            var dollarReturns = _trades.Select(x => x.ResultDollars + x.UnrealizedResultDollars).ToList();
+            if (dollarReturns.Count > 1)
+            {
+                var tradeDollarRetHistogram = new Histogram(dollarReturns.Select(x => (double)x).ToList(), 10);
+                for (int i = 0; i < tradeDollarRetHistogram.BucketCount; i++)
+                {
+                    var tdrbDR = ds.tradeDollarRetBuckets.NewtradeDollarRetBucketsRow();
+                    tdrbDR.limits = string.Format("{0} - {1}",
+                        tradeDollarRetHistogram[i].LowerBound.ToString("c2"),
+                        tradeDollarRetHistogram[i].UpperBound.ToString("c2"));
+                    tdrbDR.count = (int)(tradeDollarRetHistogram[i].Count + 0.5);
+                    ds.tradeDollarRetBuckets.Rows.Add(tdrbDR);
+                }
+            }
+
+            var tradeReturns = _trades.Select(x => x.ResultPct + x.UnrealizedResultPct).ToList();
+            //percent
+            if (tradeReturns.Count > 1)
+            {
+                var tradePctRetHistogram = new Histogram(tradeReturns, 10);
+                for (int i = 0; i < tradePctRetHistogram.BucketCount; i++)
+                {
+                    var tprbDR = ds.tradePctRetBuckets.NewtradePctRetBucketsRow();
+                    tprbDR.limits = string.Format("{0} - {1}",
+                        tradePctRetHistogram[i].LowerBound.ToString("p2"),
+                        tradePctRetHistogram[i].UpperBound.ToString("p2"));
+                    tprbDR.count = (int)(tradePctRetHistogram[i].Count + 0.5);
+                    ds.tradePctRetBuckets.Rows.Add(tprbDR);
+                }
+            }
+        }
+
+        private void AddInstrumentROACRows()
+        {
+            foreach (Position p in _totalPortfolioTracker.Positions.Values.OrderBy(x => x.ROAC))
+            {
+                var roacDR = ds.instrumentROAC.NewinstrumentROACRow();
+                roacDR.instrument = p.Instrument.Symbol;
+                roacDR.ROAC = p.ROAC - 1;
+                ds.instrumentROAC.AddinstrumentROACRow(roacDR);
+            }
+        }
+
+        private void DoTradeStats()
+        {
+            var stats = PerformanceMeasurement.TradeStats(_trades, _minDate, _maxDate, _capitalInPeriod);
+
+            foreach (var kvp in stats)
+            {
+                var dr = ds.TradeStats.NewTradeStatsRow();
+                dr.stat = kvp.Key;
+                dr.value = kvp.Value;
+                ds.TradeStats.Rows.Add(dr);
+            }
+        }
+
+        private void DoTradeStatsByStrategy()
+        {
+            var tradesByStrat = _trades.Where(x => x.Strategy != null).GroupBy(x => x.Strategy.Name);
+
+            var stats = new Dictionary<string, Dictionary<string, string>>();
+            foreach (var grouping in tradesByStrat)
+            {
+                stats.Add(grouping.Key, PerformanceMeasurement.TradeStats(grouping.Select(x => x).ToList(), _minDate, _maxDate, _capitalInPeriod));
+                ds.TradeStatsByStrategy.Columns.Add(grouping.Key, typeof(string));
+            }
+
+            if (stats.Count == 0) return;
+
+            foreach (KeyValuePair<string, string> statPair in stats.First().Value)
+            {
+                var dr = ds.TradeStatsByStrategy.NewRow();
+                dr["stat"] = statPair.Key;
+                foreach (var kvp in stats)
+                {
+                    string strategyName = kvp.Key;
+                    string statValue = kvp.Value.ContainsKey(statPair.Key) ? kvp.Value[statPair.Key] : "N/A";
+                    dr[strategyName] = statValue;
+                }
+                ds.TradeStatsByStrategy.Rows.Add(dr);
+            }
+        }
+
+        private void DoCashTransactionByTypeRows()
+        {
+            Dictionary<string, decimal> cashTransactionPnL = _trades
+                .Where(x => x.CashTransactions != null)
+                .SelectMany(x => x.CashTransactions)
+                .Where(x => x.Type != "Deposits & Withdrawals")
+                .GroupBy(x => x.Type)
+                .ToDictionary(x => x.Key, z => z.Sum(a => a.AmountInBase));
+
+            foreach (var kvp in cashTransactionPnL)
+            {
+                var ctpnlDR = ds.cashTransactionPnL.NewcashTransactionPnLRow();
+                ctpnlDR.type = kvp.Key;
+                ctpnlDR.amount = kvp.Value;
+                ds.cashTransactionPnL.Rows.Add(ctpnlDR);
+            }
+        }
+
+        private void DoCloseToClosePnLCurve()
+        {
+            //the close to close pnl series needs to start at zero
+            var dr = ds.C2CPnLCurve.NewC2CPnLCurveRow();
+            dr.date = _minDate;
+            dr.value = 0;
+            dr.drawdown = 0;
+            ds.C2CPnLCurve.Rows.Add(dr);
+
+            decimal lastC2CPnL = 0, maxC2CPnL = 0;
+
+            foreach (KeyValuePair<DateTime, decimal> t in _trades
+                .Where(x => x.DateClosed != null && !x.Open)
+                .OrderBy(x => x.DateClosed)
+                .GroupBy(x => x.DateClosed.Value.Date)
+                .ToDictionary(x => x.Key, y => y.Sum(trade => trade.ResultDollars)))
+            {
+                lastC2CPnL += t.Value;
+                var c2CCurveDR = ds.C2CPnLCurve.NewC2CPnLCurveRow();
+                c2CCurveDR.date = t.Key;
+                maxC2CPnL = Math.Max(lastC2CPnL, maxC2CPnL);
+                c2CCurveDR.value = lastC2CPnL;
+                c2CCurveDR.drawdown = (double)(lastC2CPnL - maxC2CPnL);
+                ds.C2CPnLCurve.Rows.Add(c2CCurveDR);
+            }
+        }
+
+        private void AddMonthlyROTCRowS()
+        {
+            var retsByMonth = _totalPortfolioTracker.RotcEquityCurve.ReturnsByMonth;
+            foreach(int year in retsByMonth.Keys)
+            {
+                double total = 1;
+                var dr = ds.ROTCByMonth.NewROTCByMonthRow();
+                for (int j = 1; j <= 12; j++)
+                {
+                    string month = DateTime.ParseExact(string.Format("2000-{0}-01", j), "yyyy-M-dd", CultureInfo.InvariantCulture).ToString("MMM").ToLower();
+                    double thisMonthsRet =
+                        retsByMonth[year].ContainsKey(j)
+                            ? retsByMonth[year][j]
+                            : 0;
+
+
+                    total *= (1 + thisMonthsRet);
+                    dr[month] = thisMonthsRet;
+                }
+                dr.total = total - 1;
+                dr.year = year;
+                ds.ROTCByMonth.Rows.Add(dr);
+            }
+        }
+
+        private void AddMonthlyROACRows()
+        {
+            var retsByMonth = _totalPortfolioTracker.RoacEquityCurve.ReturnsByMonth;
+            foreach (int year in retsByMonth.Keys)
+            {
+                double total = 1;
+                var dr = ds.ROACByMonth.NewROACByMonthRow();
+                for (int j = 1; j <= 12; j++)
+                {
+                    string month = DateTime.ParseExact(string.Format("2000-{0}-01", j), "yyyy-M-dd", CultureInfo.InvariantCulture).ToString("MMM").ToLower();
+
+                    double thisMonthsRet =
+                        retsByMonth[year].ContainsKey(j)
+                            ? retsByMonth[year][j]
+                            : 0;
+
+
+                    total *= (1 + thisMonthsRet);
+                    dr[month] = thisMonthsRet;
+                }
+                dr.total = total - 1;
+                dr.year = year;
+                ds.ROACByMonth.Rows.Add(dr);
+            }
+        }
+
+        private void AddMonthlyPnLRows()
+        {
+            var pnlByMonth = _totalPortfolioTracker.ProfitLossEquityCurve.PnLByMonth;
+            foreach (int year in pnlByMonth.Keys)
+            {
+                decimal total = 0;
+                var drbmDR = ds.dollarReturnsByMonth.NewdollarReturnsByMonthRow();
+                for (int j = 1; j <= 12; j++)
+                {
+                    string month = DateTime.ParseExact(string.Format("2000-{0}-01", j), "yyyy-M-dd", CultureInfo.InvariantCulture).ToString("MMM").ToLower();
+
+                    decimal thisMonthsPnl =
+                        pnlByMonth[year].ContainsKey(j)
+                            ? (decimal)pnlByMonth[year][j]
+                            : 0;
+
+                    total += thisMonthsPnl;
+                    drbmDR[month] = thisMonthsPnl;
+                }
+                drbmDR.total = total;
+                drbmDR.year = year;
+                ds.dollarReturnsByMonth.Rows.Add(drbmDR);
+            }
+        }
+
+        private void AddROACEquityCurveRow()
+        {
+            var decpoacDR = ds.dailyEquityCurvePctOnAllocatedCapital.NewdailyEquityCurvePctOnAllocatedCapitalRow();
+            decpoacDR.date = _todaysDate;
+            decpoacDR.value = _totalPortfolioTracker.RoacEquityCurve.Equity.Last() - 1;
+            decpoacDR.drawdown = _totalPortfolioTracker.RoacEquityCurve.DrawdownPct.Last();
+            decpoacDR.benchmark = _benchmarkSeries == null ? 0 : _benchmarkSeries[_todaysDate] - 1;
+            ds.dailyEquityCurvePctOnAllocatedCapital.Rows.Add(decpoacDR);
+        }
+
+        private void AddDollarEquityCurveRow()
+        {
+            var ddecDR = ds.dailyDollarEquityCurve.NewdailyDollarEquityCurveRow();
+            ddecDR.date = _todaysDate;
+            ddecDR.value = _totalPortfolioTracker.ProfitLossEquityCurve.Equity.Last();
+            ddecDR.drawdown = _totalPortfolioTracker.ProfitLossEquityCurve.DrawdownAmt.Last();
+            ds.dailyDollarEquityCurve.Rows.Add(ddecDR);
+
+            var ddeclrDR = ds.dailyDollarEquityCurveLongShort.NewdailyDollarEquityCurveLongShortRow();
+            ddeclrDR.date = _todaysDate;
+            ddeclrDR.valueLong = _totalPortfolioTracker.ProfitLossLongEquityCurve.Equity.Last();
+            ddeclrDR.valueShort = _totalPortfolioTracker.ProfitLossShortEquityCurve.Equity.Last();
+            ddeclrDR.drawdownLong = _totalPortfolioTracker.ProfitLossLongEquityCurve.DrawdownAmt.Last();
+            ddeclrDR.drawdownShort = _totalPortfolioTracker.ProfitLossShortEquityCurve.DrawdownAmt.Last();
+            ds.dailyDollarEquityCurveLongShort.Rows.Add(ddeclrDR);
+        }
+
+        private void DoCapitalUsage()
+        {
+            for (int i = 0; i < _totalPortfolioTracker.Capital.Gross.Count; i++)
+            {
+                decimal allocatedCapital = _totalPortfolioTracker.Capital.Gross[i];
+                var cuDR = ds.capitalUsage.NewcapitalUsageRow();
+                cuDR.date = _datesInPeriod[i];
+                cuDR.totalCapital = _capitalInPeriod[i];
+                cuDR.allocatedCapital = allocatedCapital;
+                cuDR.utilization = (double)(_capitalInPeriod[i] == 0 ? 0 : allocatedCapital / _capitalInPeriod[i]);
+                ds.capitalUsage.Rows.Add(cuDR);
+            }
+        }
+
+        private void AddDailyEquityCurvePctOnTotalCapitalRow()
+        {
+            var decpotcDR = ds.dailyEquityCurvePctOnTotalCapital.NewdailyEquityCurvePctOnTotalCapitalRow();
+            decpotcDR.date = _todaysDate;
+            decpotcDR.value = _totalPortfolioTracker.RotcEquityCurve.Equity.Last() - 1;
+            decpotcDR.drawdown = _totalPortfolioTracker.RotcEquityCurve.DrawdownPct.Last();
+            decpotcDR.benchmark = _benchmarkSeries == null ? 0 : _benchmarkSeries[_todaysDate] - 1;
+            ds.dailyEquityCurvePctOnTotalCapital.Rows.Add(decpotcDR);
+        }
+
+        private void DoPnLByInstrument(IEnumerable<Position> positions)
+        {
+            foreach (Position p in positions.OrderBy(x => x.PnL))
+            {
+                var pnlbiDR = ds.pnlByInstrument.NewpnlByInstrumentRow();
+                pnlbiDR.PnL = p.PnL;
+                pnlbiDR.instrument = p.Instrument.Symbol;
+                ds.pnlByInstrument.AddpnlByInstrumentRow(pnlbiDR);
+            }
+        }
+
+        
+
+        /// <summary>
+        /// determine what dates we need each instrument for
+        /// </summary>
+        private Dictionary<Instrument, KeyValuePair<DateTime, DateTime>> GetNeededDates()
+        {
+            //Instrument id - from date/to date
+            var neededDates = new Dictionary<Instrument, KeyValuePair<DateTime, DateTime>>();
+            foreach (Trade t in _trades.Where(x => x.Orders != null))
+            {
+                var tmpEndDate = t.Open || !t.DateClosed.HasValue ? _datesInPeriod.Last() : t.DateClosed.Value;
+
+                foreach (Order o in t.Orders)
+                {
+                    if (neededDates.ContainsKey(o.Instrument))
+                    {
+                        DateTime newMinDate = neededDates[o.Instrument].Key > o.TradeDate ? o.TradeDate : neededDates[o.Instrument].Key;
+                        DateTime newMaxDate = neededDates[o.Instrument].Value < tmpEndDate ? tmpEndDate : neededDates[o.Instrument].Value;
+                        neededDates[o.Instrument] = new KeyValuePair<DateTime, DateTime>(newMinDate.Date, newMaxDate);
+                    }
+                    else
+                    {
+                        neededDates.Add(o.Instrument, new KeyValuePair<DateTime, DateTime>(o.TradeDate.Date, tmpEndDate));
+                    }
+                }
+            }
+
+            return neededDates;
+        }
+
+        private TimeSeries TimeSeriesFromPriorPositions(IEnumerable<PriorPosition> positions)
+        {
+            var bars = new List<OHLCBar>();
+            foreach (PriorPosition p in positions)
+            {
+                var bar = new OHLCBar
+                {
+                    Open = p.Price,
+                    High = p.Price,
+                    Low = p.Price,
+                    Close = p.Price,
+                    AdjOpen = p.Price,
+                    AdjHigh = p.Price,
+                    AdjLow = p.Price,
+                    AdjClose = p.Price,
+                    DT = p.Date
+                };
+                bars.Add(bar);
+            }
+
+            return new TimeSeries(bars);
+        }
+    }
+}

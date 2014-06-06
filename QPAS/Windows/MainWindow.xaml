@@ -1,0 +1,1343 @@
+﻿<controls:MetroWindow x:Class="QPAS.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:oxy="http://oxyplot.codeplex.com"
+        xmlns:filterLibrary="clr-namespace:DataGridFilterLibrary;assembly=DataGridFilterLibrary"
+        xmlns:qdms="clr-namespace:EntityModel;assembly=EntityModel"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:qpas="clr-namespace:QPAS"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        Icon="../Resources/icon.ico"
+        TitlebarHeight="32"
+        Title="QUSMA Performance Analysis Suite"
+        BorderBrush="Black" BorderThickness="1"
+        FontFamily="Segoe UI Semibold"
+        Closing="MetroWindow_Closing"
+        xmlns:p="clr-namespace:QPAS.Properties"
+        Height="{Binding Source={x:Static p:Settings.Default}, Path=Height, Mode=TwoWay}"
+        Width="{Binding Source={x:Static p:Settings.Default}, Path=Width, Mode=TwoWay}"
+        Left="{Binding Source={x:Static p:Settings.Default}, Path=Left, Mode=TwoWay}"
+        Top="{Binding Source={x:Static p:Settings.Default}, Path=Top, Mode=TwoWay}"
+        WindowState="{Binding Source={x:Static p:Settings.Default}, Path=WindowState, Mode=TwoWay}">
+    <controls:MetroWindow.Resources>
+        <qpas:ElementSpy x:Key="spy" />
+
+        <qpas:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
+        <qpas:EnumBooleanConverter x:Key="EnumBooleanConverter" />
+        <qpas:InvertBooleanConverter x:Key="InvertBooleanConverter" />
+        <qpas:SideToImageConverter x:Key="SideToImageConverter" />
+        <qpas:DivideByHundredConverter x:Key="DivideByHundredConverter" />
+        <qpas:ProfitToBgColorConverter x:Key="ProfitToBgColorConverter" />
+
+        <ObjectDataProvider x:Key="AssetClasses" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type Type="qdms:AssetClass"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <Style x:Key="ProfitBGColorStyle" TargetType="DataGridCell">
+            <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text, Converter={StaticResource ProfitToBgColorConverter} }" />
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader" x:Key="FilterStyle" BasedOn="{StaticResource {ComponentResourceKey 
+		                       TypeInTargetAssembly={x:Type filterLibrary:DataGridHeaderFilterControl}, 
+		                       ResourceId=DataGridHeaderFilterControlStyle}}">
+            <Setter Property="Padding" Value="5,4,4,5" />
+        </Style>
+
+        <MenuItem x:Key="TradesGridSetTagSubMenu" Header="Set Tag" SubmenuOpened="TradesGridSetTagMenu_SubmenuOpened">
+            <MenuItem.Icon>
+                <Image Source="../Resources/TagIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+            </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem x:Key="TradesGridSetStrategySubMenu" Header="Set Strategy">
+            <MenuItem.Icon>
+                <Image Source="../Resources/StrategyIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+            </MenuItem.Icon>
+        </MenuItem>
+
+        <MenuItem x:Key="OrdersGridSetTradeSubMenu" Header="Set Trade">
+            <MenuItem.Icon>
+                <Image Source="../Resources/TradesIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+            </MenuItem.Icon>
+        </MenuItem>
+
+        <ContextMenu x:Key="OrdersGridContextMenu" Width="300" Opened="OrdersGridContextMenu_Opened" qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
+            <MenuItem Name="DeleteOrderBtn" Header="Delete"
+                      Command="{Binding Delete}"
+                      CommandParameter="{Binding ElementName=OrdersGrid,Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/Delete.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <StaticResource ResourceKey="OrdersGridSetTradeSubMenu" />
+            <MenuItem Name="VirtualTradesMenuItem">
+                <MenuItem.Template>
+                    <ControlTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
+                            <TextBlock Text="Create Virtual Trades, Size: "  Margin="0,5,0,0" />
+                            <TextBox Width="30" Margin="10,0,0,0" 
+                                     KeyDown="VirtualTradeSizeTextBox_KeyDown"
+                                     Name="VirtualTradeSizeTextBox" />
+                        </StackPanel>
+                    </ControlTemplate>
+                </MenuItem.Template>
+            </MenuItem>
+            <MenuItem Header="Generate Execution Report" Name="OrdersGridGenExecutionReportBtn"
+                      Command="{Binding SetExecutionReportOrders}"
+                      CommandParameter="{Binding ElementName=OrdersGrid,Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/ExecutionReportIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </ContextMenu>
+
+        <ContextMenu x:Key="TagsGridContextMenu" qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
+            <MenuItem Header="Delete" Name="TagsGridContextMenuDeleteBtn" 
+                      Command="{Binding Delete}"
+                      CommandParameter="{Binding ElementName=TagsGrid,Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/Delete.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator />
+            <MenuItem Header="Report For Selected Tag(s)" Name="TagsGridContextMenuReportBtn" 
+                      Command="{Binding Parent.GenerateReportFromTags}"
+                      CommandParameter="{Binding ElementName=TagsGrid,Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/PerformanceReportIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </ContextMenu>
+
+        <ContextMenu x:Key="StrategiesGridContextMenu" qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
+            <MenuItem Header="Delete" Name="StrategiesGridContextMenuDeleteBtn"
+                      Command="{Binding Delete}"
+                      CommandParameter="{Binding ElementName=StrategiesGrid,Path=SelectedItem}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/Delete.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator />
+            <MenuItem Header="Report For Selected Strategy" Name="StrategiesGridContextMenuReportBtn"
+                      Command="{Binding Parent.GenerateReportFromStrategy}"
+                      CommandParameter="{Binding ElementName=StrategiesGrid,Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/PerformanceReportIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </ContextMenu>
+
+        <ContextMenu x:Key="BenchmarksGridContextMenu">
+            <MenuItem Header="Delete" Name="BenchmarksGridContextMenuDeleteBtn"
+                      Command="{Binding DeleteBenchmark}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/Delete.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </ContextMenu>
+
+        <ContextMenu x:Key="TradesGridContextMenu"  qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
+            <MenuItem Header="Delete" Name="TradesGridContextMenuDeleteBtn" 
+                      Command="{Binding Delete}"
+                      CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/Delete.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Reset" Name="TradesGridContextMenuResetBtn"
+                      Command="{Binding Reset}"
+                      CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/ResetTradeIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <StaticResource ResourceKey="TradesGridSetTagSubMenu" />
+            <StaticResource ResourceKey="TradesGridSetStrategySubMenu" />
+            <MenuItem Header="Update Stats" Name="TradesGridContextMenuUpdateStatsBtn"
+                      Command="{Binding UpdateStats}"
+                      CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/Refresh.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Report From Selected Trades" Name="TradesGridContextMenuReportBtn"
+                        Command="{Binding Parent.GenerateReportFromTrades}"
+                      CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/PerformanceReportIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </ContextMenu>
+
+        <MenuItem x:Key="CashTransactionsGridSetTradeSubMenu" Header="Set Trade">
+            <MenuItem.Icon>
+                <Image Source="../Resources/TradesIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+            </MenuItem.Icon>
+        </MenuItem>
+
+        <ContextMenu x:Key="CashTransactionsGridContextMenu" Opened="CashTransactionsGridContextMenu_OnOpened" qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
+            <MenuItem Name="DeleteCashTransactionBtn" Header="Delete" 
+                      Command="{Binding Delete}"
+                      CommandParameter="{Binding ElementName=CashTransactionsGrid, Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/Delete.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <StaticResource ResourceKey="CashTransactionsGridSetTradeSubMenu" />
+        </ContextMenu>
+
+        
+        
+        
+        <MenuItem x:Key="FxTransactionsGridSetTradeSubMenu" Header="Set Trade">
+            <MenuItem.Icon>
+                <Image Source="../Resources/TradesIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+            </MenuItem.Icon>
+        </MenuItem>
+
+        <ContextMenu x:Key="FxTransactionsGridContextMenu" Opened="FxTransactionsGridContextMenu_OnOpened" qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
+            <MenuItem Name="DeleteFxTransactionBtn" Header="Delete" 
+                      Command="{Binding Delete}"
+                      CommandParameter="{Binding ElementName=FXTransactionsGrid, Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/Delete.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <StaticResource ResourceKey="FxTransactionsGridSetTradeSubMenu" />
+        </ContextMenu>
+
+    </controls:MetroWindow.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="470*"/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="185"/>
+            <ColumnDefinition Width="1"/>
+            <ColumnDefinition Width="696*"/>
+        </Grid.ColumnDefinitions>
+
+        <Menu Background="WhiteSmoke" Grid.Row="0" Grid.ColumnSpan="2">
+            <MenuItem Header="_File">
+                <MenuItem Header="Backup" x:Name="BackupBtn"/>
+                <MenuItem Header="Restore backup" x:Name="RestoreBtn"/>
+                <Separator/>
+                <MenuItem Header="_Exit" x:Name="BtnExit" Click="BtnExit_ItemClick"/>
+            </MenuItem>
+            <MenuItem Header="_Tools">
+                <MenuItem Header="Load Statement From Web" x:Name="LoadStatementFromWebBtn" />
+                <MenuItem Header="Load Statement From File" x:Name="LoadStatementFromFileBtn" />
+                <Separator/>
+                <MenuItem Header="Settings" x:Name="SettingsBtn" Click="SettingsBtn_Click" />
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="Documentation" x:Name="DocumentationBtn" Click="DocumentationBtn_OnClick"/>
+                <MenuItem Header="About" x:Name="AboutBtn" Click="AboutBtn_Click"/>
+            </MenuItem>
+        </Menu>
+
+
+        <TreeView Grid.Column="0" Grid.Row="1" RenderOptions.BitmapScalingMode="NearestNeighbor"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" SelectedItemChanged="TreeView_SelectedItemChanged" >
+            <TreeViewItem IsExpanded="True">
+                <TreeViewItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="../Resources/DataIcon.png" />
+                        <Label Content="Data">
+                            <Label.Style>
+                                <Style TargetType="{x:Type Label}">
+                                    <Setter Property="FontSize" Value="14" />
+                                </Style>
+                            </Label.Style>
+                        </Label>
+                    </StackPanel>
+                </TreeViewItem.Header>
+                <TreeViewItem Tag="OpenPositions">
+                    <TreeViewItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Resources/OpenPositionsIcon.png" />
+                            <Label Content="Open Positions" />
+                        </StackPanel>
+                    </TreeViewItem.Header>
+                </TreeViewItem>
+                <TreeViewItem Tag="Instruments">
+                    <TreeViewItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Resources/InstrumentsIcon.png" />
+                            <Label Content="Instruments" />
+                        </StackPanel>
+                    </TreeViewItem.Header>
+                </TreeViewItem>
+                <TreeViewItem Tag="Strategies">
+                    <TreeViewItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Resources/StrategyIcon.png" />
+                            <Label Content="Strategies" />
+                        </StackPanel>
+                    </TreeViewItem.Header>
+                </TreeViewItem>
+                <TreeViewItem Tag="Trades">
+                    <TreeViewItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Resources/TradesIcon.png" />
+                            <Label Content="Trades" />
+                        </StackPanel>
+                    </TreeViewItem.Header>
+                </TreeViewItem>
+                <TreeViewItem Tag="Orders">
+                    <TreeViewItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Resources/OrdersIcon.png" />
+                            <Label Content="Orders" />
+                        </StackPanel>
+                    </TreeViewItem.Header>
+                </TreeViewItem>
+                <TreeViewItem Tag="CashTransactions">
+                    <TreeViewItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Resources/CashTransactionsIcon.png" />
+                            <Label Content="Cash Transactions" />
+                        </StackPanel>
+                    </TreeViewItem.Header>
+                </TreeViewItem>
+                <TreeViewItem Tag="FXTransactions">
+                    <TreeViewItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Resources/FXTransactionsIcon.png" />
+                            <Label Content="FX Transactions" />
+                        </StackPanel>
+                    </TreeViewItem.Header>
+                </TreeViewItem>
+                <TreeViewItem Tag="Tags">
+                    <TreeViewItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Resources/TagIcon.png" Height="16" Width="16" />
+                            <Label Content="Tags" />
+                        </StackPanel>
+                    </TreeViewItem.Header>
+                </TreeViewItem>
+                <TreeViewItem Tag="Benchmarks">
+                    <TreeViewItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Resources/BenchmarksIcon.png" />
+                            <Label Content="Benchmarks" />
+                        </StackPanel>
+                    </TreeViewItem.Header>
+                </TreeViewItem>
+            </TreeViewItem>
+
+            <TreeViewItem IsExpanded="True">
+                <TreeViewItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="../Resources/AnalysisIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                        <Label Content="Analysis">
+                            <Label.Style>
+                                <Style TargetType="{x:Type Label}">
+                                    <Setter Property="FontSize" Value="14" />
+                                </Style>
+                            </Label.Style>
+                        </Label>
+                    </StackPanel>
+                </TreeViewItem.Header>
+
+                <TreeViewItem Tag="PerformanceOverview">
+                    <TreeViewItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Resources/PerformanceSummaryIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                            <Label Content="Performance Overview" />
+                        </StackPanel>
+                    </TreeViewItem.Header>
+                </TreeViewItem>
+
+                <TreeViewItem Tag="PerformanceReport">
+                    <TreeViewItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="../Resources/PerformanceReportIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                            <Label Content="Performance Report" />
+                        </StackPanel>
+                    </TreeViewItem.Header>
+                </TreeViewItem>
+            </TreeViewItem>
+        </TreeView>
+        <Rectangle Stroke="Black" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+        <TabControl Grid.Column="2"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="MainTabCtl" Grid.Row="0" Grid.RowSpan="2" >
+            <TabItem Header="OpenPositions" DataContext="{Binding OpenPositionsPageViewModel}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="254*"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="70*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75*"/>
+                        <ColumnDefinition Width="25*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <DataGrid 
+                        Grid.Row="0" 
+                        Grid.Column="0" 
+                        Name="OpenPositionsGrid" 
+                        IsReadOnly="True" 
+                        Margin="0,10,0,0" 
+                        AutoGenerateColumns="False"
+                        CanUserAddRows="False"
+                        CanUserDeleteRows="False"
+                        ItemsSource="{Binding OpenPositionsSource.View}"
+                        >
+
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Side" SortMemberPath="Side" ClipboardContentBinding="{Binding Side}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="{Binding Side,Converter={StaticResource SideToImageConverter}}" Height="16" />
+                                            <TextBlock Margin="2,0,0,0" Text="{Binding Side}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Symbol" Binding="{Binding Instrument.Symbol}" />
+                            <DataGridTemplateColumn SortMemberPath="Instrument.AssetCategory" ClipboardContentBinding="{Binding Instrument.AssetCategory}"
+                                                    Header="Type" 
+                                                    CellTemplate="{StaticResource InstrumentAssetClassCellTemplate}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Position" Binding="{Binding Quantity}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Value" Binding="{Binding PositionValue, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                CellStyle="{StaticResource ProfitBGColorStyle}"
+                                                Header="Unrealized PnL" Binding="{Binding UnrealizedPnL, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Cost Basis" Binding="{Binding CostBasisDollars, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Mark Price" Binding="{Binding MarkPrice, StringFormat={}{0:0.00###}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="% of NAV" 
+                                                Binding="{Binding PercentOfNAV, Converter={StaticResource DivideByHundredConverter}, StringFormat={}{0:p1}}" />
+                            <DataGridTextColumn Header="Currency" Binding="{Binding Currency.Name}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Label Content="FX Positions:" FontSize="22" Grid.Row="1" Grid.Column="0" Foreground="DimGray" Margin="0,-5,0,0" />
+
+                    <DataGrid Name="ForexPositionsGrid"
+                        Grid.Row="2" 
+                        Grid.Column="0" 
+                        IsReadOnly="True" 
+                        Margin="0,10,0,0" 
+                        AutoGenerateColumns="False"
+                        CanUserAddRows="False"
+                        CanUserDeleteRows="False"
+                        ItemsSource="{Binding FXPositionsSource.View}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Currency" Binding="{Binding FXCurrency.Name}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Quantity" Binding="{Binding Quantity, StringFormat={}{0:0.00}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Cost Basis" Binding="{Binding CostBasis,StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Value" Binding="{Binding Value,StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Unrealized PnL" Binding="{Binding UnrealizedPnL,StringFormat={}{0:c2}}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <oxy:PlotView Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" 
+                                  Model="{Binding UnrealizedPnLChartModel}"
+                                  Name="UnrealizedPnLChart" IsMouseWheelEnabled="False" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Instruments" DataContext="{Binding InstrumentsPageViewModel}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="300*"/>
+                        <RowDefinition Height="4" MaxHeight="4" MinHeight="4" />
+                        <RowDefinition Height="150*"/>
+                    </Grid.RowDefinitions>
+
+                    <DataGrid Grid.RowSpan="1" Name="InstrumentsGrid" AutoGenerateColumns="False"
+                              filterLibrary:DataGridExtensions.UseBackgroundWorkerForFiltering="True"
+                              ColumnHeaderStyle="{StaticResource FilterStyle}"
+                              SelectedItem="{Binding SelectedInstrument, Mode=OneWayToSource}"
+                              CanUserAddRows="False" 
+                              CanUserDeleteRows="False"
+                              Margin="0,-5,0,5"
+                              RowEditEnding="DataGrid_RowEditEnding" 
+                              Grid.ColumnSpan="2"
+                              ItemsSource="{Binding InstrumentsSource.View}"
+                              >
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Width="40" Binding="{Binding Path=ID}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Symbol" Binding="{Binding Path=Symbol}" SortDirection="Ascending" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Underlying" Binding="{Binding Path=UnderlyingSymbol}" IsReadOnly="True" />
+                            <DataGridComboBoxColumn Header="Type" 
+                                                    filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="AssetCategory"
+                                                    ItemsSource="{Binding Source={StaticResource AssetClasses}}"
+                                                    SelectedItemBinding="{Binding AssetCategory}"
+                                                    IsReadOnly="True"
+                                                    ElementStyle="{StaticResource AssetClassComboBox}">
+                            </DataGridComboBoxColumn>
+                            <DataGridTextColumn Header="Description" Binding="{Binding Path=Description}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Mult" Binding="{Binding Path=Multiplier}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Expiration" Binding="{Binding Path=Expiration, StringFormat=yyyy-MM-dd}" IsReadOnly="True" />
+
+                            <DataGridTextColumn Header="Opt. Type" Binding="{Binding Path=OptionType}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Strike" Binding="{Binding Path=Strike, StringFormat={}{0:#.#####;;}}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="ConID" Binding="{Binding Path=ConID}" IsReadOnly="True" />
+
+                            <DataGridComboBoxColumn filterLibrary:DataGridColumnExtensions.DoNotGenerateFilterControl="True"  
+                                                    x:Name="QDMSInstrumentComboBox" 
+                                                    DisplayMemberPath="Key"
+                                                    SelectedValuePath="Value"
+                                                    SelectedValueBinding="{Binding QDMSInstrumentID}"
+                                                    Header="QDMS Instrument">
+                                <DataGridComboBoxColumn.ElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.InstrumentsPageViewModel.ExternalInstruments}"/>
+                                        <Setter Property="IsReadOnly" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.InstrumentsPageViewModel.IsExternalClientConnected, Converter={StaticResource InvertBooleanConverter}}"/>
+                                    </Style>
+                                </DataGridComboBoxColumn.ElementStyle>
+                                <DataGridComboBoxColumn.EditingElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.InstrumentsPageViewModel.ExternalInstruments}"/>
+                                    </Style>
+                                </DataGridComboBoxColumn.EditingElementStyle>
+                            </DataGridComboBoxColumn>
+                        </DataGrid.Columns>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding UpdateChartCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </DataGrid>
+                    <GridSplitter Grid.Row="1" Height="4" 
+                                  ResizeBehavior="PreviousAndNext"
+                                  ResizeDirection="Rows"
+                                  VerticalAlignment="Top" 
+                                  HorizontalAlignment="Stretch" Grid.ColumnSpan="2" />
+
+                    <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="34" MaxHeight="34" MinHeight="34" />
+                            <RowDefinition Height="100*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Height="30">
+                            <Button Margin="5,1,0,2" ToolTip="Copy" Name="CopyInstrumentChartBtn"
+                                    Command="{Binding CopyChart}"
+                                    CommandParameter="{Binding ElementName=InstrumentsChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Margin="5,1,0,2" ToolTip="Save" Name="SaveInstrumentChartBtn"
+                                    Command="{Binding SaveChart}"
+                                    CommandParameter="{Binding ElementName=InstrumentsChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+
+                            <TextBlock FontSize="18" Margin="15,2,0,0">Strategy:</TextBlock>
+                            <ComboBox Name="InstrumentsChartStrategyFilterComboBox" 
+                                      SelectedItem="{Binding SelectedStrategyName, Mode=OneWayToSource}"
+                                      ItemsSource="{Binding StrategyNames}"
+                                        SelectedIndex="0" Height="20" Margin="5,0">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding UpdateChartCommand}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </ComboBox>
+                            <Separator Margin="15,0,10,0"/>
+
+                            <CheckBox Name="InstrumentsChartAnnotationsCheckBox" 
+                                        Command="{Binding UpdateChartCommand}"
+                                      IsChecked="{Binding ShowOrderAnnotations}"
+                                      />
+                            <TextBlock FontSize="18" Margin="5,2,0,0">Show Order Annotations</TextBlock>
+
+                            <Separator Margin="10,0,10,0"/>
+
+                            <CheckBox Name="InstrumentsChartAnnotationQuantitiesCheckBox" 
+                                        Command="{Binding UpdateChartCommand}"
+                                      IsChecked="{Binding ShowQuantityAnnotations}"
+                                      IsEnabled="{Binding ElementName=InstrumentsChartAnnotationsCheckBox,Path=IsChecked}"/>
+                            <TextBlock FontSize="18" Margin="5,2,0,0">Show Quantities</TextBlock>
+                        </StackPanel>
+
+                        <oxy:PlotView Grid.Row="1" Background="#333333" Name="InstrumentsChart" Model="{Binding InstrumentChartModel}"
+                                      Margin="0,5,0,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Strategies" DataContext="{Binding StrategiesPageViewModel}">
+                <Grid>
+                    <DataGrid Name="StrategiesGrid" 
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="True" 
+                              CanUserDeleteRows="False"
+                              Margin="0"
+                              RowEditEnding="DataGrid_RowEditEnding"
+                              ItemsSource="{Binding StrategiesSource.View}"
+                              SelectionMode="Single"
+                              ContextMenu="{StaticResource StrategiesGridContextMenu}"
+                              >
+                        <DataGrid.InputBindings>
+                            <KeyBinding Key="Delete" 
+                                        Command="{Binding Delete}" 
+                                        CommandParameter="{Binding ElementName=StrategiesGrid, Path=SelectedItem}" />
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}" IsReadOnly="True"  />
+                            <DataGridTextColumn Header="Name" Binding="{Binding Path=Name}" IsReadOnly="False" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Trades" DataContext="{Binding TradesPageViewModel}">
+                <Grid>
+                    <Popup Name="TagPickerPopup"  Height="600" Width="300" Focusable="True" StaysOpen="True">
+                        <Border BorderThickness="1" BorderBrush="Black">
+                            <ListBox Name="TagPickerPopupListBox">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <CheckBox IsChecked="{Binding IsChecked}" PreviewMouseDown="TagPickerPopupCheckBox_PreviewMouseDown" />
+                                            <TextBlock Text="{Binding Item}" PreviewMouseDown="TagPickerPopupTextBlock_PreviewMouseDown" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </Popup>
+
+                    <DataGrid Name="TradesGrid" 
+                            AutoGenerateColumns="False"
+                            filterLibrary:DataGridExtensions.UseBackgroundWorkerForFiltering="True"
+                            ColumnHeaderStyle="{StaticResource FilterStyle}"
+                            CanUserAddRows="False"
+                            CanUserDeleteRows="False"
+                            HorizontalScrollBarVisibility="Auto"
+                            RowEditEnding="DataGrid_RowEditEnding"
+                            BeginningEdit="TradesGrid_BeginningEdit"
+                            CellEditEnding="TradesGrid_CellEditEnding"
+                            ItemsSource="{Binding TradesSource.View}"
+                            ContextMenu="{StaticResource TradesGridContextMenu}"
+                             MouseDoubleClick="TradesGrid_MouseDoubleClick"
+                             >
+                        <DataGrid.InputBindings>
+                            <KeyBinding Key="Delete" 
+                                        Command="{Binding Delete}" 
+                                        CommandParameter="{Binding ElementName=TradesGrid, Path=SelectedItems}" />
+                        </DataGrid.InputBindings>
+
+                        <DataGrid.Columns>
+                            <DataGridComboBoxColumn x:Name="TradesGridStrategyColumn"  
+                                                    Header="Strategy" 
+                                                    filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="Strategy.Name"
+                                                    filterLibrary:DataGridComboBoxExtensions.IsTextFilter="True"
+                                                    SelectedItemBinding="{Binding Path=Strategy}">
+                                <DataGridComboBoxColumn.ElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.TradesPageViewModel.Strategies}"/>
+                                    </Style>
+                                </DataGridComboBoxColumn.ElementStyle>
+                                <DataGridComboBoxColumn.EditingElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.TradesPageViewModel.Strategies}"/>
+                                    </Style>
+                                </DataGridComboBoxColumn.EditingElementStyle>
+                            </DataGridComboBoxColumn>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" 
+                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True"/>
+                            <DataGridCheckBoxColumn Header="Open" 
+                                                    Width="35"
+                                                    Binding="{Binding Open}" />
+                            <DataGridTextColumn Header="Opened" Width="110" IsReadOnly="True"  
+                                                Binding="{Binding DateOpened, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"
+                                                SortDirection="Descending"/>
+                            <DataGridTextColumn Header="Closed" Width="110" IsReadOnly="True"  Binding="{Binding DateClosed, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
+                            <DataGridTextColumn Header="Length" IsReadOnly="True" 
+                                                Binding="{Binding Length, Converter={StaticResource TimeSpanToStringConverter}}"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="% Ret." Binding="{Binding ResultPct, StringFormat={}{0:p2}}"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="$ Ret." Binding="{Binding ResultDollars, StringFormat={}{0:c2}}"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Commissions" Binding="{Binding Commissions, StringFormat={}{0:c2}}"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Capital Long" Binding="{Binding CapitalLong, StringFormat={}{0:c2}}"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Capital Short" Binding="{Binding CapitalShort, StringFormat={}{0:c2}}"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Total Capital" Binding="{Binding CapitalTotal, StringFormat={}{0:c2}}"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Net Capital" Binding="{Binding CapitalNet, StringFormat={}{0:c2}}"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Unr. $ Ret." Binding="{Binding UnrealizedResultDollars, StringFormat={}{0:c2}}"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Unr. % Ret." Binding="{Binding UnrealizedResultPct, StringFormat={}{0:p2}}"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="$ Ret. Long" Binding="{Binding ResultDollarsLong, StringFormat={}{0:c2}}"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="$ Ret. Short" Binding="{Binding ResultDollarsShort, StringFormat={}{0:c2}}"/>
+
+                            <DataGridTextColumn Header="Tags" 
+                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True" 
+                                                Binding="{Binding TagString}"
+                                                 />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Orders" DataContext="{Binding OrdersPageViewModel}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="150*"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="50*"/>
+                    </Grid.RowDefinitions>
+
+                    <Popup Name="OrdersGridTradePickerPopup" 
+                           Height="600" 
+                           Width="300" 
+                           Focusable="True" 
+                           StaysOpen="True">
+                        <Border BorderBrush="Black" BorderThickness="1">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                    <RowDefinition Height="1" />
+                                    <RowDefinition Height="40" />
+                                </Grid.RowDefinitions>
+                                <ListBox Grid.Row="0" Name="TradePickerListBox">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <CheckBox IsChecked="{Binding IsChecked}" PreviewMouseDown="OrdersGridTradePickerPopup_PreviewMouseDown" />
+                                                <TextBlock Text="{Binding Item.Name}" PreviewMouseDown="TagPickerPopupTextBlock_PreviewMouseDown" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+
+                                <Rectangle Stroke="Black" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+                                <DockPanel Grid.Row="2" HorizontalAlignment="Stretch" Background="White">
+                                    <TextBlock DockPanel.Dock="Left" Margin="5" Text="Add New:"/>
+                                    <TextBox Name="TradePickerNewTradeTextBox" Margin="5" PreviewMouseDown="TradePickerNewTradeTextBox_PreviewMouseDown"
+                                             HorizontalAlignment="Stretch" KeyDown="TradePickerNewTradeTextBox_KeyDown" />
+                                </DockPanel>
+                            </Grid>
+                        </Border>
+                    </Popup>
+
+                    <Label Grid.Row="0" Content="Orders" FontSize="26" Margin="0,-10,0,0" Foreground="DimGray" />
+                    <Label Grid.Row="2" Content="Executions" FontSize="26" Margin="0,-10,0,0" Foreground="DimGray" />
+
+                    <DataGrid Name="OrdersGrid"
+                        AutoGenerateColumns="False"
+                        filterLibrary:DataGridExtensions.UseBackgroundWorkerForFiltering="True"
+                        ColumnHeaderStyle="{StaticResource FilterStyle}"
+                        CanUserAddRows="False"
+                        CanUserDeleteRows="False"
+                        HorizontalScrollBarVisibility="Auto"
+                        RowEditEnding="DataGrid_RowEditEnding"
+                        BeginningEdit="OrdersGrid_BeginningEdit"
+                        CellEditEnding="OrdersGrid_CellEditEnding"
+                        ContextMenu="{StaticResource OrdersGridContextMenu}" 
+                        ItemsSource="{Binding OrdersSource.View}"
+                        SelectedItem="{Binding SelectedOrder,Mode=OneWayToSource}"
+                        Grid.Row="1">
+                        <DataGrid.InputBindings>
+                            <KeyBinding Key="Delete" 
+                                        Command="{Binding Delete}" 
+                                        CommandParameter="{Binding ElementName=OrdersGrid, Path=SelectedItems}" />
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Trade" Binding="{Binding Trade.Name}" 
+                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True" />
+                            <DataGridTextColumn Header="Symbol" Binding="{Binding Instrument.Symbol}" IsReadOnly="True" />
+                            <DataGridComboBoxColumn Header="Type" 
+                                                    filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="Instrument.AssetCategory"
+                                                    ItemsSource="{Binding Source={StaticResource AssetClasses}}"
+                                                    SelectedItemBinding="{Binding Instrument.AssetCategory}"
+                                                    IsReadOnly="True"
+                                                    ElementStyle="{StaticResource AssetClassComboBox}" />
+                            <DataGridTextColumn Header="B/S" Width="65" Binding="{Binding BuySell}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Date" Width="65" SortDirection="Descending"
+                                                Binding="{Binding TradeDate, StringFormat={}{0:yyyy-MM-dd}}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Time" Width="65" Binding="{Binding TradeTime}" IsReadOnly="True"
+                                                filterLibrary:DataGridColumnExtensions.DoNotGenerateFilterControl="True"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Quant" Binding="{Binding Quantity}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Price" Binding="{Binding Price, StringFormat={}{0:0.00###}}" IsReadOnly="True" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="FX Rate" Binding="{Binding FXRateToBase, StringFormat={}{0:0.#####}}" IsReadOnly="True" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Commission" Binding="{Binding CommissionInBase, StringFormat={}{0:c2}}"  />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Mult" Binding="{Binding Multiplier}" IsReadOnly="True" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Net Cash" Binding="{Binding NetCash, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Order Type" Binding="{Binding OrderType}" Width="40" IsReadOnly="True" />
+                            <DataGridCheckBoxColumn Header="Real" Width="35" Binding="{Binding IsReal}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Currency" Binding="{Binding Currency.Name}" Width="55" IsReadOnly="True"  />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="FIFO PnL" Binding="{Binding FIFORealizedPnL, StringFormat={}{0:c2}}"  />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="MTM PnL" Binding="{Binding MTMPnL, StringFormat={}{0:c2}}"  />
+                            <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" IsReadOnly="True" Width="40" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Ref. Price" Binding="{Binding ReferencePrice,StringFormat={}{0:0.00###}}" />
+                            <DataGridTemplateColumn Header="Ref. Time" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding ReferenceTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <xctk:DateTimePicker Format="Custom" 
+                                            FormatString="yyyy-MM-dd HH:mm:ss" 
+                                            Height="Auto" 
+                                            HorizontalAlignment="Left" 
+                                            Name="ReferenceTimeDTPicker"
+                                            TimeFormat="Custom"
+                                            TimeFormatString="HH:mm:ss"
+                                            Value="{Binding ReferenceTime, 
+                                             ValidatesOnExceptions=True, 
+                                             NotifyOnValidationError=True}" VerticalAlignment="Top" >
+                                        </xctk:DateTimePicker>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                                                    </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid Name="ExecutionsGrid" 
+                                Grid.Row="3"
+                                CanUserAddRows="False"
+                                HorizontalScrollBarVisibility="Auto"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              ItemsSource="{Binding ElementName=OrdersGrid, Path=SelectedItem.Executions}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="B/S" Width="65" Binding="{Binding BuySell}" />
+                            <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" />
+                            <DataGridTextColumn Header="Trade Time" Binding="{Binding TradeDate,StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Quantity" Binding="{Binding Quantity}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Price" Binding="{Binding Price,StringFormat={}{0:0.00###}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Commission" Binding="{Binding Commission,StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Net Cash" Binding="{Binding NetCash,StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn Header="Venue" Binding="{Binding Exchange}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="FIFO Realized PnL" Binding="{Binding FIFORealizedPnL,StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="MTM PnL" Binding="{Binding MTMPnL,StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn Header="O/C" Width="45" Binding="{Binding OpenClose}" />
+                            <DataGridTextColumn Header="Notes" Width="65" Binding="{Binding Notes}" />
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="CashTransactions" DataContext="{Binding CashTransactionsPageViewModel}" Name="CashTransactionsTabItem">
+                <Grid>
+                    <Popup Name="CashTransactionsGridTradePickerPopup" 
+                           Height="600" 
+                           Width="300" 
+                           Focusable="True" 
+                           StaysOpen="True">
+                        <Border BorderBrush="Black" BorderThickness="1">
+                            <Grid>
+                                <ListBox Grid.Row="0" Name="CtGridTradePickerListBox">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <CheckBox IsChecked="{Binding IsChecked}" PreviewMouseDown="OrdersGridTradePickerPopup_PreviewMouseDown" />
+                                                <TextBlock Text="{Binding Item.Name}" PreviewMouseDown="TagPickerPopupTextBlock_PreviewMouseDown" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Grid>
+                        </Border>
+                    </Popup>
+                    
+                    
+                    <DataGrid Name="CashTransactionsGrid" 
+                        ItemsSource="{Binding CashTransactionsSource.View}"
+                        AutoGenerateColumns="False"
+                        filterLibrary:DataGridExtensions.UseBackgroundWorkerForFiltering="True"
+                        ColumnHeaderStyle="{StaticResource FilterStyle}"
+                        CanUserAddRows="False"
+                        CanUserDeleteRows="False"
+                        BeginningEdit="CashTransactionsGrid_BeginningEdit"
+                        CellEditEnding="CashTransactionsGrid_OnCellEditEnding"
+                        HorizontalScrollBarVisibility="Auto"
+                        RowEditEnding="DataGrid_RowEditEnding"
+                        ContextMenu="{StaticResource CashTransactionsGridContextMenu}">
+                        <DataGrid.InputBindings>
+                            <KeyBinding Key="Delete" 
+                                        Command="{Binding Delete}" 
+                                        CommandParameter="{Binding ElementName=CashTransactionsGrid, Path=SelectedItems}" />
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Trade" Binding="{Binding Trade.Name}" />
+                            <DataGridTextColumn Header="Symbol" IsReadOnly="True" Binding="{Binding Instrument.Symbol}" />
+                            <DataGridTextColumn Header="Amount" IsReadOnly="True" 
+                                                ElementStyle="{StaticResource CellRightAlign}"
+                                                Binding="{Binding Amount, StringFormat=c2}" />
+                            <DataGridTextColumn Header="Amount in USD" IsReadOnly="True" 
+                                                ElementStyle="{StaticResource CellRightAlign}"
+                                                Binding="{Binding AmountInBase, StringFormat=c2}" />
+                            <DataGridTextColumn Header="Currency" IsReadOnly="True" 
+                                                Binding="{Binding Currency.Name}" />
+                            <DataGridComboBoxColumn Header="Type" 
+                                                    filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="Instrument.AssetCategory"
+                                                    ItemsSource="{Binding Source={StaticResource AssetClasses}}"
+                                                    SelectedItemBinding="{Binding Instrument.AssetCategory}"
+                                                    IsReadOnly="True"
+                                                    ElementStyle="{StaticResource AssetClassComboBox}" />
+                            <DataGridTextColumn Header="Date" SortDirection="Descending" IsReadOnly="True"
+                                                Binding="{Binding TransactionDate, StringFormat=yyyy-MM-dd}" />
+                            <DataGridTextColumn Header="Transaction Type" Binding="{Binding Type}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="FXTransactions" DataContext="{Binding FXTransactionsPageViewModel}">
+                <Grid>
+                    <Popup Name="FxTransactionsGridTradePickerPopup" 
+                           Height="600" 
+                           Width="300" 
+                           Focusable="True" 
+                           StaysOpen="True">
+                        <Border BorderBrush="Black" BorderThickness="1">
+                            <Grid>
+                                <ListBox Grid.Row="0" Name="FxGridTradePickerListBox">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <CheckBox IsChecked="{Binding IsChecked}" PreviewMouseDown="OrdersGridTradePickerPopup_PreviewMouseDown" />
+                                                <TextBlock Text="{Binding Item.Name}" PreviewMouseDown="TagPickerPopupTextBlock_PreviewMouseDown" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </Grid>
+                        </Border>
+                    </Popup>
+                    
+                    
+                    <DataGrid Name="FXTransactionsGrid"
+                        AutoGenerateColumns="False"
+                        ContextMenu="{StaticResource FxTransactionsGridContextMenu}"
+                        filterLibrary:DataGridExtensions.UseBackgroundWorkerForFiltering="True"
+                        ColumnHeaderStyle="{StaticResource FilterStyle}"
+                        CanUserAddRows="False"
+                        CanUserDeleteRows="False"
+                        HorizontalScrollBarVisibility="Auto"
+                        ItemsSource="{Binding FXTransactions.View}"
+                        BeginningEdit="FXTransactionsGrid_OnBeginningEdit"
+                        CellEditEnding="FXTransactionsGrid_OnCellEditEnding"
+                        RowEditEnding="DataGrid_RowEditEnding">
+                        <DataGrid.InputBindings>
+                            <KeyBinding Key="Delete" 
+                                        Command="{Binding Delete}" 
+                                        CommandParameter="{Binding ElementName=FXTransactionsGrid, Path=SelectedItems}" />
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Trade" Binding="{Binding Trade.Name}" />
+                            <DataGridTextColumn Header="Currency" Binding="{Binding FXCurrency.Name}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Description" Binding="{Binding Path=Description}" IsReadOnly="True"
+                                            filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True"/>
+                            <DataGridTextColumn Header="Date" IsReadOnly="True"
+                                                Binding="{Binding Path=DateTime,StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" SortDirection="Descending" />
+                            <DataGridTextColumn Header="Quantity" IsReadOnly="True"
+                                                ElementStyle="{StaticResource CellRightAlign}" Binding="{Binding Quantity,StringFormat={}{0:0.#####}}" />
+                            <DataGridTextColumn Header="Cost" IsReadOnly="True"
+                                                ElementStyle="{StaticResource CellRightAlign}" Binding="{Binding Path=Cost,StringFormat={}{0:c2}}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Tags" DataContext="{Binding TagsPageViewModel}">
+                <Grid>
+                    <DataGrid Name="TagsGrid" 
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="True" 
+                              CanUserDeleteRows="False"
+                              Margin="0"
+                              RowEditEnding="DataGrid_RowEditEnding"
+                              SelectionMode="Extended"
+                              ItemsSource="{Binding TagsSource.View}"
+                              ContextMenu="{StaticResource TagsGridContextMenu}"
+                              >
+                        <DataGrid.InputBindings>
+                            <KeyBinding Key="Delete" 
+                                        Command="{Binding Delete}" 
+                                        CommandParameter="{Binding ElementName=TagsGrid, Path=SelectedItems}" />
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}" IsReadOnly="True"  />
+                            <DataGridTextColumn Header="Name" Binding="{Binding Path=Name}" SortDirection="Ascending" IsReadOnly="False" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Benchmarks" DataContext="{Binding BenchmarksPageViewModel}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="45"/>
+                        <RowDefinition Height="541*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="30*"/>
+                        <ColumnDefinition Width="80*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="Benchmarks" FontSize="30" Foreground="DimGray" />
+                    <Label Grid.Row="0" Grid.Column="1" Content="Components" FontSize="30" Foreground="DimGray" />
+
+                    <DataGrid Grid.Row="1" Grid.Column="0" 
+                              Margin="10"
+                              Name="BenchmarksGrid" 
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="True"
+                              CanUserDeleteRows="False"
+                              SelectedItem="{Binding SelectedBenchmark, Mode=OneWayToSource}"
+                              RowEditEnding="DataGrid_RowEditEnding"
+                              ContextMenu="{StaticResource BenchmarksGridContextMenu}"
+                              ItemsSource="{Binding BenchmarksSource.View}"
+                              IsEnabled="{Binding IsExternalClientConnected}"
+                              SelectionMode="Single">
+                        <DataGrid.InputBindings>
+                            <KeyBinding Key="Delete" 
+                                        Command="{Binding DeleteBenchmark}" />
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}" IsReadOnly="True"  />
+                            <DataGridTextColumn Header="Name" Binding="{Binding Path=Name}" IsReadOnly="False" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid Grid.Row="1" Grid.Column="1" 
+                              Margin="10"
+                              Name="BenchmarkComponentsGrid" 
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="True"
+                              CanUserDeleteRows="False"
+                              RowEditEnding="DataGrid_RowEditEnding"
+                              SelectionMode="Single"
+                              SelectedItem="{Binding SelectedComponent,Mode=OneWayToSource}"
+                              IsEnabled="{Binding IsExternalClientConnected}"
+                              ItemsSource="{Binding ElementName=BenchmarksGrid,Path=SelectedItem.Components}">
+                        <DataGrid.InputBindings>
+                            <KeyBinding Key="Delete" 
+                                        Command="{Binding DeleteComponent}"/>
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}" IsReadOnly="True"  />
+                            <DataGridTextColumn Header="Weight" Binding="{Binding Path=Weight,StringFormat={}{0:p1}}" IsReadOnly="False" />
+                            <DataGridComboBoxColumn Header="Instrument" 
+                                                    filterLibrary:DataGridColumnExtensions.DoNotGenerateFilterControl="True"  
+                                                    x:Name="BenchmarksGridQDMSInstrumentComboBox" 
+                                                    DisplayMemberPath="Key"
+                                                    SelectedValueBinding="{Binding QDMSInstrumentID}"
+                                                    SelectedValuePath="Value"
+                                                    IsReadOnly="False">
+                                <DataGridComboBoxColumn.ElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.BenchmarksPageViewModel.ExternalInstruments}"/>
+                                        <Setter Property="IsReadOnly" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.BenchmarksPageViewModel.IsExternalClientConnected, Converter={StaticResource InvertBooleanConverter}}"/>
+                                    </Style>
+                                </DataGridComboBoxColumn.ElementStyle>
+                                <DataGridComboBoxColumn.EditingElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.BenchmarksPageViewModel.ExternalInstruments}"/>
+                                    </Style>
+                                </DataGridComboBoxColumn.EditingElementStyle>
+                            </DataGridComboBoxColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="PerformanceOverview" DataContext="{Binding PerformanceOverviewPageViewModel}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="35"/>
+                        <RowDefinition Height="50*"/>
+                        <RowDefinition Height="35"/>
+                        <RowDefinition Height="50*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="60*"/>
+                        <ColumnDefinition Width="40*"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Total Equity:" Grid.Row="0" Grid.Column="0" FontSize="26" Foreground="DimGray" Margin="0,-10" />
+                    <Label Content="Stats:"  Grid.Row="0" Grid.Column="1" FontSize="26" Foreground="DimGray" Margin="0,-10" />
+                    <Label Content="Cumulative Returns:" Grid.Row="2" Grid.Column="0"  FontSize="26" Foreground="DimGray" Margin="0,-10" />
+
+                    <Border BorderThickness="1" Grid.Column="0" Grid.Row="1" Margin="5" BorderBrush="DimGray">
+                        <oxy:PlotView Grid.Row="0" Name="EquitySummaryDollarChart">
+                            <oxy:PlotView.Series>
+                                <oxy:AreaSeries Name="EquitySummaryDollarSeries" 
+                                                    Color="#4F81BD" 
+                                                    DataFieldX="X" 
+                                                    DataFieldY="Y1"
+                                                    DataFieldX2="X"
+                                                    DataFieldY2="Y2"
+                                                    StrokeThickness="1"
+                                                    TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Total Equity: {4:c0}"
+                                                    ItemsSource="{Binding TotalEquitySeries}"
+                                                    />
+
+                                <oxy:AreaSeries Name="EquitySummaryDollarDrawdownSeries" 
+                                                    Color="#CC0000" 
+                                                    DataFieldX="X" 
+                                                    DataFieldX2="X"
+                                                    DataFieldY="Y1"
+                                                    DataFieldY2="Y2"
+                                                    StrokeThickness="1"
+                                                    TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:c0}"
+                                                    ItemsSource="{Binding TotalEquityDrawdownSeries}"
+                                                    />
+                            </oxy:PlotView.Series>
+                            <oxy:PlotView.Axes>
+                                <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
+                                <oxy:LinearAxis Position="Right" StringFormat="c0"
+                                                    MajorGridlineStyle="Dash" MinorGridlineStyle="Dash" />
+                            </oxy:PlotView.Axes>
+                        </oxy:PlotView>
+                    </Border>
+
+                    <Border BorderThickness="1" BorderBrush="DimGray" Grid.Column="0" Grid.Row="3" Margin="5">
+                        <oxy:PlotView Grid.Row="0" Name="EquitySummaryPercentChart">
+                            <oxy:PlotView.Series>
+                                <oxy:AreaSeries Name="EquitySummaryPercentSeries" Color="#4F81BD" 
+                                                DataFieldX="X" 
+                                                DataFieldY="Y1"
+                                                DataFieldX2="X"
+                                                DataFieldY2="Y2"
+                                                StrokeThickness="1"
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Return: {4:p1}"
+                                                ItemsSource="{Binding EquitySummaryPercentSeries}"
+                                                />
+
+                                <oxy:AreaSeries Name="EquitySummaryPercentDrawdownSeries" Color="#CC0000" 
+                                                DataFieldX="X" 
+                                                DataFieldY="Y1"
+                                                DataFieldX2="X"
+                                                DataFieldY2="Y2"
+                                                StrokeThickness="1"
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:p1}"
+                                                ItemsSource="{Binding EquitySummaryPercentDrawdownSeries}"
+                                                />
+                            </oxy:PlotView.Series>
+                            <oxy:PlotView.Axes>
+                                <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
+                                <oxy:LinearAxis Position="Right" StringFormat="p1" 
+                                                MinorGridlineStyle="Dash" MajorGridlineStyle="Dash" />
+                            </oxy:PlotView.Axes>
+                        </oxy:PlotView>
+                    </Border>
+
+
+                    <DataGrid Grid.Row="1" 
+                              Grid.Column="1" 
+                              Grid.RowSpan="3" 
+                              BorderThickness="0"
+                              Name="PerformanceOverviewStatsGrid"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              AutoGenerateColumns="False"
+                              ItemsSource="{Binding Stats.DefaultView}"
+                              IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Stat" Width="200" Binding="{Binding Stat}" />
+                            <DataGridTextColumn Header="Last 30 Days" Width="*" Binding="{Binding 'Last 30 Days'}" />
+                            <DataGridTextColumn Header="YTD" Width="*" Binding="{Binding 'YTD'}" />
+                            <DataGridTextColumn Header="All Time" Width="*" Binding="{Binding 'All Time'}" />
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="PerformanceReport" DataContext="{Binding PerformanceReportPageViewModel}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100*"/>
+                        <ColumnDefinition Width="100*"/>
+                        <ColumnDefinition Width="100*"/>
+                        <ColumnDefinition Width="100*"/>
+                        <ColumnDefinition Width="100*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="545*"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="2" Content="Benchmark" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
+                    <Label Grid.Row="0" Content="Strategies" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
+                    <Label Grid.Row="0" Grid.Column="1" Content="Tags" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
+                    <Label Grid.Row="0" Grid.Column="3" Content="Dates" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
+                    <Label Grid.Row="0" Grid.Column="4" Content="Monte Carlo" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
+
+                    <StackPanel Grid.Row="1" Grid.Column="2" Margin="5">
+                        <TextBlock Text="Bench. Against:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray"  />
+                        <UniformGrid Columns="2" Margin="5,0,5,0">
+                            <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
+                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
+                            <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
+                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                        </UniformGrid>
+
+                        <TextBlock Text="Benchmark:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray"  />
+                        <ComboBox Name="RPBenchmarkComboBox" DisplayMemberPath="Name"
+                                  ItemsSource="{Binding Benchmarks}"
+                                  SelectedItem="{Binding ReportSettings.Benchmark}" Margin="5,0,5,0" />
+                    </StackPanel>
+
+                    <Grid Grid.Column="0" Grid.Row="1" Margin="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="253*"/>
+                        </Grid.RowDefinitions>
+
+                        <UniformGrid Grid.Row="0" Columns="2" Margin="5,0,5,0">
+                            <RadioButton Content="Any" 
+                                         IsChecked="{Binding TradeFilterSettings.StrategyFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Any}" />
+                            <RadioButton Content="Exclude"
+                                         IsChecked="{Binding TradeFilterSettings.StrategyFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Exclude}"/>
+                        </UniformGrid>
+
+                        <Button Content="{Binding ToggleStratsText}" 
+                                Command="{Binding ToggleAllStrategies}"
+                                Name="PRSelectAllStrategiesBtn" 
+                                Grid.Row="1" Margin="5" />
+
+                        <ListBox Grid.Row="2" Name="PRStrategyListBox" Margin="0,5,0,0" ItemsSource="{Binding Strategies}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" />
+                                        <TextBlock Text="{Binding Item.Name}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+
+                    <Grid Grid.Row="1" Grid.Column="1" Margin="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="495*"/>
+                        </Grid.RowDefinitions>
+
+                        <UniformGrid Columns="3" Grid.Row="0" Margin="5,0,5,0">
+                            <RadioButton Content="Any" 
+                                         IsChecked="{Binding TradeFilterSettings.TagFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Any}"/>
+                            <RadioButton Content="All"
+                                         IsChecked="{Binding TradeFilterSettings.TagFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=All}"/>
+                            <RadioButton Content="Exclude"
+                                         IsChecked="{Binding TradeFilterSettings.TagFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Exclude}"/>
+                        </UniformGrid>
+
+                        <Button Content="{Binding ToggleTagsText}" 
+                                Command="{Binding ToggleAllTags}"
+                                Name="PRSelectAllTagsBtn" 
+                                Grid.Row="1" Margin="5" />
+
+                        <ListBox Name="PRTagsListBox" Margin="0,5,0,0" Grid.Row="2" ItemsSource="{Binding Tags}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox IsChecked="{Binding IsChecked}" />
+                                        <TextBlock Text="{Binding Item.Name}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+
+                    <StackPanel Grid.Row="1" Grid.Column="3" Margin="5">
+                        <TextBlock Text="From:" FontSize="18" Foreground="DimGray" />
+                        <DatePicker SelectedDate="{Binding TradeFilterSettings.From, Mode=TwoWay}" SelectedDateFormat="Short" Margin="5,0,5,0" />
+                        <TextBlock Text="To:" FontSize="18" Foreground="DimGray" />
+                        <DatePicker SelectedDate="{Binding TradeFilterSettings.To, Mode=TwoWay}" SelectedDateFormat="Short" Name="PRDateTo"  Margin="5,0,5,0"/>
+
+                        <CheckBox IsChecked="{Binding TradeFilterSettings.ClosedTradesOnly}" Margin="5,10,0,0" Content="Closed Trades Only" />
+
+                        <Label Content="Value at Risk" Margin="-5,25,0,0" FontSize="30" Foreground="DimGray" />
+                        <UniformGrid Columns="2" Margin="5,0,5,0">
+                            <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
+                                         IsChecked="{Binding ReportSettings.VaRReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
+                            <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
+                                         IsChecked="{Binding ReportSettings.VaRReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                        </UniformGrid>
+
+                        <UniformGrid Columns="2" Margin="0,10,0,0" >
+                            <TextBlock Text="Days:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
+                            <TextBox Height="15" Text="{Binding ReportSettings.VaRDays}" />
+                        </UniformGrid>
+                    </StackPanel>
+
+                    <Grid Grid.Row="1" Grid.Column="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="35"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0"  Margin="5">
+                            <TextBlock Text="Return Type:" FontSize="18" Foreground="DimGray"  />
+                            <UniformGrid Columns="2"  Margin="5,0,5,0" IsEnabled="{Binding ElementName=PRUnitsDaysBtn,Path=IsChecked}">
+                                <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital"
+                                             IsChecked="{Binding ReportSettings.MCReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
+                                <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
+                                             IsChecked="{Binding ReportSettings.MCReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                            </UniformGrid>
+
+                            <TextBlock Text="Replacement:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray"  />
+                            <UniformGrid Columns="2"  Margin="5,0,5,0">
+                                <RadioButton Content="With" IsChecked="{Binding ReportSettings.MCWithReplacement}"/>
+                                <RadioButton Content="Without" IsChecked="{Binding ReportSettings.MCWithReplacement, Converter={StaticResource InvertBooleanConverter}}"/>
+                            </UniformGrid>
+
+                            <UniformGrid Columns="2" Margin="0,10,0,0">
+                                <TextBlock Text="Periods:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
+                                <TextBox Height="15" Text="{Binding ReportSettings.MCPeriods}" />
+                            </UniformGrid>
+
+                            <UniformGrid Columns="2" Margin="0,10,0,0" >
+                                <TextBlock Text="Runs:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
+                                <TextBox Height="15" Text="{Binding ReportSettings.MCRuns}" />
+                            </UniformGrid>
+
+                            <UniformGrid Columns="2" Margin="0,10,0,0" >
+                                <TextBlock Text="Cluster Size:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
+                                <TextBox Height="15" Text="{Binding ReportSettings.MCClusterSize}" />
+                            </UniformGrid>
+                        </StackPanel>
+
+                        <Button  Grid.Row="1"
+                                 Command="{Binding GenerateReport}"
+                                Style="{StaticResource AccentedSquareButtonStyle}" 
+                                 Margin="5,0,5,0" 
+                                 Name="BuildPerformanceReportBtn" 
+                                 
+                                 Content="Build Report" />
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="RiskReport">
+                <TextBlock>Nothing to see here yet.</TextBlock>
+            </TabItem>
+            <TabItem Header="TaxReport">
+                <TextBlock>Nothing to see here yet.</TextBlock>
+            </TabItem>
+
+        </TabControl>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="5">
+            <TextBlock Text="Status:" Margin="0,0,5,0" />
+            <TextBlock Name="ConnectionStatusText" Text="{Binding Datasourcer.ExternalDataSource.ConnectionStatus}" />
+        </StackPanel>
+    </Grid>
+</controls:MetroWindow>

@@ -1,0 +1,1648 @@
+﻿<controls:MetroWindow x:Class="QPAS.PerformanceReportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:qpas="clr-namespace:QPAS"
+        xmlns:qc="http://QuickConverter.CodePlex.com/"
+        xmlns:oxy="http://oxyplot.codeplex.com"
+        Title="Performance Report" Height="850" Width="1020"
+        BorderBrush="Black"
+        BorderThickness="1"
+        Icon="../Resources/icon.ico"
+        TitlebarHeight="32"
+        FontFamily="Segoe UI Semibold">
+    <Window.Resources>
+        <Style x:Key="CopyBtnStyle" TargetType="Button" BasedOn="{StaticResource MetroButton}">
+            <Setter Property="Margin" Value="5,5,0,0"/>
+            <Setter Property="ToolTip" Value="Copy" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Command" Value="{Binding CopyChart}" />
+        </Style>
+        
+        <Style x:Key="SaveBtnStyle" TargetType="Button" BasedOn="{StaticResource MetroButton}">
+            <Setter Property="Margin" Value="5,5,0,0"/>
+            <Setter Property="ToolTip" Value="Save" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Command" Value="{Binding SaveChart}" />
+        </Style>
+        
+        <qpas:ProfitToBgColorConverter x:Key="ProfitToBgColorConverter" />
+        <Style x:Key="ProfitBGColorStyle" TargetType="DataGridCell">
+            <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text, Converter={StaticResource ProfitToBgColorConverter} }" />
+        </Style>
+
+        <qpas:PctReturnToBgColorConverter x:Key="PctReturnToBgColorConverter" />
+        <Style x:Key="ReturnBGColorStyle" TargetType="DataGridCell">
+            <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text, Converter={StaticResource PctReturnToBgColorConverter} }" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="510*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="170"/>
+            <ColumnDefinition Width="1"/>
+            <ColumnDefinition Width="268*"/>
+        </Grid.ColumnDefinitions>
+        <Menu Background="WhiteSmoke" Grid.Row="0" Grid.ColumnSpan="2">
+            <MenuItem Header="_File">
+                <MenuItem Header="Export to PDF" x:Name="ExportPDFBtn" IsEnabled="False"/>
+                <MenuItem Header="Export to Excel" x:Name="ExportExcelBtn" IsEnabled="False"/>
+                <Separator/>
+                <MenuItem Header="_Exit" x:Name="BtnExit" Click="BtnExit_ItemClick"/>
+            </MenuItem>
+        </Menu>
+        
+        <TreeView Grid.Row="1" Grid.Column="0" Name="NavigationMenu" SelectedItemChanged="NavigationMenu_SelectedItemChanged">
+            <TreeViewItem Header="Cumulative P/L" Tag="CumulativePL" />
+            <TreeViewItem Header="Cumulative Returns" Tag="CumulativeReturns" />
+            <TreeViewItem Header="Capital Usage" Tag="CapitalUsage" />
+            <TreeViewItem Header="Per-Trade Stats" Tag="PerTradeStats" />
+            <TreeViewItem Header="Portfolio Stats" Tag="PortfolioStats" />
+            <TreeViewItem Header="P/L by Month" Tag="PLByMonth" />
+            <TreeViewItem Header="P/L by Tags" Tag="PnLByTags" />
+            <TreeViewItem Header="Strategy Correlations" Tag="StrategyCorrelations" />
+            <TreeViewItem Header="Benchmarking" Tag="Benchmarking" />
+            <TreeViewItem Header="Trade Ret. Distributions" Tag="TradeRetDistributions" />
+            <TreeViewItem Header="MAE/MFE" Tag="MAEMFE" />
+            <TreeViewItem Header="Avg. Cumulative Rets" Tag="AvgCumulativeRets" />
+            <TreeViewItem Header="Daily Ret. Distributions" Tag="DailyRetDistributions" />
+            <TreeViewItem Header="Trade Lengths" Tag="TradeLengths" />
+            <TreeViewItem Header="Length vs Returns" Tag="LengthVsReturns" />
+            <TreeViewItem Header="Sizing vs Returns" Tag="SizingVsReturns" />
+            <TreeViewItem Header="Realized P/L by Instrument" Tag="RealizedPLByInstrument" />
+            <TreeViewItem Header="ROAC by Instrument" Tag="ROACByInstrument" />
+            <TreeViewItem Header="Gross Movement Capture" IsEnabled="False" Tag="GrossMovementCapture" />
+            <TreeViewItem Header="Cash Transactions" Tag="CashTransactions" />
+            <TreeViewItem Header="ACF/PACF" IsEnabled="False" Tag="ACFPACF" />
+            <TreeViewItem Header="Risk" Tag="Risk" />
+            <TreeViewItem Header="Monte Carlo" Tag="MonteCarlo" />
+        </TreeView>
+        <Rectangle Stroke="Black" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.RowSpan="2" />
+        <TabControl Grid.Row="0" Grid.Column="2" Name="MainTabCtrl" Grid.RowSpan="2">
+            <TabItem Header="CumulativePL">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Cumulative Profit/Loss (Close to Close)" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=C2CPnLChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=C2CPnLChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                                
+                        </StackPanel>
+                            
+                        <oxy:PlotView Name="C2CPnLChart" Width="700" Height="400" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
+                                <oxy:LinearAxis Position="Left" StringFormat="c0" MajorGridlineStyle="Dash" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:LineSeries ItemsSource="{Binding Data.C2CPnLCurve}"
+                                                Name="C2CPnLChartPnLLine" CanTrackerInterpolatePoints="False"
+                                                MarkerType="Circle" Color="#4F81BD" MarkerFill="#4F81BD" MarkerSize="2" 
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;P/L: {4:c0}"
+                                                DataFieldX="date" DataFieldY="value" />
+                                <oxy:AreaSeries ItemsSource="{Binding Data.C2CPnLCurve}"
+                                                Name="C2CPnLChartDrawdownLine" CanTrackerInterpolatePoints="False"
+                                                MarkerType="Circle" Color="#DE0000" DataFieldX2="date" DataFieldY2="zero" StrokeThickness="1"
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:c0}"
+                                                DataFieldX="date" DataFieldY="drawdown" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Cumulative Profit/Loss (Daily)" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=DailyPnLChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=DailyPnLChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+                        <oxy:PlotView Name="DailyPnLChart" Width="700" Height="400" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
+                                <oxy:LinearAxis Position="Left" StringFormat="c0" MajorGridlineStyle="Dash" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:LineSeries ItemsSource="{Binding Data.dailyDollarEquityCurve}"
+                                                Name="DailyPnLChartPnLLine" CanTrackerInterpolatePoints="False"
+                                                Color="#4F81BD" MarkerType="None"
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;P/L: {4:c0}"
+                                                DataFieldX="date" DataFieldY="value" />
+                                <oxy:AreaSeries ItemsSource="{Binding Data.dailyDollarEquityCurve}"
+                                                Name="DailyPnLChartDrawdownLine" CanTrackerInterpolatePoints="False"
+                                                MarkerType="Circle" Color="#DE0000" DataFieldX2="date" DataFieldY2="zero" StrokeThickness="1"
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:c0}"
+                                                DataFieldX="date" DataFieldY="drawdown" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Long/Short Cumulative Profit/Loss (Daily)" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=LongShortDailyPnLChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=LongShortDailyPnLChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+                        <oxy:PlotView Name="LongShortDailyPnLChart" LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal"
+                                  Width="700" Height="400" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
+                                <oxy:LinearAxis Position="Left" StringFormat="c0" MajorGridlineStyle="Dash" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:LineSeries ItemsSource="{Binding Data.dailyDollarEquityCurveLongShort}"
+                                                Name="LongShortDailyPnLChartLongPnLLine" CanTrackerInterpolatePoints="False"
+                                                Color="#4F81BD" MarkerType="None" Title="Long Profit/Loss"
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;P/L: {4:c0}"
+                                                DataFieldX="date" DataFieldY="valueLong" />
+                                <oxy:LineSeries ItemsSource="{Binding Data.dailyDollarEquityCurveLongShort}"
+                                                Name="LongShortDailyPnLChartLongDrawdownLine" CanTrackerInterpolatePoints="False"
+                                                MarkerType="Circle" Color="#DE0000" StrokeThickness="1" Title="Long Drawdown"
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:c0}"
+                                                DataFieldX="date" DataFieldY="drawdownLong" />
+                                <oxy:LineSeries ItemsSource="{Binding Data.dailyDollarEquityCurveLongShort}"
+                                                Name="LongShortDailyPnLChartShortPnLLine" CanTrackerInterpolatePoints="False"
+                                                Color="#9DB667" MarkerType="None" Title="Short Profit/Loss"
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;P/L: {4:c0}"
+                                                DataFieldX="date" DataFieldY="valueShort" />
+                                <oxy:LineSeries ItemsSource="{Binding Data.dailyDollarEquityCurveLongShort}"
+                                                Name="LongShortDailyPnLChartShortDrawdownLine" CanTrackerInterpolatePoints="False"
+                                                MarkerType="Circle" Color="#7E659B" StrokeThickness="1" Title="Short Drawdown"
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:c0}"
+                                                DataFieldX="date" DataFieldY="drawdownShort" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Cumulative Profit/Loss by Strategy" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=PLByStrategyChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=PLByStrategyChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+
+                        </StackPanel>
+
+                        <oxy:PlotView Name="PLByStrategyChart" Width="700" Height="400" HorizontalAlignment="Center" Model="{Binding PLByStrategyModel}" />
+                    </StackPanel>
+                </ScrollViewer>
+
+            </TabItem>
+            <TabItem Header="CumulativeReturns">
+                <Grid>
+                    <ScrollViewer>
+                        <StackPanel HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal">
+                                <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Return on Allocated Capital" />
+                                <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=RoacECChart}">
+                                    <Button.Content>
+                                        <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    </Button.Content>
+                                </Button>
+                                <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=RoacECChart}">
+                                    <Button.Content>
+                                        <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+
+                            <oxy:PlotView Name="RoacECChart" Width="700" Height="400" HorizontalAlignment="Center"
+                                      LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal">
+                                <oxy:PlotView.Axes>
+                                    <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
+                                    <oxy:LinearAxis Position="Left" StringFormat="p0" MajorGridlineStyle="Dash" />
+                                </oxy:PlotView.Axes>
+                                <oxy:PlotView.Series>
+                                    <oxy:LineSeries ItemsSource="{Binding Data.dailyEquityCurvePctOnAllocatedCapital}"
+                                        Name="RoacECChartECLine" CanTrackerInterpolatePoints="False"
+                                                    MarkerType="None" Color="#4F81BD" Title="ROAC"
+                                                    TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;ROAC: {4:p1}"
+                                                    DataFieldX="date" DataFieldY="value" />
+                                    <oxy:LineSeries ItemsSource="{Binding Data.dailyEquityCurvePctOnAllocatedCapital}"
+                                        Name="RoacECChartBenchmarkLine" CanTrackerInterpolatePoints="False"
+                                                    Color="#226523" Title="Benchmark" StrokeThickness="1"
+                                                    TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Benchmark Return: {4:p1}"
+                                                    DataFieldX="date" DataFieldY="benchmark" />
+                                    <oxy:LineSeries ItemsSource="{Binding Data.dailyEquityCurvePctOnAllocatedCapital}"
+                                        Name="RoacECChartDrawdownLine" CanTrackerInterpolatePoints="False"
+                                                    MarkerType="Circle" Color="#DE0000" Title="Drawdown"
+                                                    TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:p1}"
+                                                    DataFieldX="date" DataFieldY="drawdown" />
+                                </oxy:PlotView.Series>
+                            </oxy:PlotView>
+
+                            <StackPanel Orientation="Horizontal">
+                                <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Return on Total Capital" />
+                                <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=RotcECChart}">
+                                    <Button.Content>
+                                        <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    </Button.Content>
+                                </Button>
+                                <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=RotcECChart}">
+                                    <Button.Content>
+                                        <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    </Button.Content>
+                                </Button>
+
+                            </StackPanel>
+
+                            <oxy:PlotView Name="RotcECChart" Width="700" Height="400" HorizontalAlignment="Center"
+                                      LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal">
+                                <oxy:PlotView.Axes>
+                                    <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
+                                    <oxy:LinearAxis Position="Left" StringFormat="p0" MajorGridlineStyle="Dash" />
+                                </oxy:PlotView.Axes>
+                                <oxy:PlotView.Series>
+                                    <oxy:LineSeries ItemsSource="{Binding Data.dailyEquityCurvePctOnTotalCapital}"
+                                        Name="RotcECChartECLine" CanTrackerInterpolatePoints="False"
+                                                    MarkerType="None" Color="#4F81BD" Title="ROTC"
+                                                    TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;ROAC: {4:p1}"
+                                                    DataFieldX="date" DataFieldY="value" />
+                                    <oxy:LineSeries ItemsSource="{Binding Data.dailyEquityCurvePctOnTotalCapital}"
+                                        Name="RotcECChartBenchmarkLine" CanTrackerInterpolatePoints="False"
+                                                    Color="#226523" Title="Benchmark" StrokeThickness="1"
+                                                    TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Benchmark Return: {4:p1}"
+                                                    DataFieldX="date" DataFieldY="benchmark" />
+                                    <oxy:LineSeries ItemsSource="{Binding Data.dailyEquityCurvePctOnTotalCapital}"
+                                        Name="RotcECChartDrawdownLine" CanTrackerInterpolatePoints="False"
+                                                    MarkerType="Circle" Color="#DE0000" Title="Drawdown"
+                                                    TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:p1}"
+                                                    DataFieldX="date" DataFieldY="drawdown" />
+                                </oxy:PlotView.Series>
+                            </oxy:PlotView>
+
+
+
+
+                            <StackPanel Orientation="Horizontal">
+                                <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="ROAC by Strategy" />
+                                <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=RoacByStrategyChart}">
+                                    <Button.Content>
+                                        <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    </Button.Content>
+                                </Button>
+                                <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=RoacByStrategyChart}">
+                                    <Button.Content>
+                                        <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    </Button.Content>
+                                </Button>
+                            </StackPanel>
+
+                            <oxy:PlotView Name="RoacByStrategyChart" Model="{Binding RoacByStrategyModel}"
+                                          Width="700" Height="600" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="CapitalUsage">
+                <Grid>
+                    <ScrollViewer>
+                        <StackPanel HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal">
+                                <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Capital Usage" />
+                                <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=CapitalUsageChart}">
+                                    <Button.Content>
+                                        <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    </Button.Content>
+                                </Button>
+                                <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=CapitalUsageChart}">
+                                    <Button.Content>
+                                        <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    </Button.Content>
+                                </Button>
+
+                            </StackPanel>
+
+                            <oxy:PlotView Name="CapitalUsageChart" Width="700" Height="600" HorizontalAlignment="Center"
+                                      LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal">
+                                <oxy:PlotView.Axes>
+                                    <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
+                                    <oxy:LinearAxis Position="Left" StringFormat="p0" MajorGridlineStyle="Dash" Key="LeverageAxis" StartPosition="0" EndPosition="0.3" />
+                                    <oxy:LinearAxis Position="Left" StringFormat="c0" MajorGridlineStyle="Dash" Key="CapitalAxis" StartPosition="0.4" EndPosition="1" />
+                                </oxy:PlotView.Axes>
+                                <oxy:PlotView.Series>
+                                    <oxy:LineSeries ItemsSource="{Binding Data.capitalUsage}"
+                                        Name="CapitalUsageChartTotalCapitalLine" CanTrackerInterpolatePoints="False"
+                                                    MarkerType="None" Color="#4F81BD" Title="Total Capital" YAxisKey="CapitalAxis"
+                                                    TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Total Capital: {4:c0}"
+                                                    DataFieldX="date" DataFieldY="totalCapital" />
+                                    <oxy:LineSeries ItemsSource="{Binding Data.capitalUsage}"
+                                        Name="CapitalUsageChartAllocatedCapitalLine" CanTrackerInterpolatePoints="False"
+                                                    Color="#226523" Title="Allocated Capital" StrokeThickness="1"  YAxisKey="CapitalAxis"
+                                                    TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Allocated Capital: {4:c0}"
+                                                    DataFieldX="date" DataFieldY="allocatedCapital" />
+                                    <oxy:LineSeries ItemsSource="{Binding Data.capitalUsage}"
+                                        Name="CapitalUsageChartLeverageLine" CanTrackerInterpolatePoints="False"
+                                                    Color="#FE7F00" Title="Leverage" YAxisKey="LeverageAxis" StrokeThickness="1"
+                                                    TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Allocated Capital: {4:p0}"
+                                                    DataFieldX="date" DataFieldY="utilization" />
+                                </oxy:PlotView.Series>
+                                <oxy:PlotView.Annotations>
+                                    <oxy:LineAnnotation Text="" TextHorizontalAlignment="Right" Color="Black" LineStyle="Solid"
+                                                        TextColor="Black" TextOrientation="Horizontal"  Y="1" Type="Horizontal"  />
+                                </oxy:PlotView.Annotations>
+                            </oxy:PlotView>
+
+
+
+                            <StackPanel Orientation="Horizontal">
+                                <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Capital Usage by Strategy" />
+                                <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=CapitalUsageByStrategyChart}">
+                                    <Button.Content>
+                                        <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    </Button.Content>
+                                </Button>
+                                <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=CapitalUsageByStrategyChart}">
+                                    <Button.Content>
+                                        <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    </Button.Content>
+                                </Button>
+
+                            </StackPanel>
+
+                            <oxy:PlotView Name="CapitalUsageByStrategyChart" Width="700" Height="600" HorizontalAlignment="Center"
+                                      Model="{Binding CapitalUsageByStrategyModel}" />
+
+
+                            <StackPanel Orientation="Horizontal">
+                                <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Relative Capital Usage by Strategy" />
+                                <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=RelativeCapitalUsageByStrategyChart}">
+                                    <Button.Content>
+                                        <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    </Button.Content>
+                                </Button>
+                                <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=RelativeCapitalUsageByStrategyChart}">
+                                    <Button.Content>
+                                        <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                    </Button.Content>
+                                </Button>
+
+                            </StackPanel>
+
+                            <oxy:PlotView Name="RelativeCapitalUsageByStrategyChart" Width="700" Height="600" HorizontalAlignment="Center"
+                                      Model="{Binding RelativeCapitalUsageByStrategyModel}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="PerTradeStats">
+                <ScrollViewer>
+                    <StackPanel>
+                        <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="All Trades" />
+                    
+                        <DataGrid Name="TradeStatsGrid" IsReadOnly="True" AutoGenerateColumns="False" FontSize="12"
+                                  Width="500" CanUserAddRows="False" CanUserDeleteRows="False" ItemsSource="{Binding Data.TradeStats}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Stat" Width="*" FontWeight="Bold" Binding="{Binding stat}" />
+                                <DataGridTextColumn Header="Value" Width="*" Binding="{Binding value}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+
+                        <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="By Strategy" />
+                        <DataGrid Name="TradeStatsByStrategyGrid" IsReadOnly="True" AutoGenerateColumns="True" FontSize="12"
+                                  AutoGeneratingColumn="TradeStatsByStrategyGrid_AutoGeneratingColumn"
+                                  Width="500" CanUserAddRows="False" CanUserDeleteRows="False" ItemsSource="{Binding Data.TradeStatsByStrategy}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Stat" Width="200" FontWeight="Bold" Binding="{Binding stat}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="PortfolioStats">
+                <Grid>
+                    <DataGrid Name="PortfolioStatsGrid" IsReadOnly="True" AutoGenerateColumns="False" FontSize="12"
+                              Width="600" CanUserAddRows="False" CanUserDeleteRows="False" ItemsSource="{Binding Data.PortfolioStats}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Stat" Width="250" FontWeight="Bold" Binding="{Binding stat}" />
+                            <DataGridTextColumn Header="ROAC" Width="*" Binding="{Binding roac}" />
+                            <DataGridTextColumn Header="ROTC" Width="*" Binding="{Binding rotc}" />
+                            <DataGridTextColumn Header="Benchmark" Width="*" Binding="{Binding benchmark}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="PNLByMonth">
+                <Grid>
+                    <StackPanel>
+                        <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Profit/Loss by Month" />
+                        <DataGrid Name="PLByMonthGrid" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                                  AutoGenerateColumns="False" HorizontalAlignment="Center" ItemsSource="{Binding Data.dollarReturnsByMonth}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Year" FontWeight="Bold" Binding="{Binding year}" />
+                                <DataGridTextColumn Header="Jan" Binding="{Binding jan, StringFormat={}{0:$0;($0);''}}" CellStyle="{StaticResource ProfitBGColorStyle}" />
+                                <DataGridTextColumn Header="Feb" Binding="{Binding feb, StringFormat={}{0:$0;($0);''}}" CellStyle="{StaticResource ProfitBGColorStyle}" />
+                                <DataGridTextColumn Header="Mar" Binding="{Binding mar, StringFormat={}{0:$0;($0);''}}" CellStyle="{StaticResource ProfitBGColorStyle}" />
+                                <DataGridTextColumn Header="Apr" Binding="{Binding apr, StringFormat={}{0:$0;($0);''}}" CellStyle="{StaticResource ProfitBGColorStyle}" />
+                                <DataGridTextColumn Header="May" Binding="{Binding may, StringFormat={}{0:$0;($0);''}}" CellStyle="{StaticResource ProfitBGColorStyle}" />
+                                <DataGridTextColumn Header="Jun" Binding="{Binding jun, StringFormat={}{0:$0;($0);''}}" CellStyle="{StaticResource ProfitBGColorStyle}" />
+                                <DataGridTextColumn Header="Jul" Binding="{Binding jul, StringFormat={}{0:$0;($0);''}}" CellStyle="{StaticResource ProfitBGColorStyle}" />
+                                <DataGridTextColumn Header="Aug" Binding="{Binding aug, StringFormat={}{0:$0;($0);''}}" CellStyle="{StaticResource ProfitBGColorStyle}" />
+                                <DataGridTextColumn Header="Sep" Binding="{Binding sep, StringFormat={}{0:$0;($0);''}}" CellStyle="{StaticResource ProfitBGColorStyle}" />
+                                <DataGridTextColumn Header="Oct" Binding="{Binding oct, StringFormat={}{0:$0;($0);''}}" CellStyle="{StaticResource ProfitBGColorStyle}" />
+                                <DataGridTextColumn Header="Nov" Binding="{Binding nov, StringFormat={}{0:$0;($0);''}}" CellStyle="{StaticResource ProfitBGColorStyle}" />
+                                <DataGridTextColumn Header="Dec" Binding="{Binding dec, StringFormat={}{0:$0;($0);''}}" CellStyle="{StaticResource ProfitBGColorStyle}" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding total, StringFormat={}{0:$0;($0);''}}"  CellStyle="{StaticResource ProfitBGColorStyle}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        
+                        <Label HorizontalAlignment="Left" Margin="0,20,0,0"
+                                       FontSize="28" Foreground="DimGray" Content="ROAC by Month" />
+                        <DataGrid Name="ROACByMonthGrid"  CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                                  AutoGenerateColumns="False" HorizontalAlignment="Center" ItemsSource="{Binding Data.ROACByMonth}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Year" FontWeight="Bold" Binding="{Binding year}" />
+                                <DataGridTextColumn Header="Jan" Binding="{Binding jan, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Feb" Binding="{Binding feb, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Mar" Binding="{Binding mar, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Apr" Binding="{Binding apr, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="May" Binding="{Binding may, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Jun" Binding="{Binding jun, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Jul" Binding="{Binding jul, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Aug" Binding="{Binding aug, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Sep" Binding="{Binding sep, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Oct" Binding="{Binding oct, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Nov" Binding="{Binding nov, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Dec" Binding="{Binding dec, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding total, StringFormat={}{0:p2}}"  CellStyle="{StaticResource ReturnBGColorStyle}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <Label HorizontalAlignment="Left" Margin="0,20,0,0"
+                                       FontSize="28" Foreground="DimGray" Content="ROTC by Month" />
+                        <DataGrid Name="ROTCByMonthGrid"  CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                                  AutoGenerateColumns="False" HorizontalAlignment="Center" ItemsSource="{Binding Data.ROTCByMonth}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Year" FontWeight="Bold" Binding="{Binding year}" />
+                                <DataGridTextColumn Header="Jan" Binding="{Binding jan, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Feb" Binding="{Binding feb, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Mar" Binding="{Binding mar, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Apr" Binding="{Binding apr, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="May" Binding="{Binding may, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Jun" Binding="{Binding jun, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Jul" Binding="{Binding jul, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Aug" Binding="{Binding aug, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Sep" Binding="{Binding sep, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Oct" Binding="{Binding oct, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Nov" Binding="{Binding nov, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Dec" Binding="{Binding dec, StringFormat={}{0:p2}}" CellStyle="{StaticResource ReturnBGColorStyle}" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding total, StringFormat={}{0:p2}}"  CellStyle="{StaticResource ReturnBGColorStyle}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="PnLByTags">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Total Profit/Loss by Tag" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=TotalPLByTagChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=TotalPLByTagChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="TotalPLByTagChart" Width="700" Height="1000" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" StringFormat="c2" />
+                                <oxy:CategoryAxis Position="Left" MinorStep="1" 
+                                                  ItemsSource="{Binding Data.PLByTag}" LabelField="tag" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:BarSeries ItemsSource="{Binding Data.PLByTag}"
+                                                Name="TotalPLByTagBarSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                                LabelFormatString="{}{0:c2}"
+                                                LabelPlacement="Inside"
+                                                ValueField="totalPL" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Average Trade Profit/Loss by Tag" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=AvgPLByTagChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=AvgPLByTagChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="AvgPLByTagChart" Width="700" Height="1000" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" StringFormat="c2" />
+                                <oxy:CategoryAxis Position="Left" MinorStep="1" 
+                                                  ItemsSource="{Binding Data.PLByTag}" LabelField="tag" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:BarSeries ItemsSource="{Binding Data.PLByTag}"
+                                                Name="AvgPLByTagBarSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                                LabelFormatString="{}{0:c2}"
+                                                LabelPlacement="Inside"
+                                                ValueField="avgPL" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                        
+                        
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Total Profit/Loss by Tag Combination" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=TotalPLByTagComboChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=TotalPLByTagComboChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="TotalPLByTagComboChart" Width="700" Height="1000" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" StringFormat="c2" />
+                                <oxy:CategoryAxis Position="Left" MinorStep="1" 
+                                                  ItemsSource="{Binding Data.PLByTagCombo}" LabelField="tags" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:BarSeries ItemsSource="{Binding Data.PLByTagCombo}"
+                                                Name="TotalPLByTagComboBarSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                                LabelFormatString="{}{0:c2}"
+                                                LabelPlacement="Inside"
+                                                ValueField="totalPL" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Average Trade Profit/Loss by Tag Combo" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=AvgPLByTagComboChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=AvgPLByTagComboChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="AvgPLByTagComboChart" Width="700" Height="1000" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" StringFormat="c2" />
+                                <oxy:CategoryAxis Position="Left" MinorStep="1" 
+                                                  ItemsSource="{Binding Data.PLByTagCombo}" LabelField="tags" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:BarSeries ItemsSource="{Binding Data.PLByTagCombo}"
+                                                Name="AvgPLByTagComboBarSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                                LabelFormatString="{}{0:c2}"
+                                                LabelPlacement="Inside"
+                                                ValueField="averagePL" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Strategy Correlations">
+                <ScrollViewer>
+                    <StackPanel>
+                        <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Strategy Correlations" />
+                        <DataGrid Name="StrategyCorrelationsGrid" IsReadOnly="True" AutoGenerateColumns="True" AutoGeneratingColumn="StrategyCorrelationsGrid_AutoGeneratingColumn" FontSize="12"
+                              Width="600" CanUserAddRows="False" CanUserDeleteRows="False" ItemsSource="{Binding Data.StrategyCovMatrix}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" FontWeight="Bold" Width="150" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Benchmarking">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Stats:" />
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Benchmark" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding BenchmarkInstrument}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Correlation" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding BenchmarkCorrelation, StringFormat={}{0:.00}}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Alpha" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding BenchmarkAlpha, StringFormat={}{0:p2}}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Beta" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding BenchmarkBeta, StringFormat={}{0:.00}}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="R Squared" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding BenchmarkRSquare,StringFormat={}{0:.00}}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left" Margin="0,10,0,0"
+                                   FontSize="28" Foreground="DimGray" Content="Rolling 100-Day Alpha/Beta:" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=RollingAlphaBetaChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=RollingAlphaBetaChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+
+                        <oxy:PlotView Name="RollingAlphaBetaChart" Width="700" Height="400" HorizontalAlignment="Center"
+                                  LegendPosition="BottomCenter" LegendPlacement="Outside" LegendOrientation="Horizontal"> 
+                            <oxy:PlotView.Axes>
+                                <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
+                                <oxy:LinearAxis Position="Left" Key="BetaAxis" Title="Beta" StringFormat="0.0" MajorGridlineStyle="Dash" />
+                                <oxy:LinearAxis Position="Right" Key="AlphaAxis" Title="Alpha" StringFormat="p1" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:LineSeries YAxisKey="AlphaAxis"
+                                                ItemsSource="{Binding Data.rollingAlphaBeta}"
+                                                Name="AlphaLine" CanTrackerInterpolatePoints="False"
+                                                Color="#4F81BD" MarkerType="None" Title="Alpha"
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Alpha: {4:p1}"
+                                                DataFieldX="date" DataFieldY="alpha" />
+                                <oxy:LineSeries YAxisKey="BetaAxis"
+                                                ItemsSource="{Binding Data.rollingAlphaBeta}"
+                                                Name="BetaLine" CanTrackerInterpolatePoints="False"
+                                                Color="#DE0000" MarkerType="None" Title="Beta"
+                                                TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Beta: {4:0.00}"
+                                                DataFieldX="date" DataFieldY="beta" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="TradeRetDistributions">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Trade Profit/Loss Distribution" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=TradePLHistogramChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=TradePLHistogramChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="TradePLHistogramChart" Width="700" Height="350" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Left" StringFormat="0" />
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                                  AxisTickToLabelDistance="15"
+                                                  ItemsSource="{Binding Data.tradeDollarRetBuckets}" Angle="20"
+                                                  LabelField="limits" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ColumnSeries ItemsSource="{Binding Data.tradeDollarRetBuckets}"
+                                                Name="TradePLColumnSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                                ValueField="count" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+
+
+
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Trade Returns Distribution" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=TradeReturnsHistogramChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=TradeReturnsHistogramChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="TradeReturnsHistogramChart" Width="700" Height="350" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Left" StringFormat="0" />
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                                  AxisTickToLabelDistance="15"
+                                                  ItemsSource="{Binding Data.tradePctRetBuckets}" Angle="20"
+                                                  LabelField="limits" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ColumnSeries ItemsSource="{Binding Data.tradePctRetBuckets}"
+                                                Name="TradeReturnsColumnSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                                ValueField="count" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="MAEMFE">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Maximum Adverse Excursion" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=MAEChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=MAEChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="MAEChart" Width="700" Height="400" HorizontalAlignment="Center"
+                                  LegendPosition="BottomCenter" LegendOrientation="Horizontal" LegendPlacement="Outside">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" StringFormat="p2" MajorGridlineStyle="Dash" Title="Maximum Adverse Excursion" />
+                                <oxy:LinearAxis Position="Left" StringFormat="p2" MajorGridlineStyle="Dash" Title="Absolute Return" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ScatterSeries ItemsSource="{Binding WinnerMAEs}"
+                                                Name="MAEChartWinnerSeries" Title="Winning Trades"
+                                                MarkerType="Circle" Color="Lime" MarkerSize="2" MarkerFill="Lime"
+                                                TrackerFormatString="MAE: {2:p2}&#x0a;Return: {4:p2}"
+                                                DataFieldX="X" DataFieldY="Y" />
+                                <oxy:ScatterSeries ItemsSource="{Binding LoserMAEs}"
+                                                Name="MAEChartLoserSeries" Title="Losing Trades"
+                                                MarkerType="Circle" Color="Red"  MarkerSize="2" MarkerFill="Red"
+                                                TrackerFormatString="MAE: {2:p2}&#x0a;Return: {4:p2}"
+                                                DataFieldX="X" DataFieldY="Y" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Maximum Favorable Excursion" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=MFEChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=MFEChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+
+                        </StackPanel>
+
+                        <oxy:PlotView Name="MFEChart" Width="700" Height="400" HorizontalAlignment="Center"
+                                  LegendPosition="BottomCenter" LegendOrientation="Horizontal" LegendPlacement="Outside">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" StringFormat="p2" MajorGridlineStyle="Dash" Title="Maximum Favorable Excursion" />
+                                <oxy:LinearAxis Position="Left" StringFormat="p2" MajorGridlineStyle="Dash" Title="Absolute Return" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ScatterSeries ItemsSource="{Binding WinnerMFEs}"
+                                                Name="MFEChartWinnerSeries" Title="Winning Trades"
+                                                MarkerType="Circle" Color="Lime" MarkerSize="2" MarkerFill="Lime"
+                                                TrackerFormatString="MFE: {2:p2}&#x0a;Return: {4:p2}"
+                                                DataFieldX="X" DataFieldY="Y" />
+                                <oxy:ScatterSeries ItemsSource="{Binding LoserMFEs}"
+                                                Name="MFEChartLoserSeries" Title="Losing Trades"
+                                                MarkerType="Circle" Color="Red"  MarkerSize="2" MarkerFill="Red"
+                                                TrackerFormatString="MFE: {2:p2}&#x0a;Return: {4:p2}"
+                                                DataFieldX="X" DataFieldY="Y" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="AvgCumulativeRets">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Average Cumulative Returns by Day in Trade" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=AvgCumulativeRetsChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=AvgCumulativeRetsChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="AvgCumulativeRetsChart" Width="1600" Height="350" HorizontalAlignment="Center"
+                                  LegendPosition="BottomCenter" LegendOrientation="Horizontal" LegendPlacement="Outside">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Key="PctAxis" Position="Left" StringFormat="p2" Title="Return" MajorGridlineStyle="Dash" />
+                                <oxy:LogarithmicAxis AbsoluteMinimum="0" Minimum="0.1" MinimumPadding="0"
+                                    Key="LogAxis" Position="Right" StringFormat="0" Title="Frequency" />
+                                <oxy:CategoryAxis Position="Bottom" StringFormat="" ItemsSource="{Binding Data.AverageDailyRets}" LabelField="day" />
+                                
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ColumnSeries
+                                                  ValueField="winnersCount"
+                                                  YAxisKey="LogAxis"
+                                                ItemsSource="{Binding Data.AverageDailyRets}"
+                                                Name="AvgCumulativeRetsWinnerCountSeries" 
+                                                FillColor="#A3FFA4"
+                                                Title="Winners Count"
+                                                  BaseValue="0.1"
+                                                StrokeThickness="1"/>
+                                <oxy:ColumnSeries
+                                                  ValueField="losersCount"
+                                                  YAxisKey="LogAxis"
+                                                ItemsSource="{Binding Data.AverageDailyRets}"
+                                                Name="AvgCumulativeRetsLosersCountSeries" 
+                                                FillColor="#FF4B4B"
+                                                Title="Losers Count"
+                                                  BaseValue="0.1"
+                                                StrokeThickness="1"/>
+                                <oxy:LineSeries 
+                                                ItemsSource="{Binding Data.AverageDailyRets}"
+                                                Name="AvgCumulativeRetsAllReturnsSeries" 
+                                                Color="#0066FF"
+                                                DataFieldX="day"
+                                                DataFieldY="allRets"
+                                                Title="All Cumulative Rets"
+                                                YAxisKey="PctAxis"
+                                    />
+                                <oxy:LineSeries 
+                                                ItemsSource="{Binding AvgCumulativeWinnerRets}"
+                                                Name="AvgCumulativeRetsWinnersReturnsSeries" 
+                                                Color="#66CC66"
+                                                DataFieldX="Key"
+                                                DataFieldY="Value"
+                                                Title="Winners Cumulative Rets"
+                                                YAxisKey="PctAxis"
+                                    />
+                                <oxy:LineSeries 
+                                                ItemsSource="{Binding AvgCumulativeLoserRets}"
+                                                Name="AvgCumulativeRetsLosersReturnsSeries" 
+                                                Color="#FF3333"
+                                                DataFieldX="Key"
+                                                DataFieldY="Value"
+                                                Title="Losers Cumulative Rets"
+                                                YAxisKey="PctAxis"
+                                    />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="DailyRetDistributions">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Daily ROAC Distribution" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=DailyROACHistogramChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=DailyROACHistogramChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="DailyROACHistogramChart" Width="700" Height="350" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Left" StringFormat="0" />
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                                  AxisTickToLabelDistance="15"
+                                                  ItemsSource="{Binding Data.dailyPctRetBuckets}" Angle="20"
+                                                  LabelField="limits" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ColumnSeries ItemsSource="{Binding Data.dailyPctRetBuckets}"
+                                                Name="DailyROACHistogramColumnSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                                ValueField="count" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Daily ROTC Distribution" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=DailyROTCHistogramChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=DailyROTCHistogramChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="DailyROTCHistogramChart" Width="700" Height="350" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Left" StringFormat="0" />
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                                  AxisTickToLabelDistance="15"
+                                                  ItemsSource="{Binding Data.dailyTotalPctRetBuckets}" Angle="20"
+                                                  LabelField="limits" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ColumnSeries ItemsSource="{Binding Data.dailyTotalPctRetBuckets}"
+                                                Name="DailyROTCHistogramColumnSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                                ValueField="count" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="TradeLengths">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Trade Length Histogram" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=TradeLengthChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=TradeLengthChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="TradeLengthChart" Width="700" Height="350" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Left" StringFormat="0" />
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                                  ItemsSource="{Binding Data.holdingPeriodBuckets}" Angle="15"
+                                                  LabelField="limits" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ColumnSeries ItemsSource="{Binding Data.holdingPeriodBuckets}"
+                                                Name="TradeLengthColumnSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                                ValueField="count" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="LengthVsReturns">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Trade Length vs Returns" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=LengthVsReturnsChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=LengthVsReturnsChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+
+                        </StackPanel>
+
+                        <oxy:PlotView Name="LengthVsReturnsChart" Width="700" Height="400" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Left" StringFormat="p1" MajorGridlineStyle="Dash" Title="Return" />
+                                <oxy:LinearAxis Position="Bottom" StringFormat="0" MajorGridlineStyle="Dash" Title="Length" Unit="Days" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ScatterSeries ItemsSource="{Binding Data.tradeLengthsVsReturns}"
+                                                Name="LengthVsReturnsChartSeries"
+                                                MarkerType="Circle" Color="#4F81BD" MarkerSize="2" MarkerFill="#4F81BD"
+                                                TrackerFormatString="Length: {2:0.00} Days&#x0a;Return: {4:p1}"
+                                                DataFieldX="length" DataFieldY="ret" />
+                            </oxy:PlotView.Series>
+                            <oxy:PlotView.Annotations>
+                                <oxy:LineAnnotation Slope="{Binding RetVsLengthBestFitLineSlope}" 
+                                                    Intercept="{Binding RetVsLengthBestFitLineConstant}"
+                                                    LineStyle="Solid"
+                                                    Color="DeepPink"
+                                                    Text="Best Fit"
+                                                    TextColor="Black"
+                                                    />
+                            </oxy:PlotView.Annotations>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="SizingVsReturns">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Trade Capital Usage as % of Total vs Returns" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=SizingVsReturnsChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=SizingVsReturnsChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+
+                        </StackPanel>
+
+                        <oxy:PlotView Name="SizingVsReturnsChart" Width="700" Height="400" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" StringFormat="p1" MajorGridlineStyle="Dash" Title="Return" />
+                                <oxy:LinearAxis Position="Left" StringFormat="p1" MajorGridlineStyle="Dash" Title="Size as % of Total Capital" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ScatterSeries ItemsSource="{Binding Data.positionSizesVsReturns}"
+                                                Name="SizingVsReturnsChartSeries"
+                                                MarkerType="Circle" Color="#4F81BD" MarkerSize="2" MarkerFill="#4F81BD"
+                                                TrackerFormatString="Return: {2:p2}&#x0a;Size: {4:p1}"
+                                                DataFieldX="ret" DataFieldY="size" />
+                            </oxy:PlotView.Series>
+                            <oxy:PlotView.Annotations>
+                                <oxy:LineAnnotation Slope="{Binding RetVsSizeBestFitLineSlope}" 
+                                                    Intercept="{Binding RetVsSizeBestFitLineConstant}"
+                                                    LineStyle="Solid"
+                                                    Color="DeepPink"
+                                                    Text="Best Fit"
+                                                    TextColor="Black"
+                                                    />
+                            </oxy:PlotView.Annotations>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="RealizedPLByInstrument">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Realized Profit/Loss by Instrument" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=RealizedPLByInstrumentChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=RealizedPLByInstrumentChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="RealizedPLByInstrumentChart" Width="700" Height="1000" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" StringFormat="c2" />
+                                <oxy:CategoryAxis Position="Left" MinorStep="1" 
+                                                  ItemsSource="{Binding Data.pnlByInstrument}" LabelField="instrument" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:BarSeries ItemsSource="{Binding Data.pnlByInstrument}"
+                                                Name="RealizedPLByInstrumentSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                               LabelFormatString="{}{0:c2}"
+                                               LabelPlacement="Inside"
+                                                ValueField="PnL" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="ROACByInstrument">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="ROAC by Instrument" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=ROACByInstrumentChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=ROACByInstrumentChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="ROACByInstrumentChart" Width="700" Height="1000" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" StringFormat="p1" />
+                                <oxy:CategoryAxis Position="Left" MinorStep="1" 
+                                                  ItemsSource="{Binding Data.instrumentROAC}" LabelField="instrument" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:BarSeries ItemsSource="{Binding Data.instrumentROAC}"
+                                                Name="ROACByInstrumentSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                               LabelFormatString="{}{0:p2}"
+                                               LabelPlacement="Inside"
+                                                ValueField="ROAC" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="GrossMovementCapture" />
+            <TabItem Header="CashTransactions">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Cash Transactions by Type" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=CashTransactionsChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=CashTransactionsChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="CashTransactionsChart" Width="700" Height="350" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Left" StringFormat="c0" MajorGridlineStyle="Dash" MinorGridlineStyle="Dash" />
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                                  AxisTickToLabelDistance="15"
+                                                  ItemsSource="{Binding Data.cashTransactionPnL}" Angle="10"
+                                                  LabelField="type" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ColumnSeries ItemsSource="{Binding Data.cashTransactionPnL}"
+                                                Name="CashTransactionsColumnSeries" 
+                                                FillColor="#4F81BD"
+                                                LabelFormatString="{}{0:c2}"
+                                                LabelPlacement="Outside"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                                ValueField="amount" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="ACFPACF" />
+            <TabItem Header="Risk">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Value at Risk" />
+
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Stats:" />
+                            
+                        <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=VaRChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=VaRChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+                        
+                        
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Returns source:" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding Settings.VaRReturnType}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Days:" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding Settings.VaRDays}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+
+
+
+                        <oxy:PlotView Name="VaRChart" Width="700" Height="400" HorizontalAlignment="Center"
+                                  LegendPosition="BottomCenter" LegendPlacement="Outside" LegendOrientation="Horizontal">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" Maximum="0.12" Minimum="-0.01"
+                                                StringFormat="p1" EndPosition="0" StartPosition="1" Title="Probability" />
+                                <oxy:LinearAxis Position="Left" StringFormat="p1" MajorGridlineStyle="Dash" Title="Value at Risk" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:LineSeries ItemsSource="{Binding Data.ValueAtRisk}"
+                                                Name="VaRChartGaussianLine" CanTrackerInterpolatePoints="False" Smooth="True"
+                                                MarkerType="Circle" Color="#4F81BD" Title="Gaussian" 
+                                                MarkerFill="#4F81BD" MarkerSize="5"
+                                                LabelFormatString="Nrml: {}{0:p1}: {1:p1}" LabelMargin="50"
+                                                TrackerFormatString="Probability: {2:p1}&#x0a;Value at Risk: {4:p2}"
+                                                DataFieldX="level" DataFieldY="var" />
+                                <oxy:LineSeries ItemsSource="{Binding Data.ValueAtRisk}"
+                                                Name="VaRChartBootstrapLine" CanTrackerInterpolatePoints="False" Smooth="True"
+                                                MarkerType="Circle" Color="#DE0000" Title="Historical" 
+                                                MarkerFill="#DE0000" MarkerSize="5"
+                                                LabelFormatString="Historical: {}{0:p1}: {1:p1}" LabelMargin="-10"
+                                                TrackerFormatString="Probability: {2:p1}&#x0a;Value at Risk: {4:p2}"
+                                                DataFieldX="level" DataFieldY="bootstrapVaR" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Expected Shortfall" />
+                        <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=ESChart}">
+                            <Button.Content>
+                                <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                            </Button.Content>
+                        </Button>
+                        <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=ESChart}">
+                            <Button.Content>
+                                <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+
+                    <oxy:PlotView Name="ESChart" Width="700" Height="400" HorizontalAlignment="Center"
+                                  LegendPosition="BottomCenter" LegendPlacement="Outside" LegendOrientation="Horizontal">
+                        <oxy:PlotView.Axes>
+                            <oxy:LinearAxis Position="Bottom" Maximum="0.12" Minimum="-0.01"
+                                                StringFormat="p1" EndPosition="0" StartPosition="1" Title="Probability" />
+                            <oxy:LinearAxis Position="Left" StringFormat="p1" MajorGridlineStyle="Dash" Title="Expected Shortfall" />
+                        </oxy:PlotView.Axes>
+                        <oxy:PlotView.Series>
+                            <oxy:LineSeries ItemsSource="{Binding Data.ExpectedShortfall}"
+                                                Name="ESChartGaussianLine" CanTrackerInterpolatePoints="False" Smooth="True"
+                                                MarkerType="Circle" Color="#4F81BD" Title="Gaussian" 
+                                                MarkerFill="#4F81BD" MarkerSize="5"
+                                                LabelFormatString="Nrml: {}{0:p1}: {1:p1}" LabelMargin="50"
+                                                TrackerFormatString="Probability: {2:p1}&#x0a;Expected Shortfall: {4:p2}"
+                                                DataFieldX="level" DataFieldY="es" />
+                            <oxy:LineSeries ItemsSource="{Binding Data.ExpectedShortfall}"
+                                                Name="ESChartBootstrapLine" CanTrackerInterpolatePoints="False" Smooth="True"
+                                                MarkerType="Circle" Color="#DE0000" Title="Historical" 
+                                                MarkerFill="#DE0000" MarkerSize="5"
+                                                LabelFormatString="Historical: {}{0:p1}: {1:p1}" LabelMargin="-10"
+                                                TrackerFormatString="Probability: {2:p1}&#x0a;Expected Shortfall: {4:p2}"
+                                                DataFieldX="level" DataFieldY="bootstrapES" />
+                        </oxy:PlotView.Series>
+                    </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="MonteCarlo">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Settings:" />
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Returns source:" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding Settings.MCReturnType}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Runs:" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding Settings.MCRuns}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Periods:" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding Settings.MCPeriods}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Cluster size:" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding Settings.MCClusterSize}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Sampling:" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding Settings.MCWithReplacement, Converter={qc:QuickConverter '$P ? \'With Replacement\' : \'Without Replacement\''}}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Equity Curve Confidence Intervals" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=MCReturnChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=MCReturnChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="MCReturnChart" Width="700" Height="400" HorizontalAlignment="Center"
+                                  LegendPosition="BottomCenter" LegendPlacement="Outside" LegendOrientation="Horizontal">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" />
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dash" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:AreaSeries ItemsSource="{Binding Data.MCEquity}"
+                                                Name="MCReturnChartNarrowArea" CanTrackerInterpolatePoints="False"
+                                                MarkerType="None" Color="#4F81BD" Title="90% C.I." 
+                                                TrackerFormatString="Period: {2:0}&#x0a;Value: {4:0}"
+                                                DataFieldX="count" DataFieldX2="count" StrokeThickness="1"
+                                                DataFieldY="wideLow" DataFieldY2="wideHigh" />
+                                <oxy:AreaSeries ItemsSource="{Binding Data.MCEquity}"
+                                                Name="MCReturnChartWideArea" CanTrackerInterpolatePoints="False"
+                                                MarkerType="None" Color="#DE0000" Title="50% C.I." 
+                                                TrackerFormatString="Period: {2:0}&#x0a;Value: {4:0}"
+                                                DataFieldX="count" DataFieldX2="count" StrokeThickness="1"
+                                                DataFieldY="narrowLow" DataFieldY2="narrowHigh" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Distribution of Maximum Drawdowns" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=MCMaxDDDistributionChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=MCMaxDDDistributionChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+
+                        <oxy:PlotView Name="MCMaxDDDistributionChart" Width="700" Height="400" HorizontalAlignment="Center"
+                                  LegendPosition="BottomCenter" LegendPlacement="Outside" LegendOrientation="Horizontal">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" EndPosition="0" StartPosition="1" StringFormat="p1" />
+                                    <oxy:LinearAxis Position="Left" Minimum="0" Maximum="1"
+                                                    Key="CumulativeProbAxis" StringFormat="p0"
+                                                    MajorGridlineStyle="Dash" MinorGridlineStyle="Dash" />
+                                    <oxy:LinearAxis Position="Right" Key="PointFreqAxis"  />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:AreaSeries ItemsSource="{Binding Data.MCDrawdowns}"
+                                                    YAxisKey="PointFreqAxis"
+                                                    Name="MCMaxDDDistributionChartPointArea" CanTrackerInterpolatePoints="False"
+                                                    MarkerType="None" Color="#4F81BD" Title="Point" 
+                                                    TrackerFormatString="Drawdown Level: {2:p2}&#x0a;Number of instances: {4:0}"
+                                                    DataFieldX="ddLevel" DataFieldX2="ddLevel" StrokeThickness="1"
+                                                    DataFieldY="zero" DataFieldY2="point" />
+                                <oxy:LineSeries ItemsSource="{Binding Data.MCDrawdowns}"
+                                                    YAxisKey="CumulativeProbAxis"
+                                                    Name="MCMaxDDDistributionChartCumulativeLine" CanTrackerInterpolatePoints="False"
+                                                    MarkerType="None" Color="#DE0000" Title="Cumulative" Smooth="True"
+                                                    TrackerFormatString="Drawdown Level: {2:p2}&#x0a;% of drawdowns less than this: {4:p1}"
+                                                    DataFieldX="ddLevel" DataFieldY="cumulative" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Sharpe Ratio Distribution" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=MCSharpeChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=MCSharpeChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="MCSharpeChart" Width="700" Height="400" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:CategoryAxis Position="Bottom" LabelField="Item1" FontSize="10" IsZoomEnabled="False"
+                                                  Angle="30" Margin="10"
+                                                  ItemsSource="{Binding MCSharpeHistogramBuckets}" />
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" IsZoomEnabled="False" />
+
+                                <oxy:LinearAxis Position="Right" Key="CumulativeProbAxis" StringFormat="p0" IsZoomEnabled="False" />
+                                <oxy:LinearAxis Position="Top" Key="ValueAxis" StringFormat="0.00" IsZoomEnabled="False" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ColumnSeries ItemsSource="{Binding MCSharpeHistogramBuckets}"
+                                                Name="MCSharpeChartHistogram"
+                                                FillColor="#4F81BD" StrokeColor="#436EA0" Title="Sharpe Ratio Histogram" 
+                                                ValueField="Item2" StrokeThickness="1"/>
+
+                                <oxy:LineSeries ItemsSource="{Binding Data.MCRatios}"
+                                                    YAxisKey="CumulativeProbAxis"
+                                                    XAxisKey="ValueAxis"
+                                                    Name="MCSharpeChartCumulativeLine" CanTrackerInterpolatePoints="False"
+                                                    MarkerType="None" Color="#DE0000" Title="Cumulative" Smooth="True"
+                                                    TrackerFormatString="Sharpe ratio: {2:0.00}&#x0a;% of ratios less than this: {4:p1}"
+                                                    DataFieldX="Sharpe" DataFieldY="SharpeCumulativePct" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+                        
+                        
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="MAR Ratio Distribution" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=MCMARChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=MCMARChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="MCMARChart" Width="700" Height="400" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:CategoryAxis Position="Bottom" LabelField="Item1" FontSize="10" 
+                                                  Angle="30" Margin="10" IsZoomEnabled="False"
+                                                  ItemsSource="{Binding MCMARHistogramBuckets}" />
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" IsZoomEnabled="False" />
+
+                                <oxy:LinearAxis Position="Right" Key="CumulativeProbAxis" StringFormat="p0" IsZoomEnabled="False" />
+                                <oxy:LinearAxis Position="Top" Key="ValueAxis" StringFormat="0.00" IsZoomEnabled="False" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ColumnSeries ItemsSource="{Binding MCMARHistogramBuckets}"
+                                                Name="MCMARChartHistogram"
+                                                FillColor="#4F81BD" StrokeColor="#436EA0" Title="MAR Ratio Histogram" 
+                                                ValueField="Item2" StrokeThickness="1"/>
+                                <oxy:LineSeries ItemsSource="{Binding Data.MCRatios}"
+                                                    YAxisKey="CumulativeProbAxis"
+                                                    XAxisKey="ValueAxis"
+                                                    Name="MCMARChartCumulativeLine" CanTrackerInterpolatePoints="False"
+                                                    MarkerType="None" Color="#DE0000" Title="Cumulative" Smooth="False"
+                                                    TrackerFormatString="MAR ratio: {2:0.00}&#x0a;% of ratios less than this: {4:p1}"
+                                                    DataFieldX="MAR" DataFieldY="MARCumulativePct" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="K Ratio Distribution" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=MCKRatioChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=MCKRatioChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="MCKRatioChart" Width="700" Height="400" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:CategoryAxis Position="Bottom" LabelField="Item1" FontSize="10" 
+                                                  Angle="30" Margin="10" IsZoomEnabled="False"
+                                                  ItemsSource="{Binding MCKRatioHistogramBuckets}" />
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" IsZoomEnabled="False" />
+
+                                <oxy:LinearAxis Position="Right" Key="CumulativeProbAxis" StringFormat="p0" IsZoomEnabled="False" />
+                                <oxy:LinearAxis Position="Top" Key="ValueAxis" IsZoomEnabled="False" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ColumnSeries ItemsSource="{Binding MCKRatioHistogramBuckets}"
+                                                Name="MCKRatioChartHistogram"
+                                                FillColor="#4F81BD" StrokeColor="#436EA0" Title="K Ratio Histogram" 
+                                                ValueField="Item2" StrokeThickness="1"/>
+                                <oxy:LineSeries ItemsSource="{Binding Data.MCRatios}"
+                                                    YAxisKey="CumulativeProbAxis"
+                                                    XAxisKey="ValueAxis"
+                                                    Name="MCKRatioChartCumulativeLine" CanTrackerInterpolatePoints="False"
+                                                    MarkerType="None" Color="#DE0000" Title="Cumulative" Smooth="True"
+                                                    TrackerFormatString="K Ratio: {2:0.00}&#x0a;% of ratios less than this: {4:p1}"
+                                                    DataFieldX="KRatio" DataFieldY="KRatioCumulativePct" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</controls:MetroWindow>

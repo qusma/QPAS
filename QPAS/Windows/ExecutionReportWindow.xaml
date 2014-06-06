@@ -1,0 +1,225 @@
+﻿<controls:MetroWindow x:Class="QPAS.ExecutionReportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:oxy="http://oxyplot.codeplex.com"
+        xmlns:qpas="clr-namespace:QPAS"
+        xmlns:oxyPlot="clr-namespace:OxyPlot;assembly=OxyPlot"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        BorderBrush="Black"
+        BorderThickness="1"
+        TitlebarHeight="32"
+        Icon="../Resources/icon.ico"
+        FontFamily="Segoe UI Semibold"
+        Title="Execution Report" Height="800" Width="1200">
+    <Window.Resources>
+        <qpas:EnumBooleanConverter x:Key="EnumBooleanConverter" />
+        <qpas:InvertBooleanConverter x:Key="InvertBooleanConverter"/>
+    </Window.Resources>
+    <controls:MetroTabControl Name="TabCtrl">
+        <TabItem Header="Settings">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="709*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="33*"/>
+                    <RowDefinition Height="101*"/>
+                </Grid.RowDefinitions>
+                <Label Grid.Column="0" Grid.Row="0" Foreground="DimGray" FontSize="28" Margin="0,-5,0,0" Content="Execution Report Settings" Grid.ColumnSpan="3" />
+                <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="0">
+                    <Label Foreground="DimGray" FontSize="28" Margin="0,-5,0,0" Content="{Binding OrderCount}" />
+                    <Label Foreground="DimGray" FontSize="28" Margin="0,-5,0,0" Content="Orders Selected" />
+                </StackPanel>
+                
+                <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
+                    <TextBlock Text="Reference Time:" FontSize="20" Foreground="DimGray" Margin="0,0,0,5" />
+                    <RadioButton Content="Use Sessions or Per-order Time" IsChecked="{Binding UseSessionsTime}" />
+                    <RadioButton Content="Use Fixed Reference Time:" Name="UseFixedTimeRadioBtn" 
+                                 IsChecked="{Binding UseSessionsTime, Converter={StaticResource InvertBooleanConverter}}" />
+                    <xctk:TimePicker Name="FixedTimePicker" 
+                                     Margin="10,5,10,0" 
+                                     Value="{Binding ReferenceTime}"
+                                     Format="Custom"
+                                     FormatString="HH:mm:ss"
+                                     IsEnabled="{Binding ElementName=UseFixedTimeRadioBtn,Path=IsChecked}" />
+                </StackPanel>
+
+                <StackPanel Margin="5" Grid.Row="1" Grid.Column="0" Grid.RowSpan="2">
+                    <TextBlock Text="Benchmark against:" FontSize="20" Foreground="DimGray" Margin="0,0,0,5" />
+                    <RadioButton Content="Close" Margin="0,5,0,0"
+                                 IsChecked="{Binding Benchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Close}"/>
+                    <RadioButton Content="Open" Margin="0,5,0,0"
+                                 IsChecked="{Binding Benchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Open}"/>
+                    <RadioButton Content="VWAP" ToolTip="Not implemented yet." IsEnabled="False" Margin="0,5,0,0"
+                                 IsChecked="{Binding Benchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=VWAP}"/>
+                    <RadioButton Content="Per-order Reference Price" Margin="0,5,0,0"
+                                 IsChecked="{Binding Benchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Reference}"/>
+                </StackPanel>
+
+                <Button Grid.Row="2" Grid.Column="1" 
+                            Style="{StaticResource AccentedSquareButtonStyle}" 
+                            Click="GenerateExecutionReportBtn_Click"
+                            Content="Generate Report"
+                            VerticalAlignment="Top"
+                            Name="GenerateExecutionReportBtn"
+                            HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Results">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="540*"/>
+                    <RowDefinition Height="191*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="272*"/>
+                    <ColumnDefinition Width="589*"/>
+                    <ColumnDefinition Width="330"/>
+                </Grid.ColumnDefinitions>
+                
+                <ListBox Grid.Column="0" Grid.Row="0" Margin="5,10,5,5" Name="StatsListBox" ItemsSource="{Binding Stats}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel>
+                                <TextBlock FontSize="14" Foreground="DimGray" Text="{Binding Key,StringFormat={}{0}:}" DockPanel.Dock="Left" />
+                                <TextBlock FontSize="14" TextAlignment="Right" Margin="10,0,0,0" Foreground="#000000" Text="{Binding Value}" DockPanel.Dock="Right" />
+                            </DockPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                
+                <oxy:PlotView Grid.Column="1" Grid.Row="0" Title="Seconds to Reference Time vs Slippage">
+                    <oxy:PlotView.Axes>
+                        <oxy:LinearAxis Position="Bottom" StringFormat="0.00" MajorGridlineStyle="Dash" />
+                        <oxy:LinearAxis Position="Left" StringFormat="p3" MajorGridlineStyle="Dash" />
+                    </oxy:PlotView.Axes>
+                    <oxy:PlotView.Series>
+                        <oxy:ScatterSeries ItemsSource="{Binding TimeVsSlippagePoints}"
+                                           MarkerType="Circle" Color="#4F81BD" MarkerFill="#4F81BD"
+                                           DataFieldSize="Z"
+                                           TrackerFormatString="Time difference: {2:0.00} seconds&#x0a;Slippage: {4:p4}"
+                                           Name="TimeVsSlippageScatterSeries"
+                                           DataFieldX="X"
+                                           DataFieldY="Y"/>
+                    </oxy:PlotView.Series>
+                    <oxy:PlotView.Annotations>
+                        <oxy:LineAnnotation Slope="{Binding TimeDiffVsSlipBestFitLineSlope}" 
+                                            Intercept="{Binding TimeDiffVsSlipBestFitLineConstant}"
+                                            LineStyle="Solid"
+                                            Color="DeepPink"
+                                            Text="Best Fit"
+                                            TextColor="Black"
+                                            />
+                    </oxy:PlotView.Annotations>
+                </oxy:PlotView>
+                <oxy:PlotView Grid.Row="0" Grid.Column="2" Title="Slippage by Venue" Grid.RowSpan="2"
+                              LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal"
+                              LegendFontSize="9" Name="SlippageByVenueChart">
+                    <oxy:PlotView.Axes>
+                        <oxy:CategoryAxis Position="Left" Title="Venue" 
+                                          GapWidth="0.5"
+                                          ItemsSource="{Binding Data.SlippageByVenue}" LabelField="Venue" />
+                        <oxy:LinearAxis Position="Bottom" Key="CurrencyAxis" StringFormat="c3" />
+                        <oxy:LinearAxis Position="Top" Key="PercentAxis" StringFormat="p3" />
+                    </oxy:PlotView.Axes>
+                    <oxy:PlotView.Series>
+                        <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}" 
+                               LabelPlacement="Inside"
+                               LabelFormatString="{}{0:c3}"
+                                TrackerFormatString="{}{4:c3}"
+                               ValueField="AvgDollarSlippage" 
+                                XAxisKey="CurrencyAxis"
+                                Title="Avg $ Slippage"
+                                FillColor="#00CFFF"
+                                Name="CentsSlippageByVenueSeries" />
+                        <oxy:BarSeries />
+
+                        <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}" 
+                               LabelPlacement="Inside"
+                               LabelFormatString="{}{0:p3}"
+                                TrackerFormatString="{}{4:p3}"
+                               ValueField="AvgPctSlippage" 
+                                XAxisKey="PercentAxis"
+                                Title="Avg % Slippage"
+                                FillColor="#0037FF"
+                                Name="PercentSlippageByVenueSeries" />
+                        <oxy:BarSeries />
+
+                        <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}" 
+                               LabelPlacement="Inside"
+                               LabelFormatString="{}{0:c3}"
+                                TrackerFormatString="{}{4:c3}"
+                               ValueField="AvgDollarSlippageWeighted" 
+                                XAxisKey="CurrencyAxis"
+                                Title="Avg $ Slippage (Weighted)"
+                                FillColor="#FFB100"
+                                Name="WeightedCentsSlippageByVenueSeries" />
+                        <oxy:BarSeries />
+
+                        <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}" 
+                               LabelPlacement="Inside"
+                               LabelFormatString="{}{0:p3}"
+                                TrackerFormatString="{}{4:p3}"
+                               ValueField="AvgPctSlippageWeighted" 
+                                XAxisKey="PercentAxis"
+                                Title="Avg % Slippage (Weighted)"
+                                FillColor="#FF7F00"
+                                Name="WeightedPercentSlippageByVenueSeries" />
+                        <oxy:BarSeries />
+                    </oxy:PlotView.Series>
+                </oxy:PlotView>
+
+
+                <oxy:PlotView Grid.Row="1" Grid.Column="0" Title="Slippage by Order Type" Name="SlippageByOrderTypeChart" IsLegendVisible="False" Grid.ColumnSpan="2">
+                    <oxy:PlotView.Axes>
+                        <oxy:CategoryAxis Position="Bottom" Title="Order Type" ItemsSource="{Binding Data.SlippageByOrderType}" LabelField="OrderType" />
+                        <oxy:LinearAxis Position="Left" Key="CurrencyAxis" StringFormat="c3" />
+                        <oxy:LinearAxis Position="Right" Key="PercentAxis" StringFormat="p3" />
+                    </oxy:PlotView.Axes>
+                    <oxy:PlotView.Series>
+                        <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}" 
+                                TrackerFormatString="{}{4:c3}"
+                               ValueField="AvgDollarSlippage" 
+                                YAxisKey="CurrencyAxis"
+                                Title="Avg $ Slippage"
+                                FillColor="#00CFFF"
+                                Name="CentsSlippageByOrderTypeSeries" />
+                        <oxy:ColumnSeries />
+
+                        <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}" 
+                                TrackerFormatString="{}{4:p3}"
+                               ValueField="AvgPctSlippage" 
+                                YAxisKey="PercentAxis"
+                                Title="Avg % Slippage"
+                                FillColor="#0037FF"
+                                Name="PercentSlippageByOrderTypeSeries" />
+                        <oxy:ColumnSeries />
+
+                        <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}" 
+                                TrackerFormatString="{}{4:c3}"
+                               ValueField="AvgDollarSlippageWeighted" 
+                                YAxisKey="CurrencyAxis"
+                                Title="Avg $ Slippage (Weighted)"
+                                FillColor="#FFB100"
+                                Name="WeightedCentsSlippageByOrderTypeSeries" />
+                        <oxy:ColumnSeries />
+
+                        <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}" 
+                                TrackerFormatString="{}{4:p3}"
+                               ValueField="AvgPctSlippageWeighted" 
+                                YAxisKey="PercentAxis"
+                                Title="Avg % Slippage (Weighted)"
+                                FillColor="#FF7F00"
+                                Name="WeightedPercentSlippageByOrderTypeSeries" />
+                        <oxy:ColumnSeries />
+                    </oxy:PlotView.Series>
+                </oxy:PlotView>
+            </Grid>
+
+        </TabItem>
+    </controls:MetroTabControl>
+</controls:MetroWindow>
