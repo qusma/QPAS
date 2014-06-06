@@ -8,6 +8,8 @@ QPAS is a trading journal with detailed performance, risk, and execution analyti
 
 While QPAS currently only supports statements from Interactive Brokers, it can easily be extended to support other brokers. See [here](http://qusma.com/qpasdocs/index.php/Implementing_a_Statement_Parser) for more details.
 
+For bug reports, feature requests, etc. use either the GitHub issue tracker or the [google group](https://groups.google.com/forum/#!forum/qusma-pas).
+
 Features:
 ------------------------
 * Highly detailed performance statistics
