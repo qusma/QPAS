@@ -3,7 +3,7 @@ QUSMA Performance Analytics Suite
 
 QPAS is a trading journal with detailed performance, risk, and execution analytics, designed for Interactive Brokers clients. For an overview of its main features, check out the [performance report](http://qusma.com/qpasdocs/index.php/Performance_Report) page in the documentation.
 
-* Installer
+* [Installer](http://qusma.com/QPAS/setup.exe)
 * [Documentation](http://qusma.com/qpasdocs/index.php/Main_Page)
 
 While QPAS currently only supports statements from Interactive Brokers, it can easily be extended to support other brokers. See [here](http://qusma.com/qpasdocs/index.php/Implementing_a_Statement_Parser) for more details.
