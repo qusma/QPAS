@@ -182,11 +182,10 @@ namespace QPAS
             foreach (var kvp in Positions)
             {
                 int id = kvp.Key;
-                if (data[id].CurrentBar < 0) continue;
 
                 Position p = kvp.Value;
                 decimal fxRate = p.Currency == null || p.Currency.ID <= 1 ? 1 : fxData[p.Currency.ID][0].Close;
-                TodaysPnL += p.GetPnL(data[id][0].Close, fxRate);
+                TodaysPnL += p.GetPnL(data[id].CurrentBar < 0 ? (decimal?)null : data[id][0].Close, fxRate);
             }
 
             //Update currency positions

@@ -172,11 +172,10 @@ namespace QPAS
             foreach (var kvp in Positions)
             {
                 int id = kvp.Key;
-                if (_data[id].CurrentBar < 0) continue;
 
                 Position p = kvp.Value;
                 decimal fxRate = p.Currency == null || p.Currency.ID == 1 ? 1 : _fxData[p.Currency.ID][0].Close;
-                p.GetPnL(_data[id][0].Close, fxRate);
+                p.GetPnL(_data[id].CurrentBar < 0 ? (decimal?)null : _data[id][0].Close, fxRate);
             }
 
             //Capital usage and profit/loss for the day
