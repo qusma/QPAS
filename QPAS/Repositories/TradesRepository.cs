@@ -166,11 +166,14 @@ namespace QPAS
 
         private static DateTime DetermineStartingDate(Trade trade, IDBContext context)
         {
-            DateTime startDate = trade.Orders.Count > 0
-                ? trade.Orders.Select(x => x.TradeDate).OrderBy(x => x).First()
-                : new DateTime(9999, 1, 1);
+            DateTime startDate = new DateTime(9999, 1, 1); 
+            
+            if(trade.Orders != null && trade.Orders.Count > 0)
+            {
+                startDate = trade.Orders.Select(x => x.TradeDate).OrderBy(x => x).First();
+            }
 
-            if (trade.CashTransactions.Count > 0)
+            if (trade.CashTransactions != null && trade.CashTransactions.Count > 0)
             {
                 DateTime firstCashTransactionDate = trade.CashTransactions.Select(x => x.TransactionDate).OrderBy(x => x).First();
                 if (firstCashTransactionDate < startDate)
@@ -190,7 +193,9 @@ namespace QPAS
 
         public void UpdateStats(Trade trade, bool skipCollectionLoad = false)
         {
-            if (!skipCollectionLoad) //used to bypass annoyances w/ automated testing
+            if (!skipCollectionLoad && //used to bypass annoyances w/ automated testing
+                Context.Entry(trade).State != EntityState.Added &&
+                Context.Entry(trade).State != EntityState.Detached) //trade entry state check, otherwise the load is meaningless and will cause a crash
             {
                 Context.Entry(trade).Collection(x => x.Orders).Load();
                 Context.Entry(trade).Collection(x => x.CashTransactions).Load();
