@@ -19,7 +19,6 @@ using MahApps.Metro.Controls;
 using NLog;
 using NLog.Targets;
 using Tag = EntityModel.Tag;
-//todo check forex -- how to get data for it, make sure to note if it's the reverse or not i.e. .USD or USD.
 
 namespace QPAS
 {

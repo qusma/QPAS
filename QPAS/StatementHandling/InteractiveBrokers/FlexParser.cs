@@ -383,8 +383,6 @@ namespace QPAS
                 AssetCategory = AssetClass.Cash,
                 Multiplier = 1
             }; 
-            //todo some are USD.CAD, others EUR.USD....how?
-            //Change in asset price leaves us with a currency position seemingly out of nowhere... actually no it doesn't, there are Fx transactions on both sides
 
             context.Instruments.Add(instrument);
             context.SaveChanges();
