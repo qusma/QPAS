@@ -29,6 +29,7 @@ namespace QPAS
         private PlotModel _capitalUsageByStrategyModel;
         private PlotModel _relativeCapitalUsageByStrategyModel;
         private PlotModel _roacByStrategyModel;
+        private PlotModel _mdsChartModel;
 
         public filterReportDS Data { get; set; }
 
@@ -61,6 +62,12 @@ namespace QPAS
         {
             get { return _roacByStrategyModel; }
             set { _roacByStrategyModel = value; OnPropertyChanged(); }
+        }
+
+        public PlotModel MdsChartModel
+        {
+            get { return _mdsChartModel; }
+            set { _mdsChartModel = value; OnPropertyChanged(); }
         }
 
         //bit of a hack to filter the mae/mfe datatable
@@ -225,6 +232,57 @@ namespace QPAS
             CreateCapitalUsageByStrategyChartModel();
             CreateRelativeCapitalUsageByStrategyChartModel();
             CreateRoacByStrategyChartModel();
+            CreateMdsChartModel();
+        }
+
+        private void CreateMdsChartModel()
+        {
+            var model = new PlotModel();
+
+            var xAxis = new OxyPlot.Axes.LinearAxis
+            {
+                Position = OxyPlot.Axes.AxisPosition.Bottom,
+                MajorGridlineStyle = LineStyle.None
+            };
+            model.Axes.Add(xAxis);
+
+            var yAxis = new OxyPlot.Axes.LinearAxis
+            {
+                Position = OxyPlot.Axes.AxisPosition.Left,
+                MajorGridlineStyle = LineStyle.None
+            };
+            model.Axes.Add(yAxis);
+
+            var series = new OxyPlot.Series.ScatterSeries
+            {
+                ItemsSource = (Data.MdsCoords.Rows.Cast<filterReportDS.MdsCoordsRow>()
+                    .Select(dr => new DataPoint(dr.X, dr.Y))),
+                DataFieldX = "X",
+                DataFieldY = "Y",
+                MarkerType = MarkerType.Circle,
+                MarkerSize = 2,
+                MarkerFill = OxyColor.FromRgb(79, 129, 189)
+            };
+
+            model.Series.Add(series);
+
+            foreach(filterReportDS.MdsCoordsRow dr in Data.MdsCoords.Rows)
+            {
+                var annotation = new OxyPlot.Annotations.TextAnnotation
+                {
+                    Text = dr.StrategyName,
+                    TextPosition = new DataPoint(dr.X, dr.Y),
+                    TextHorizontalAlignment = OxyPlot.HorizontalAlignment.Center,
+                    TextVerticalAlignment = OxyPlot.VerticalAlignment.Top,
+                    Font = "Segoe UI",
+                    TextColor = OxyColor.FromRgb(0, 0, 0),
+                    StrokeThickness = 0
+                };
+
+                model.Annotations.Add(annotation);
+            }
+
+            MdsChartModel = model;
         }
 
         private void CreateRoacByStrategyChartModel()

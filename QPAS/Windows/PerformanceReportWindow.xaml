@@ -687,6 +687,11 @@
                                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" FontWeight="Bold" Width="150" />
                             </DataGrid.Columns>
                         </DataGrid>
+
+
+                        <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Principal Coordinates Analysis/Multidimensional Scaling" />
+                        <oxy:PlotView Name="MdsChart" Width="700" Height="400" HorizontalAlignment="Center" Model="{Binding MdsChartModel}" />
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
