@@ -10,6 +10,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using MathNet.Numerics.LinearAlgebra.Double;
+using MathNet.Numerics.LinearAlgebra.Generic;
+using MathNet.Numerics.Statistics;
 
 namespace QPAS
 {
@@ -123,6 +125,36 @@ namespace QPAS
 
             rSquared = ssReg / ssTotal;
             b = p.Column(0).ToArray();
+        }
+
+        public static Matrix<double> CorrelationMatrix(List<List<double>> x)
+        {
+            Matrix<double> correlM = new DenseMatrix(x.Count, x.Count);
+
+            //off diagonal elements
+            for (int i = 0; i < x.Count; i++)
+            {
+                var rowx = x[i];
+                for (int j = 0; j < x.Count; j++)
+                {
+                    var rowy = x[j];
+                    if (i > j)
+                    {
+                        correlM[i, j] = Correlation.Pearson(rowx, rowy);
+                    }
+                    if (i < j)
+                    {
+                        correlM[i, j] = correlM[j, i];
+                    }
+                }
+            }
+            //Diagonal elements
+            for (int i = 0; i < x.Count; i++)
+            {
+                correlM[i, i] = 1;
+            }
+
+            return correlM;
         }
 
         /// <summary>
