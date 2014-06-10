@@ -1,4 +1,4 @@
----
-
-
-asdf
+0.1.1
+------------------------
+* Fixed various crashes.
+* Added multidimensional scaling chart to strategy correlations page: shows distances between all strategies in 2D space.
