@@ -11,6 +11,9 @@ using System.Globalization;
 using System.Linq;
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
+using MathNet.Numerics.LinearAlgebra.Double;
+using MathNet.Numerics.LinearAlgebra.Generic;
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
 using NLog;
 using QDMS;
@@ -324,6 +327,9 @@ namespace QPAS
             //strategy ROAC covariance matrix
             DoStrategyROACCovMatrix();
 
+            //Strategy ROAC MDS
+            DoStrategyROACMds();
+
             //up/dn capture stats
 
             //var captureDR = ds.captureStats.NewcaptureStatsRow();
@@ -450,6 +456,38 @@ namespace QPAS
                 }
 
                 ds.StrategyCovMatrix.Rows.Add(dr);
+            }
+        }
+
+        private void DoStrategyROACMds()
+        {
+            if(_strategyPfolioTrackers.Count <= 2) return;
+
+            try
+            {
+                Dictionary<string, EquityCurve> strategyRoacECs =
+                    _strategyPfolioTrackers.ToDictionary(x => x.Key, x => x.Value.RoacEquityCurve);
+                List<string> strategyNames = strategyRoacECs.Keys.ToList();
+
+                Matrix<double> corr = Utils.CorrelationMatrix(strategyRoacECs.Select(x => x.Value.Returns).ToList());
+                foreach (var x in corr.RowEnumerator())
+                {
+                    corr.SetRow(x.Item1, x.Item2.Add(1).SubtractFrom(2));
+                }
+                Matrix<double> coords = MultiDimensionalScaling.Scale(corr);
+
+                for (int i = 0; i < coords.RowCount; i++)
+                {
+                    var dr = ds.MdsCoords.NewMdsCoordsRow();
+                    dr.StrategyName = strategyNames[i];
+                    dr.X = coords[i, 0];
+                    dr.Y = coords[i, 1];
+                    ds.MdsCoords.AddMdsCoordsRow(dr);
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.Log(LogLevel.Error, string.Format("Error during mds: {0}", ex.Message));
             }
         }
 
