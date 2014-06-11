@@ -527,7 +527,7 @@ namespace QPAS
                 var selectedOrder = (Order)OrdersGrid.SelectedItem;
                 var newTrade = new Trade { Name = TradePickerNewTradeTextBox.Text, Open = true };
                 Context.Trades.Add(newTrade);
-
+                newTrade.Tags = new List<Tag>();
                 TradesRepository.AddOrder(newTrade, selectedOrder);
 
                 TradesRepository.Save();

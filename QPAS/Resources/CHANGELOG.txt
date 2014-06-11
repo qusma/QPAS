@@ -1,4 +1,8 @@
-0.1.2
+0.1.4
+------------------------
+* Fixed a crash when setting tags on newly created trades.
+
+0.1.3
 ------------------------
 * More crashes fixed.
 
