@@ -756,8 +756,19 @@
                                         CommandParameter="{Binding ElementName=OrdersGrid, Path=SelectedItems}" />
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Trade" Binding="{Binding Trade.Name}" 
-                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True" />
+                            <DataGridTemplateColumn Header="Trade"
+                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Trade.Name}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Trade.Name}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Symbol" Binding="{Binding Instrument.Symbol}" IsReadOnly="True" />
                             <DataGridComboBoxColumn Header="Type" 
                                                     filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="Instrument.AssetCategory"
@@ -876,7 +887,19 @@
                                         CommandParameter="{Binding ElementName=CashTransactionsGrid, Path=SelectedItems}" />
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Trade" Binding="{Binding Trade.Name}" />
+                            <DataGridTemplateColumn Header="Trade"
+                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Trade.Name}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Trade.Name}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Symbol" IsReadOnly="True" Binding="{Binding Instrument.Symbol}" />
                             <DataGridTextColumn Header="Amount" IsReadOnly="True" 
                                                 ElementStyle="{StaticResource CellRightAlign}"
@@ -942,7 +965,19 @@
                                         CommandParameter="{Binding ElementName=FXTransactionsGrid, Path=SelectedItems}" />
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Trade" Binding="{Binding Trade.Name}" />
+                            <DataGridTemplateColumn Header="Trade"
+                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Trade.Name}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Trade.Name}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Currency" Binding="{Binding FXCurrency.Name}" IsReadOnly="True" />
                             <DataGridTextColumn Header="Description" Binding="{Binding Path=Description}" IsReadOnly="True"
                                             filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True"/>

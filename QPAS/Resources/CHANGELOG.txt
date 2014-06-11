@@ -1,3 +1,11 @@
+0.1.2
+------------------------
+* More crashes fixed.
+
+0.1.2
+------------------------
+* Fixed crash that would occur when adding a new trade.
+
 0.1.1
 ------------------------
 * Fixed various crashes.
