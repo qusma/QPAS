@@ -135,6 +135,8 @@ namespace QPAS
 
             await Task.Run(() => parser.Parse(flex, progress));
 
+            progress.SetMessage("Updating open trades");
+
             _tradeRepository.UpdateOpenTrades();
             _tradeRepository.Save();
 
@@ -169,6 +171,8 @@ namespace QPAS
             }
 
             await Task.Run(() => parser.Parse(flexqText, progress));
+
+            progress.SetMessage("Updating open trades");
 
             _tradeRepository.UpdateOpenTrades();
             _tradeRepository.Save();
