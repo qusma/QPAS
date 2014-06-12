@@ -105,6 +105,7 @@
     <Compile Include="CurrencyPositionTest.cs" />
     <Compile Include="DataSourcerTest.cs" />
     <Compile Include="DbSetStub.cs" />
+    <Compile Include="MathUtilsTest.cs" />
     <Compile Include="MdsTest.cs" />
     <Compile Include="PortfolioTrackerTest.cs" />
     <Compile Include="PositionTest.cs" />

@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using MathNet.Numerics.IntegralTransforms;
 using MathNet.Numerics.LinearAlgebra.Double;
 using MathNet.Numerics.LinearAlgebra.Generic;
 using MathNet.Numerics.Statistics;
@@ -101,7 +103,15 @@ namespace QPAS
 
         public static List<double> AutoCorr(List<double> input, int n)
         {
-            return new List<double>();
+            double avg = input.Average();
+            Complex[] inputAsComplex = input.Select(x => new Complex(x - avg,0)).ToArray();
+            Transform.FourierForward(inputAsComplex, FourierOptions.Matlab);
+            var conjugate = inputAsComplex.Select(Complex.Conjugate);
+            var S = conjugate.Select((x, i) => x * inputAsComplex[i]).ToArray();
+            Transform.FourierInverse(S, FourierOptions.Matlab);
+            double first = S[0].Real;
+
+            return S.Take(n).Select(x => x.Real / first).ToList();
         }
 
         public static List<double> PartialAutoCorr(List<double> input, int n)
