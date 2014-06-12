@@ -281,7 +281,6 @@ namespace QPAS
                 t.TagStringUpdated();
             }
 
-            TradesGrid.Items.Refresh();
             Context.SaveChanges();
         }
 
@@ -322,7 +321,6 @@ namespace QPAS
                 t.Strategy = strategy;
             }
 
-            TradesGrid.Items.Refresh();
             Context.SaveChanges();
         }
 
