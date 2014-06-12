@@ -191,6 +191,8 @@ namespace QPAS
                 .Select(p => new {p.Date, Price = invert ? 1m / p.Rate : p.Rate})
                 .ToList();
 
+            _logger.Log(LogLevel.Info, string.Format("Retrieved {0} data points for instrument {1} from fx rates.", prices.Count, instrument));
+
             return prices
                 .Select(
                     p =>
@@ -218,6 +220,8 @@ namespace QPAS
                 .OrderBy(x => x.Date)
                 .Select(p => new { p.Date, p.Price })
                 .ToList();
+
+            _logger.Log(LogLevel.Info, string.Format("Retrieved {0} data points for instrument {1} from prior positions.", prices.Count, instrument));
 
             return prices
                 .Select(
