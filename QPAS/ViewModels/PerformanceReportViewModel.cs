@@ -171,7 +171,7 @@ namespace QPAS
             //Calculate best fit line for the return vs size scatter chart
             double rsq;
             double[] b;
-            Utils.MLR(
+            MathUtils.MLR(
                 Data.positionSizesVsReturns.Select(x => x.size).ToList(),
                 Data.positionSizesVsReturns.Select(x => x.ret).ToList(),
                 out b,
@@ -181,7 +181,7 @@ namespace QPAS
             _retVsSizeBestFitLineSlope = b[1];
 
             //Calculate best fit line for the return vs length scatter chart
-            Utils.MLR(
+            MathUtils.MLR(
                 Data.tradeLengthsVsReturns.Select(x => x.ret).ToList(),
                 Data.tradeLengthsVsReturns.Select(x => x.length).ToList(),
                 out b,

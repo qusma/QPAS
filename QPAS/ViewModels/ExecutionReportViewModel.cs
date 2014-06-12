@@ -190,7 +190,7 @@ namespace QPAS
             //then regress time difference vs slippage for the OLS line
             double[] b;
             double rsq;
-            Utils.MLR(stats.Select(x => x.SlippagePct).ToList(), stats.Select(x => x.TimeDiff).ToList(), out b, out rsq);
+            MathUtils.MLR(stats.Select(x => x.SlippagePct).ToList(), stats.Select(x => x.TimeDiff).ToList(), out b, out rsq);
             TimeDiffVsSlipBestFitLineConstant = b[0];
             TimeDiffVsSlipBestFitLineSlope = b[1];
         }

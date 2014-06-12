@@ -34,8 +34,8 @@
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>0.1.3.%2a</ApplicationVersion>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>0.1.4.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -286,6 +286,7 @@
     <Compile Include="Utilities\ElementSpy.cs" />
     <Compile Include="TradeFiltering.cs" />
     <Compile Include="Utilities\ExcelFormatHelper.cs" />
+    <Compile Include="Utilities\MathUtils.cs" />
     <Compile Include="Utilities\Utils.cs" />
     <Compile Include="ViewModels\ExecutionReportViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

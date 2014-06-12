@@ -469,7 +469,7 @@ namespace QPAS
                     _strategyPfolioTrackers.ToDictionary(x => x.Key, x => x.Value.RoacEquityCurve);
                 List<string> strategyNames = strategyRoacECs.Keys.ToList();
 
-                Matrix<double> corr = Utils.CorrelationMatrix(strategyRoacECs.Select(x => x.Value.Returns).ToList());
+                Matrix<double> corr = MathUtils.CorrelationMatrix(strategyRoacECs.Select(x => x.Value.Returns).ToList());
                 foreach (var x in corr.RowEnumerator())
                 {
                     corr.SetRow(x.Item1, x.Item2.Add(1).SubtractFrom(2));
@@ -923,7 +923,7 @@ namespace QPAS
                     double rsquared;
                     double dailyRf = Properties.Settings.Default.assumedInterestRate / 252;
 
-                    Utils.MLR(benchmarkingReturns.GetRange(i, rollingPeriod).Select(x => x - dailyRf).ToList(),
+                    MathUtils.MLR(benchmarkingReturns.GetRange(i, rollingPeriod).Select(x => x - dailyRf).ToList(),
                                     new List<List<double>> { _benchmarkEC.Returns.GetRange(i, rollingPeriod).Select(x => x - dailyRf).ToList() },
                                     out b,
                                     out rsquared);
@@ -949,7 +949,7 @@ namespace QPAS
             double rsq;
             double dailyRf = Properties.Settings.Default.assumedInterestRate / 252;
 
-            Utils.MLR(benchmarkingReturns.Select(x => x - dailyRf).ToList(),
+            MathUtils.MLR(benchmarkingReturns.Select(x => x - dailyRf).ToList(),
                         new List<List<double>> { _benchmarkReturns.Select(x => x - 1 - dailyRf).ToList() },
                         out b,
                         out rsq);
