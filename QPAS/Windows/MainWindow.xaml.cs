@@ -492,11 +492,13 @@ namespace QPAS
                         _tradesGridIsCellEditEnding = false;
                         return;
                     }
-                    
 
                     trade.Open = newOpen.Value;
-                    TradesRepository.UpdateStats(trade);
-                    Context.SaveChanges();
+                    Task.Run(() =>
+                        {
+                            TradesRepository.UpdateStats(trade, skipCollectionLoad: true); //we can skip collection load since it's done a few lines up
+                            Context.SaveChanges();
+                        });
                 }
             }
         }
@@ -545,10 +547,12 @@ namespace QPAS
                 var newTrade = new Trade { Name = TradePickerNewTradeTextBox.Text, Open = true };
                 Context.Trades.Add(newTrade);
                 newTrade.Tags = new List<Tag>();
-                TradesRepository.AddOrder(newTrade, selectedOrder);
 
-                TradesRepository.Save();
-
+                Task.Run(() =>
+                    {
+                        TradesRepository.AddOrder(newTrade, selectedOrder);
+                        TradesRepository.Save();
+                    });
                 TradePickerNewTradeTextBox.Text = "";
                 OrdersGridTradePickerPopup.IsOpen = false;
                 OrdersGrid.CommitEdit();
@@ -650,16 +654,20 @@ namespace QPAS
                     var items = TradePickerListBox.Items.Cast<CheckListItem<Trade>>().ToList();
                     var selectedTrade = items.FirstOrDefault(x => x.IsChecked);
 
-                    if (selectedTrade == null)
-                    {
-                        TradesRepository.RemoveOrder(order.Trade, order);
-                    }
-                    else
-                    {
-                        TradesRepository.AddOrder(selectedTrade.Item, order);
-                    }
+                    Task.Run(() =>
+                        {
+                            if (selectedTrade == null)
+                            {
+                                TradesRepository.RemoveOrder(order.Trade, order);
+                            }
+                            else
+                            {
+                                TradesRepository.AddOrder(selectedTrade.Item, order);
+                            }
+
+                            Context.SaveChanges();
+                        });
                 }
-                Context.SaveChanges();
                 OrdersGridTradePickerPopup.IsOpen = false;
             }
         }
