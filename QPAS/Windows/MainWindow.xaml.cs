@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Deployment.Application;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -261,7 +262,7 @@ namespace QPAS
             }
         }
 
-        private void TradesGridSetTagSubMenu_Click(object sender, RoutedEventArgs e)
+        private async void TradesGridSetTagSubMenu_Click(object sender, RoutedEventArgs e)
         {
             if (TradesGrid.SelectedItems == null) return;
 
@@ -269,9 +270,17 @@ namespace QPAS
             string tagName = (string)sourceBtn.Header;
             var tag = Context.Tags.FirstOrDefault(x => x.Name == tagName);
 
-            foreach (Trade t in TradesGrid.SelectedItems)
+            var selectedTrades = TradesGrid.SelectedItems.Cast<Trade>().ToList();
+            bool add = sourceBtn.IsChecked;
+
+            await Task.Run(() => SetTags(selectedTrades, tag, add));
+        }
+
+        private void SetTags(IEnumerable<Trade> trades, Tag tag, bool add)
+        {
+            foreach (Trade t in trades)
             {
-                if (!sourceBtn.IsChecked)
+                if (!add)
                 {
                     t.Tags.Remove(tag);
                 }
