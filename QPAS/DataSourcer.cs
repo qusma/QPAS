@@ -159,13 +159,21 @@ namespace QPAS
 
         private List<OHLCBar> GetLocalData(Instrument instrument, DateTime fromDate, DateTime toDate)
         {
-            if(instrument.AssetCategory == AssetClass.Cash)
+            try
             {
-                return GetInstrumentFxRatesData(instrument, fromDate, toDate);
+                if (instrument.AssetCategory == AssetClass.Cash)
+                {
+                    return GetInstrumentFxRatesData(instrument, fromDate, toDate);
+                }
+                else
+                {
+                    return GetPriorPositionsData(instrument, fromDate, toDate);
+                }
             }
-            else
+            catch(Exception ex)
             {
-                return GetPriorPositionsData(instrument, fromDate, toDate);
+                _logger.Error(string.Format("Exception on requesting data for instrument {0}", instrument), ex);
+                return new List<OHLCBar>();
             }
         }
 
