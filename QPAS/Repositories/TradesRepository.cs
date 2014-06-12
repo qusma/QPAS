@@ -215,70 +215,7 @@ namespace QPAS
             }
 
             TradeTracker tracker = TradeSim.SimulateTrade(trade, Context, Datasourcer);
-
-            var positions = tracker.Positions.Values;
-            var currencyPositions = tracker.CurrencyPositions.Values;
-
-            //Capital usage stats
-            trade.CapitalTotal =
-                tracker.Capital.Gross.Count(x => x > 0) > 0
-                    ? tracker.Capital.Gross.Where(x => x > 0).Average()
-                    : 0;
-
-            trade.CapitalLong =
-                tracker.Capital.Long.Count(x => x > 0) > 0
-                    ? tracker.Capital.Long.Where(x => x > 0).Average()
-                    : 0;
-
-            trade.CapitalShort =
-                tracker.Capital.Short.Count(x => x > 0) > 0
-                    ? tracker.Capital.Short.Where(x => x > 0).Average()
-                    : 0;
-
-            trade.CapitalNet = trade.CapitalLong - trade.CapitalShort;
-
-            //Realized dollar result stats
-            trade.ResultDollars = tracker.RealizedPnL;
-            trade.ResultDollarsLong = tracker.RealizedPnLLong;
-            trade.ResultDollarsShort = tracker.RealizedPnLShort;
-
-            //Realized percent result stats
-            trade.ResultPct = trade.CapitalTotal > 0
-                ? (double)(trade.ResultDollars / trade.CapitalTotal)
-                : 0;
-
-            trade.ResultPctLong = trade.CapitalLong > 0
-                ? (double)(trade.ResultDollarsLong / trade.CapitalLong)
-                : 0;
-
-            trade.ResultPctShort = trade.CapitalShort > 0
-                ? (double)(trade.ResultDollarsShort / trade.CapitalShort)
-                : 0;
-
-            //Commissions
-            if (trade.Orders != null)
-            {
-                trade.Commissions = trade.Orders.Sum(x => x.CommissionInBase);
-            }
-
-
-            //Unrealized result stats
-            trade.UnrealizedResultDollars = tracker.TotalPnL - tracker.RealizedPnL;
-            trade.UnrealizedResultDollarsLong = positions.Sum(x => x.PnLLong - x.RealizedPnLLong);
-            trade.UnrealizedResultDollarsShort = positions.Sum(x => x.PnLShort - x.RealizedPnLShort);
-
-            //Unrealized percent result stats
-            trade.UnrealizedResultPct = trade.CapitalTotal > 0
-                ? (double)(trade.UnrealizedResultDollars / trade.CapitalTotal)
-                : 0;
-
-            trade.UnrealizedResultPctLong = trade.CapitalLong > 0
-                ? (double)(trade.UnrealizedResultDollarsLong / trade.CapitalLong)
-                : 0;
-
-            trade.UnrealizedResultPctShort = trade.CapitalShort > 0
-                ? (double)(trade.UnrealizedResultDollarsShort / trade.CapitalShort)
-                : 0;
+            tracker.SetTradeStats(trade);
         }
 
         public void SetClosingDate(Trade trade)

@@ -45,6 +45,72 @@ namespace QPAS
             TodaysPnL = 0;
         }
 
+        public void SetTradeStats(Trade trade)
+        {
+            var positions = Positions.Values;
+
+            //Capital usage stats
+            trade.CapitalTotal =
+                Capital.Gross.Count(x => x > 0) > 0
+                    ? Capital.Gross.Where(x => x > 0).Average()
+                    : 0;
+
+            trade.CapitalLong =
+                Capital.Long.Count(x => x > 0) > 0
+                    ? Capital.Long.Where(x => x > 0).Average()
+                    : 0;
+
+            trade.CapitalShort =
+                Capital.Short.Count(x => x > 0) > 0
+                    ? Capital.Short.Where(x => x > 0).Average()
+                    : 0;
+
+            trade.CapitalNet = trade.CapitalLong - trade.CapitalShort;
+
+            //Realized dollar result stats
+            trade.ResultDollars = RealizedPnL;
+            trade.ResultDollarsLong = RealizedPnLLong;
+            trade.ResultDollarsShort = RealizedPnLShort;
+
+            //Realized percent result stats
+            trade.ResultPct = trade.CapitalTotal > 0
+                ? (double)(trade.ResultDollars / trade.CapitalTotal)
+                : 0;
+
+            trade.ResultPctLong = trade.CapitalLong > 0
+                ? (double)(trade.ResultDollarsLong / trade.CapitalLong)
+                : 0;
+
+            trade.ResultPctShort = trade.CapitalShort > 0
+                ? (double)(trade.ResultDollarsShort / trade.CapitalShort)
+                : 0;
+
+            //Commissions
+            if (trade.Orders != null)
+            {
+                trade.Commissions = trade.Orders.Sum(x => x.CommissionInBase);
+            }
+
+
+            //Unrealized result stats
+            trade.UnrealizedResultDollars = TotalPnL - RealizedPnL;
+            trade.UnrealizedResultDollarsLong = positions.Sum(x => x.PnLLong - x.RealizedPnLLong);
+            trade.UnrealizedResultDollarsShort = positions.Sum(x => x.PnLShort - x.RealizedPnLShort);
+
+            //Unrealized percent result stats
+            trade.UnrealizedResultPct = trade.CapitalTotal > 0
+                ? (double)(trade.UnrealizedResultDollars / trade.CapitalTotal)
+                : 0;
+
+            trade.UnrealizedResultPctLong = trade.CapitalLong > 0
+                ? (double)(trade.UnrealizedResultDollarsLong / trade.CapitalLong)
+                : 0;
+
+            trade.UnrealizedResultPctShort = trade.CapitalShort > 0
+                ? (double)(trade.UnrealizedResultDollarsShort / trade.CapitalShort)
+                : 0;
+        }
+
         public AllocatedCapital Capital { get; set; }
 
         public SortedList<DateTime, decimal> CumulativePnL { get; set; }
