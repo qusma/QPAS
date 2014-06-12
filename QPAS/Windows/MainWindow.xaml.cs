@@ -73,6 +73,9 @@ namespace QPAS
             //initialize logging
             InitializeLogging();
 
+            //Log unhandled exceptions
+            AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
+
             //set the connection string
             DBUtils.SetConnectionString();
 
@@ -129,6 +132,12 @@ namespace QPAS
             App.Splash.LoadComplete();
 
             ShowChangelog();
+        }
+
+        private void AppDomain_CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Logger logger = LogManager.GetCurrentClassLogger();
+            logger.Error("Unhandled exception", (Exception)e.ExceptionObject);
         }
 
         /// <summary>
