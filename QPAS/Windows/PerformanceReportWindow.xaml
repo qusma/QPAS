@@ -76,7 +76,7 @@
             <TreeViewItem Header="ROAC by Instrument" Tag="ROACByInstrument" />
             <TreeViewItem Header="Gross Movement Capture" IsEnabled="False" Tag="GrossMovementCapture" />
             <TreeViewItem Header="Cash Transactions" Tag="CashTransactions" />
-            <TreeViewItem Header="ACF/PACF" IsEnabled="False" Tag="ACFPACF" />
+            <TreeViewItem Header="ACF/PACF" Tag="ACFPACF" />
             <TreeViewItem Header="Risk" Tag="Risk" />
             <TreeViewItem Header="Monte Carlo" Tag="MonteCarlo" />
         </TreeView>
@@ -1309,7 +1309,77 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            <TabItem Header="ACFPACF" />
+            <TabItem Header="ACFPACF">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Sample ACF" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=AcfChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=AcfChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="AcfChart" Width="700" Height="350" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dash" />
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                                  ItemsSource="{Binding Data.ACF}"
+                                                  LabelField="lag" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ColumnSeries ItemsSource="{Binding Data.ACF}"
+                                                Name="AcfColSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                                TrackerFormatString="Lag: {2:0}&#x0a;Autocorrelation: {4:0.00}"
+                                                ValueField="acf" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                   FontSize="28" Foreground="DimGray" Content="Sample PACF" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=PacfChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=PacfChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="PacfChart" Width="700" Height="350" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dash" />
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                                  ItemsSource="{Binding Data.PACF}"
+                                                  LabelField="lag" GapWidth="0.5" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:ColumnSeries ItemsSource="{Binding Data.PACF}"
+                                                Name="PacfColSeries" 
+                                                FillColor="#4F81BD"
+                                                StrokeColor="#436EA0"
+                                                StrokeThickness="1"
+                                                TrackerFormatString="Lag: {2:0}&#x0a;Autocorrelation: {4:0.00}"
+                                                ValueField="pacf" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
             <TabItem Header="Risk">
                 <ScrollViewer>
                     <StackPanel HorizontalAlignment="Stretch">
