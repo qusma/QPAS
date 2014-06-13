@@ -389,7 +389,34 @@ namespace QPAS
             DoAverageCumulativeTradeReturns();
 
             //acf and pacf
+            DoAcfPacf(settings);
+        }
 
+        private void DoAcfPacf(ReportSettings settings)
+        {
+            var rets = settings.AutoCorrReturnType == ReturnType.ROAC
+                ? _totalPortfolioTracker.RoacEquityCurve.Returns
+                : _totalPortfolioTracker.RotcEquityCurve.Returns;
+
+            if (rets.Count < 11) return;
+            var acf = MathUtils.AutoCorr(rets, 10);
+            var pacf = MathUtils.PartialAutoCorr(rets, 10);
+
+            for (int i = 0; i < 10; i++)
+            {
+                var dr = ds.ACF.NewACFRow();
+                dr.lag = i;
+                dr.acf = acf[i];
+                ds.ACF.AddACFRow(dr);
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                var dr = ds.PACF.NewPACFRow();
+                dr.lag = i;
+                dr.pacf = pacf[i];
+                ds.PACF.AddPACFRow(dr);
+            }
         }
 
         private void DoStrategyROACCurves()
