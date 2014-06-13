@@ -114,9 +114,36 @@ namespace QPAS
             return S.Take(n).Select(x => x.Real / first).ToList();
         }
 
-        public static List<double> PartialAutoCorr(List<double> input, int n)
+        public static List<double> PartialAutoCorr(List<double> input, int lagCount)
         {
-            return new List<double>();
+            int n = input.Count;
+
+            Vector v = DenseVector.OfEnumerable(input);
+            List<double> coeffs = new List<double>();
+            coeffs.Add(1);
+
+            var lagMatrix = DenseMatrix.Create(input.Count, n, (_, __) => 0);
+            for (int i = 0; i < lagCount; i++)
+            {
+                lagMatrix.SetColumn(i, Zeros(i).Concat(input.Take(n - i)).ToArray());
+            }
+
+            for (int i = 1; i < lagCount; i++)
+            {
+                var tmpMatrix = lagMatrix.SubMatrix(i - 1, n - i, 0, i);
+                tmpMatrix = tmpMatrix.InsertColumn(0, DenseVector.Create(n - i, _ => 1));
+                var qr = tmpMatrix.QR();
+                var R = qr.R.SubMatrix(0, i + 1, 0, i + 1);
+                var Q = qr.Q.SubMatrix(0, n - i, 0, i + 1);
+                var b = R.Inverse().Multiply((Q.Transpose() * v.SubVector(i,n - i)));
+                coeffs.Add(b.Last());
+            }
+            return coeffs;
+        }
+
+        private static IEnumerable<double> Zeros(int n)
+        {
+            return Enumerable.Range(0, n).Select(x => 0.0);
         }
     }
 }
