@@ -1,3 +1,10 @@
+0.1.5
+------------------------
+* UI improvements: assigning orders to trades, setting tags on trades, closing trades, etc. should feel much snappier now.
+* Potentially fixed a crash caused by missing prior positions data.
+* If a log file location has been specified, crash debug info is now added to the log file.
+* Added autocorrelation and partial autocorrelation charts to performance report.
+
 0.1.4
 ------------------------
 * Fixed a crash when setting tags on newly created trades.
