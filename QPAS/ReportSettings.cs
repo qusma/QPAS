@@ -17,6 +17,7 @@ namespace QPAS
         private ReturnType _vaRReturnType;
         private ReturnType _returnsToBenchmark;
         private ReturnType _mcReturnType;
+        private ReturnType _autoCorrReturnType;
 
         public List<int> TradeIDs { get; set; }
 
@@ -46,6 +47,12 @@ namespace QPAS
         {
             get { return _vaRReturnType; }
             set { _vaRReturnType = value; OnPropertyChanged(); }
+        }
+
+        public ReturnType AutoCorrReturnType
+        {
+            get { return _autoCorrReturnType; }
+            set { _autoCorrReturnType = value; OnPropertyChanged(); }
         }
 
         public int VaRDays { get; set; }

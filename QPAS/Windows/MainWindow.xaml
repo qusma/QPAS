@@ -1315,7 +1315,17 @@
                             <TextBlock Text="Days:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
                             <TextBox Height="15" Text="{Binding ReportSettings.VaRDays}" />
                         </UniformGrid>
+
+                        <Label Content="ACF/PACF" Margin="-5,25,0,0" FontSize="30" Foreground="DimGray" />
+                        <UniformGrid Columns="2" Margin="5,0,5,0">
+                            <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
+                                         IsChecked="{Binding ReportSettings.AutoCorrReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
+                            <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
+                                         IsChecked="{Binding ReportSettings.AutoCorrReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                        </UniformGrid>
                     </StackPanel>
+                    
+                    
 
                     <Grid Grid.Row="1" Grid.Column="4">
                         <Grid.RowDefinitions>
