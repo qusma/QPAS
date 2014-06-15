@@ -103,7 +103,15 @@ namespace QPAS
             _trades = new List<Trade>();
             foreach (int id in tradeIDs)
             {
-                _trades.Add(Context.Trades.Include(x => x.Orders).Include(x => x.CashTransactions).First(x => x.ID == id));
+                _trades.Add(
+                    Context
+                    .Trades
+                    .Include(x => x.Orders)
+                    .Include(x => x.CashTransactions)
+                    .Include(x => x.FXTransactions)
+                    .Include(x => x.Strategy)
+                    .Include(x => x.Tags)
+                    .First(x => x.ID == id));
             }
 
             if (_trades.Count == 0) return ds;
@@ -1023,6 +1031,8 @@ namespace QPAS
                 if (accountCapital == 0) return;
                 dr.size = (double)(t.CapitalTotal / accountCapital);
                 dr.ret = t.ResultPct;
+                dr.strategy = t.Strategy.Name;
+                dr.tags = t.TagString;
                 ds.positionSizesVsReturns.Rows.Add(dr);
             }
         }
