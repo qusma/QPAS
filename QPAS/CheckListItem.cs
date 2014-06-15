@@ -10,6 +10,8 @@ namespace QPAS
 {
     public class CheckListItem<T> : INotifyPropertyChanged
     {
+        public object Tag { get; set; }
+
         private bool _isChecked;
         private T _item;
 
