@@ -1,3 +1,7 @@
+0.2.0
+------------------------
+* Performance reports can now be exported to Excel. Use File -> Export to Excel in the performance report window.
+
 0.1.5
 ------------------------
 * UI improvements: assigning orders to trades, setting tags on trades, closing trades, etc. should feel much snappier now.
