@@ -4,10 +4,12 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using MahApps.Metro.Controls;
+using NLog;
 using QPAS.DataSets;
 
 namespace QPAS
@@ -95,6 +97,32 @@ namespace QPAS
             else
             {
                 ((DataGridTextColumn)e.Column).Binding.StringFormat = "0.00";
+            }
+        }
+
+        private async void ExportExcelBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var exporter = new ExcelExporter();
+            try
+            {
+                var path = exporter.Export(ViewModel.Data, new ExportOptions());
+
+                if (!string.IsNullOrEmpty(path))
+                {
+                    //exported file was successfully saved, ask if we should open it
+                    var res = await DialogService.ShowMessageAsync(
+                        "Export Completed", "Open File?", MahApps.Metro.Controls.Dialogs.MessageDialogStyle.AffirmativeAndNegative);
+                    if (res == MahApps.Metro.Controls.Dialogs.MessageDialogResult.Affirmative)
+                    {
+                        System.Diagnostics.Process.Start(path);
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                var logger = LogManager.GetCurrentClassLogger();
+                logger.Error("Error exporting report to Excel: ", ex);
+                DialogService.ShowMessageAsync("Error", "There was a problem during the export. The error has been logged.").Forget();
             }
         }
     }

@@ -49,7 +49,7 @@
         <Menu Background="WhiteSmoke" Grid.Row="0" Grid.ColumnSpan="2">
             <MenuItem Header="_File">
                 <MenuItem Header="Export to PDF" x:Name="ExportPDFBtn" IsEnabled="False"/>
-                <MenuItem Header="Export to Excel" x:Name="ExportExcelBtn" IsEnabled="False"/>
+                <MenuItem Header="Export to Excel" x:Name="ExportExcelBtn" IsEnabled="True" Click="ExportExcelBtn_Click"/>
                 <Separator/>
                 <MenuItem Header="_Exit" x:Name="BtnExit" Click="BtnExit_ItemClick"/>
             </MenuItem>
