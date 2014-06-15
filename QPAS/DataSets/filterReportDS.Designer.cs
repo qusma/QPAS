@@ -5761,18 +5761,32 @@ namespace QPAS.DataSets {
                 base.Columns.Add(this.columndec);
                 this.columntotal = new global::System.Data.DataColumn("total", typeof(decimal), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columntotal);
+                this.columnyear.Caption = "Year";
+                this.columnjan.Caption = "Jan";
                 this.columnjan.DefaultValue = ((decimal)(0m));
+                this.columnfeb.Caption = "Feb";
                 this.columnfeb.DefaultValue = ((decimal)(0m));
+                this.columnmar.Caption = "Mar";
                 this.columnmar.DefaultValue = ((decimal)(0m));
+                this.columnapr.Caption = "Apr";
                 this.columnapr.DefaultValue = ((decimal)(0m));
+                this.columnmay.Caption = "May";
                 this.columnmay.DefaultValue = ((decimal)(0m));
+                this.columnjun.Caption = "Jun";
                 this.columnjun.DefaultValue = ((decimal)(0m));
+                this.columnjul.Caption = "Jul";
                 this.columnjul.DefaultValue = ((decimal)(0m));
+                this.columnaug.Caption = "Aug";
                 this.columnaug.DefaultValue = ((decimal)(0m));
+                this.columnsep.Caption = "Sep";
                 this.columnsep.DefaultValue = ((decimal)(0m));
+                this.columnoct.Caption = "Oct";
                 this.columnoct.DefaultValue = ((decimal)(0m));
+                this.columnnov.Caption = "Nov";
                 this.columnnov.DefaultValue = ((decimal)(0m));
+                this.columndec.Caption = "Dec";
                 this.columndec.DefaultValue = ((decimal)(0m));
+                this.columntotal.Caption = "Total";
                 this.columntotal.DefaultValue = ((decimal)(0m));
             }
             
@@ -6492,18 +6506,32 @@ namespace QPAS.DataSets {
                 base.Columns.Add(this.columndec);
                 this.columntotal = new global::System.Data.DataColumn("total", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columntotal);
+                this.columnyear.Caption = "Year";
+                this.columnjan.Caption = "Jan";
                 this.columnjan.DefaultValue = ((double)(0D));
+                this.columnfeb.Caption = "Feb";
                 this.columnfeb.DefaultValue = ((double)(0D));
+                this.columnmar.Caption = "Mar";
                 this.columnmar.DefaultValue = ((double)(0D));
+                this.columnapr.Caption = "Apr";
                 this.columnapr.DefaultValue = ((double)(0D));
+                this.columnmay.Caption = "May";
                 this.columnmay.DefaultValue = ((double)(0D));
+                this.columnjun.Caption = "Jun";
                 this.columnjun.DefaultValue = ((double)(0D));
+                this.columnjul.Caption = "Jul";
                 this.columnjul.DefaultValue = ((double)(0D));
+                this.columnaug.Caption = "Aug";
                 this.columnaug.DefaultValue = ((double)(0D));
+                this.columnsep.Caption = "Sep";
                 this.columnsep.DefaultValue = ((double)(0D));
+                this.columnoct.Caption = "Oct";
                 this.columnoct.DefaultValue = ((double)(0D));
+                this.columnnov.Caption = "Nov";
                 this.columnnov.DefaultValue = ((double)(0D));
+                this.columndec.Caption = "Dec";
                 this.columndec.DefaultValue = ((double)(0D));
+                this.columntotal.Caption = "Total";
                 this.columntotal.DefaultValue = ((double)(0D));
             }
             
@@ -6934,18 +6962,32 @@ namespace QPAS.DataSets {
                 base.Columns.Add(this.columndec);
                 this.columntotal = new global::System.Data.DataColumn("total", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columntotal);
+                this.columnyear.Caption = "Year";
+                this.columnjan.Caption = "Jan";
                 this.columnjan.DefaultValue = ((double)(0D));
+                this.columnfeb.Caption = "Feb";
                 this.columnfeb.DefaultValue = ((double)(0D));
+                this.columnmar.Caption = "Mar";
                 this.columnmar.DefaultValue = ((double)(0D));
+                this.columnapr.Caption = "Apr";
                 this.columnapr.DefaultValue = ((double)(0D));
+                this.columnmay.Caption = "May";
                 this.columnmay.DefaultValue = ((double)(0D));
+                this.columnjun.Caption = "Jun";
                 this.columnjun.DefaultValue = ((double)(0D));
+                this.columnjul.Caption = "Jul";
                 this.columnjul.DefaultValue = ((double)(0D));
+                this.columnaug.Caption = "Aug";
                 this.columnaug.DefaultValue = ((double)(0D));
+                this.columnsep.Caption = "Sep";
                 this.columnsep.DefaultValue = ((double)(0D));
+                this.columnoct.Caption = "Oct";
                 this.columnoct.DefaultValue = ((double)(0D));
+                this.columnnov.Caption = "Nov";
                 this.columnnov.DefaultValue = ((double)(0D));
+                this.columndec.Caption = "Dec";
                 this.columndec.DefaultValue = ((double)(0D));
+                this.columntotal.Caption = "Total";
                 this.columntotal.DefaultValue = ((double)(0D));
             }
             
@@ -7895,6 +7937,10 @@ namespace QPAS.DataSets {
             
             private global::System.Data.DataColumn columnret;
             
+            private global::System.Data.DataColumn columnstrategy;
+            
+            private global::System.Data.DataColumn columntags;
+            
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public positionSizesVsReturnsDataTable() {
@@ -7946,6 +7992,22 @@ namespace QPAS.DataSets {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn strategyColumn {
+                get {
+                    return this.columnstrategy;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn tagsColumn {
+                get {
+                    return this.columntags;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             [global::System.ComponentModel.Browsable(false)]
             public int Count {
                 get {
@@ -7981,11 +8043,13 @@ namespace QPAS.DataSets {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public positionSizesVsReturnsRow AddpositionSizesVsReturnsRow(double size, double ret) {
+            public positionSizesVsReturnsRow AddpositionSizesVsReturnsRow(double size, double ret, string strategy, string tags) {
                 positionSizesVsReturnsRow rowpositionSizesVsReturnsRow = ((positionSizesVsReturnsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         size,
-                        ret};
+                        ret,
+                        strategy,
+                        tags};
                 rowpositionSizesVsReturnsRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowpositionSizesVsReturnsRow);
                 return rowpositionSizesVsReturnsRow;
@@ -8010,6 +8074,8 @@ namespace QPAS.DataSets {
             internal void InitVars() {
                 this.columnsize = base.Columns["size"];
                 this.columnret = base.Columns["ret"];
+                this.columnstrategy = base.Columns["strategy"];
+                this.columntags = base.Columns["tags"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -8019,6 +8085,10 @@ namespace QPAS.DataSets {
                 base.Columns.Add(this.columnsize);
                 this.columnret = new global::System.Data.DataColumn("ret", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnret);
+                this.columnstrategy = new global::System.Data.DataColumn("strategy", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnstrategy);
+                this.columntags = new global::System.Data.DataColumn("tags", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columntags);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -17511,6 +17581,7 @@ namespace QPAS.DataSets {
             private void InitClass() {
                 this.columnstat = new global::System.Data.DataColumn("stat", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnstat);
+                this.columnstat.Caption = "Stat";
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -22621,6 +22692,38 @@ namespace QPAS.DataSets {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public string strategy {
+                get {
+                    try {
+                        return ((string)(this[this.tablepositionSizesVsReturns.strategyColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'strategy\' in table \'positionSizesVsReturns\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tablepositionSizesVsReturns.strategyColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public string tags {
+                get {
+                    try {
+                        return ((string)(this[this.tablepositionSizesVsReturns.tagsColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'tags\' in table \'positionSizesVsReturns\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tablepositionSizesVsReturns.tagsColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public bool IssizeNull() {
                 return this.IsNull(this.tablepositionSizesVsReturns.sizeColumn);
             }
@@ -22641,6 +22744,30 @@ namespace QPAS.DataSets {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public void SetretNull() {
                 this[this.tablepositionSizesVsReturns.retColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool IsstrategyNull() {
+                return this.IsNull(this.tablepositionSizesVsReturns.strategyColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void SetstrategyNull() {
+                this[this.tablepositionSizesVsReturns.strategyColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool IstagsNull() {
+                return this.IsNull(this.tablepositionSizesVsReturns.tagsColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void SettagsNull() {
+                this[this.tablepositionSizesVsReturns.tagsColumn] = global::System.Convert.DBNull;
             }
         }
         
