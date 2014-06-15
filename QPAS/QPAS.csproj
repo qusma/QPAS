@@ -34,8 +34,8 @@
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>1</ApplicationRevision>
-    <ApplicationVersion>0.1.4.%2a</ApplicationVersion>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>0.2.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -207,6 +207,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Analysis\MultiDimensionalScaling.cs" />
+    <Compile Include="Reporting\ExportOptions.cs" />
     <Compile Include="TradingSimulation\AllocatedCapital.cs" />
     <Compile Include="AreaPoint.cs" />
     <Compile Include="BenchmarkBuilder.cs" />
@@ -230,7 +231,7 @@
     </Compile>
     <Compile Include="DialogService.cs" />
     <Compile Include="Enums\ExecutionBenchmark.cs" />
-    <Compile Include="ExcelExporter.cs" />
+    <Compile Include="Reporting\ExcelExporter.cs" />
     <Compile Include="ExecutionStats.cs" />
     <Compile Include="ExecutionStatsGenerator.cs" />
     <Compile Include="ExtensionMethods\TaskExtensions.cs" />
