@@ -21,6 +21,11 @@ namespace QPAS
             return tmp;
         }
 
+        public static bool HasProperty(this object obj, string propertyName)
+        {
+            return obj.GetType().GetProperty(propertyName) != null;
+        }
+
         public static double WeightedAverage<T>(this IEnumerable<T> items, Func<T, double> value, Func<T, double> weight)
         {
             return items.Sum(x => value(x) * weight(x)) / items.Sum(weight);
