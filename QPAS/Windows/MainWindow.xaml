@@ -11,7 +11,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         Icon="../Resources/icon.ico"
         TitlebarHeight="32"
-        Title="QUSMA Performance Analysis Suite"
+        Title="QUSMA Performance Analytics Suite"
         BorderBrush="Black" BorderThickness="1"
         FontFamily="Segoe UI Semibold"
         Closing="MetroWindow_Closing"
