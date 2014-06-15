@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using MathNet.Numerics.LinearAlgebra.Double;
+using MathNet.Numerics.LinearAlgebra.Generic;
 using NUnit.Framework;
 using QPAS;
 
@@ -167,6 +169,79 @@ namespace QPASTest
             for (int i = 0; i < targets.Count; i++)
             {
                 Assert.IsTrue(ApproximatelyEqual(res[i], targets[i], 0.05), i.ToString());
+            }
+        }
+        
+        [Test]
+        public void PCATest()
+        {
+            double[,] input = new double[10,3]
+            {
+                {0.5376671395461, -1.34988694015652, 0.671497133608081},
+                {1.83388501459509, 3.03492346633185, -1.20748692268504},
+                {-2.25884686100365, 0.725404224946106, 0.717238651328839},
+                {0.862173320368121, -0.0630548731896562, 1.63023528916473},
+                {0.318765239858981, 0.714742903826096, 0.488893770311789},
+                {-1.30768829630527, -0.204966058299775, 1.03469300991786},
+                {-0.433592022305684, -0.124144348216312, 0.726885133383238},
+                {0.34262446653865, 1.48969760778547, -0.303440924786016},
+                {3.57839693972576, 1.40903448980048, 0.293871467096658},
+                {2.76943702988488, 1.41719241342961, -0.787282803758638}
+            };
+            var inputArray = DenseMatrix.OfArray(input);
+            Vector<double> latent;
+            Matrix<double> coeff;
+            Matrix<double> score;
+
+            MathUtils.PCA(inputArray, out latent, out score, out coeff);
+
+            List<double> latentTargets = new List<double> 
+            { 
+                3.9339,
+                1.2361,
+                0.1877
+            };
+
+            for (int i = 0; i < latentTargets.Count; i++)
+            {
+                Assert.IsTrue(ApproximatelyEqual(latentTargets[i], latent[i]));
+            }
+
+            double[,] coeffTargets = new double[3,3]
+            {
+                {0.8390,   -0.5418,    0.0504  },
+                {0.4427,    0.7336,    0.5156  },
+                {-0.3163,   -0.4102,    0.8554 }
+            };
+
+            for (int i = 0; i < coeffTargets.GetLength(0); i++)
+            {
+                for (int j = 0; j < coeffTargets.GetLength(1); j++)
+                {
+                    Assert.IsTrue(ApproximatelyEqual(coeffTargets[i,j], coeff[i,j]), string.Format("{0},{1}", i, j));
+                }
+            }
+
+            double[,] scoreTargets = new double[10, 3]
+            {
+                {-1.0915, -1.60199, -0.768692},
+                {2.53168, 1.68328, -0.0497722},
+                {-2.53347, 1.41679, 0.199351},
+                {-0.552818, -1.2271, 0.731205},
+                {-0.303338, 0.106133, 0.128562},
+                {-2.24777, 0.0887109, 0.0391838},
+                {-1.38125, -0.199294, -0.138338},
+                {0.310418, 0.986763, -0.148408},
+                {2.80057, -1.07055, 0.48414},
+                {2.46748, -0.182744, -0.47723}
+            };
+
+            for (int i = 0; i < scoreTargets.GetLength(0); i++)
+            {
+                for (int j = 0; j < scoreTargets.GetLength(1); j++)
+                {
+                    Assert.IsTrue(ApproximatelyEqual(scoreTargets[i, j], score[i, j]), string.Format("{0},{1}", i, j));
+                }
             }
         }
 

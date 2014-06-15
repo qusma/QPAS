@@ -10,6 +10,7 @@ using System.Linq;
 using System.Numerics;
 using MathNet.Numerics.IntegralTransforms;
 using MathNet.Numerics.LinearAlgebra.Double;
+using MathNet.Numerics.LinearAlgebra.Double.Factorization;
 using MathNet.Numerics.LinearAlgebra.Generic;
 using MathNet.Numerics.Statistics;
 
@@ -139,6 +140,45 @@ namespace QPAS
                 coeffs.Add(b.Last());
             }
             return coeffs;
+        }
+
+        public static void PCA(DenseMatrix input, out Vector<double> latent, out Matrix<double> score, out Matrix<double> coeff)
+        {
+            int n = input.RowCount;
+            int p = input.ColumnCount;
+
+            //de-mean input
+            var tmpInput = DenseMatrix.OfMatrix(input);
+            for (int i = 0; i < tmpInput.ColumnCount; i++)
+            {
+                double avg = tmpInput.Column(i).Average();
+                tmpInput.SetColumn(i, tmpInput.Column(i).Subtract(avg));
+            }
+
+            var svd = new DenseSvd(tmpInput, true);
+            var sigma = svd.S();
+            var tmpCoeff = svd.VT().Transpose();
+
+            score = DenseMatrix.Create(n, p, (_, __) => 0);
+            var U = svd.U().SubMatrix(0, n, 0, p);
+            for (int i = 0; i < U.RowCount; i++)
+            {
+                score.SetRow(i, U.Row(i).PointwiseMultiply(sigma));
+            }
+
+            sigma = sigma.Divide(Math.Sqrt(n - 1));
+            latent = sigma.PointwiseMultiply(sigma);
+
+            //give the largest absolute value in each column a positive sign
+            var maxIndices = tmpCoeff.ColumnEnumerator().Select(x => x.Item2.AbsoluteMaximumIndex());
+            var colSigns = maxIndices.Select((x, j) => Math.Sign(tmpCoeff[x, j])).ToList();
+            for (int j = 0; j < tmpCoeff.ColumnCount; j++)
+            {
+                tmpCoeff.SetColumn(j, tmpCoeff.Column(j) * colSigns[j]);
+                score.SetColumn(j, score.Column(j) * colSigns[j]);
+            }
+
+            coeff = tmpCoeff;
         }
 
         private static IEnumerable<double> Zeros(int n)
