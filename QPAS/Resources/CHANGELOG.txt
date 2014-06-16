@@ -1,6 +1,7 @@
 0.2.0
 ------------------------
 * Performance reports can now be exported to Excel. Use File -> Export to Excel in the performance report window.
+* Report generation settings now also include an instrument filter.
 
 0.1.5
 ------------------------
