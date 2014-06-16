@@ -38,7 +38,7 @@ namespace QPAS
             return trades.Where(x => strategies.Contains(x.Strategy)).Select(x => x.ID).ToList();
         }
 
-        public static List<Trade> Filter(List<Tag> selectedTags, List<Strategy> selectedStrategies, IDBContext context, TradeFilterSettings settings)
+        public static List<Trade> Filter(List<Tag> selectedTags, List<Strategy> selectedStrategies, List<Instrument> selectedInstruments, IDBContext context, TradeFilterSettings settings)
         {
             if (context == null) throw new ArgumentNullException("context");
 
@@ -80,6 +80,22 @@ namespace QPAS
                     break;
                 case FilterMethod.Exclude:
                     trades = trades.Where(x => !selectedTags.Intersect(x.Tags).Any()).ToList();
+                    break;
+            }
+
+            List<int> selectedInstrumentIDs = selectedInstruments.Select(x => x.ID).ToList();
+
+            //filter by instrument
+            switch (settings.InstrumentFilterMethod)
+            {
+                case FilterMethod.Any:
+                    trades = trades.Where(x => x.Orders.Select(y => y.InstrumentID).Intersect(selectedInstrumentIDs).Any()).ToList();
+                    break;
+                case FilterMethod.All:
+                    trades = trades.Where(x => x.Orders.Select(y => y.InstrumentID).Intersect(selectedInstrumentIDs).Count() == selectedInstrumentIDs.Count).ToList();
+                    break;
+                case FilterMethod.Exclude:
+                    trades = trades.Where(x => !x.Orders.Select(y => y.InstrumentID).Intersect(selectedInstrumentIDs).Any()).ToList();
                     break;
             }
 
