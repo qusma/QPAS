@@ -16,6 +16,7 @@
         FontFamily="Segoe UI Semibold"
         Closing="MetroWindow_Closing"
         xmlns:p="clr-namespace:QPAS.Properties"
+        xmlns:qc="http://QuickConverter.CodePlex.com/"
         Height="{Binding Source={x:Static p:Settings.Default}, Path=Height, Mode=TwoWay}"
         Width="{Binding Source={x:Static p:Settings.Default}, Path=Width, Mode=TwoWay}"
         Left="{Binding Source={x:Static p:Settings.Default}, Path=Left, Mode=TwoWay}"
@@ -139,7 +140,10 @@
             </MenuItem>
         </ContextMenu>
 
-        <ContextMenu x:Key="TradesGridContextMenu"  qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
+        <ContextMenu x:Key="TradesGridContextMenu" Opened="ContextMenu_Opened" qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
+            <StaticResource ResourceKey="TradesGridSetTagSubMenu" />
+            <StaticResource ResourceKey="TradesGridSetStrategySubMenu" />
+            
             <MenuItem Header="Delete" Name="TradesGridContextMenuDeleteBtn" 
                       Command="{Binding Delete}"
                       CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
@@ -163,6 +167,23 @@
                     <Image Source="../Resources/Refresh.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
+            <Separator/>
+            <MenuItem Header="Copy Tags" Name="TradesGridContextMenuCopyTagsBtn"
+                      Click="TradesGridContextMenuCopyTagsBtn_Click"
+                      IsEnabled="{Binding ElementName=TradesGrid,Path=SelectedItems.Count, Converter={qc:QuickConverter '$P == 1'}}"
+                      >
+                <MenuItem.Icon>
+                    <Image Source="../Resources/Copy.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Paste Tags" Name="TradesGridContextMenuPasteTagsBtn"
+                      Click="TradesGridContextMenuPasteTagsBtn_Click">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/Paste.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+
+            <Separator/>
             <MenuItem Header="Report From Selected Trades" Name="TradesGridContextMenuReportBtn"
                         Command="{Binding Parent.GenerateReportFromTrades}"
                       CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">

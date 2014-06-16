@@ -957,5 +957,53 @@ namespace QPAS
             }
             e.Handled = true;
         }
+
+        private void TradesGridContextMenuCopyTagsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            //Copies a list of tags from the selected trade to the clipboard
+            DataFormat dataFormat = DataFormats.GetDataFormat(typeof(List<Tag>).FullName);
+
+            IDataObject dataObject = new DataObject();
+
+            var selectedTrade = (Trade)TradesGrid.SelectedItem;
+            if (selectedTrade.Tags == null) return;
+
+            List<Tag> dataToCopy = selectedTrade.Tags.ToList();
+            dataObject.SetData(dataFormat.Name, dataToCopy, false);
+
+            Clipboard.SetDataObject(dataObject, false);
+        }
+
+        private void TradesGridContextMenuPasteTagsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (TradesGrid.SelectedItems == null || TradesGrid.SelectedItems.Count == 0) return;
+            List<Tag> tags = Utils.GetDataFromClipboard<List<Tag>>();
+            foreach(Trade trade in TradesGrid.SelectedItems)
+            {
+                TradesRepository.SetTags(tags, trade);
+                trade.TagStringUpdated();
+            }
+            Context.SaveChanges();
+        }
+
+        private void ContextMenu_Opened(object sender, RoutedEventArgs e)
+        {
+            //check if the clipboard has a list of tags, if not, disable the tag paste button
+            var menu = (ContextMenu)sender;
+            var pasteBtn = menu.Items.Cast<FrameworkElement>().First(x => x.Name == "TradesGridContextMenuPasteTagsBtn");
+
+            List<Tag> tags = Utils.GetDataFromClipboard<List<Tag>>();
+            pasteBtn.IsEnabled = tags != null;
+        }
+
+        private void InstrumentsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(e.OriginalSource == this.InstrumentsGrid)
+            {
+                //the selectionchanged event is fired by the combobox when you scroll for some reason
+                //this check is needed to stop that from happening
+                ViewModel.InstrumentsPageViewModel.UpdateChartCommand.Execute(null);
+            }
+        }
     }
 }
