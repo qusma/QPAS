@@ -635,12 +635,16 @@ namespace QPAS
 
             if (trade == null) return;
 
-            foreach (Order o in OrdersGrid.SelectedItems)
-            {
-                TradesRepository.AddOrder(trade, o);
-            }
+            var selectedOrders = new List<Order>(OrdersGrid.SelectedItems.Cast<Order>());
+            Task.Run(() =>
+                {
+                    foreach (Order o in selectedOrders)
+                    {
+                        TradesRepository.AddOrder(trade, o);
+                    }
 
-            TradesRepository.Save();
+                    TradesRepository.Save();
+                });
         }
 
         private void OrdersGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
