@@ -1237,7 +1237,8 @@
                                 Name="PRSelectAllInstrumentsBtn" 
                                 Grid.Row="1" Margin="5" />
 
-                        <ListBox Name="PRInstrumentsListBox" Margin="0,5,0,0" Grid.Row="2" SelectionMode="Extended" ItemsSource="{Binding Instruments}">
+                        <ListBox Name="PRInstrumentsListBox" Margin="0,5,0,0" Grid.Row="2" PreviewKeyDown="CheckItemListBox_PreviewKeyDown"
+                                 SelectionMode="Extended" ItemsSource="{Binding Instruments}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -1268,7 +1269,8 @@
                                 Name="PRSelectAllStrategiesBtn" 
                                 Grid.Row="1" Margin="5" />
 
-                        <ListBox Grid.Row="2" Name="PRStrategyListBox" Margin="0,5,0,0" ItemsSource="{Binding Strategies}">
+                        <ListBox Grid.Row="2" Name="PRStrategyListBox" Margin="0,5,0,0" SelectionMode="Extended"
+                                 PreviewKeyDown="CheckItemListBox_PreviewKeyDown" ItemsSource="{Binding Strategies}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -1301,7 +1303,8 @@
                                 Name="PRSelectAllTagsBtn" 
                                 Grid.Row="1" Margin="5" />
 
-                        <ListBox Name="PRTagsListBox" Margin="0,5,0,0" Grid.Row="2" ItemsSource="{Binding Tags}">
+                        <ListBox Name="PRTagsListBox" Margin="0,5,0,0" Grid.Row="2" SelectionMode="Extended"
+                                 PreviewKeyDown="CheckItemListBox_PreviewKeyDown" ItemsSource="{Binding Tags}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">

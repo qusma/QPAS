@@ -936,5 +936,22 @@ namespace QPAS
                 }
             }
         }
+
+        /// <summary>
+        /// When the Space key is pressed, toggle checked status on selected items.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CheckItemListBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Space) return;
+
+            var listbox = (ListBox)sender;
+            foreach (ICheckListItem item in listbox.SelectedItems)
+            {
+                item.IsChecked = !item.IsChecked;
+            }
+            e.Handled = true;
+        }
     }
 }
