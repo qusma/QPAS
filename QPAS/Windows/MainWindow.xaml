@@ -1210,26 +1210,44 @@
                         <RowDefinition Height="545*"/>
                     </Grid.RowDefinitions>
 
-                    <Label Grid.Row="0" Grid.Column="2" Content="Benchmark" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
+                    <Label Grid.Row="0" Grid.Column="2" Content="Instruments" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
                     <Label Grid.Row="0" Content="Strategies" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
                     <Label Grid.Row="0" Grid.Column="1" Content="Tags" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
                     <Label Grid.Row="0" Grid.Column="3" Content="Dates" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
                     <Label Grid.Row="0" Grid.Column="4" Content="Monte Carlo" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
 
-                    <StackPanel Grid.Row="1" Grid.Column="2" Margin="5">
-                        <TextBlock Text="Bench. Against:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray"  />
-                        <UniformGrid Columns="2" Margin="5,0,5,0">
-                            <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
-                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
-                            <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
-                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                    <Grid Grid.Row="1" Grid.Column="2" Margin="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="495*"/>
+                        </Grid.RowDefinitions>
+
+                        <UniformGrid Columns="3" Grid.Row="0" Margin="5,0,5,0">
+                            <RadioButton Content="Any" 
+                                         IsChecked="{Binding TradeFilterSettings.InstrumentFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Any}"/>
+                            <RadioButton Content="All"
+                                         IsChecked="{Binding TradeFilterSettings.InstrumentFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=All}"/>
+                            <RadioButton Content="Exclude"
+                                         IsChecked="{Binding TradeFilterSettings.InstrumentFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Exclude}"/>
                         </UniformGrid>
 
-                        <TextBlock Text="Benchmark:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray"  />
-                        <ComboBox Name="RPBenchmarkComboBox" DisplayMemberPath="Name"
-                                  ItemsSource="{Binding Benchmarks}"
-                                  SelectedItem="{Binding ReportSettings.Benchmark}" Margin="5,0,5,0" />
-                    </StackPanel>
+                        <Button Content="{Binding ToggleInstrumentsText}" 
+                                Command="{Binding ToggleAllInstruments}"
+                                Name="PRSelectAllInstrumentsBtn" 
+                                Grid.Row="1" Margin="5" />
+
+                        <ListBox Name="PRInstrumentsListBox" Margin="0,5,0,0" Grid.Row="2" SelectionMode="Extended" ItemsSource="{Binding Instruments}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox IsChecked="{Binding IsChecked}"  />
+                                        <TextBlock Text="{Binding Item.Symbol}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
 
                     <Grid Grid.Column="0" Grid.Row="1" Margin="5">
                         <Grid.RowDefinitions>
@@ -1323,6 +1341,20 @@
                             <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
                                          IsChecked="{Binding ReportSettings.AutoCorrReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
                         </UniformGrid>
+
+                        <Label Content="Benchmark" Margin="-5,25,0,0" FontSize="30" Foreground="DimGray" />
+                        <TextBlock Text="Bench. Against:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray"  />
+                        <UniformGrid Columns="2" Margin="5,0,5,0">
+                            <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
+                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
+                            <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
+                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                        </UniformGrid>
+
+                        <TextBlock Text="Benchmark:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray"  />
+                        <ComboBox Name="RPBenchmarkComboBox" DisplayMemberPath="Name"
+                                  ItemsSource="{Binding Benchmarks}"
+                                  SelectedItem="{Binding ReportSettings.Benchmark}" Margin="5,0,5,0" />
                     </StackPanel>
                     
                     
@@ -1373,8 +1405,21 @@
                     </Grid>
                 </Grid>
             </TabItem>
-            <TabItem Header="RiskReport">
-                <TextBlock>Nothing to see here yet.</TextBlock>
+            <TabItem Header="Risk">
+                <TabControl>
+                    <TabItem Header="Portfolio Selection">
+                        Futures need their index instead
+                    </TabItem>
+                    <TabItem Header="Results">
+                        VaR
+                        Marginal VaR
+                        Volatility forecast?
+                    </TabItem>
+                    <TabItem Header="Scenario Analysis">
+                        Here, give the ability to tune factor changes and see what happens
+                        Statistical model + user-defined model?
+                    </TabItem>
+                </TabControl>
             </TabItem>
             <TabItem Header="TaxReport">
                 <TextBlock>Nothing to see here yet.</TextBlock>
