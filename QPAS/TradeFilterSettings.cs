@@ -19,6 +19,7 @@ namespace QPAS
         private DateTime? _to;
         private FilterMethod _tagFilterMethod;
         private FilterMethod _strategyFilterMethod;
+        private FilterMethod _instrumentFilterMethod;
 
         public DateTime? From
         {
@@ -36,6 +37,8 @@ namespace QPAS
 
         public List<Strategy> Strategies { get; set; }
 
+        public List<Instrument> Instruments { get; set; }
+
         public FilterMethod TagFilterMethod
         {
             get { return _tagFilterMethod; }
@@ -46,6 +49,12 @@ namespace QPAS
         {
             get { return _strategyFilterMethod; }
             set { _strategyFilterMethod = value; OnPropertyChanged(); }
+        }
+
+        public FilterMethod InstrumentFilterMethod
+        {
+            get { return _instrumentFilterMethod; }
+            set { _instrumentFilterMethod = value; OnPropertyChanged(); }
         }
 
         public bool ClosedTradesOnly { get; set; }
