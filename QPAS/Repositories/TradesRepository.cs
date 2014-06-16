@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.Entity;
 using System.Linq;
 using EntityModel;
@@ -50,6 +51,18 @@ namespace QPAS
                 {
                     logger.Log(LogLevel.Error, "Error updating stats on trade {0} ({1}): {2}", t.Name, t.ID, ex.Message);
                 }
+            }
+        }
+
+        public void SetTags(List<Tag> tags, Trade trade)
+        {
+            if (tags == null) return;
+            if(trade.Tags == null) trade.Tags = new ObservableCollection<Tag>();
+            trade.Tags.Clear();
+
+            foreach (Tag t in tags)
+            {
+                trade.Tags.Add(t);
             }
         }
 
