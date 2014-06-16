@@ -207,6 +207,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Analysis\MultiDimensionalScaling.cs" />
+    <Compile Include="Interfaces\ICheckListItem.cs" />
     <Compile Include="Reporting\ExportOptions.cs" />
     <Compile Include="TradingSimulation\AllocatedCapital.cs" />
     <Compile Include="AreaPoint.cs" />

@@ -8,7 +8,7 @@ using System.ComponentModel;
 
 namespace QPAS
 {
-    public class CheckListItem<T> : INotifyPropertyChanged
+    public class CheckListItem<T> : ICheckListItem<T>, ICheckListItem
     {
         public object Tag { get; set; }
 
