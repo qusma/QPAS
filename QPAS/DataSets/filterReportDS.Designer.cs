@@ -11551,6 +11551,12 @@ namespace QPAS.DataSets {
             
             private global::System.Data.DataColumn columnrsquare;
             
+            private global::System.Data.DataColumn columninformationRatio;
+            
+            private global::System.Data.DataColumn columnactiveReturn;
+            
+            private global::System.Data.DataColumn columntrackingError;
+            
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public benchmarkStatsDataTable() {
@@ -11618,6 +11624,30 @@ namespace QPAS.DataSets {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn informationRatioColumn {
+                get {
+                    return this.columninformationRatio;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn activeReturnColumn {
+                get {
+                    return this.columnactiveReturn;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn trackingErrorColumn {
+                get {
+                    return this.columntrackingError;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             [global::System.ComponentModel.Browsable(false)]
             public int Count {
                 get {
@@ -11653,13 +11683,16 @@ namespace QPAS.DataSets {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public benchmarkStatsRow AddbenchmarkStatsRow(double correlation, double alpha, double beta, double rsquare) {
+            public benchmarkStatsRow AddbenchmarkStatsRow(double correlation, double alpha, double beta, double rsquare, double informationRatio, double activeReturn, double trackingError) {
                 benchmarkStatsRow rowbenchmarkStatsRow = ((benchmarkStatsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         correlation,
                         alpha,
                         beta,
-                        rsquare};
+                        rsquare,
+                        informationRatio,
+                        activeReturn,
+                        trackingError};
                 rowbenchmarkStatsRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowbenchmarkStatsRow);
                 return rowbenchmarkStatsRow;
@@ -11686,6 +11719,9 @@ namespace QPAS.DataSets {
                 this.columnalpha = base.Columns["alpha"];
                 this.columnbeta = base.Columns["beta"];
                 this.columnrsquare = base.Columns["rsquare"];
+                this.columninformationRatio = base.Columns["informationRatio"];
+                this.columnactiveReturn = base.Columns["activeReturn"];
+                this.columntrackingError = base.Columns["trackingError"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -11699,6 +11735,12 @@ namespace QPAS.DataSets {
                 base.Columns.Add(this.columnbeta);
                 this.columnrsquare = new global::System.Data.DataColumn("rsquare", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnrsquare);
+                this.columninformationRatio = new global::System.Data.DataColumn("informationRatio", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columninformationRatio);
+                this.columnactiveReturn = new global::System.Data.DataColumn("activeReturn", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnactiveReturn);
+                this.columntrackingError = new global::System.Data.DataColumn("trackingError", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columntrackingError);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -26126,6 +26168,54 @@ namespace QPAS.DataSets {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double informationRatio {
+                get {
+                    try {
+                        return ((double)(this[this.tablebenchmarkStats.informationRatioColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'informationRatio\' in table \'benchmarkStats\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tablebenchmarkStats.informationRatioColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double activeReturn {
+                get {
+                    try {
+                        return ((double)(this[this.tablebenchmarkStats.activeReturnColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'activeReturn\' in table \'benchmarkStats\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tablebenchmarkStats.activeReturnColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double trackingError {
+                get {
+                    try {
+                        return ((double)(this[this.tablebenchmarkStats.trackingErrorColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'trackingError\' in table \'benchmarkStats\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tablebenchmarkStats.trackingErrorColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public bool IscorrelationNull() {
                 return this.IsNull(this.tablebenchmarkStats.correlationColumn);
             }
@@ -26170,6 +26260,42 @@ namespace QPAS.DataSets {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public void SetrsquareNull() {
                 this[this.tablebenchmarkStats.rsquareColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool IsinformationRatioNull() {
+                return this.IsNull(this.tablebenchmarkStats.informationRatioColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void SetinformationRatioNull() {
+                this[this.tablebenchmarkStats.informationRatioColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool IsactiveReturnNull() {
+                return this.IsNull(this.tablebenchmarkStats.activeReturnColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void SetactiveReturnNull() {
+                this[this.tablebenchmarkStats.activeReturnColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool IstrackingErrorNull() {
+                return this.IsNull(this.tablebenchmarkStats.trackingErrorColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void SettrackingErrorNull() {
+                this[this.tablebenchmarkStats.trackingErrorColumn] = global::System.Convert.DBNull;
             }
         }
         

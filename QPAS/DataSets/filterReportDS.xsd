@@ -415,6 +415,9 @@
               <xs:element name="alpha" msprop:Generator_ColumnVarNameInTable="columnalpha" msprop:Generator_ColumnPropNameInRow="alpha" msprop:Generator_ColumnPropNameInTable="alphaColumn" msprop:Generator_UserColumnName="alpha" type="xs:double" minOccurs="0" />
               <xs:element name="beta" msprop:Generator_ColumnVarNameInTable="columnbeta" msprop:Generator_ColumnPropNameInRow="beta" msprop:Generator_ColumnPropNameInTable="betaColumn" msprop:Generator_UserColumnName="beta" type="xs:double" minOccurs="0" />
               <xs:element name="rsquare" msprop:Generator_ColumnVarNameInTable="columnrsquare" msprop:Generator_ColumnPropNameInRow="rsquare" msprop:Generator_ColumnPropNameInTable="rsquareColumn" msprop:Generator_UserColumnName="rsquare" type="xs:double" minOccurs="0" />
+              <xs:element name="informationRatio" msprop:Generator_ColumnVarNameInTable="columninformationRatio" msprop:Generator_ColumnPropNameInRow="informationRatio" msprop:Generator_ColumnPropNameInTable="informationRatioColumn" msprop:Generator_UserColumnName="informationRatio" type="xs:double" minOccurs="0" />
+              <xs:element name="activeReturn" msprop:Generator_ColumnVarNameInTable="columnactiveReturn" msprop:Generator_ColumnPropNameInRow="activeReturn" msprop:Generator_ColumnPropNameInTable="activeReturnColumn" msprop:Generator_UserColumnName="activeReturn" type="xs:double" minOccurs="0" />
+              <xs:element name="trackingError" msprop:Generator_ColumnVarNameInTable="columntrackingError" msprop:Generator_ColumnPropNameInRow="trackingError" msprop:Generator_ColumnPropNameInTable="trackingErrorColumn" msprop:Generator_UserColumnName="trackingError" type="xs:double" minOccurs="0" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>
