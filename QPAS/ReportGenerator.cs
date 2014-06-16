@@ -997,6 +997,20 @@ namespace QPAS
             dr.alpha = Math.Pow(1 + alpha, 252) - 1; //annualization, currently used method may overstate alpha due to ignoring volatility
             dr.beta = beta;
             dr.rsquare = rsq;
+
+            var activeReturn = benchmarkingReturns.Select((x, i) => x - (_benchmarkReturns[i] - 1)).ToList();
+            dr.activeReturn = Math.Pow(1 + activeReturn.Average(), 252) - 1;
+            dr.trackingError = activeReturn.StandardDeviation() * Math.Sqrt(252);
+
+            if (Math.Abs(dr.trackingError) < 0.0000001)
+            {
+                dr.informationRatio = 0;
+            }
+            else
+            {
+                dr.informationRatio = dr.activeReturn / dr.trackingError;
+            }
+
             ds.benchmarkStats.Rows.Add(dr);
         }
 

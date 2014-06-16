@@ -720,7 +720,18 @@
                             <TextBlock Text="R Squared" FontSize="20" Foreground="DimGray" />
                             <TextBlock Text="{Binding BenchmarkRSquare,StringFormat={}{0:.00}}" FontSize="20" Foreground="Black" />
                         </UniformGrid>
-
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Active Return (Annualized)" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding BenchmarkActiveReturn,StringFormat={}{0:p2}}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Tracking Error (Annualized)" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding BenchmarkTrackingError,StringFormat={}{0:p2}}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
+                        <UniformGrid Columns="2" Margin="20,0,20,0">
+                            <TextBlock Text="Information Ratio" FontSize="20" Foreground="DimGray" />
+                            <TextBlock Text="{Binding BenchmarkInformationRatio,StringFormat={}{0:.00}}" FontSize="20" Foreground="Black" />
+                        </UniformGrid>
 
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left" Margin="0,10,0,0"

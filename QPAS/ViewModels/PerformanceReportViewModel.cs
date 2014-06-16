@@ -145,6 +145,9 @@ namespace QPAS
         public double BenchmarkBeta { get; set; }
         public double BenchmarkRSquare { get; set; }
         public double BenchmarkCorrelation { get; set; }
+        public double BenchmarkInformationRatio { get; set; }
+        public double BenchmarkActiveReturn { get; set; }
+        public double BenchmarkTrackingError { get; set; }
 
         //We need to hack around the datatable dbnull issue by using the following two series
         //Since they don't have points across the entire range
@@ -211,6 +214,9 @@ namespace QPAS
                 BenchmarkBeta = ((filterReportDS.benchmarkStatsRow)Data.benchmarkStats.Rows[0]).beta;
                 BenchmarkCorrelation = ((filterReportDS.benchmarkStatsRow)Data.benchmarkStats.Rows[0]).correlation;
                 BenchmarkRSquare = ((filterReportDS.benchmarkStatsRow)Data.benchmarkStats.Rows[0]).rsquare;
+                BenchmarkInformationRatio = ((filterReportDS.benchmarkStatsRow)Data.benchmarkStats.Rows[0]).informationRatio;
+                BenchmarkActiveReturn = ((filterReportDS.benchmarkStatsRow)Data.benchmarkStats.Rows[0]).activeReturn;
+                BenchmarkTrackingError = ((filterReportDS.benchmarkStatsRow)Data.benchmarkStats.Rows[0]).trackingError;
                 BenchmarkInstrument = Settings.Benchmark.Name;
             }
 
