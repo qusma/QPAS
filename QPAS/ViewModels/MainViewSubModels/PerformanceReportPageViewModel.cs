@@ -12,6 +12,7 @@ namespace QPAS
 
         internal IDBContext Context;
         internal MainViewModel Parent;
+        private string _toggleInstrumentsText;
 
         public ReportSettings ReportSettings { get; set; }
 
@@ -20,6 +21,8 @@ namespace QPAS
         public ObservableCollection<CheckListItem<Strategy>> Strategies { get; set; }
 
         public ObservableCollection<CheckListItem<Tag>> Tags { get; set; }
+
+        public ObservableCollection<CheckListItem<Instrument>> Instruments { get; set; }
 
         public ObservableCollection<Benchmark> Benchmarks { get; set; }
 
@@ -45,9 +48,21 @@ namespace QPAS
             }
         }
 
+        public string ToggleInstrumentsText
+        {
+            get { return _toggleInstrumentsText; }
+            set
+            {
+                if (value == _toggleInstrumentsText) return;
+                _toggleInstrumentsText = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand ToggleAllStrategies { get; set; }
 
         public ICommand ToggleAllTags { get; set; }
+        public ICommand ToggleAllInstruments { get; set; }
 
         public ICommand GenerateReport { get; set; }
 
@@ -62,9 +77,11 @@ namespace QPAS
 
             ToggleTagsText = "Select All";
             ToggleStratsText = "Select All";
+            ToggleInstrumentsText = "Deselect All";
 
             Strategies = new ObservableCollection<CheckListItem<Strategy>>();
             Tags = new ObservableCollection<CheckListItem<Tag>>();
+            Instruments = new ObservableCollection<CheckListItem<Instrument>>();
             Benchmarks = new ObservableCollection<Benchmark>();
 
             CreateCommands();
@@ -74,6 +91,7 @@ namespace QPAS
         {
             ToggleAllTags = new RelayCommand(ToggleTags);
             ToggleAllStrategies = new RelayCommand(ToggleStrats);
+            ToggleAllInstruments = new RelayCommand(ToggleInstruments);
             GenerateReport = new RelayCommand(GenReport);
         }
 
@@ -117,6 +135,26 @@ namespace QPAS
             }
         }
 
+        private void ToggleInstruments()
+        {
+            if (ToggleInstrumentsText == "Select All")
+            {
+                foreach (CheckListItem<Instrument> item in Instruments)
+                {
+                    item.IsChecked = true;
+                }
+                ToggleInstrumentsText = "Deselect All";
+            }
+            else
+            {
+                foreach (CheckListItem<Instrument> item in Instruments)
+                {
+                    item.IsChecked = false;
+                }
+                ToggleInstrumentsText = "Select All";
+            }
+        }
+
         public override void Refresh()
         {
             //tags
@@ -151,6 +189,37 @@ namespace QPAS
                 Strategies.Add(checkItem);
             }
 
+            //Instruments
+            if (Instruments.Count == 0)
+            {
+                //on first load we want all instruments selected, otherwise remember previous selection
+                foreach (var checkItem in Context
+                    .Instruments
+                    .OrderBy(x => x.Symbol)
+                    .ToList()
+                    .Select(x => new CheckListItem<Instrument>(x, true)))
+                {
+                    Instruments.Add(checkItem);
+                }
+            }
+            else
+            {
+                var selectedInstruments = Instruments
+                                .Where(x => x.IsChecked)
+                                .Select(x => x.Item)
+                                .ToList();
+                Instruments.Clear();
+
+                foreach (var checkItem in Context
+                    .Instruments
+                    .OrderBy(x => x.Symbol)
+                    .ToList()
+                    .Select(x => new CheckListItem<Instrument>(x, selectedInstruments.Contains(x))))
+                {
+                    Instruments.Add(checkItem);
+                }
+            }
+
             //benchmarks
             Benchmarks.Clear();
             foreach (Benchmark b in Context.Benchmarks.OrderBy(x => x.Name))
@@ -173,7 +242,13 @@ namespace QPAS
                 .Select(x => x.Item)
                 .ToList();
 
-            var trades = TradeFiltering.Filter(selectedTags, selectedStrategies, Context, TradeFilterSettings);
+            var selectedInstruments = 
+                Instruments
+                .Where(x => x.IsChecked)
+                .Select(x => x.Item)
+                .ToList();
+
+            var trades = TradeFiltering.Filter(selectedTags, selectedStrategies, selectedInstruments, Context, TradeFilterSettings);
 
             Parent.GenerateReportFromTrades.Execute(trades);
         }
