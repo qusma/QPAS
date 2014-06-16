@@ -6,13 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
-using MathNet.Numerics.LinearAlgebra.Double;
-using MathNet.Numerics.LinearAlgebra.Generic;
-using MathNet.Numerics.Statistics;
-
 namespace QPAS
 {
     public static class Utils
@@ -35,6 +30,26 @@ namespace QPAS
                     }
                 }
             }
+        }
+
+        public static T GetDataFromClipboard<T>() where T: class
+        {
+            IDataObject dataObject = Clipboard.GetDataObject();
+            if (dataObject != null)
+            {
+                string dataFormat = typeof(T).FullName;
+                if (dataObject.GetDataPresent(dataFormat))
+                {
+                    // Retrieve slides from the clipboard
+                    T data = dataObject.GetData(dataFormat) as T;
+                    if (data != null)
+                    {
+                        return data;
+                    }
+                }
+            }
+
+            return null;
         }
 
         public static T FindVisualParent<T>(DependencyObject child) where T : DependencyObject
