@@ -642,7 +642,6 @@ namespace QPAS
                     {
                         TradesRepository.AddOrder(trade, o);
                     }
-
                     TradesRepository.Save();
                 });
         }

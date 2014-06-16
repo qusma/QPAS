@@ -1,3 +1,9 @@
+0.2.1
+------------------------
+* Fixed a bug that would cause the instrument chart to refresh when scrolling the instruments grid.
+* You can now copy and paste tags from/to trades. Simply use the right-click menu in the trades page.
+* Benchmark results now include active return (Rp - Rb), tracking error (st.dev. of active return), and information ratio (active return / tracking error).
+
 0.2.0
 ------------------------
 * Performance reports can now be exported to Excel. Use File -> Export to Excel in the performance report window.

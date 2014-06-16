@@ -158,8 +158,6 @@
                     <Image Source="../Resources/ResetTradeIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <StaticResource ResourceKey="TradesGridSetTagSubMenu" />
-            <StaticResource ResourceKey="TradesGridSetStrategySubMenu" />
             <MenuItem Header="Update Stats" Name="TradesGridContextMenuUpdateStatsBtn"
                       Command="{Binding UpdateStats}"
                       CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
@@ -485,6 +483,7 @@
                               RowEditEnding="DataGrid_RowEditEnding" 
                               Grid.ColumnSpan="2"
                               ItemsSource="{Binding InstrumentsSource.View}"
+                              SelectionChanged="InstrumentsGrid_SelectionChanged"
                               >
 
                         <DataGrid.Columns>
@@ -525,11 +524,6 @@
                                 </DataGridComboBoxColumn.EditingElementStyle>
                             </DataGridComboBoxColumn>
                         </DataGrid.Columns>
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="SelectionChanged">
-                                <i:InvokeCommandAction Command="{Binding UpdateChartCommand}" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
                     </DataGrid>
                     <GridSplitter Grid.Row="1" Height="4" 
                                   ResizeBehavior="PreviousAndNext"
