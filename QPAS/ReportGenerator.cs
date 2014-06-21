@@ -12,7 +12,6 @@ using System.Linq;
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
 using MathNet.Numerics.LinearAlgebra.Double;
-using MathNet.Numerics.LinearAlgebra.Generic;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
 using NLog;
@@ -505,7 +504,7 @@ namespace QPAS
                 List<string> strategyNames = strategyRoacECs.Keys.ToList();
 
                 Matrix<double> corr = MathUtils.CorrelationMatrix(strategyRoacECs.Select(x => x.Value.Returns).ToList());
-                foreach (var x in corr.RowEnumerator())
+                foreach (var x in corr.EnumerateColumnsIndexed())
                 {
                     corr.SetRow(x.Item1, x.Item2.Add(1).SubtractFrom(2));
                 }

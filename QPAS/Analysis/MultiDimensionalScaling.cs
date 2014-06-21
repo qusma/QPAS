@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra.Double;
-using MathNet.Numerics.LinearAlgebra.Generic;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace QPAS
 {
@@ -13,14 +13,14 @@ namespace QPAS
         {
             int n = input.RowCount;
 
-            Matrix<double> p = DenseMatrix.Identity(n) - DenseMatrix.Create(n,n, (_, __) => 1.0 / n);
+            Matrix<double> p = DenseMatrix.Build.DenseIdentity(n) - DenseMatrix.Create(n,n, (_, __) => 1.0 / n);
 
             Matrix<double> a = -.5 * input.PointwiseMultiply(input);
             Matrix<double> b = p.Multiply(p.Multiply(a));
             b = (b + b.Transpose()).Divide(2.0);
             var evd = b.Evd();
-            Vector<double> E = DenseVector.OfEnumerable(evd.EigenValues().Select(x => x.Real));
-            Matrix<double> V = evd.EigenVectors();
+            Vector<double> E = DenseVector.OfEnumerable(evd.EigenValues.Select(x => x.Real));
+            Matrix<double> V = evd.EigenVectors;
 
 
             DenseVector i = DenseVector.Create(E.Count, x => x);
@@ -58,7 +58,7 @@ namespace QPAS
 
             //Enforce a sign convention on the solution -- the largest element
             //in each coordinate will have a positive sign.
-            List<int> maxIndices = Y.ColumnEnumerator().Select(x => x.Item2.AbsoluteMaximumIndex()).ToList();
+            List<int> maxIndices = Y.EnumerateColumns().Select(x => x.AbsoluteMaximumIndex()).ToList();
             var colSigns = maxIndices.Select((x, j) => Math.Sign(Y[x, j])).ToList();
             for (int j = 0; j < Y.ColumnCount; j++)
             {
