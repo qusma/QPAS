@@ -1,3 +1,7 @@
+0.2.2
+------------------------
+* Fixed a bug that caused tags to be duplicated when pasting them.
+
 0.2.1
 ------------------------
 * Fixed a bug that would cause the instrument chart to refresh when scrolling the instruments grid.
