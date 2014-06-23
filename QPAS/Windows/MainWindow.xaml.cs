@@ -960,14 +960,14 @@ namespace QPAS
         private void TradesGridContextMenuCopyTagsBtn_Click(object sender, RoutedEventArgs e)
         {
             //Copies a list of tags from the selected trade to the clipboard
-            DataFormat dataFormat = DataFormats.GetDataFormat(typeof(List<Tag>).FullName);
+            DataFormat dataFormat = DataFormats.GetDataFormat(typeof(List<int>).FullName);
 
             IDataObject dataObject = new DataObject();
 
             var selectedTrade = (Trade)TradesGrid.SelectedItem;
             if (selectedTrade.Tags == null) return;
 
-            List<Tag> dataToCopy = selectedTrade.Tags.ToList();
+            List<int> dataToCopy = selectedTrade.Tags.Select(x => x.ID).ToList();
             dataObject.SetData(dataFormat.Name, dataToCopy, false);
 
             Clipboard.SetDataObject(dataObject, false);
@@ -976,7 +976,9 @@ namespace QPAS
         private void TradesGridContextMenuPasteTagsBtn_Click(object sender, RoutedEventArgs e)
         {
             if (TradesGrid.SelectedItems == null || TradesGrid.SelectedItems.Count == 0) return;
-            List<Tag> tags = Utils.GetDataFromClipboard<List<Tag>>();
+            List<int> tagIDs = Utils.GetDataFromClipboard<List<int>>();
+            List<Tag> tags = tagIDs.Select(id => Context.Tags.FirstOrDefault(x => x.ID == id)).Where(tag => tag != null).ToList();
+
             foreach(Trade trade in TradesGrid.SelectedItems)
             {
                 TradesRepository.SetTags(tags, trade);
@@ -991,8 +993,8 @@ namespace QPAS
             var menu = (ContextMenu)sender;
             var pasteBtn = menu.Items.Cast<FrameworkElement>().First(x => x.Name == "TradesGridContextMenuPasteTagsBtn");
 
-            List<Tag> tags = Utils.GetDataFromClipboard<List<Tag>>();
-            pasteBtn.IsEnabled = tags != null;
+            List<int> tagIDs = Utils.GetDataFromClipboard<List<int>>();
+            pasteBtn.IsEnabled = tagIDs != null;
         }
 
         private void InstrumentsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
