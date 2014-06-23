@@ -93,7 +93,7 @@ namespace QPAS
             //so we need to detach and reload everything
             Context.OpenPositions.Local.ToList().ForEach(x =>
                {
-                   Context.Entry(x).State = EntityState.Detached;
+                   Context.Entry(x).State = EntityState.Detached; //TODO this is super slow for some reason, find a better solution
                });
             Context.OpenPositions.Include(x => x.Instrument).Include(x => x.Currency).Load();
 
