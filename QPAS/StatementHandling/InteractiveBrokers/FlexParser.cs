@@ -30,53 +30,81 @@ namespace QPAS
 
             bool skipLastDateCheck = !Properties.Settings.Default.preventDuplicateImports;
 
-            int totalActions = 12;
-
             XDocument xml = XDocument.Parse(flexXML);
+
+            IEnumerable<XElement> flexStatements = xml.Descendants("FlexStatement ");
+
+            foreach(XElement flexStatement in flexStatements)
+            {
+                ParseStatement(flexStatement, progress, context, skipLastDateCheck);
+            }
+
+            context.Configuration.AutoDetectChangesEnabled = true;
+            context.Dispose();
+        }
+
+        private void ParseStatement(XElement xml, ProgressDialogController progress, DBContext context, bool skipLastDateCheck)
+        {
+            const int totalActions = 12;
 
             progress.SetProgress(1.0 / totalActions);
             ParseSecuritiesInfo(xml, context);
 
+            ParseAccounts(xml, context);
+
+            Account account = context.Accounts.First(x => x.AccountId == xml.Attribute("AccountId").Value);
+
             DateTime lastDate =
-                context.CashTransactions.Any()
+                context.CashTransactions.Any(x => x.AccountID == account.ID)
                 ? context.CashTransactions.Max(x => x.TransactionDate)
                 : new DateTime(1, 1, 1);
 
             progress.SetProgress(2.0 / totalActions);
-            ParseCashTransactions(xml, context, skipLastDateCheck, lastDate);
+            ParseCashTransactions(xml, context, skipLastDateCheck, lastDate, account);
 
             progress.SetProgress(3.0 / totalActions);
-            ParseCFDCharges(xml, context, skipLastDateCheck, lastDate);
+            ParseCFDCharges(xml, context, skipLastDateCheck, lastDate, account);
 
             progress.SetProgress(4.0 / totalActions);
-            ParseOrders(xml, context, skipLastDateCheck);
+            ParseOrders(xml, context, skipLastDateCheck, account);
 
             progress.SetProgress(5.0 / totalActions);
-            ParseExecutions(xml, context, skipLastDateCheck);
+            ParseExecutions(xml, context, skipLastDateCheck, account);
 
             progress.SetProgress(6.0 / totalActions);
-            ParseEquitySummaries(xml, context);
+            ParseEquitySummaries(xml, context, account);
 
             progress.SetProgress(7.0 / totalActions);
-            ParseOpenPositions(xml, context);
+            ParseOpenPositions(xml, context, account);
 
             progress.SetProgress(8.0 / totalActions);
             ParseFXRates(xml, context);
 
             progress.SetProgress(9.0 / totalActions);
-            ParsePriorPeriodPositions(xml, context, skipLastDateCheck);
+            ParsePriorPeriodPositions(xml, context, skipLastDateCheck, account);
 
             progress.SetProgress(10.0 / totalActions);
-            ParseOpenDividendAccruals(xml, context);
+            ParseOpenDividendAccruals(xml, context, account);
 
             progress.SetProgress(11.0 / totalActions);
-            ParseFXPositions(xml, context);
+            ParseFXPositions(xml, context, account);
 
             progress.SetProgress(12.0 / totalActions);
-            ParseFXTransactions(xml, context, skipLastDateCheck);
+            ParseFXTransactions(xml, context, skipLastDateCheck, account);
+        }
 
-            context.Configuration.AutoDetectChangesEnabled = true;
-            context.Dispose();
+        private void ParseAccounts(XContainer xml, DBContext context)
+        {
+            IEnumerable<XElement> statements = xml.Descendants("FlexStatement");
+            foreach(XElement e in statements)
+            {
+                var accountId = e.Attribute("accountId").Value;
+                if(!context.Accounts.Any(x => x.AccountId == accountId))
+                {
+                    context.Accounts.Add(new Account { AccountId = accountId});
+                }
+            }
+            context.SaveChanges();
         }
 
         public string GetFileFilter()
@@ -84,13 +112,13 @@ namespace QPAS
             return "Flex Files (*.xml)|*.xml";
         }
 
-        private static void ParseFXTransactions(XDocument xml, IDBContext context, bool skipLastDateCheck)
+        private static void ParseFXTransactions(XContainer xml, IDBContext context, bool skipLastDateCheck, Account account)
         {
             var fxTransactionMapper = new Mapper<FXTransaction>(xml.Descendants("FxTransaction"));
             List<FXTransaction> fxTransactions = fxTransactionMapper.ParseAll();
 
-            DateTime lastDate = context.FXTransactions.Any()
-                ? context.FXTransactions.Max(x => x.DateTime)
+            DateTime lastDate = context.FXTransactions.Any(x => x.AccountID == account.ID)
+                ? context.FXTransactions.Where(x => x.AccountID == account.ID).Max(x => x.DateTime)
                 : new DateTime(1, 1, 1);
 
             var currencies = context.Currencies.ToList();
@@ -113,19 +141,20 @@ namespace QPAS
             //code="O" levelOfDetail="TRANSACTION" />
         }
 
-        private static void ParseFXPositions(XDocument xml, IDBContext context)
+        private static void ParseFXPositions(XContainer xml, IDBContext context, Account account)
         {
             var fxPositionsMapper = new Mapper<FXPosition>(xml.Descendants("FxPosition"));
             List<FXPosition> fxPositions = fxPositionsMapper.ParseAll();
 
             //delete all of them
-            context.FXPositions.RemoveRange(context.FXPositions.ToList());
+            context.FXPositions.RemoveRange(context.FXPositions.Where(x => x.AccountID == account.ID).ToList());
 
             //then add the new ones
             foreach (FXPosition i in fxPositions)
             {
                 i.FunctionalCurrency = context.Currencies.FirstOrDefault(x => x.Name == i.FunctionalCurrencyString);
                 i.FXCurrency = context.Currencies.FirstOrDefault(x => x.Name == i.FXCurrencyString);
+                i.Account = account;
                 context.FXPositions.Add(i);
             }
             context.SaveChanges();
@@ -135,19 +164,20 @@ namespace QPAS
             //closePrice="0.89552" value="20.041707" unrealizedPL="0.101828" code="" lotDescription="" lotOpenDateTime="" levelOfDetail="SUMMARY" />
         }
 
-        private static void ParseOpenDividendAccruals(XDocument xml, IDBContext context)
+        private static void ParseOpenDividendAccruals(XContainer xml, IDBContext context, Account account)
         {
             var openDividendAccrualsMapper = new Mapper<DividendAccrual>(xml.Descendants("OpenDividendAccrual"));
             List<DividendAccrual> dividendAccruals = openDividendAccrualsMapper.ParseAll();
 
             //delete all of them
-            context.DividendAccruals.RemoveRange(context.DividendAccruals.ToList());
+            context.DividendAccruals.RemoveRange(context.DividendAccruals.Where(x => x.AccountID == account.ID).ToList());
 
             //then add the new ones
             foreach (DividendAccrual i in dividendAccruals)
             {
                 i.Currency = context.Currencies.FirstOrDefault(x => x.Name == i.CurrencyString);
                 i.Instrument = context.Instruments.FirstOrDefault(x => x.ConID == i.ConID);
+                i.Account = account;
                 if (i.Instrument == null)
                 {
                     var logger = LogManager.GetCurrentClassLogger();
@@ -166,13 +196,13 @@ namespace QPAS
             //fee="0" grossRate="0.07613" grossAmount="1.45" netAmount="1.01" code="" fromAcct="" toAcct="" />
         }
 
-        private static void ParsePriorPeriodPositions(XDocument xml, IDBContext context, bool skipLastDateCheck)
+        private static void ParsePriorPeriodPositions(XContainer xml, IDBContext context, bool skipLastDateCheck, Account account)
         {
             var priorPeriodPositionsMapper = new Mapper<PriorPosition>(xml.Descendants("PriorPeriodPosition"));
             List<PriorPosition> priorPeriodPositions = priorPeriodPositionsMapper.ParseAll();
 
-            DateTime lastDate = context.PriorPositions.Any()
-                ? context.PriorPositions.Max(x => x.Date)
+            DateTime lastDate = context.PriorPositions.Any(x => x.AccountID == account.ID)
+                ? context.PriorPositions.Where(x => x.AccountID == account.ID).Max(x => x.Date)
                 : new DateTime(1, 1, 1);
 
             var currencies = context.Currencies.ToList();
@@ -182,6 +212,7 @@ namespace QPAS
             {
                 if (skipLastDateCheck || i.Date > lastDate)
                 {
+                    i.Account = account;
                     i.Currency = currencies.FirstOrDefault(x => x.Name == i.CurrencyString);
                     i.Instrument = instruments.FirstOrDefault(x => x.ConID == i.ConID);
                     context.PriorPositions.Add(i);
@@ -194,7 +225,7 @@ namespace QPAS
             //underlyingConid="" underlyingSymbol="" issuer="" date="2012-12-28" price="55.23" priorMtmPnl="-9" />
         }
 
-        private static void ParseFXRates(XDocument xml, IDBContext context)
+        private static void ParseFXRates(XContainer xml, IDBContext context)
         {
             var fxRatesMapper = new Mapper<FXRate>(xml.Descendants("ConversionRate"));
             List<FXRate> fxRates = fxRatesMapper.ParseAll();
@@ -219,19 +250,20 @@ namespace QPAS
             //<ConversionRate reportDate="2012-12-28" fromCurrency="CHF" toCurrency="USD" rate="1.0947" />
         }
 
-        private static void ParseOpenPositions(XDocument xml, IDBContext context)
+        private static void ParseOpenPositions(XContainer xml, IDBContext context, Account account)
         {
             if (!xml.Descendants("OpenPositions").Any()) return;
             var openPositionsMapper = new Mapper<OpenPosition>(xml.Descendants("OpenPosition").Where(x => x.Attribute("levelOfDetail").Value == "SUMMARY"));
             List<OpenPosition> openPositions = openPositionsMapper.ParseAll();
 
             //start by deleting the old ones
-            context.OpenPositions.RemoveRange(context.OpenPositions.ToList());
+            context.OpenPositions.RemoveRange(context.OpenPositions.Where(x => x.AccountID == account.ID).ToList());
             context.SaveChanges();
 
             //then add the new ones
             foreach (OpenPosition i in openPositions)
             {
+                i.Account = account;
                 i.Instrument = context.Instruments.FirstOrDefault(x => x.ConID == i.ConID);
                 i.Currency = context.Currencies.FirstOrDefault(x => x.Name == i.CurrencyString);
 
@@ -247,15 +279,16 @@ namespace QPAS
             //openDateTime="" holdingPeriodDateTime="" code="" originatingOrderID="" />
         }
 
-        private static void ParseEquitySummaries(XDocument xml, IDBContext context)
+        private static void ParseEquitySummaries(XContainer xml, IDBContext context, Account account)
         {
             var equitySummaryMapper = new Mapper<EquitySummary>(xml.Descendants("EquitySummaryByReportDateInBase"));
             List<EquitySummary> equitySummaries = equitySummaryMapper.ParseAll();
 
             foreach (EquitySummary i in equitySummaries)
             {
-                if (context.EquitySummaries.Count(x => x.Date == i.Date) == 0)
+                if (context.EquitySummaries.Count(x => x.Date == i.Date && x.AccountID == account.ID) == 0)
                 {
+                    i.Account = account;
                     context.EquitySummaries.Add(i);
                     context.SaveChanges();
                 }
@@ -272,15 +305,15 @@ namespace QPAS
             //dividendAccrualsLong="0" dividendAccrualsShort="0" total="29523.1454095" totalLong="38369.978955" totalShort="-8846.8335455" />
         }
 
-        private static void ParseExecutions(XDocument xml, IDBContext context, bool skipLastDateCheck)
+        private static void ParseExecutions(XContainer xml, IDBContext context, bool skipLastDateCheck, Account account)
         {
             if (!xml.Descendants("Trades").Any()) return;
 
             var tradesMapper = new Mapper<Execution>(xml.Descendants("Trades").First().Descendants("Trade"));
             List<Execution> executions = tradesMapper.ParseAll();
 
-            DateTime lastDate = context.Executions.Any()
-                ? context.Executions.Max(x => x.TradeDate)
+            DateTime lastDate = context.Executions.Any(x => x.AccountID == account.ID)
+                ? context.Executions.Where(x => x.AccountID == account.ID).Max(x => x.TradeDate)
                 : new DateTime(1, 1, 1);
 
             var currencies = context.Currencies.ToList();
@@ -291,6 +324,7 @@ namespace QPAS
             {
                 if (i.TradeDate > lastDate || skipLastDateCheck)
                 {
+                    i.Account = account;
                     i.Instrument = instruments.FirstOrDefault(x => x.ConID == i.ConID);
                     i.Currency = currencies.FirstOrDefault(x => x.Name == i.CurrencyString);
                     i.CommissionCurrency = currencies.FirstOrDefault(x => x.Name == i.CommissionCurrencyString);
@@ -313,15 +347,15 @@ namespace QPAS
             //changeInPrice="0" changeInQuantity="0" netCash="2929.4" orderType="MOC" />
         }
 
-        private static void ParseOrders(XDocument xml, IDBContext context, bool skipLastDateCheck)
+        private static void ParseOrders(XContainer xml, IDBContext context, bool skipLastDateCheck, Account account)
         {
             if (!xml.Descendants("Trades").Any()) return;
 
             var ordersMapper = new Mapper<Order>(xml.Descendants("Trades").First().Descendants("Order"));
             List<Order> orders = ordersMapper.ParseAll();
 
-            DateTime lastDate = context.Orders.Any()
-                ? context.Orders.Max(x => x.TradeDate)
+            DateTime lastDate = context.Orders.Any(x => x.AccountID == account.ID)
+                ? context.Orders.Where(x => x.AccountID == account.ID).Max(x => x.TradeDate)
                 : new DateTime(1, 1, 1);
 
             var instruments = context.Instruments.ToList();
@@ -343,7 +377,8 @@ namespace QPAS
                     {
                         order.Instrument = instruments.FirstOrDefault(x => x.ConID == order.ConID);
                     }
-                    
+
+                    order.Account = account;
                     order.Currency = currencies.FirstOrDefault(x => x.Name == order.CurrencyString);
                     order.CommissionCurrency = currencies.FirstOrDefault(x => x.Name == order.CommissionCurrencyString);
                     context.Orders.Add(order);
@@ -389,7 +424,7 @@ namespace QPAS
             return instrument;
         }
 
-        private static void ParseCFDCharges(XDocument xml, IDBContext context, bool skipLastDateCheck, DateTime lastDate)
+        private static void ParseCFDCharges(XContainer xml, IDBContext context, bool skipLastDateCheck, DateTime lastDate, Account account)
         {
             var cfdTransactionsMapper = new Mapper<CashTransaction>(xml.Descendants("CFDCharge"));
             cfdTransactionsMapper.SetAttributeMap("total", "Amount");
@@ -405,6 +440,7 @@ namespace QPAS
 
                 if (skipLastDateCheck || i.TransactionDate > lastDate)
                 {
+                    i.Account = account;
                     i.Currency = currencies.FirstOrDefault(x => x.Name == i.CurrencyString);
                     i.Instrument = instruments.FirstOrDefault(x => x.ConID == i.ConID);
                     context.CashTransactions.Add(i);
@@ -418,7 +454,7 @@ namespace QPAS
             //paid="-1.27" total="-1.27" transactionID="3283049378" />
         }
 
-        private static void ParseCashTransactions(XDocument xml, IDBContext context, bool skipLastDateCheck, DateTime lastDate)
+        private static void ParseCashTransactions(XContainer xml, IDBContext context, bool skipLastDateCheck, DateTime lastDate, Account account)
         {
             var cashTransactionsMapper = new Mapper<CashTransaction>(xml.Descendants("CashTransaction"));
             List<CashTransaction> cashTransactions = cashTransactionsMapper.ParseAll();
@@ -430,6 +466,7 @@ namespace QPAS
             {
                 if (skipLastDateCheck || i.TransactionDate > lastDate)
                 {
+                    i.Account = account;
                     i.Currency = currencies.FirstOrDefault(x => x.Name == i.CurrencyString);
                     i.Instrument = instruments.FirstOrDefault(x => x.ConID == i.ConID);
                     context.CashTransactions.Add(i);
@@ -443,7 +480,7 @@ namespace QPAS
             //amount="-6.92" type="Withholding Tax" tradeID="" code="" />
         }
 
-        private static void ParseSecuritiesInfo(XDocument xml, IDBContext context)
+        private static void ParseSecuritiesInfo(XContainer xml, IDBContext context)
         {
             var instrumentMapper = new Mapper<Instrument>(xml.Descendants("SecurityInfo"));
             List<Instrument> instruments = instrumentMapper.ParseAll();
