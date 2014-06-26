@@ -30,6 +30,7 @@ namespace EntityModel
         IDbSet<Tag> Tags { get; set; }
         IDbSet<Trade> Trades { get; set; }
         IDbSet<DatasourcePreference> DatasourcePreferences { get; set; }
+        IDbSet<Account> Accounts { get; set; }
 
         DbChangeTracker ChangeTracker { get; }
         DbContextConfiguration Configuration { get; }

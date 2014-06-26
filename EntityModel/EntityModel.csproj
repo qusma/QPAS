@@ -97,6 +97,10 @@
     <Compile Include="Migrations\201406051250474_Initial.Designer.cs">
       <DependentUpon>201406051250474_Initial.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201406261506327_Accounts.cs" />
+    <Compile Include="Migrations\201406261506327_Accounts.Designer.cs">
+      <DependentUpon>201406261506327_Accounts.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\MyDbContextMigrationConfiguration.cs" />
     <Compile Include="MySqlHistoryContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -112,6 +116,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201406051250474_Initial.resx">
       <DependentUpon>201406051250474_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201406261506327_Accounts.resx">
+      <DependentUpon>201406261506327_Accounts.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
