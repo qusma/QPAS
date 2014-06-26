@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DBContext.cs" />
+    <Compile Include="Entities\Account.cs" />
     <Compile Include="Entities\Benchmark.cs" />
     <Compile Include="Entities\BenchmarkComponent.cs" />
     <Compile Include="Entities\CashTransaction.cs" />

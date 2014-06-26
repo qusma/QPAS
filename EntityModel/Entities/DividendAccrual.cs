@@ -85,5 +85,9 @@ namespace EntityModel
         [AttributeName("code")]
         [MaxLength(100)]
         public string Code { get; set; }
+
+        public int? AccountID { get; set; }
+
+        public virtual Account Account { get; set; }
     }
 }

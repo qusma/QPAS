@@ -222,5 +222,9 @@ namespace EntityModel
         public int OrderID { get; set; }
 
         public Order Order { get; set; }
+
+        public int? AccountID { get; set; }
+
+        public virtual Account Account { get; set; }
     }
 }

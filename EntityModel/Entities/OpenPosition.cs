@@ -79,5 +79,9 @@ namespace EntityModel
 
         [AttributeName("conid")]
         public long ConID { get; set; }
+
+        public int? AccountID { get; set; }
+
+        public virtual Account Account { get; set; }
     }
 }

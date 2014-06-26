@@ -303,6 +303,10 @@ namespace EntityModel
         [NotMapped]
         public decimal PerTradeFIFOPnL { get; set; }
 
+        public int? AccountID { get; set; }
+
+        public virtual Account Account { get; set; }
+
         /// <summary>
         /// Creates a new object that is a copy of the current instance.
         /// </summary>

@@ -144,5 +144,9 @@ namespace EntityModel
         [NotMapped]
         [NotXmlMapped]
         public double Zero { get { return 0; } }
+
+        public int? AccountID { get; set; }
+
+        public virtual Account Account { get; set; }
     }
 }

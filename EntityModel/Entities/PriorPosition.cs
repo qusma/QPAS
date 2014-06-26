@@ -82,5 +82,9 @@ namespace EntityModel
 
         [AttributeName("priorMtmPnl")]
         public decimal PriorMTMPnL { get; set; }
+
+        public int? AccountID { get; set; }
+
+        public virtual Account Account { get; set; }
     }
 }

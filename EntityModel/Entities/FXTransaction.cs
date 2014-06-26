@@ -102,6 +102,10 @@ namespace EntityModel
         [MaxLength(255)]
         public string Code { get; set; }
 
+        public int? AccountID { get; set; }
+
+        public virtual Account Account { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

@@ -60,5 +60,9 @@ namespace EntityModel
 
         [AttributeName("unrealizedPL")]
         public decimal UnrealizedPnL { get; set; }
+
+        public int? AccountID { get; set; }
+
+        public virtual Account Account { get; set; }
     }
 }

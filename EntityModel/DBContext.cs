@@ -53,6 +53,8 @@ namespace EntityModel
 
         public IDbSet<DatasourcePreference> DatasourcePreferences { get; set; }
 
+        public IDbSet<Account> Accounts { get; set; }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Properties<decimal>().Configure(config => config.HasPrecision(20, 10));
