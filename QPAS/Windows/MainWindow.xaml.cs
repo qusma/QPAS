@@ -1006,5 +1006,16 @@ namespace QPAS
                 ViewModel.InstrumentsPageViewModel.UpdateChartCommand.Execute(null);
             }
         }
+
+        private void BackupBtn_Click(object sender, RoutedEventArgs e)
+        {
+            DbBackup.Backup("qpasEntities", "qpas");
+        }
+
+        private void RestoreBtn_Click(object sender, RoutedEventArgs e)
+        {
+            DbBackup.Restore("qpasEntities", "qpas");
+            ViewModel.RefreshCurrentPage();
+        }
     }
 }

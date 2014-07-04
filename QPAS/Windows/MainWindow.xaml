@@ -243,8 +243,8 @@
 
         <Menu Background="WhiteSmoke" Grid.Row="0" Grid.ColumnSpan="2">
             <MenuItem Header="_File">
-                <MenuItem Header="Backup" x:Name="BackupBtn"/>
-                <MenuItem Header="Restore backup" x:Name="RestoreBtn"/>
+                <MenuItem Header="Backup" x:Name="BackupBtn" Click="BackupBtn_Click" />
+                <MenuItem Header="Restore backup" x:Name="RestoreBtn" Click="RestoreBtn_Click" />
                 <Separator/>
                 <MenuItem Header="_Exit" x:Name="BtnExit" Click="BtnExit_ItemClick"/>
             </MenuItem>
