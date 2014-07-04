@@ -358,5 +358,17 @@ namespace QPAS.Properties {
                 this["WindowState"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool totalCapitalAlwaysUsesAllAccounts {
+            get {
+                return ((bool)(this["totalCapitalAlwaysUsesAllAccounts"]));
+            }
+            set {
+                this["totalCapitalAlwaysUsesAllAccounts"] = value;
+            }
+        }
     }
 }

@@ -39,6 +39,8 @@ namespace QPAS
 
         public decimal OptionsCapitalUsageMultiplier { get; set; }
 
+        public bool TotalCapitalAlwaysUsesAllAccounts { get; set; }
+
         //QDMS stuff
         public bool QdmsAllowFreshData { get; set; }
 
@@ -83,6 +85,7 @@ namespace QPAS
             FlexToken = Properties.Settings.Default.flexToken;
             PreventDuplicateImports = Properties.Settings.Default.preventDuplicateImports;
             OptionsCapitalUsageMultiplier = Properties.Settings.Default.optionsCapitalUsageMultiplier;
+            TotalCapitalAlwaysUsesAllAccounts = Properties.Settings.Default.totalCapitalAlwaysUsesAllAccounts;
 
             //QDMS stuff
             QdmsAllowFreshData = Properties.Settings.Default.qdmsAllowFreshData;
@@ -140,6 +143,7 @@ namespace QPAS
             Properties.Settings.Default.flexToken = FlexToken;
             Properties.Settings.Default.preventDuplicateImports = PreventDuplicateImports;
             Properties.Settings.Default.optionsCapitalUsageMultiplier = OptionsCapitalUsageMultiplier;
+            Properties.Settings.Default.totalCapitalAlwaysUsesAllAccounts = TotalCapitalAlwaysUsesAllAccounts;
 
             //QDMS stuff
             Properties.Settings.Default.qdmsAllowFreshData = QdmsAllowFreshData;

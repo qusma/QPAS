@@ -21,7 +21,7 @@
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
     </Window.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="80*"/>
@@ -31,6 +31,7 @@
             <TabItem Header="General">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="35"/>
                         <RowDefinition Height="35"/>
                         <RowDefinition Height="35"/>
                         <RowDefinition Height="35"/>
@@ -75,8 +76,20 @@
                     </Label>
                     <CheckBox Name="PreventDupesCheckBox" IsChecked="{Binding PreventDuplicateImports}" Grid.Row="7" Grid.Column="1" Margin="70,0,0,0" />
 
-                    <Label Content="Clear Data" Grid.Row="8" Grid.Column="0" Margin="0,5,0,0" />
-                    <Button Name="ClearDataBtn" Content="Clear Data" Grid.Row="8" Grid.Column="1" Margin="4" Click="ClearDataBtn_Click" />
+                    <Label Content="Always use all accounts for total capital" 
+                           Grid.Row="8" Grid.Column="0" Margin="0,5,0,0">
+                        <Label.ToolTip>
+                            <TextBlock>
+                                  If this is checked, the "total capital" used for reports will be the sum of all accounts.
+                                  <LineBreak /> 
+                                  If unchecked, only the accounts whose orders/cash transactions are included in the report will be used to calculate total capital.
+                            </TextBlock>
+                        </Label.ToolTip>
+                    </Label>
+                    <CheckBox Name="UseAllAccountsForTotalCapitalCheckBox" IsChecked="{Binding TotalCapitalAlwaysUsesAllAccounts}" Grid.Row="8" Grid.Column="1" Margin="70,0,0,0" />
+
+                    <Label Content="Clear Data" Grid.Row="9" Grid.Column="0" Margin="0,5,0,0" />
+                    <Button Name="ClearDataBtn" Content="Clear Data" Grid.Row="9" Grid.Column="1" Margin="4" Click="ClearDataBtn_Click" />
 
                     <Label Content="Log file location:" Grid.Row="6" Grid.Column="0" Margin="0,5,0,0" />
                     <TextBox Name="LogFilePathTextBox" Text="{Binding LogLocation}"
