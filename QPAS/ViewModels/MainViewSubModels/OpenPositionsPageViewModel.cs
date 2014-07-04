@@ -18,11 +18,24 @@ namespace QPAS
 {
     public class OpenPositionsPageViewModel : ViewModelBase
     {
-        internal IDBContext Context;
+        private Account _selectedAccount;
 
-        public CollectionViewSource OpenPositionsSource { get; private set; }
+        public ObservableCollection<OpenPosition> OpenPositions { get; private set; }
 
-        public CollectionViewSource FXPositionsSource { get; private set; }
+        public ObservableCollection<FXPosition> FXPositions { get; private set; }
+
+        public ObservableCollection<Account> Accounts { get; private set; }
+
+        public Account SelectedAccount
+        {
+            get { return _selectedAccount; }
+            set 
+            { 
+                _selectedAccount = value;
+                OnPropertyChanged();
+                Refresh();
+            }
+        }
 
         public PlotModel UnrealizedPnLChartModel { get; private set; }
 
@@ -35,16 +48,16 @@ namespace QPAS
         public OpenPositionsPageViewModel(IDBContext context, IDialogService dialogService)
             : base(dialogService)
         {
-            Context = context;
             UnrealizedPnL = new ObservableCollection<Tuple<string, decimal>>();
 
-            OpenPositionsSource = new CollectionViewSource();
-            OpenPositionsSource.Source = Context.OpenPositions.Local;
-
-            FXPositionsSource = new CollectionViewSource();
-            FXPositionsSource.Source = Context.FXPositions.Local;
+            OpenPositions = new ObservableCollection<OpenPosition>();
+            FXPositions = new ObservableCollection<FXPosition>();
+            Accounts = new ObservableCollection<Account>();
+            Accounts.Add(new Account { ID = -1, AccountId = "All" });
 
             CreatePlotModel();
+
+            SelectedAccount = Accounts.First();
         }
 
         private void CreatePlotModel()
@@ -91,27 +104,37 @@ namespace QPAS
         {
             //Necessary hack, openpositions are deleted in another context when importing statements
             //so we need to detach and reload everything
-            Context.OpenPositions.Local.ToList().ForEach(x =>
-               {
-                   Context.Entry(x).State = EntityState.Detached; //TODO this is super slow for some reason, find a better solution
-               });
-            Context.OpenPositions.Include(x => x.Instrument).Include(x => x.Currency).Load();
-
-            Context.FXPositions.Local.ToList().ForEach(x =>
+            OpenPositions.Clear();
+            FXPositions.Clear();
+            
+            using (var context = new DBContext())
             {
-                Context.Entry(x).State = EntityState.Detached;
-            });
-            Context.FXPositions.Include(x => x.FXCurrency).Load();
+                if (SelectedAccount.AccountId == "All")
+                {
+                    OpenPositions.AddRange(context.OpenPositions.Include(x => x.Instrument).Include(x => x.Currency).ToList());
+                    FXPositions.AddRange(context.FXPositions.Include(x => x.FXCurrency).ToList());
+                }
+                else if (SelectedAccount != null)
+                {
+                    OpenPositions.AddRange(context.OpenPositions.Where(x => x.AccountID == SelectedAccount.ID).Include(x => x.Instrument).Include(x => x.Currency).ToList());
+                    FXPositions.AddRange(context.FXPositions.Where(x => x.AccountID == SelectedAccount.ID).Include(x => x.FXCurrency).ToList());
+                }
+
+                //Add any accounts that exist in the db but are missing here
+                var tmpAccounts = context.Accounts.ToList();
+                var newAccounts = tmpAccounts.Except(Accounts, new LambdaEqualityComparer<Account>((x, y) => x.ID == y.ID));
+                Accounts.AddRange(newAccounts);
+            }
 
             UpdateChartSeries();
         }
 
         private void UpdateChartSeries()
         {
+            if (SelectedAccount == null) return;
+
             UnrealizedPnL.Clear();
-            foreach (var tuple in Context
-                                .OpenPositions
-                                .Local
+            foreach (var tuple in OpenPositions
                                 .Where(x => x.Instrument != null)
                                 .OrderBy(x => x.UnrealizedPnL)
                                 .Select(x => new Tuple<string, decimal>(x.Instrument.Symbol, x.UnrealizedPnL)))
