@@ -77,10 +77,19 @@ namespace QPAS
             {
                 foreach (Order o in selectedOrders)
                 {
+                    //remove executions first
+                    if(o.Executions != null)
+                    {
+                        o.Executions.Clear();
+                    }
+
+                    //if the order belongs to a trade, remove it
                     if (o.Trade != null)
                     {
                         TradesRepository.RemoveOrder(o.Trade, o);
                     }
+
+                    //finally delete the order
                     Context.Orders.Remove(o);
                 }
                 Context.SaveChanges();
@@ -148,6 +157,7 @@ namespace QPAS
                 .Include(x => x.Currency)
                 .Include(x => x.CommissionCurrency)
                 .Include(x => x.Executions)
+                .Include(x => x.Account)
                 .Load();
 
             OrdersSource.View.Refresh();
