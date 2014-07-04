@@ -32,7 +32,9 @@ namespace QPAS
 
             XDocument xml = XDocument.Parse(flexXML);
 
-            IEnumerable<XElement> flexStatements = xml.Descendants("FlexStatement ");
+            ParseAccounts(xml, context);
+
+            IEnumerable<XElement> flexStatements = xml.Descendants("FlexStatement");
 
             foreach(XElement flexStatement in flexStatements)
             {
@@ -50,9 +52,8 @@ namespace QPAS
             progress.SetProgress(1.0 / totalActions);
             ParseSecuritiesInfo(xml, context);
 
-            ParseAccounts(xml, context);
-
-            Account account = context.Accounts.First(x => x.AccountId == xml.Attribute("AccountId").Value);
+            string accountId = xml.Attribute("accountId").Value;
+            Account account = context.Accounts.First(x => x.AccountId == accountId);
 
             DateTime lastDate =
                 context.CashTransactions.Any(x => x.AccountID == account.ID)
