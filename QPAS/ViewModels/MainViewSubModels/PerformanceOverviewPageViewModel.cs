@@ -4,6 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.Collections.ObjectModel;
 using EntityModel;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace QPAS
         private List<AreaPoint> _totalEquitySeries;
         private List<AreaPoint> _totalEquityDrawdownSeries;
         private DataTable _stats;
+        private Account _selectedAccount;
 
         public List<AreaPoint> EquitySummaryPercentSeries
         {
@@ -73,16 +75,40 @@ namespace QPAS
             }
         }
 
+        public Account SelectedAccount
+        {
+            get { return _selectedAccount; }
+            set
+            {
+                if (Equals(value, _selectedAccount)) return;
+                _selectedAccount = value;
+                OnPropertyChanged();
+                Refresh();
+            }
+        }
+
+        public ObservableCollection<Account> Accounts { get; set; }
+
         public PerformanceOverviewPageViewModel(IDBContext context, IDialogService dialogService)
             : base(dialogService)
         {
             Context = context;
+            Accounts = new ObservableCollection<Account>();
+            Accounts.Add(new Account { ID = -1, AccountId = "All" });
+
+            SelectedAccount = Accounts.First();
         }
 
         public override void Refresh()
         {
             Context.EquitySummaries.OrderBy(x => x.Date).Load();
 
+            //Add any accounts that exist in the db but are missing here
+            var tmpAccounts = Context.Accounts.ToList();
+            var newAccounts = tmpAccounts.Except(Accounts, new LambdaEqualityComparer<Account>((x, y) => x.ID == y.ID));
+            Accounts.AddRange(newAccounts);
+
+            if (SelectedAccount == null) return;
             CreatePctReturnSeries();
             CreateTotalEquitySeries();
             Stats = GeneratePerformanceOverviewStats();
@@ -95,11 +121,13 @@ namespace QPAS
 
             decimal maxEquity = 0;
 
-            foreach (EquitySummary es in Context.EquitySummaries.OrderBy(x => x.Date))
+            foreach (var kvp in GetTotalCapitalSeries())
             {
-                equityPoints.Add(new AreaPoint(es.Date, 0, (double)es.Total));
-                maxEquity = Math.Max(maxEquity, es.Total);
-                drawdownPoints.Add(new AreaPoint(es.Date, 0, (double)(es.Total - maxEquity)));
+                DateTime date = kvp.Key;
+                decimal total = kvp.Value;
+                equityPoints.Add(new AreaPoint(date, 0, (double)total));
+                maxEquity = Math.Max(maxEquity, total);
+                drawdownPoints.Add(new AreaPoint(date, 0, (double)(total - maxEquity)));
             }
 
             TotalEquitySeries = equityPoints;
@@ -119,34 +147,33 @@ namespace QPAS
             double maxEquity = 1;
 
             //adjust the % returns for deposits/withdrawals as they obviously don't affect performance
-            Dictionary<DateTime, decimal> depositsWithdrawals =
-                Context
-                .CashTransactions
-                .Where(x => x.Type == "Deposits & Withdrawals")
-                .ToList()
-                .GroupBy(x => x.TransactionDate)
-                .ToDictionary(x => x.Key, x => x.Sum(y => y.Amount * y.FXRateToBase));
+            Dictionary<DateTime, decimal> depositsWithdrawals = GetDepositsWithdrawals();
 
-            foreach (EquitySummary es in Context.EquitySummaries.OrderBy(x => x.Date))
+            Dictionary<DateTime, decimal> totalCapital = GetTotalCapitalSeries();
+
+            foreach (var es in totalCapital)
             {
-                if (Math.Abs(es.Total - 0) > 0.00001m)
+                decimal total = es.Value;
+                DateTime date = es.Key;
+
+                if (Math.Abs(total - 0) > 0.00001m)
                 {
                     if (!first)
                     {
-                        decimal externalCashFlow = depositsWithdrawals.ContainsKey(es.Date) ? depositsWithdrawals[es.Date] : 0;
+                        decimal externalCashFlow = depositsWithdrawals.ContainsKey(date) ? depositsWithdrawals[date] : 0;
 
                         if (lastTotal != 0)
                         //make sure we avoid division by zero...equity can't change if we have 0 to start with anyway
                         {
-                            rets.Add((double)(((es.Total - externalCashFlow) - lastTotal) / lastTotal));
+                            rets.Add((double)(((total - externalCashFlow) - lastTotal) / lastTotal));
                             equity *= 1 + rets.Last();
                         }
 
                         maxEquity = Math.Max(equity, maxEquity);
 
                         ec.Add(equity);
-                        returnsPoints.Add(new AreaPoint(es.Date, equity - 1, 0));
-                        drawdownPoints.Add(new AreaPoint(es.Date, equity / maxEquity - 1, 0));
+                        returnsPoints.Add(new AreaPoint(date, equity - 1, 0));
+                        drawdownPoints.Add(new AreaPoint(date, equity / maxEquity - 1, 0));
                     }
                     else
                     {
@@ -154,11 +181,54 @@ namespace QPAS
                         first = false;
                     }
                 }
-                lastTotal = es.Total;
+                lastTotal = total;
             }
 
             EquitySummaryPercentSeries = returnsPoints;
             EquitySummaryPercentDrawdownSeries = drawdownPoints;
+        }
+
+        private Dictionary<DateTime, decimal> GetTotalCapitalSeries()
+        {
+            if (SelectedAccount.AccountId == "All")
+            {
+                return Context
+                    .EquitySummaries
+                    .GroupBy(x => x.Date)
+                    .OrderBy(x => x.Key)
+                    .ToDictionary(x => x.Key, x => x.Sum(y => y.Total));
+            }
+            else
+            {
+                return Context
+                    .EquitySummaries
+                    .Where(x => x.AccountID == SelectedAccount.ID)
+                    .OrderBy(x => x.Date)
+                    .ToDictionary(x => x.Date, x => x.Total);
+            }
+        }
+
+        private Dictionary<DateTime, decimal> GetDepositsWithdrawals()
+        {
+            if (SelectedAccount.AccountId == "All")
+            {
+                return Context
+                    .CashTransactions
+                    .Where(x => x.Type == "Deposits & Withdrawals")
+                    .ToList()
+                    .GroupBy(x => x.TransactionDate)
+                    .ToDictionary(x => x.Key, x => x.Sum(y => y.Amount * y.FXRateToBase));
+            }
+            else
+            {
+                return Context
+                    .CashTransactions
+                    .Where(x => x.AccountID == SelectedAccount.ID)
+                    .Where(x => x.Type == "Deposits & Withdrawals")
+                    .ToList()
+                    .GroupBy(x => x.TransactionDate)
+                    .ToDictionary(x => x.Key, x => x.Sum(y => y.Amount * y.FXRateToBase));
+            }
         }
 
         private DataTable GeneratePerformanceOverviewStats()
@@ -169,39 +239,33 @@ namespace QPAS
             statsDT.Columns.Add("YTD", typeof(string));
             statsDT.Columns.Add("All Time", typeof(string));
 
-            var allEquitySummaries = Context
-                                        .EquitySummaries
-                                        .OrderBy(x => x.Date)
-                                        .ToList();
+            Dictionary<DateTime, decimal> depositsWithdrawals = GetDepositsWithdrawals();
 
-            Dictionary<DateTime, decimal> depositsWithdrawals =
-                Context
-                .CashTransactions
-                .Where(x => x.Type == "Deposits & Withdrawals")
-                .ToList()
-                .GroupBy(x => x.TransactionDate)
-                .ToDictionary(x => x.Key, x => x.Sum(y => y.Amount * y.FXRateToBase));
+            Dictionary<DateTime, decimal> totalCapital = GetTotalCapitalSeries();
+            if (totalCapital.Count == 0) return statsDT;
 
             var last30DaysEC = EcFromEquitySummaries(
-                allEquitySummaries.Where(x => x.Date >= DateTime.Now.AddMonths(-1)).ToList(),
+                totalCapital.Where(x => x.Key >= DateTime.Now.AddMonths(-1)).ToDictionary(x => x.Key, x => x.Value),
                 depositsWithdrawals);
 
             var ytdEC = EcFromEquitySummaries(
-                allEquitySummaries.Where(x => x.Date.Year == DateTime.Now.Year).ToList(),
+                totalCapital.Where(x => x.Key.Year == DateTime.Now.Year).ToList().ToDictionary(x => x.Key, x => x.Value),
                 depositsWithdrawals);
 
-            var allTimeEC = EcFromEquitySummaries(allEquitySummaries, depositsWithdrawals);
+            var allTimeEC = EcFromEquitySummaries(totalCapital, depositsWithdrawals);
 
             var last30DayStats = PerformanceMeasurement.EquityCurveStats(last30DaysEC, 30);
             var ytdStats = PerformanceMeasurement.EquityCurveStats(ytdEC, DateTime.Now.DayOfYear);
             var allTimeStats = PerformanceMeasurement.EquityCurveStats(allTimeEC,
-                (int)(allEquitySummaries.Last().Date - allEquitySummaries.First().Date).TotalDays);
+                (int)(totalCapital.Last().Key - totalCapital.First().Key).TotalDays);
 
-            foreach (var kvp in last30DayStats)
+            foreach (var kvp in allTimeStats)
             {
                 var dr = statsDT.NewRow();
                 dr["Stat"] = kvp.Key;
-                dr["Last 30 Days"] = kvp.Value;
+
+                if(last30DayStats.ContainsKey(kvp.Key))
+                    dr["Last 30 Days"] = kvp.Value;
 
                 if (ytdStats.ContainsKey(kvp.Key))
                     dr["YTD"] = ytdStats[kvp.Key];
@@ -212,26 +276,27 @@ namespace QPAS
             return statsDT;
         }
 
-        private EquityCurve EcFromEquitySummaries(List<EquitySummary> summaries, Dictionary<DateTime, decimal> depositsWithdrawals)
+        private EquityCurve EcFromEquitySummaries(Dictionary<DateTime, decimal> summaries, Dictionary<DateTime, decimal> depositsWithdrawals)
         {
             if (summaries.Count == 0) return new EquityCurve();
 
             var ec = new EquityCurve();
-            decimal lastTotal = summaries[0].Total;
-            for (int i = 1; i < summaries.Count; i++)
+            decimal lastTotal = summaries.First().Value;
+            foreach(var kvp in summaries)
             {
-                var es = summaries[i];
-                decimal externalCashFlow = depositsWithdrawals.ContainsKey(es.Date) ? depositsWithdrawals[es.Date] : 0;
+                DateTime date = kvp.Key;
+                decimal total = kvp.Value;
+                decimal externalCashFlow = depositsWithdrawals.ContainsKey(date) ? depositsWithdrawals[date] : 0;
 
                 if (lastTotal != 0)
                 //make sure we avoid division by zero...equity can't change if we have 0 to start with anyway
                 {
-                    double ret = (double)(((es.Total - externalCashFlow) - lastTotal) / lastTotal);
-                    ec.AddReturn(ret, es.Date);
+                    double ret = (double)(((total - externalCashFlow) - lastTotal) / lastTotal);
+                    ec.AddReturn(ret, date);
                 }
-                lastTotal = es.Total;
+                lastTotal = total;
             }
-            ec.CalcFinalValues(summaries.Last().Date);
+            ec.CalcFinalValues(summaries.Last().Key);
             return ec;
         }
     }
