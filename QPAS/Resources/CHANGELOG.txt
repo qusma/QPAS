@@ -1,3 +1,12 @@
+0.3.0
+------------------------
+* Added support for multiple accounts. You'll have to either delete your data and re-import it, or use the upgrade guide to set an account for the existing data.
+* Added a new setting in the options that governs how total capital in reports is calculated in the presence of multiple accounts.
+* Backup/restore now works as it should (they are under the File menu).
+* Fixed a bug that caused a crash when deleting orders.
+* Fixed an issue that caused cash transactions without an instrument (interest, data fees, etc.) to be ignored in reports.
+* Fixed an issue that caused trades without orders but with cash transactions to be ignored in reports.
+
 0.2.2
 ------------------------
 * Fixed a bug that caused tags to be duplicated when pasting them.
