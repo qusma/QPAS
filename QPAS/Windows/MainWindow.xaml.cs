@@ -90,6 +90,14 @@ namespace QPAS
                 Seed.DoSeed();
             }
 
+            //check for empty account fields
+            if(Context.EquitySummaries.Any(x => x.AccountID == null))
+            {
+                App.Splash.LoadComplete();
+                var accountMigrationWindow = new AccountMigrationWindow();
+                accountMigrationWindow.ShowDialog();
+            }
+
             var qdmsSource = new ExternalDataSources.QDMS();
             Datasourcer = new DataSourcer(Context, qdmsSource);
 
