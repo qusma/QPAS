@@ -265,7 +265,7 @@ namespace QPAS
                 dr["Stat"] = kvp.Key;
 
                 if(last30DayStats.ContainsKey(kvp.Key))
-                    dr["Last 30 Days"] = kvp.Value;
+                    dr["Last 30 Days"] = last30DayStats[kvp.Key];
 
                 if (ytdStats.ContainsKey(kvp.Key))
                     dr["YTD"] = ytdStats[kvp.Key];
@@ -282,8 +282,14 @@ namespace QPAS
 
             var ec = new EquityCurve();
             decimal lastTotal = summaries.First().Value;
+            bool first = true;
             foreach(var kvp in summaries)
             {
+                if (first)
+                {
+                    first = false;
+                    continue;
+                }
                 DateTime date = kvp.Key;
                 decimal total = kvp.Value;
                 decimal externalCashFlow = depositsWithdrawals.ContainsKey(date) ? depositsWithdrawals[date] : 0;
