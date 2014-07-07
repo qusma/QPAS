@@ -391,6 +391,7 @@
             <TabItem Header="OpenPositions" DataContext="{Binding OpenPositionsPageViewModel}">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="35"/>
                         <RowDefinition Height="254*"/>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="70*"/>
@@ -399,9 +400,17 @@
                         <ColumnDefinition Width="75*"/>
                         <ColumnDefinition Width="25*"/>
                     </Grid.ColumnDefinitions>
-
+                    
+                    <DockPanel Grid.Row="0" Grid.Column="0">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                            <TextBlock Text="Account:" Foreground="DimGray" FontSize="22"/>
+                            <ComboBox Margin="5,3,5,3" ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="AccountId"  />
+                        </StackPanel>
+                        <TextBlock Text="Open Positions" DockPanel.Dock="Left" Foreground="DimGray" FontSize="22"/>
+                    </DockPanel>
+                    
                     <DataGrid 
-                        Grid.Row="0" 
+                        Grid.Row="1" 
                         Grid.Column="0" 
                         Name="OpenPositionsGrid" 
                         IsReadOnly="True" 
@@ -409,7 +418,7 @@
                         AutoGenerateColumns="False"
                         CanUserAddRows="False"
                         CanUserDeleteRows="False"
-                        ItemsSource="{Binding OpenPositionsSource.View}"
+                        ItemsSource="{Binding OpenPositions}"
                         >
 
                         <DataGrid.Columns>
@@ -437,30 +446,32 @@
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="% of NAV" 
                                                 Binding="{Binding PercentOfNAV, Converter={StaticResource DivideByHundredConverter}, StringFormat={}{0:p1}}" />
                             <DataGridTextColumn Header="Currency" Binding="{Binding Currency.Name}" />
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" />
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <Label Content="FX Positions:" FontSize="22" Grid.Row="1" Grid.Column="0" Foreground="DimGray" Margin="0,-5,0,0" />
+                    <Label Content="FX Positions" FontSize="22" Grid.Row="2" Grid.Column="0" Foreground="DimGray" Margin="0,-5,0,0" />
 
                     <DataGrid Name="ForexPositionsGrid"
-                        Grid.Row="2" 
+                        Grid.Row="3" 
                         Grid.Column="0" 
                         IsReadOnly="True" 
                         Margin="0,10,0,0" 
                         AutoGenerateColumns="False"
                         CanUserAddRows="False"
                         CanUserDeleteRows="False"
-                        ItemsSource="{Binding FXPositionsSource.View}">
+                        ItemsSource="{Binding FXPositions}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Currency" Binding="{Binding FXCurrency.Name}" />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Quantity" Binding="{Binding Quantity, StringFormat={}{0:0.00}}" />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Cost Basis" Binding="{Binding CostBasis,StringFormat={}{0:c2}}" />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Value" Binding="{Binding Value,StringFormat={}{0:c2}}" />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Unrealized PnL" Binding="{Binding UnrealizedPnL,StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" />
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <oxy:PlotView Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" 
+                    <oxy:PlotView Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" 
                                   Model="{Binding UnrealizedPnLChartModel}"
                                   Name="UnrealizedPnLChart" IsMouseWheelEnabled="False" />
                 </Grid>
@@ -803,13 +814,13 @@
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Commission" Binding="{Binding CommissionInBase, StringFormat={}{0:c2}}"  />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Mult" Binding="{Binding Multiplier}" IsReadOnly="True" />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Net Cash" Binding="{Binding NetCash, StringFormat={}{0:c2}}" />
-                            <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" IsReadOnly="True" Width="40" />
                             <DataGridTextColumn Header="Order Type" Binding="{Binding OrderType}" Width="40" IsReadOnly="True" />
                             <DataGridCheckBoxColumn Header="Real" Width="35" Binding="{Binding IsReal}" IsReadOnly="True" />
                             <DataGridTextColumn Header="Currency" Binding="{Binding Currency.Name}" Width="55" IsReadOnly="True"  />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="FIFO PnL" Binding="{Binding FIFORealizedPnL, StringFormat={}{0:c2}}"  />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="MTM PnL" Binding="{Binding MTMPnL, StringFormat={}{0:c2}}"  />
-                            <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" IsReadOnly="True" Width="40" />
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" Width="50"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Ref. Price" Binding="{Binding ReferencePrice,StringFormat={}{0:0.00###}}" />
                             <DataGridTemplateColumn Header="Ref. Time" >
                                 <DataGridTemplateColumn.CellTemplate>
@@ -833,7 +844,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                                                    </DataGrid.Columns>
+                        </DataGrid.Columns>
                     </DataGrid>
 
                     <DataGrid Name="ExecutionsGrid" 
@@ -935,6 +946,7 @@
                                                 Binding="{Binding TransactionDate, StringFormat=yyyy-MM-dd}" />
                             <DataGridTextColumn Header="Transaction Type" Binding="{Binding Type}" IsReadOnly="True" />
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" Width="50"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -1003,6 +1015,7 @@
                                                 ElementStyle="{StaticResource CellRightAlign}" Binding="{Binding Quantity,StringFormat={}{0:0.#####}}" />
                             <DataGridTextColumn Header="Cost" IsReadOnly="True"
                                                 ElementStyle="{StaticResource CellRightAlign}" Binding="{Binding Path=Cost,StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" Width="50"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -1121,7 +1134,14 @@
                         <ColumnDefinition Width="60*"/>
                         <ColumnDefinition Width="40*"/>
                     </Grid.ColumnDefinitions>
-                    <Label Content="Total Equity:" Grid.Row="0" Grid.Column="0" FontSize="26" Foreground="DimGray" Margin="0,-10" />
+                    <DockPanel Grid.Row="0" Grid.Column="0">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                            <TextBlock Text="Account:" Foreground="DimGray" FontSize="22"/>
+                            <ComboBox Margin="5,3,5,3" ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="AccountId"  />
+                        </StackPanel>
+                        <Label Content="Total Equity:"  FontSize="26" Foreground="DimGray" Margin="0,-10" DockPanel.Dock="Left" />
+                    </DockPanel>
+                    
                     <Label Content="Stats:"  Grid.Row="0" Grid.Column="1" FontSize="26" Foreground="DimGray" Margin="0,-10" />
                     <Label Content="Cumulative Returns:" Grid.Row="2" Grid.Column="0"  FontSize="26" Foreground="DimGray" Margin="0,-10" />
 
