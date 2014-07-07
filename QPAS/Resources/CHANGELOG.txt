@@ -1,3 +1,7 @@
+0.3.2
+------------------------
+* Fixed a PACF-related crash during report generation when the length of the period was between 11 and 20 days.
+
 0.3.1
 ------------------------
 * Fixed a bug that sometimes resulted in incorrect values shown in the performance overview.

@@ -468,7 +468,7 @@ namespace QPAS
                 ? _totalPortfolioTracker.RoacEquityCurve.Returns
                 : _totalPortfolioTracker.RotcEquityCurve.Returns;
 
-            if (rets.Count < 11) return;
+            if (rets.Count < 21) return;
             var acf = MathUtils.AutoCorr(rets, 10);
             var pacf = MathUtils.PartialAutoCorr(rets, 10);
 
