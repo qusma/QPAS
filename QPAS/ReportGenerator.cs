@@ -82,6 +82,68 @@ namespace QPAS
             }
         }
 
+        private IEnumerable<Tuple<DateTime, decimal>> GetEquity()
+        {
+            IEnumerable<Tuple<DateTime, decimal>>  equitySums;
+            if (Properties.Settings.Default.totalCapitalAlwaysUsesAllAccounts)
+            {
+                //total equity is the equity across all accounts, no matter if they were used in the selected trades or not
+                equitySums =
+                    Context
+                    .EquitySummaries
+                    .Where(x => x.Date >= _minDate.Date && x.Date <= _maxDate.Date)
+                    .OrderBy(x => x.Date)
+                    .GroupBy(x => x.Date)
+                    .ToList()
+                    .Select(x => new Tuple<DateTime, decimal>(x.Key, x.Sum(y => y.Total)));
+            }
+            else
+            {
+                //total equity figure only includes accounts that these trades belong to.
+                //Here we figure out which accounts the selected items actually belong to
+                List<int> accountIDs =
+                    _trades
+                    .Where(x => x.Orders != null)
+                    .SelectMany(x => x.Orders)
+                    .Where(x => x.AccountID.HasValue)
+                    .Select(x => x.AccountID.Value)
+                    .ToList();
+
+                accountIDs.AddRange(
+                    _trades
+                        .Where(x => x.CashTransactions != null)
+                        .SelectMany(x => x.Orders)
+                        .Where(x => x.AccountID.HasValue)
+                        .Select(x => x.AccountID.Value));
+
+                accountIDs.AddRange(
+                    _trades
+                        .Where(x => x.FXTransactions != null)
+                        .SelectMany(x => x.Orders)
+                        .Where(x => x.AccountID.HasValue)
+                        .Select(x => x.AccountID.Value));
+
+                accountIDs = accountIDs.Distinct().ToList();
+
+                //grab dates in period and total capital at each of them           
+                //What we do here is the following: grab the equity summary for all accounts for the specified dates
+                //then filter the selected accounts
+                //and finally determine total capital for each day by summing up all the equitysummaries' Total field at that date
+                equitySums =
+                    Context
+                    .EquitySummaries
+                    .Where(x => x.Date >= _minDate.Date && x.Date <= _maxDate.Date && x.AccountID.HasValue)
+                    .OrderBy(x => x.Date)
+                    .Select(x => new { x.AccountID, x.Date, x.Total })
+                    .ToList()
+                    .Where(x => accountIDs.Contains(x.AccountID.Value))
+                    .GroupBy(x => x.Date)
+                    .Select(x => new Tuple<DateTime, decimal>(x.Key, x.Sum(y => y.Total)));
+            }
+
+            return equitySums;
+        }
+
         /// <summary>
         /// Fills a filterReportDS DataSet with trading statistics.
         /// </summary>
@@ -124,9 +186,11 @@ namespace QPAS
                 ? Context.EquitySummaries.Max(x => x.Date)
                 : _trades.Max(x => x.DateClosed != null ? x.DateClosed.Value : x.DateOpened);
 
-            //grab dates in period and total capital at each of them
-            _datesInPeriod = Context.EquitySummaries.Where(x => x.Date >= _minDate.Date && x.Date <= _maxDate.Date).OrderBy(x => x.Date).Select(x => x.Date).ToList();
-            _capitalInPeriod = Context.EquitySummaries.Where(x => x.Date >= _minDate.Date && x.Date <= _maxDate.Date).OrderBy(x => x.Date).Select(x => x.Total).ToList();
+            //Get the dates and total equity figures
+            var equitySums = GetEquity();
+
+            _capitalInPeriod = equitySums.Select(x => x.Item2).ToList();
+            _datesInPeriod = equitySums.Select(x => x.Item1).ToList();
 
             if (_datesInPeriod.Count == 0)
             {
@@ -173,7 +237,6 @@ namespace QPAS
 
 
             //then we start doing the actual work..
-            //now load all instrument transactions from the database in the right order
             for (int i = 0; i < _datesInPeriod.Count; i++)
             {
                 if (i % 10 == 0)
@@ -784,6 +847,8 @@ namespace QPAS
             {
                 varReturns.Add(inputRets.GetRange(i, settings.VaRDays).Aggregate(1.0, (x, y) => x * (1 + y)));
             }
+            if (varReturns.Count < 10) return;
+
             varReturns = varReturns.OrderBy(x => x).ToList();
 
             for (int i = 0; i < varReturns.Count; i++)
@@ -1156,7 +1221,7 @@ namespace QPAS
             foreach (Position p in _totalPortfolioTracker.Positions.Values.OrderBy(x => x.ROAC))
             {
                 var roacDR = ds.instrumentROAC.NewinstrumentROACRow();
-                roacDR.instrument = p.Instrument.Symbol;
+                roacDR.instrument = p.Instrument.Symbol ?? "";
                 roacDR.ROAC = p.ROAC - 1;
                 ds.instrumentROAC.AddinstrumentROACRow(roacDR);
             }
@@ -1380,7 +1445,7 @@ namespace QPAS
             {
                 var pnlbiDR = ds.pnlByInstrument.NewpnlByInstrumentRow();
                 pnlbiDR.PnL = p.PnL;
-                pnlbiDR.instrument = p.Instrument.Symbol;
+                pnlbiDR.instrument = p.Instrument.Symbol ?? "";
                 ds.pnlByInstrument.AddpnlByInstrumentRow(pnlbiDR);
             }
         }
