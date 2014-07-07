@@ -114,7 +114,7 @@ namespace QPASTest
                 ts.ProgressTo(date);
             }
 
-            tracker.Update(date, null, data);
+            tracker.Update(date, new Dictionary<int, TimeSeries>(), data);
 
             Assert.AreEqual(100 + 500 * (1.55m - 1.5m), tracker.TotalPnL);
         }
