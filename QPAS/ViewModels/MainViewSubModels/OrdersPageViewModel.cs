@@ -1,4 +1,5 @@
-﻿using EntityModel;
+﻿using System.Collections.Generic;
+using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
 using System.Collections;
 using System.Collections.ObjectModel;
@@ -80,6 +81,11 @@ namespace QPAS
                     //remove executions first
                     if(o.Executions != null)
                     {
+                        List<Execution> toRemove = o.Executions.ToList();
+                        foreach(Execution exec in toRemove)
+                        {
+                            Context.Executions.Remove(exec);
+                        }
                         o.Executions.Clear();
                     }
 
