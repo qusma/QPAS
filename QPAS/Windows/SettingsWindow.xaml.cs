@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using EntityModel;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using NLog;
 using Application = System.Windows.Application;
 
 namespace QPAS
@@ -113,22 +114,34 @@ namespace QPAS
                 MessageDialogStyle.AffirmativeAndNegative);
             if (res2 == MessageDialogResult.Negative) return;
 
-            if (Properties.Settings.Default.databaseType.ToLower() == "mysql")
+            try
             {
-                _context.Database.ExecuteSqlCommand("DROP DATABASE qpas");
-            }
-            else
-            {
-                //very hacky....
-                using (var sqlConnection = DBUtils.CreateSqlServerConnection("master"))
+                if (Properties.Settings.Default.databaseType.ToLower() == "mysql")
                 {
-                    sqlConnection.Open();
-                    SqlCommand sqlCmd = new SqlCommand("ALTER DATABASE qpas SET SINGLE_USER WITH ROLLBACK IMMEDIATE", sqlConnection);
-                    sqlCmd.ExecuteNonQuery();
-                    
-                    sqlCmd.CommandText = "DROP DATABASE qpas";
-                    sqlCmd.ExecuteNonQuery();
+                    _context.Database.ExecuteSqlCommand("DROP DATABASE qpas");
                 }
+                else
+                {
+                    //very hacky....
+                    using (var sqlConnection = DBUtils.CreateSqlServerConnection("master"))
+                    {
+                        sqlConnection.Open();
+                        SqlCommand sqlCmd = new SqlCommand("ALTER DATABASE qpas SET SINGLE_USER WITH ROLLBACK IMMEDIATE", sqlConnection);
+                        sqlCmd.ExecuteNonQuery();
+
+                        sqlCmd.CommandText = "DROP DATABASE qpas";
+                        sqlCmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                this.ShowMessageAsync(
+                    "Error",
+                    "Could not clear data. Error: " + ex.Message).Forget();
+                var logger = LogManager.GetCurrentClassLogger();
+                logger.Log(LogLevel.Error, ex);
+                return;
             }
 
 
