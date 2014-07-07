@@ -47,6 +47,8 @@ namespace QPAS
                 .Trades
                 .Include(x => x.Tags)
                 .Include(x => x.Strategy)
+                .Include(x => x.Orders)
+                .Include(x => x.CashTransactions)
                 .Where(x => x.DateClosed == null || x.DateClosed > settings.From)
                 .Where(x => x.DateOpened < settings.To)
                 .ToList();
@@ -89,13 +91,25 @@ namespace QPAS
             switch (settings.InstrumentFilterMethod)
             {
                 case FilterMethod.Any:
-                    trades = trades.Where(x => x.Orders.Select(y => y.InstrumentID).Intersect(selectedInstrumentIDs).Any()).ToList();
+                    trades = trades.Where(x => 
+                        x.Orders.Select(y => y.InstrumentID).Intersect(selectedInstrumentIDs).Any() ||
+                        x.CashTransactions.Where(y => y.InstrumentID.HasValue).Select(y => y.InstrumentID.Value).Intersect(selectedInstrumentIDs).Any())
+                        .ToList();
                     break;
+
                 case FilterMethod.All:
-                    trades = trades.Where(x => x.Orders.Select(y => y.InstrumentID).Intersect(selectedInstrumentIDs).Count() == selectedInstrumentIDs.Count).ToList();
+                    trades = trades.Where(x => 
+                        x.Orders.Select(y => y.InstrumentID).Intersect(selectedInstrumentIDs).Union(
+                        x.CashTransactions.Where(y => y.InstrumentID.HasValue).Select(y => y.InstrumentID.Value)).Count()
+                            == selectedInstrumentIDs.Count)
+                        .ToList();
                     break;
+
                 case FilterMethod.Exclude:
-                    trades = trades.Where(x => !x.Orders.Select(y => y.InstrumentID).Intersect(selectedInstrumentIDs).Any()).ToList();
+                    trades = trades.Where(x => 
+                        !x.Orders.Select(y => y.InstrumentID).Intersect(selectedInstrumentIDs).Any() &&
+                        !x.CashTransactions.Where(y => y.InstrumentID.HasValue).Select(y => y.InstrumentID.Value).Intersect(selectedInstrumentIDs).Any())
+                        .ToList();
                     break;
             }
 
