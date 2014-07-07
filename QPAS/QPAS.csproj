@@ -34,8 +34,8 @@
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>1</ApplicationRevision>
-    <ApplicationVersion>0.2.2.%2a</ApplicationVersion>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>0.3.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -115,6 +115,9 @@
     <Reference Include="MySql.Data.Entity.EF6, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\MySql.ConnectorNET.Entity.6.8.3.2\lib\net45\MySql.Data.Entity.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="MySqlBackup">
+      <HintPath>..\packages\MySqlBackup.NET.2.0.4\lib\net45\MySqlBackup.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=3.1.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -289,11 +292,15 @@
     <Compile Include="TradingSimulation\TradeSim.cs" />
     <Compile Include="TradingSimulation\TradeTracker.cs" />
     <Compile Include="StatementHandling\InteractiveBrokers\FlexParser.cs" />
+    <Compile Include="Utilities\DbBackup.cs" />
     <Compile Include="Utilities\DBUtils.cs" />
     <Compile Include="Utilities\ElementSpy.cs" />
     <Compile Include="TradeFiltering.cs" />
     <Compile Include="Utilities\ExcelFormatHelper.cs" />
+    <Compile Include="Utilities\LambdaEqualityComparer.cs" />
     <Compile Include="Utilities\MathUtils.cs" />
+    <Compile Include="Utilities\MySQLBackup.cs" />
+    <Compile Include="Utilities\SqlServerBackup.cs" />
     <Compile Include="Utilities\Utils.cs" />
     <Compile Include="ViewModels\ExecutionReportViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
@@ -314,6 +321,9 @@
     <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\AccountMigrationWindow.xaml.cs">
+      <DependentUpon>AccountMigrationWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\ChangelogWindow.xaml.cs">
       <DependentUpon>ChangelogWindow.xaml</DependentUpon>
@@ -337,6 +347,10 @@
       <DependentUpon>TradeWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Windows\AboutWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\AccountMigrationWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
