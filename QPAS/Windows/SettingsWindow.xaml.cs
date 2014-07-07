@@ -20,7 +20,7 @@ namespace QPAS
     /// </summary>
     public partial class SettingsWindow : MetroWindow
     {
-        private IDBContext _context;
+        private readonly IDBContext _context;
 
         public SettingsViewModel ViewModel { get; set; }
 
@@ -113,7 +113,7 @@ namespace QPAS
                 MessageDialogStyle.AffirmativeAndNegative);
             if (res2 == MessageDialogResult.Negative) return;
 
-            if (Properties.Settings.Default.databaseType == "MySQL")
+            if (Properties.Settings.Default.databaseType.ToLower() == "mysql")
             {
                 _context.Database.ExecuteSqlCommand("DROP DATABASE qpas");
             }
