@@ -23,12 +23,17 @@ namespace QPAS
         private double _currentEquity;
 
         private int _ordersRemaining;
+        private int _cashTransactionsRemaining;
 
         private decimal _totalPnL;
 
         public TradeTracker(Trade trade)
         {
-            Positions = new Dictionary<int, Position>();
+            Positions = new Dictionary<int, Position>()
+            {
+                //dummy position used for cash transactions without a related instrument
+                { NullInstrumentId, new Position(new Instrument())} 
+            };
             CurrencyPositions = new Dictionary<int, CurrencyPosition>();
 
             CumulativeReturns = new SortedList<DateTime, double>();
@@ -37,6 +42,7 @@ namespace QPAS
             Capital = new AllocatedCapital();
 
             _ordersRemaining = trade.Orders == null ? 0 : trade.Orders.Count;
+            _cashTransactionsRemaining = trade.CashTransactions == null ? 0 : trade.CashTransactions.Count;
 
             Trade = trade;
 
@@ -173,12 +179,24 @@ namespace QPAS
         public decimal RealizedPnL { get { return Positions.Sum(x => x.Value.RealizedPnL) + CurrencyPositions.Sum(x => x.Value.RealizedPnL); } }
 
         public Trade Trade { get; set; }
+
+        private const int NullInstrumentId = -99;
+
         public void AddCashTransaction(CashTransaction ct)
         {
-            if (!ct.InstrumentID.HasValue) return;
+            Open = true;
 
-            if (Positions.ContainsKey(ct.Instrument.ID))
-                Positions[ct.Instrument.ID].AddCashTransaction(ct);
+            if (ct.InstrumentID.HasValue)
+            {
+                if (Positions.ContainsKey(ct.Instrument.ID))
+                    Positions[ct.Instrument.ID].AddCashTransaction(ct);
+            }
+            else
+            {
+                //InstrumentID is null. This happens frequently 
+                //as many cash transactions are not related to a particular instrument
+                Positions[NullInstrumentId].AddCashTransaction(ct);
+            }
 
             if(ct.CurrencyID > 1)
             {
@@ -193,6 +211,8 @@ namespace QPAS
                 };
                 AddFXTransaction(ft);
             }
+
+            _cashTransactionsRemaining--;
         }
 
         public void AddFXTransaction(FXTransaction ft)
@@ -251,14 +271,15 @@ namespace QPAS
 
                 Position p = kvp.Value;
                 decimal fxRate = p.Currency == null || p.Currency.ID <= 1 ? 1 : fxData[p.Currency.ID][0].Close;
-                TodaysPnL += p.GetPnL(data[id].CurrentBar < 0 ? (decimal?)null : data[id][0].Close, fxRate);
+                decimal? lastPrice = !data.ContainsKey(id) || data[id].CurrentBar < 0 ? (decimal?)null : data[id][0].Close;
+                TodaysPnL += p.GetPnL(lastPrice, fxRate);
             }
 
             //Update currency positions
             foreach(var kvp in CurrencyPositions)
             {
                 int id = kvp.Key;
-                if (fxData[id].CurrentBar < 0) continue;
+                if (fxData == null || fxData[id].CurrentBar < 0) continue;
 
                 CurrencyPosition p = kvp.Value;
                 decimal fxRate = fxData[id][0].Close;
@@ -290,7 +311,8 @@ namespace QPAS
 
             Open = Positions.Values.Sum(x => x.Quantity) != 0 || 
                 CurrencyPositions.Values.Sum(x => x.Quantity) != 0 ||
-                (_ordersRemaining > 0 && _ordersRemaining < Trade.Orders.Count);
+                (_ordersRemaining > 0 && _ordersRemaining < Trade.Orders.Count) ||
+                (_cashTransactionsRemaining > 0 && _cashTransactionsRemaining < Trade.CashTransactions.Count);
         }
     }
 }
