@@ -1,3 +1,9 @@
+0.3.1
+------------------------
+* Fixed a bug that sometimes resulted in incorrect values shown in the performance overview.
+* Fixed an issue with clearing the database when using MySQL/MariaDB.
+* Really fixed the crash when deleting orders.
+
 0.3.0
 ------------------------
 * Added support for multiple accounts. You'll have to either delete your data and re-import it, or use the upgrade guide to set an account for the existing data.
