@@ -44,7 +44,7 @@ namespace QPAS
         private readonly Dictionary<DateTime, List<FXTransaction>> _fxTransactionsByDate;
         private readonly List<Order> _allOrders;
 
-        private Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Sometimes we have profits/losses while allocated capital is zero.
@@ -54,6 +54,8 @@ namespace QPAS
 
         public List<Trade> Trades { get; private set; }
         public Dictionary<int, TradeTracker> TradeTrackers { get; private set; }
+
+        private const int NullInstrumentId = -99;
 
         public PortfolioTracker(Dictionary<int, TimeSeries> data, Dictionary<int, TimeSeries> fxData, List<Trade> trades, string name)
         {
@@ -74,7 +76,11 @@ namespace QPAS
 
             Capital = new AllocatedCapital();
 
-            Positions = new Dictionary<int, Position>();
+            Positions = new Dictionary<int, Position>
+            {
+                //dummy position used for cash transactions without a related instrument
+                { NullInstrumentId, new Position(new Instrument())} 
+            };
 
             //group cash transactions by date so they're easily accessible
             _cashTransactionsByDate =
@@ -143,10 +149,7 @@ namespace QPAS
             foreach (CashTransaction ct in _cashTransactionsByDate[date.Date].Where(x => x.TradeID.HasValue))
             {
                 //add to trade
-                if (TradeTrackers[ct.TradeID.Value].Open)
-                {
-                    TradeTrackers[ct.TradeID.Value].AddCashTransaction(ct);
-                }
+                TradeTrackers[ct.TradeID.Value].AddCashTransaction(ct);
 
                 //add to position
                 if (ct.InstrumentID.HasValue)
@@ -156,6 +159,10 @@ namespace QPAS
                         Positions.Add(ct.InstrumentID.Value, new Position(ct.Instrument));
                     }
                     Positions[ct.InstrumentID.Value].AddCashTransaction(ct);
+                }
+                else
+                {
+                    Positions[NullInstrumentId].AddCashTransaction(ct);
                 }
             }
         }
@@ -175,7 +182,8 @@ namespace QPAS
 
                 Position p = kvp.Value;
                 decimal fxRate = p.Currency == null || p.Currency.ID == 1 ? 1 : _fxData[p.Currency.ID][0].Close;
-                p.GetPnL(_data[id].CurrentBar < 0 ? (decimal?)null : _data[id][0].Close, fxRate);
+                decimal? lastPrice = !_data.ContainsKey(id) || _data[id].CurrentBar < 0 ? (decimal?)null : _data[id][0].Close;
+                p.GetPnL(lastPrice, fxRate);
             }
 
             //Capital usage and profit/loss for the day
