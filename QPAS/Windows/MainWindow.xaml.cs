@@ -633,6 +633,11 @@ namespace QPAS
                 menuItem.Click += OrdersGridSetTradeSubMenuItem_Click;
                 ordersGridSetTradeSubMenu.Items.Add(menuItem);
             }
+
+            //Add an item to create a new trade
+            ordersGridSetTradeSubMenu.Items.Add(new Separator());
+            var ordersContextMenuNewTradeItem = (MenuItem)Resources["OrdersContextMenuNewTradeItem"];
+            ordersGridSetTradeSubMenu.Items.Add(ordersContextMenuNewTradeItem);
         }
 
         private void OrdersGridSetTradeSubMenuItem_Click(object sender, RoutedEventArgs e)
@@ -1024,6 +1029,37 @@ namespace QPAS
         {
             DbBackup.Restore("qpasEntities", "qpas");
             ViewModel.RefreshCurrentPage();
+        }
+
+        private void OrdersContextMenuNewTradeTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                //close the context menu
+                var ordersGridContextMenu = (ContextMenu)Resources["OrdersGridContextMenu"];
+                var ordersContextMenuNewTradeTextBox = (TextBox)sender;
+                ordersGridContextMenu.IsOpen = false;
+
+                //only add a trade if there's a name in the box
+                if (String.IsNullOrEmpty(ordersContextMenuNewTradeTextBox.Text)) return;
+
+                List<Order> selectedOrders = OrdersGrid.SelectedItems.Cast<Order>().ToList();
+
+                var newTrade = new Trade { Name = ordersContextMenuNewTradeTextBox.Text, Open = true };
+                Context.Trades.Add(newTrade);
+                newTrade.Tags = new List<Tag>();
+
+                Task.Run(() =>
+                {
+                    foreach (Order o in selectedOrders)
+                    {
+                        TradesRepository.AddOrder(newTrade, o);
+                    }
+                    TradesRepository.Save();
+                });
+
+                ordersContextMenuNewTradeTextBox.Text = "";
+            }
         }
     }
 }

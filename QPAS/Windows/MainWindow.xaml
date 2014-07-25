@@ -65,6 +65,19 @@
             </MenuItem.Icon>
         </MenuItem>
 
+        <MenuItem x:Key="OrdersContextMenuNewTradeItem">
+            <MenuItem.Template>
+                <ControlTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
+                        <TextBlock Text="New Trade: "  Margin="0,5,0,0" />
+                        <TextBox Width="150" Margin="10,0,0,0" 
+                                     KeyDown="OrdersContextMenuNewTradeTextBox_KeyDown"
+                                     Name="OrdersContextMenuNewTradeTextBox" />
+                    </StackPanel>
+                </ControlTemplate>
+            </MenuItem.Template>
+        </MenuItem>
+
         <ContextMenu x:Key="OrdersGridContextMenu" Width="300" Opened="OrdersGridContextMenu_Opened" qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
             <MenuItem Name="DeleteOrderBtn" Header="Delete"
                       Command="{Binding Delete}"
