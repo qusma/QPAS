@@ -1,3 +1,11 @@
+0.3.3
+------------------------
+* Added the ability to create a new trade using the right-click menu in the orders grid. By selecting multiple orders you can add all of them to a trade right away.
+* Popup sizes now adjust to low resolutions so items don't get hidden.
+* You can now open/close multiple trades simultaneously by using the right-click menu in the trades page.
+* Fixed a crash when deleting an item in a grid filtered by instrument type.
+* Fixed filtering of decimal fields.
+
 0.3.2
 ------------------------
 * Fixed a PACF-related crash during report generation when the length of the period was between 11 and 20 days.
