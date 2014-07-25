@@ -179,6 +179,17 @@
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>
+            
+            <MenuItem Header="Open" Name="TradesGridContextMenuOpenBtn"
+                      Command="{Binding OpenTrades}"
+                      CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
+            </MenuItem>
+            <MenuItem Header="Close" Name="TradesGridContextMenuCloseBtn"
+                      Command="{Binding CloseTrades}"
+                      CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
+            </MenuItem>
+            
+            <Separator/>
             <MenuItem Header="Copy Tags" Name="TradesGridContextMenuCopyTagsBtn"
                       Click="TradesGridContextMenuCopyTagsBtn_Click"
                       IsEnabled="{Binding ElementName=TradesGrid,Path=SelectedItems.Count, Converter={qc:QuickConverter '$P == 1'}}"

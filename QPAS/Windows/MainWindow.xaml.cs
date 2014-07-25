@@ -84,7 +84,7 @@ namespace QPAS
             //create db if it doesn't exist
             Context.Database.Initialize(false);
 
-            //check for any datasources, seed the db with initial values if nothing is found
+            //check for any currencies, seed the db with initial values if nothing is found
             if (!Context.Currencies.Any())
             {
                 Seed.DoSeed();
@@ -418,6 +418,9 @@ namespace QPAS
         {
             if ((string) e.Column.Header == "Tags")
             {
+                //make sure the popup isn't too big, otherwise items can be hidden in small resolutions
+                TagPickerPopup.Height = Math.Min(600, TradesGrid.ActualHeight - 100);
+
                 //Fill it
                 TagPickerPopupListBox.ItemsSource = Context
                     .Tags
@@ -571,6 +574,9 @@ namespace QPAS
         {
             if((string)e.Column.Header == "Trade")
             {
+                //make sure the popup isn't too big, otherwise items can be hidden in small resolutions
+                OrdersGridTradePickerPopup.Height = Math.Min(600, OrdersGrid.ActualHeight - 100);
+
                 var order = (Order)OrdersGrid.SelectedItem;
                 //if this order belongs to a closed trade, disallow editing
                 if (order.Trade != null && order.Trade.Open == false)

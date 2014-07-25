@@ -4,6 +4,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
 using System.Collections;
@@ -28,11 +30,11 @@ namespace QPAS
         internal IDBContext Context;
         internal TradesRepository TradesRepository;
 
-        public ICommand Delete { get; set; }
-
-        public ICommand Reset { get; set; }
-
-        public ICommand UpdateStats { get; set; }
+        public ICommand Delete { get; private set; }
+        public ICommand Reset { get; private set; }
+        public ICommand UpdateStats { get; private set; }
+        public ICommand OpenTrades { get; private set; }
+        public ICommand CloseTrades { get; private set; }
 
         public TradesPageViewModel(IDBContext context, IDialogService dialogService, IDataSourcer datasourcer, MainViewModel parent)
             : base(dialogService)
@@ -56,6 +58,8 @@ namespace QPAS
             Delete = new RelayCommand<IList>(DeleteTrades);
             Reset = new RelayCommand<IList>(ResetTrades);
             UpdateStats = new RelayCommand<IList>(UpdateTradeStats);
+            OpenTrades = new RelayCommand<IList>(Open);
+            CloseTrades = new RelayCommand<IList>(Close);
         }
 
         public override void Refresh()
@@ -74,6 +78,51 @@ namespace QPAS
             }
 
             TradesSource.View.Refresh();
+        }
+
+        private void Close(IList trades)
+        {
+            if (trades == null || trades.Count == 0) return;
+
+            var closedTrades = new List<Trade>();
+            foreach(Trade trade in trades)
+            {
+                //Already closed or can't close -> skip it
+                if (!trade.Open) continue;
+                
+                //first load up the collections, needed for the IsClosable() check.
+                Context.Entry(trade).Collection(x => x.Orders).Load();
+                Context.Entry(trade).Collection(x => x.CashTransactions).Load();
+                Context.Entry(trade).Collection(x => x.FXTransactions).Load();
+
+                //this needs to be done after loading the orders
+                if (!trade.IsClosable()) continue;
+
+                trade.Open = false;
+                closedTrades.Add(trade);
+            }
+
+            //Update the stats of the trades we closed
+            Task.Run(() =>
+            {
+                foreach (Trade trade in closedTrades)
+                {
+                    //we can skip collection load since it's done a few lines up
+                    TradesRepository.UpdateStats(trade, skipCollectionLoad: true); 
+                }
+                Context.SaveChanges();
+            });
+        }
+
+        private void Open(IList trades)
+        {
+            if (trades == null || trades.Count == 0) return;
+
+            foreach (Trade trade in trades)
+            {
+                trade.Open = true;
+            }
+            Context.SaveChanges();
         }
 
         private void UpdateTradeStats(IList trades)
