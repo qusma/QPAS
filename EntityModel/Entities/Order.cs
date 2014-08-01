@@ -316,6 +316,7 @@ namespace EntityModel
         public object Clone()
         {
             var clone = new Order();
+            clone.ConID = ConID;
             clone.Instrument = Instrument;
             clone.InstrumentID = InstrumentID;
             clone.TradeDate = TradeDate;
