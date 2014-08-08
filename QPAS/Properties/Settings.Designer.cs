@@ -370,5 +370,17 @@ namespace QPAS.Properties {
                 this["totalCapitalAlwaysUsesAllAccounts"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string dataGridLayout {
+            get {
+                return ((string)(this["dataGridLayout"]));
+            }
+            set {
+                this["dataGridLayout"] = value;
+            }
+        }
     }
 }

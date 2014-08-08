@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using System.Xml.Serialization;
 
 namespace QPAS
 {
@@ -80,6 +83,39 @@ namespace QPAS
             }
 
             return child;
+        }
+        public static string SerializeLayout(this DataGrid grid)
+        {
+            var allSettings = grid.Columns.Select(c => new ColumnOptions
+            {
+                DisplayIndex = c.DisplayIndex,
+                Width = c.ActualWidth,
+            }).ToList();
+
+            var serializer = new XmlSerializer(typeof(List<ColumnOptions>));
+
+            using (var sw = new StringWriter())
+            {
+                serializer.Serialize(sw, allSettings);
+                return sw.ToString();
+            }
+        }
+
+        public static void DeserializeLayout(this DataGrid grid, string settings)
+        {
+            List<ColumnOptions> allSettings;
+            var serializer = new XmlSerializer(typeof(List<ColumnOptions>));
+            using (var sw = new StringReader(settings))
+            {
+                allSettings = (List<ColumnOptions>)serializer.Deserialize(sw);
+            }
+
+            for (int i = 0; i < allSettings.Count; i++)
+            {
+                ColumnOptions co = allSettings[i];
+                grid.Columns[i].Width = co.Width;
+                grid.Columns[i].DisplayIndex = Math.Max(0, co.DisplayIndex);
+            }
         }
     }
 }
