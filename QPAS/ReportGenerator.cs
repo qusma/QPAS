@@ -524,7 +524,7 @@ namespace QPAS
                 ds.StrategyCovMatrix.Columns.Add(stratName, typeof(double));
             }
 
-            Dictionary<KeyValuePair<string, string>, double> correlations = new Dictionary<KeyValuePair<string, string>, double>();
+            var correlations = new Dictionary<KeyValuePair<string, string>, double>();
 
             foreach (string stratName in strategyRoacECs.Keys)
             {
@@ -543,11 +543,31 @@ namespace QPAS
                 }
             }
 
-            foreach (string stratName in strategyRoacECs.Keys)
+            var keys = new List<string>(strategyRoacECs.Keys);
+
+            //If there is a benchmark, add it to the correlation matrix
+            if(_benchmarkEC.Returns.Count > 0)
+            {
+                ds.StrategyCovMatrix.Columns.Add("Benchmark", typeof(double));
+                keys.Add("Benchmark");
+
+                foreach (string stratName in strategyRoacECs.Keys)
+                {
+                    double corr = Correlation.Pearson(strategyRoacECs[stratName].Returns, _benchmarkEC.Returns);
+                    var key1 = new KeyValuePair<string, string>(stratName, "Benchmark");
+                    var key2 = new KeyValuePair<string, string>("Benchmark", stratName);
+                    correlations.Add(key1, corr);
+                    correlations.Add(key2, corr);
+                }
+
+                correlations.Add(new KeyValuePair<string, string>("Benchmark", "Benchmark"), 1);
+            }
+
+            foreach (string stratName in keys)
             {
                 var dr = ds.StrategyCovMatrix.NewRow();
                 dr["Name"] = stratName;
-                foreach(string stratName2 in strategyRoacECs.Keys)
+                foreach (string stratName2 in keys)
                 {
                     dr[stratName2] = correlations[new KeyValuePair<string, string>(stratName, stratName2)];
                 }
@@ -566,10 +586,16 @@ namespace QPAS
                     _strategyPfolioTrackers.ToDictionary(x => x.Key, x => x.Value.RoacEquityCurve);
                 List<string> strategyNames = strategyRoacECs.Keys.ToList();
 
+                if (_benchmarkEC.Returns.Count > 0)
+                {
+                    strategyRoacECs.Add("Benchmark", _benchmarkEC);
+                    strategyNames.Add("Benchmark");
+                }
+
                 Matrix<double> corr = MathUtils.CorrelationMatrix(strategyRoacECs.Select(x => x.Value.Returns).ToList());
                 foreach (var x in corr.EnumerateColumnsIndexed())
                 {
-                    corr.SetRow(x.Item1, x.Item2.Add(1).SubtractFrom(2));
+                    corr.SetColumn(x.Item1, x.Item2.Add(1).SubtractFrom(2));
                 }
                 Matrix<double> coords = MultiDimensionalScaling.Scale(corr);
 
