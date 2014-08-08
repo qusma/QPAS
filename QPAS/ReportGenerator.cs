@@ -546,7 +546,7 @@ namespace QPAS
             var keys = new List<string>(strategyRoacECs.Keys);
 
             //If there is a benchmark, add it to the correlation matrix
-            if(_benchmarkEC.Returns.Count > 0)
+            if (_benchmarkEC != null && _benchmarkEC.Returns.Count == strategyRoacECs.First().Value.Returns.Count)
             {
                 ds.StrategyCovMatrix.Columns.Add("Benchmark", typeof(double));
                 keys.Add("Benchmark");
@@ -586,7 +586,7 @@ namespace QPAS
                     _strategyPfolioTrackers.ToDictionary(x => x.Key, x => x.Value.RoacEquityCurve);
                 List<string> strategyNames = strategyRoacECs.Keys.ToList();
 
-                if (_benchmarkEC.Returns.Count > 0)
+                if (_benchmarkEC != null && _benchmarkEC.Returns.Count == strategyRoacECs.First().Value.Returns.Count)
                 {
                     strategyRoacECs.Add("Benchmark", _benchmarkEC);
                     strategyNames.Add("Benchmark");
