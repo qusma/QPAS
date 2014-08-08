@@ -74,11 +74,11 @@ namespace QPAS
                 for (int j = 0; j < x.Count; j++)
                 {
                     var rowy = x[j];
-                    if (i > j)
+                    if (i < j)
                     {
                         correlM[i, j] = Correlation.Pearson(rowx, rowy);
                     }
-                    if (i < j)
+                    if (i > j)
                     {
                         correlM[i, j] = correlM[j, i];
                     }

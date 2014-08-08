@@ -3,6 +3,7 @@
 * Fixed a bug that caused orders to be cloned incompletely. This in turn fixes the issue of trades becoming unclosable if they contain virtual orders.
 * The strategy correlation matrix and MDS chart now also include the benchmark, if it has been specified.
 * The order and size of columns for all the grids are saved between sessions.
+* Fixed a bug in the MDS chart, the coordinates should now properly reflect the distances between each series.
 
 0.3.3
 ------------------------
