@@ -446,7 +446,9 @@
                         >
 
                         <DataGrid.Columns>
-                            <DataGridTemplateColumn Header="Side" SortMemberPath="Side" ClipboardContentBinding="{Binding Side}">
+                            <DataGridTemplateColumn Header="Side" SortMemberPath="Side" ClipboardContentBinding="{Binding Side}"
+                                                    DisplayIndex="0"
+                                                    Width="50">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
@@ -456,21 +458,36 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Symbol" Binding="{Binding Instrument.Symbol}" />
-                            <DataGridTemplateColumn SortMemberPath="Instrument.AssetCategory" ClipboardContentBinding="{Binding Instrument.AssetCategory}"
+                            <DataGridTextColumn Header="Symbol" Binding="{Binding Instrument.Symbol}"
+                                                DisplayIndex="1" Width="70"/>
+                            <DataGridTemplateColumn SortMemberPath="Instrument.AssetCategory" 
+                                                    DisplayIndex="2" Width="52"
+                                                    ClipboardContentBinding="{Binding Instrument.AssetCategory}"
                                                     Header="Type" 
                                                     CellTemplate="{StaticResource InstrumentAssetClassCellTemplate}" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Position" Binding="{Binding Quantity}" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Value" Binding="{Binding PositionValue, StringFormat={}{0:c2}}" />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="3" Width="80"
+                                                Header="Position" Binding="{Binding Quantity}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="4" Width="60"
+                                                Header="Value" Binding="{Binding PositionValue, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="5" Width="120"
                                                 CellStyle="{StaticResource ProfitBGColorStyle}"
                                                 Header="Unrealized PnL" Binding="{Binding UnrealizedPnL, StringFormat={}{0:c2}}" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Cost Basis" Binding="{Binding CostBasisDollars, StringFormat={}{0:c2}}" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Mark Price" Binding="{Binding MarkPrice, StringFormat={}{0:0.00###}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="6" Width="90"
+                                                Header="Cost Basis" Binding="{Binding CostBasisDollars, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="7" Width="95"
+                                                Header="Mark Price" Binding="{Binding MarkPrice, StringFormat={}{0:0.00###}}" />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="% of NAV" 
+                                                DisplayIndex="8" Width="80"
                                                 Binding="{Binding PercentOfNAV, Converter={StaticResource DivideByHundredConverter}, StringFormat={}{0:p1}}" />
-                            <DataGridTextColumn Header="Currency" Binding="{Binding Currency.Name}" />
-                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" />
+                            <DataGridTextColumn Header="Currency" Binding="{Binding Currency.Name}"
+                                                DisplayIndex="9" Width="85"/>
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}"
+                                                DisplayIndex="10" Width="80"/>
                         </DataGrid.Columns>
                     </DataGrid>
 
@@ -522,25 +539,45 @@
                               >
 
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Width="40" Binding="{Binding Path=ID}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Symbol" Binding="{Binding Path=Symbol}" SortDirection="Ascending" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Underlying" Binding="{Binding Path=UnderlyingSymbol}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="ID" Width="40" 
+                                                DisplayIndex="0"
+                                                Binding="{Binding Path=ID}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Symbol" 
+                                                DisplayIndex="1" Width="130"
+                                                Binding="{Binding Path=Symbol}" SortDirection="Ascending" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Underlying" 
+                                                DisplayIndex="2" Width="75"
+                                                Binding="{Binding Path=UnderlyingSymbol}" IsReadOnly="True" />
                             <DataGridComboBoxColumn Header="Type" 
+                                                    DisplayIndex="3" Width="75"
                                                     filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="AssetCategory"
                                                     ItemsSource="{Binding Source={StaticResource AssetClasses}}"
                                                     SelectedItemBinding="{Binding AssetCategory}"
                                                     IsReadOnly="True"
                                                     ElementStyle="{StaticResource AssetClassComboBox}">
                             </DataGridComboBoxColumn>
-                            <DataGridTextColumn Header="Description" Binding="{Binding Path=Description}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Mult" Binding="{Binding Path=Multiplier}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Expiration" Binding="{Binding Path=Expiration, StringFormat=yyyy-MM-dd}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Description" 
+                                                DisplayIndex="4" Width="190"
+                                                Binding="{Binding Path=Description}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Mult" 
+                                                DisplayIndex="5" Width="75"
+                                                Binding="{Binding Path=Multiplier}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Expiration" 
+                                                DisplayIndex="6" Width="135"
+                                                Binding="{Binding Path=Expiration, StringFormat=yyyy-MM-dd}" IsReadOnly="True" />
 
-                            <DataGridTextColumn Header="Opt. Type" Binding="{Binding Path=OptionType}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Strike" Binding="{Binding Path=Strike, StringFormat={}{0:#.#####;;}}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="ConID" Binding="{Binding Path=ConID}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Opt. Type" 
+                                                DisplayIndex="7" Width="75"
+                                                Binding="{Binding Path=OptionType}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Strike" 
+                                                DisplayIndex="8" Width="75"
+                                                Binding="{Binding Path=Strike, StringFormat={}{0:#.#####;;}}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="ConID" 
+                                                DisplayIndex="9" Width="75"
+                                                Binding="{Binding Path=ConID}" IsReadOnly="True" />
 
                             <DataGridComboBoxColumn filterLibrary:DataGridColumnExtensions.DoNotGenerateFilterControl="True"  
+                                                    DisplayIndex="10" Width="170"
                                                     x:Name="QDMSInstrumentComboBox" 
                                                     DisplayMemberPath="Key"
                                                     SelectedValuePath="Value"
@@ -639,8 +676,8 @@
                                         CommandParameter="{Binding ElementName=StrategiesGrid, Path=SelectedItem}" />
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}" IsReadOnly="True"  />
-                            <DataGridTextColumn Header="Name" Binding="{Binding Path=Name}" IsReadOnly="False" />
+                            <DataGridTextColumn Header="ID" DisplayIndex="0" Width="36" Binding="{Binding Path=ID}" IsReadOnly="True"  />
+                            <DataGridTextColumn Header="Name" DisplayIndex="1" Width="150" Binding="{Binding Path=Name}" IsReadOnly="False" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -684,6 +721,7 @@
 
                         <DataGrid.Columns>
                             <DataGridComboBoxColumn x:Name="TradesGridStrategyColumn"  
+                                                    DisplayIndex="0" Width="85"
                                                     Header="Strategy" 
                                                     filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="Strategy.Name"
                                                     filterLibrary:DataGridComboBoxExtensions.IsTextFilter="True"
@@ -700,41 +738,58 @@
                                 </DataGridComboBoxColumn.EditingElementStyle>
                             </DataGridComboBoxColumn>
                             <DataGridTextColumn Header="Name" Binding="{Binding Name}" 
+                                                DisplayIndex="1" Width="200"
                                                 filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True"/>
                             <DataGridCheckBoxColumn Header="Open" 
-                                                    Width="35"
+                                                    DisplayIndex="2" Width="35"
                                                     Binding="{Binding Open}" />
                             <DataGridTextColumn Header="Opened" Width="110" IsReadOnly="True"  
+                                                DisplayIndex="3"
                                                 Binding="{Binding DateOpened, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"
                                                 SortDirection="Descending"/>
-                            <DataGridTextColumn Header="Closed" Width="110" IsReadOnly="True"  Binding="{Binding DateClosed, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
+                            <DataGridTextColumn Header="Closed" Width="110" IsReadOnly="True" 
+                                                DisplayIndex="4"
+                                                Binding="{Binding DateClosed, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
                             <DataGridTextColumn Header="Length" IsReadOnly="True" 
+                                                DisplayIndex="5" Width="95"
                                                 Binding="{Binding Length, Converter={StaticResource TimeSpanToStringConverter}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                DisplayIndex="6" Width="75"
                                                 Header="% Ret." Binding="{Binding ResultPct, StringFormat={}{0:p2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                DisplayIndex="7" Width="75"
                                                 Header="$ Ret." Binding="{Binding ResultDollars, StringFormat={}{0:c2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                DisplayIndex="8" Width="75"
                                                 Header="Commissions" Binding="{Binding Commissions, StringFormat={}{0:c2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                DisplayIndex="9" Width="75"
                                                 Header="Capital Long" Binding="{Binding CapitalLong, StringFormat={}{0:c2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                DisplayIndex="10" Width="75"
                                                 Header="Capital Short" Binding="{Binding CapitalShort, StringFormat={}{0:c2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                DisplayIndex="11" Width="75"
                                                 Header="Total Capital" Binding="{Binding CapitalTotal, StringFormat={}{0:c2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                DisplayIndex="12" Width="75"
                                                 Header="Net Capital" Binding="{Binding CapitalNet, StringFormat={}{0:c2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                DisplayIndex="13" Width="75"
                                                 Header="Unr. $ Ret." Binding="{Binding UnrealizedResultDollars, StringFormat={}{0:c2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                DisplayIndex="14" Width="75"
                                                 Header="Unr. % Ret." Binding="{Binding UnrealizedResultPct, StringFormat={}{0:p2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                DisplayIndex="15" Width="75"
                                                 Header="$ Ret. Long" Binding="{Binding ResultDollarsLong, StringFormat={}{0:c2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                DisplayIndex="16" Width="75"
                                                 Header="$ Ret. Short" Binding="{Binding ResultDollarsShort, StringFormat={}{0:c2}}"/>
 
                             <DataGridTextColumn Header="Tags" 
                                                 filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True" 
+                                                DisplayIndex="17" Width="345"
                                                 Binding="{Binding TagString}"
                                                  />
                         </DataGrid.Columns>
@@ -808,6 +863,7 @@
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Trade"
+                                                    DisplayIndex="0" Width="200"
                                                 filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -820,33 +876,56 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Symbol" Binding="{Binding Instrument.Symbol}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Symbol" 
+                                                DisplayIndex="1" Width="75"
+                                                Binding="{Binding Instrument.Symbol}" IsReadOnly="True" />
                             <DataGridComboBoxColumn Header="Type" 
+                                                    DisplayIndex="2" Width="75"
                                                     filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="Instrument.AssetCategory"
                                                     ItemsSource="{Binding Source={StaticResource AssetClasses}}"
                                                     SelectedItemBinding="{Binding Instrument.AssetCategory}"
                                                     IsReadOnly="True"
                                                     ElementStyle="{StaticResource AssetClassComboBox}" />
-                            <DataGridTextColumn Header="B/S" Width="65" Binding="{Binding BuySell}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Date" Width="65" SortDirection="Descending"
+                            <DataGridTextColumn Header="B/S" DisplayIndex="3" Width="65" Binding="{Binding BuySell}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Date" DisplayIndex="4" Width="65" SortDirection="Descending"
                                                 Binding="{Binding TradeDate, StringFormat={}{0:yyyy-MM-dd}}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Time" Width="65" Binding="{Binding TradeTime}" IsReadOnly="True"
+                            <DataGridTextColumn Header="Time" DisplayIndex="5" Width="65" Binding="{Binding TradeTime}" IsReadOnly="True"
                                                 filterLibrary:DataGridColumnExtensions.DoNotGenerateFilterControl="True"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Quant" Binding="{Binding Quantity}" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Price" Binding="{Binding Price, StringFormat={}{0:0.00###}}" IsReadOnly="True" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="FX Rate" Binding="{Binding FXRateToBase, StringFormat={}{0:0.#####}}" IsReadOnly="True" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Commission" Binding="{Binding CommissionInBase, StringFormat={}{0:c2}}"  />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Mult" Binding="{Binding Multiplier}" IsReadOnly="True" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Net Cash" Binding="{Binding NetCash, StringFormat={}{0:c2}}" />
-                            <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" IsReadOnly="True" Width="40" />
-                            <DataGridTextColumn Header="Order Type" Binding="{Binding OrderType}" Width="40" IsReadOnly="True" />
-                            <DataGridCheckBoxColumn Header="Real" Width="35" Binding="{Binding IsReal}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Currency" Binding="{Binding Currency.Name}" Width="55" IsReadOnly="True"  />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="FIFO PnL" Binding="{Binding FIFORealizedPnL, StringFormat={}{0:c2}}"  />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="MTM PnL" Binding="{Binding MTMPnL, StringFormat={}{0:c2}}"  />
-                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" Width="50"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Ref. Price" Binding="{Binding ReferencePrice,StringFormat={}{0:0.00###}}" />
-                            <DataGridTemplateColumn Header="Ref. Time" >
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="6" Width="75"
+                                                Header="Quant" Binding="{Binding Quantity}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="7" Width="75"
+                                                Header="Price" Binding="{Binding Price, StringFormat={}{0:0.00###}}" IsReadOnly="True" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="8" Width="75"
+                                                Header="FX Rate" Binding="{Binding FXRateToBase, StringFormat={}{0:0.#####}}" IsReadOnly="True" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="9" Width="75"
+                                                Header="Commission" Binding="{Binding CommissionInBase, StringFormat={}{0:c2}}"  />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="10" Width="75"
+                                                Header="Mult" Binding="{Binding Multiplier}" IsReadOnly="True" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="11" Width="75"
+                                                Header="Net Cash" Binding="{Binding NetCash, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn Header="Notes" 
+                                                DisplayIndex="12"
+                                                Binding="{Binding Notes}" IsReadOnly="True" Width="40" />
+                            <DataGridTextColumn Header="Order Type" DisplayIndex="13" Binding="{Binding OrderType}" Width="40" IsReadOnly="True" />
+                            <DataGridCheckBoxColumn Header="Real" DisplayIndex="14" Width="35" Binding="{Binding IsReal}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Currency" DisplayIndex="15" Binding="{Binding Currency.Name}" Width="55" IsReadOnly="True"  />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="16" Width="75"
+                                                Header="FIFO PnL" Binding="{Binding FIFORealizedPnL, StringFormat={}{0:c2}}"  />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="17" Width="75"
+                                                Header="MTM PnL" Binding="{Binding MTMPnL, StringFormat={}{0:c2}}"  />
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" DisplayIndex="18" Width="50"/>
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                DisplayIndex="19" Width="75"
+                                                Header="Ref. Price" Binding="{Binding ReferencePrice,StringFormat={}{0:0.00###}}" />
+                            <DataGridTemplateColumn Header="Ref. Time" DisplayIndex="20" Width="135" >
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding ReferenceTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
@@ -939,6 +1018,7 @@
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Trade"
+                                                    DisplayIndex="0" Width="200"
                                                 filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -951,26 +1031,31 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Symbol" IsReadOnly="True" Binding="{Binding Instrument.Symbol}" />
+                            <DataGridTextColumn Header="Symbol" DisplayIndex="1" Width="75" IsReadOnly="True" Binding="{Binding Instrument.Symbol}" />
                             <DataGridTextColumn Header="Amount" IsReadOnly="True" 
+                                                DisplayIndex="2" Width="85"
                                                 ElementStyle="{StaticResource CellRightAlign}"
                                                 Binding="{Binding Amount, StringFormat=c2}" />
                             <DataGridTextColumn Header="Amount in USD" IsReadOnly="True" 
+                                                DisplayIndex="3" Width="85"
                                                 ElementStyle="{StaticResource CellRightAlign}"
                                                 Binding="{Binding AmountInBase, StringFormat=c2}" />
                             <DataGridTextColumn Header="Currency" IsReadOnly="True" 
+                                                DisplayIndex="4" Width="75"
                                                 Binding="{Binding Currency.Name}" />
                             <DataGridComboBoxColumn Header="Type" 
+                                                    DisplayIndex="5" Width="75"
                                                     filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="Instrument.AssetCategory"
                                                     ItemsSource="{Binding Source={StaticResource AssetClasses}}"
                                                     SelectedItemBinding="{Binding Instrument.AssetCategory}"
                                                     IsReadOnly="True"
                                                     ElementStyle="{StaticResource AssetClassComboBox}" />
                             <DataGridTextColumn Header="Date" SortDirection="Descending" IsReadOnly="True"
+                                                DisplayIndex="6" Width="135"
                                                 Binding="{Binding TransactionDate, StringFormat=yyyy-MM-dd}" />
-                            <DataGridTextColumn Header="Transaction Type" Binding="{Binding Type}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" Width="50"/>
+                            <DataGridTextColumn Header="Transaction Type" Binding="{Binding Type}" DisplayIndex="7" Width="155" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Description" Binding="{Binding Description}" DisplayIndex="8" Width="325" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" DisplayIndex="9" IsReadOnly="True" Width="50"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -1018,6 +1103,7 @@
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Trade"
+                                                    DisplayIndex="0" Width="200"
                                                 filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -1030,16 +1116,19 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Currency" Binding="{Binding FXCurrency.Name}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Description" Binding="{Binding Path=Description}" IsReadOnly="True"
+                            <DataGridTextColumn Header="Currency" DisplayIndex="1" Width="75" Binding="{Binding FXCurrency.Name}" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Description" DisplayIndex="2" Width="300" Binding="{Binding Path=Description}" IsReadOnly="True"
                                             filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True"/>
                             <DataGridTextColumn Header="Date" IsReadOnly="True"
+                                                DisplayIndex="3" Width="135"
                                                 Binding="{Binding Path=DateTime,StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" SortDirection="Descending" />
                             <DataGridTextColumn Header="Quantity" IsReadOnly="True"
+                                                DisplayIndex="4" Width="75"
                                                 ElementStyle="{StaticResource CellRightAlign}" Binding="{Binding Quantity,StringFormat={}{0:0.#####}}" />
                             <DataGridTextColumn Header="Cost" IsReadOnly="True"
+                                                DisplayIndex="5" Width="75"
                                                 ElementStyle="{StaticResource CellRightAlign}" Binding="{Binding Path=Cost,StringFormat={}{0:c2}}" />
-                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" Width="50"/>
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" DisplayIndex="6" Width="50"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -1062,8 +1151,8 @@
                                         CommandParameter="{Binding ElementName=TagsGrid, Path=SelectedItems}" />
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}" IsReadOnly="True"  />
-                            <DataGridTextColumn Header="Name" Binding="{Binding Path=Name}" SortDirection="Ascending" IsReadOnly="False" />
+                            <DataGridTextColumn Header="ID" DisplayIndex="0" Width="40" Binding="{Binding Path=ID}" IsReadOnly="True"  />
+                            <DataGridTextColumn Header="Name" DisplayIndex="1" Width="200" Binding="{Binding Path=Name}" SortDirection="Ascending" IsReadOnly="False" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
