@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Deployment.Application;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,6 +16,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using System.Xml.Serialization;
 using EntityModel;
 using MahApps.Metro.Controls;
 using NLog;
@@ -34,7 +36,7 @@ namespace QPAS
         public IDataSourcer Datasourcer;
 
         public TradesRepository TradesRepository;
-
+        private Logger _logger = LogManager.GetCurrentClassLogger();
         public MainViewModel ViewModel { get; set; }
 
         /// <summary>
@@ -115,6 +117,9 @@ namespace QPAS
 
             //Create the load statement menus using the loaded plugins
             PopulateStatementMenus();
+
+            //Restore column ordering, widths, and sorting
+            LoadDataGridLayouts();
 
             //A hack to force the heavy stuff to load, 
             //providing snappier navigation at the expense of longer startup time
@@ -377,6 +382,7 @@ namespace QPAS
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            SaveDataGridLayouts();
             Properties.Settings.Default.Save();
             Dispose();
         }
@@ -1065,6 +1071,64 @@ namespace QPAS
                 });
 
                 ordersContextMenuNewTradeTextBox.Text = "";
+            }
+        }
+
+        private Dictionary<string, DataGrid> GetDataGrids()
+        {
+            return new Dictionary<string, DataGrid>
+            {
+                { "TradesGrid", this.TradesGrid },
+                { "OpenPositionsGrid", this.OpenPositionsGrid},
+                { "InstrumentsGrid", this.InstrumentsGrid },
+                { "StrategiesGrid", this.StrategiesGrid },
+                { "OrdersGrid", this.OrdersGrid },
+                { "CashTransactionsGrid", this.CashTransactionsGrid },
+                { "FXTransactionsGrid", this.FXTransactionsGrid },
+                { "TagsGrid", this.TagsGrid }
+            };
+        }
+
+        private void SaveDataGridLayouts()
+        {
+            Dictionary<string, DataGrid> grids = GetDataGrids();
+            var settings = 
+                grids
+                .Select(x => new SerializableKvp<string, string>(x.Key, x.Value.SerializeLayout()))
+                .ToList();
+
+            var serializer = new XmlSerializer(typeof(List<SerializableKvp<string, string>>));
+            using (var sw = new StringWriter())
+            {
+                serializer.Serialize(sw, settings);
+                Properties.Settings.Default.dataGridLayout = sw.ToString();
+            }
+        }
+
+        private void LoadDataGridLayouts()
+        {
+            if (String.IsNullOrEmpty(Properties.Settings.Default.dataGridLayout)) return;
+
+            try
+            {
+                Dictionary<string, DataGrid> grids = GetDataGrids();
+                Dictionary<string, string> settings;
+                var serializer = new XmlSerializer(typeof(List<SerializableKvp<string, string>>));
+                using (var sw = new StringReader(Properties.Settings.Default.dataGridLayout))
+                {
+                    settings = ((List<SerializableKvp<string, string>>)serializer.Deserialize(sw)).ToDictionary(x => x.Key, x => x.Value);
+                }
+
+                foreach(var kvp in grids)
+                {
+                    if (!settings.ContainsKey(kvp.Key)) continue;
+
+                    kvp.Value.DeserializeLayout(settings[kvp.Key]);
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.Log(LogLevel.Error, "Could not load datagrid layout. Exception: " + ex);
             }
         }
     }
