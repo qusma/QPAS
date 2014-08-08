@@ -35,7 +35,7 @@
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <ApplicationRevision>1</ApplicationRevision>
-    <ApplicationVersion>0.3.2.%2a</ApplicationVersion>
+    <ApplicationVersion>0.3.4.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -218,8 +218,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Analysis\MultiDimensionalScaling.cs" />
+    <Compile Include="ColumnOptions.cs" />
     <Compile Include="Interfaces\ICheckListItem.cs" />
     <Compile Include="Reporting\ExportOptions.cs" />
+    <Compile Include="Serialization\SerializableKvp.cs" />
     <Compile Include="TradingSimulation\AllocatedCapital.cs" />
     <Compile Include="AreaPoint.cs" />
     <Compile Include="BenchmarkBuilder.cs" />
