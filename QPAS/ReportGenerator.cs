@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using EntityModel;
@@ -42,17 +43,22 @@ namespace QPAS
         /// </summary>
         private Dictionary<string, PortfolioTracker> _strategyPfolioTrackers;
 
-        //Equity Curves
+        //Benchmark
         private EquityCurve _benchmarkEC;
 
         private Dictionary<DateTime, double> _benchmarkSeries;
 
         private List<double> _benchmarkReturns;
 
+        //Backtest
+        private EquityCurve _backtestEC;
+
+
         private DateTime _minDate;
         private DateTime _maxDate;
 
         private ProgressDialogController _progressDialog;
+        private ReportSettings _settings;
 
         public void Dispose()
         {
@@ -153,6 +159,7 @@ namespace QPAS
         /// <param name="progressDialog"></param>
         public filterReportDS TradeStats(List<int> tradeIDs, ReportSettings settings, IDataSourcer datasourcer, ProgressDialogController progressDialog = null)
         {
+            _settings = settings;
             _progressDialog = progressDialog;
             ds = new filterReportDS();
 
@@ -203,6 +210,9 @@ namespace QPAS
             //Grab FX data
             var fxData = AcquireFXData();
 
+            //Grab backtest data
+            AcquireBacktestData(datasourcer);
+
             //also get the benchmark values for the period
             if (settings.Benchmark != null)
             {
@@ -210,14 +220,14 @@ namespace QPAS
             }
 
             //start up the portfolio trackers
-            _totalPortfolioTracker = new PortfolioTracker(data, fxData, _trades, "Total Pfolio");
+            _totalPortfolioTracker = new PortfolioTracker(data, fxData, _trades, "Total Pfolio", _datesInPeriod.First());
 
             //tracker per-strategy
             var distinctStrats = _trades.Select(x => x.Strategy).Distinct().ToList();
             _strategyPfolioTrackers = distinctStrats
                 .ToDictionary(
                     x => x.Name,
-                    x => new PortfolioTracker(data, fxData, _trades.Where(t => t.StrategyID == x.ID).ToList(), x.Name));
+                    x => new PortfolioTracker(data, fxData, _trades.Where(t => t.StrategyID == x.ID).ToList(), x.Name, _datesInPeriod.First()));
 
 
             //then we do the calcs
@@ -289,6 +299,33 @@ namespace QPAS
             Context.Dispose();   
 
             return ds;
+        }
+
+        private void AcquireBacktestData(IDataSourcer datasourcer)
+        {
+            if(_settings.BacktestSource == BacktestSource.None)
+            {
+                return;
+            }
+            else if (_settings.BacktestSource == BacktestSource.External && _settings.Backtest != null && _settings.Backtest.ID.HasValue)
+            {
+                var data = datasourcer.ExternalDataSource.GetData(_settings.Backtest.ID.Value, new DateTime(1950, 1, 1), DateTime.Now, BarSize.OneDay);
+                if (data == null || data.Count == 0)
+                {
+                    _logger.Log(LogLevel.Error, "Could not retrieve backtest data.");
+                    return;
+                }
+
+                _backtestEC = new EquityCurve(100, data[0].Date.ToDateTime());
+                for (int i = 1; i < data.Count; i++)
+                {
+                    _backtestEC.AddReturn((double) (data[i].Close / data[i - 1].Close- 1), data[i].Date.ToDateTime());
+                }
+            }
+            else if (_settings.BacktestSource == BacktestSource.File && _settings.BacktestData != null)
+            {
+                _backtestEC = _settings.BacktestData;
+            }
         }
 
         private Dictionary<int, TimeSeries> AcquireFXData()
@@ -447,7 +484,7 @@ namespace QPAS
             DoPLByTag();
 
             //Monte Carlo
-            DoMonteCarlo(settings);
+            DoMonteCarlo();
 
             //Value at Risk
             DoValueAtRisk(settings);
@@ -460,6 +497,11 @@ namespace QPAS
 
             //acf and pacf
             DoAcfPacf(settings);
+
+            //Backtest stuff
+            DoBacktestEquityCurves();
+            DoBacktestStats();
+            DoBacktestMonteCarlo();
         }
 
         private void DoAcfPacf(ReportSettings settings)
@@ -611,6 +653,133 @@ namespace QPAS
             catch(Exception ex)
             {
                 _logger.Log(LogLevel.Error, string.Format("Error during mds: {0}", ex.Message));
+            }
+        }
+
+        private void DoBacktestStats()
+        {
+            if (_backtestEC == null || _backtestEC.Dates.Count <= 1)
+            {
+                return;
+            }
+
+            EquityCurve selectedData =
+                _settings.BacktestComparisonReturnType == ReturnType.ROAC
+                ? _totalPortfolioTracker.RoacEquityCurve
+                : _totalPortfolioTracker.RotcEquityCurve;
+
+            DateTime liveTradingStartDate = selectedData.Dates.First().Value.Date;
+
+            EquityCurve backtestBefore = new EquityCurve(100, _backtestEC.Dates.First().Value);
+            EquityCurve backtestDuring = null;
+
+            //Here we divide the backtest data into two sub-samples
+            //One before the live trading starts, and the other contemporaneously
+            for (int i = 1; i < _backtestEC.Dates.Count; i++)
+            {
+                if(_backtestEC.Dates[i].Value.Date >= liveTradingStartDate)
+                {
+                    if(backtestDuring == null)
+                    {
+                        backtestDuring = new EquityCurve(100, _backtestEC.Dates[i].Value);
+                    }
+                    backtestDuring.AddReturn(_backtestEC.Returns[i], _backtestEC.Dates[i].Value);
+                }
+                else
+                {
+                    backtestBefore.AddReturn(_backtestEC.Returns[i], _backtestEC.Dates[i].Value);
+                }
+            }
+
+            int backtestDays = (int) (backtestBefore.Dates.Last().Value.Date - backtestBefore.Dates.First().Value.Date).TotalDays;
+            int backtestLiveDays = (int)(backtestDuring.Dates.Last().Value.Date - backtestDuring.Dates.First().Value.Date).TotalDays;
+            int liveDays = (int)(selectedData.Dates.Last().Value.Date - selectedData.Dates.First().Value.Date).TotalDays;
+
+            try
+            {
+                Dictionary<string, string> backtestStats = PerformanceMeasurement.EquityCurveStats(backtestBefore, backtestDays);
+                Dictionary<string, string> resultsStats = PerformanceMeasurement.EquityCurveStats(selectedData, liveDays);
+                Dictionary<string, string> backtestLiveStats = PerformanceMeasurement.EquityCurveStats(backtestDuring, backtestLiveDays);
+
+
+                foreach (var kvp in resultsStats)
+                {
+                    var dr = ds.BacktestStats.NewBacktestStatsRow();
+                    dr.Stat = kvp.Key;
+                    dr.Backtest = backtestStats[kvp.Key];
+                    dr.BacktestDuringLive = backtestLiveStats[kvp.Key];
+                    dr.Result = kvp.Value;
+                    ds.BacktestStats.AddBacktestStatsRow(dr);
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.Log(LogLevel.Error, ex);
+            }
+        }
+
+        private void DoBacktestEquityCurves()
+        {
+            if(_backtestEC == null || _backtestEC.Dates.Count <= 1)
+            {
+                return;
+            }
+
+            EquityCurve selectedData =
+                _settings.BacktestComparisonReturnType == ReturnType.ROAC
+                ? _totalPortfolioTracker.RoacEquityCurve
+                : _totalPortfolioTracker.RotcEquityCurve;
+
+            int resultsCounter = -1;
+            //make sure the backtest data doesn't start after the live returns
+            if(selectedData.Dates[0].HasValue && selectedData.Dates[0].Value.Date < _backtestEC.Dates[0].Value.Date)
+            {
+                _logger.Log(LogLevel.Warn, "Backtest data starts after live data. Backtesting analysis not available.");
+                return;
+            }
+
+
+            double mult = 1;
+            double cumulativeDiff = 0;
+            for (int i = 0; i < _backtestEC.Dates.Count; i++)
+            {
+                var dr = ds.BacktestEquityCurves.NewBacktestEquityCurvesRow();
+                var dateTime = _backtestEC.Dates[i].Value;
+
+                if (dateTime == null) continue;
+                
+                //generate cumulative difference in returns
+                if(resultsCounter < 0 && dateTime.Date >= selectedData.Dates[0].Value.Date)
+                {
+                    resultsCounter = 0;
+                    mult = _backtestEC.Equity[i] / selectedData.Equity[resultsCounter];
+                }
+
+                if(resultsCounter >= 0)
+                {
+                    cumulativeDiff += selectedData.Returns[resultsCounter] - _backtestEC.Returns[i];
+                    dr.CumulativeDifference = cumulativeDiff;
+                    
+                    dr.Result = selectedData.Equity[resultsCounter] * mult;
+                    resultsCounter++;
+                }
+                else
+                {
+                    dr.Result = double.NaN;
+                    dr.CumulativeDifference = double.NaN;
+                }
+                
+
+                dr.Date = dateTime.Date;
+                dr.Backtest = _backtestEC.Equity[i];
+                ds.BacktestEquityCurves.AddBacktestEquityCurvesRow(dr);
+
+                //The live results data might be shorter than the backtest data
+                //in which case we just get out of the loop
+                if (resultsCounter >= selectedData.Equity.Count)
+                {
+                    break;
+                }
             }
         }
 
@@ -937,17 +1106,92 @@ namespace QPAS
             }
         }
 
-        private void DoMonteCarlo(ReportSettings settings)
+        private void DoBacktestMonteCarlo()
+        {
+            if (_backtestEC == null || _backtestEC.Dates.Count <= 1) return;
+
+            List<List<double>> equityCurves;
+            List<List<double>> drawdownCurves;
+
+            EquityCurve selectedData = 
+                _settings.BacktestComparisonReturnType == ReturnType.ROAC
+                    ? _totalPortfolioTracker.RoacEquityCurve
+                    : _totalPortfolioTracker.RotcEquityCurve;
+
+            DateTime liveResultsStartDate = selectedData.Dates.First().Value;
+            List<double> backtestReturns = new List<double>();
+            for (int i = 0; i < _backtestEC.Returns.Count; i++)
+            {
+                if(_backtestEC.Dates[i] >= liveResultsStartDate)
+                {
+                    break;
+                }
+                backtestReturns.Add(_backtestEC.Returns[i]);
+            }
+
+            if(backtestReturns.Count < 10)
+            {
+                _logger.Log(LogLevel.Info, "Not enough data for backtest MC.");
+                return;
+            }
+
+            int periods = selectedData.Dates.Count;
+
+            
+
+            MonteCarlo.Bootstrap(
+                periods,
+                10000,
+                5,
+                true,
+                backtestReturns,
+                out equityCurves,
+                out drawdownCurves);
+
+            double avgBacktestRet = 1 + backtestReturns.Average();
+
+            if (equityCurves.Count == 0) return;
+
+            double avgEquity = 100;
+
+            //do the equity curves...
+            for (int i = 0; i < periods; i++)
+            {
+                int i1 = i;
+                var dr = ds.BacktestMonteCarlo.NewBacktestMonteCarloRow();
+                var equityCurveValues = equityCurves.Select(x => x[i1]).ToList();
+                dr.Period = i;
+
+                equityCurveValues = equityCurveValues.OrderBy(x => x).ToList();
+
+                dr._99PctileUpper = equityCurveValues[(int)Math.Round(.995 * equityCurveValues.Count())];
+                dr._99PctileLower = equityCurveValues[(int)Math.Round(.005 * equityCurveValues.Count())];
+                dr._95PctileUpper = equityCurveValues[(int)Math.Round(.975 * equityCurveValues.Count())];
+                dr._95PctileLower = equityCurveValues[(int)Math.Round(.025 * equityCurveValues.Count())];
+                dr._90PctileUpper = equityCurveValues[(int)Math.Round(.95 * equityCurveValues.Count())];
+                dr._90PctileLower = equityCurveValues[(int)Math.Round(.05 * equityCurveValues.Count())];
+                dr._50PctileUpper = equityCurveValues[(int)Math.Round(.75 * equityCurveValues.Count())];
+                dr._50PctileLower = equityCurveValues[(int)Math.Round(.25 * equityCurveValues.Count())];
+
+                dr.Average = avgEquity;
+                avgEquity *= avgBacktestRet;
+                dr.Result = selectedData.Equity[i] * 100;
+
+                ds.BacktestMonteCarlo.AddBacktestMonteCarloRow(dr);
+            }
+        }
+
+        private void DoMonteCarlo()
         {
             List<List<double>> equityCurves;
             List<List<double>> drawdownCurves;
 
             MonteCarlo.Bootstrap(
-                settings.MCPeriods,
-                settings.MCRuns,
-                settings.MCClusterSize,
-                settings.MCWithReplacement,
-                settings.MCReturnType == ReturnType.ROAC 
+                _settings.MCPeriods,
+                _settings.MCRuns,
+                _settings.MCClusterSize,
+                _settings.MCWithReplacement,
+                _settings.MCReturnType == ReturnType.ROAC 
                     ? _totalPortfolioTracker.RoacEquityCurve.Returns
                     : _totalPortfolioTracker.RotcEquityCurve.Returns,
                 out equityCurves,
@@ -956,7 +1200,7 @@ namespace QPAS
             if (equityCurves.Count == 0) return;
 
             //do the equity curves...
-            for (int i = 0; i < settings.MCPeriods; i++)
+            for (int i = 0; i < _settings.MCPeriods; i++)
             {
                 int i1 = i;
                 var mceDR = ds.MCEquity.NewMCEquityRow();
@@ -993,7 +1237,7 @@ namespace QPAS
                 totalCount += pointCount;
                 mcddDR.ddLevel = i;
                 mcddDR.point = pointCount;
-                mcddDR.cumulative = (double)totalCount / settings.MCRuns;
+                mcddDR.cumulative = (double)totalCount / _settings.MCRuns;
                 ds.MCDrawdowns.Rows.Add(mcddDR);
             }
 
@@ -1005,7 +1249,7 @@ namespace QPAS
             for (int i = 0; i < equityCurves.Count; i++)
             {
                 double sharpe, mar, kRatio;
-                PerformanceMeasurement.GetRatios(equityCurves[i], drawdownCurves[i], (int)(settings.MCPeriods * (365.0 / 252)), out sharpe, out mar, out kRatio);
+                PerformanceMeasurement.GetRatios(equityCurves[i], drawdownCurves[i], (int)(_settings.MCPeriods * (365.0 / 252)), out sharpe, out mar, out kRatio);
                 sharpes.Add(sharpe);
                 mars.Add(mar);
                 kRatios.Add(kRatio);
@@ -1049,7 +1293,7 @@ namespace QPAS
                     double dailyRf = Properties.Settings.Default.assumedInterestRate / 252;
 
                     MathUtils.MLR(benchmarkingReturns.GetRange(i, rollingPeriod).Select(x => x - dailyRf).ToList(),
-                                    new List<List<double>> { _benchmarkEC.Returns.GetRange(i, rollingPeriod).Select(x => x - dailyRf).ToList() },
+                                    new List<IEnumerable<double>> { _benchmarkEC.Returns.GetRange(i, rollingPeriod).Select(x => x - dailyRf).ToList() },
                                     out b,
                                     out rsquared);
                     double alpha = b[0];
@@ -1075,7 +1319,7 @@ namespace QPAS
             double dailyRf = Properties.Settings.Default.assumedInterestRate / 252;
 
             MathUtils.MLR(benchmarkingReturns.Select(x => x - dailyRf).ToList(),
-                        new List<List<double>> { _benchmarkReturns.Select(x => x - 1 - dailyRf).ToList() },
+                        new List<IEnumerable<double>> { _benchmarkReturns.Select(x => x - 1 - dailyRf).ToList() },
                         out b,
                         out rsq);
 
