@@ -74,7 +74,7 @@ namespace QPAS
         private double _maxEquity;
         private DateTime _drawdownStart;
 
-        public EquityCurve(double startingValue = 100)
+        public EquityCurve(double startingValue, DateTime? firstDate)
         {
             _maxEquity = startingValue;
             Equity = new List<double> { startingValue };
@@ -82,7 +82,7 @@ namespace QPAS
             DrawdownAmt = new List<double> { 0 };
             Returns = new List<double> { 0 };
             DrawdownLengths = new List<TimeSpan>();
-            Dates = new List<DateTime?>();
+            Dates = new List<DateTime?> { firstDate };
             Changes = new List<double>();
         }
 

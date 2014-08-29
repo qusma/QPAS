@@ -57,7 +57,7 @@ namespace QPAS
 
         private const int NullInstrumentId = -99;
 
-        public PortfolioTracker(Dictionary<int, TimeSeries> data, Dictionary<int, TimeSeries> fxData, List<Trade> trades, string name)
+        public PortfolioTracker(Dictionary<int, TimeSeries> data, Dictionary<int, TimeSeries> fxData, List<Trade> trades, string name, DateTime firstDate)
         {
             _data = data;
             _fxData = fxData;
@@ -67,12 +67,12 @@ namespace QPAS
 
             TradeTrackers = trades.ToDictionary(t => t.ID, t => new TradeTracker(t));
 
-            ProfitLossEquityCurve = new EquityCurve(0);
-            ProfitLossLongEquityCurve = new EquityCurve(0);
-            ProfitLossShortEquityCurve = new EquityCurve(0);
+            ProfitLossEquityCurve = new EquityCurve(0, firstDate);
+            ProfitLossLongEquityCurve = new EquityCurve(0, firstDate);
+            ProfitLossShortEquityCurve = new EquityCurve(0, firstDate);
 
-            RoacEquityCurve = new EquityCurve(1);
-            RotcEquityCurve = new EquityCurve(1);
+            RoacEquityCurve = new EquityCurve(1, firstDate);
+            RotcEquityCurve = new EquityCurve(1, firstDate);
 
             Capital = new AllocatedCapital();
 
