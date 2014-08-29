@@ -130,6 +130,8 @@ namespace QPAS
 
         public static void AddCandlesticks(List<OHLCBar> data, PlotModel model, int daysToShow = 120)
         {
+            if (data == null || data.Count == 0) return;
+
             var priceSeries = (CandleStickSeries)model.Series[0];
             priceSeries.Items.Clear();
 
@@ -148,8 +150,7 @@ namespace QPAS
 
             //Y axis min/max
             model.Axes[0].Zoom((double)minPrice * 0.98, (double)maxPrice * 1.02);
-
-            if (data.Count == 0) return;
+            
 
             //time axis min/max
             model.Axes[1].Zoom(
