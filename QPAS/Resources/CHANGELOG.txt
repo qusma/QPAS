@@ -1,3 +1,8 @@
+0.3.5
+------------------------
+* The performance report now provides charts and stats to compare backtests to live results. You can import backtest data from an external data source or from a .csv file. See the docs for more details: http://qusma.com/qpasdocs/index.php/Performance_Report#Backtest_Comparison
+* Updated QDMS client to latest version.
+
 0.3.4
 ------------------------
 * Fixed a bug that caused orders to be cloned incompletely. This in turn fixes the issue of trades becoming unclosable if they contain virtual orders.
