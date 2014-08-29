@@ -63,5 +63,10 @@ namespace QPAS
         /// Retrieve a list of sessions that describe the regular trading hours for this instrument.
         /// </summary>
         List<InstrumentSession> GetSessions(EntityModel.Instrument instrument);
+
+        /// <summary>
+        /// Gets a list of available instruments that represent backtest results.
+        /// </summary>
+        List<Instrument> GetBacktestSeries();
     }
 }

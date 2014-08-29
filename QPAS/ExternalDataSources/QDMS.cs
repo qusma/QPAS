@@ -249,6 +249,15 @@ namespace QPAS.ExternalDataSources
             return qdmsInstrument.Sessions.ToList();
         }
 
+        /// <summary>
+        /// Gets a list of available instruments that represent backtest results.
+        /// </summary>
+        public List<Instrument> GetBacktestSeries()
+        {
+            RefreshInstrumentsList();
+            return _instrumentsList.Where(x => x.Type == InstrumentType.Backtest).ToList();
+        }
+
         private void _connectionTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             ConnectToDataServer();
