@@ -1131,5 +1131,18 @@ namespace QPAS
                 _logger.Log(LogLevel.Error, "Could not load datagrid layout. Exception: " + ex);
             }
         }
+
+        private void BacktestFileTextBox_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var window = new BacktestImportWindow();
+            window.ShowDialog();
+
+            if (!window.Canceled)
+            {
+                //quite ugly, but eh...
+                BacktestFileTextBox.Text = window.ViewModel.FilePath;
+                ViewModel.PerformanceReportPageViewModel.ReportSettings.BacktestData = window.ViewModel.EquityCurve;
+            }
+        }
     }
 }

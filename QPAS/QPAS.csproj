@@ -35,7 +35,7 @@
     <WebPage>publish.htm</WebPage>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <ApplicationRevision>1</ApplicationRevision>
-    <ApplicationVersion>0.3.4.%2a</ApplicationVersion>
+    <ApplicationVersion>0.3.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -80,9 +80,6 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="clrzmq">
-      <HintPath>..\packages\clrzmq.3.0.0-rc1\lib\net40\clrzmq.dll</HintPath>
-    </Reference>
     <Reference Include="DataGridFilterLibrary, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\DataGridFilter.1.0.3\lib\DataGridFilterLibrary.dll</HintPath>
@@ -101,8 +98,9 @@
     <Reference Include="LZ4">
       <HintPath>..\packages\lz4net.1.0.5.93\lib\net40-client\LZ4.dll</HintPath>
     </Reference>
-    <Reference Include="MahApps.Metro">
-      <HintPath>..\packages\MahApps.Metro.0.13.1.0\lib\net45\MahApps.Metro.dll</HintPath>
+    <Reference Include="MahApps.Metro, Version=0.14.0.0, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\MahApps.Metro.0.14.0.0\lib\net45\MahApps.Metro.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=3.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -118,6 +116,9 @@
     </Reference>
     <Reference Include="MySqlBackup">
       <HintPath>..\packages\MySqlBackup.NET.2.0.4\lib\net45\MySqlBackup.dll</HintPath>
+    </Reference>
+    <Reference Include="NetMQ">
+      <HintPath>..\packages\NetMQ.3.3.0.10\lib\net40\NetMQ.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=3.1.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -149,15 +150,19 @@
     </Reference>
     <Reference Include="QDMS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\QDMSClient.0.8.2-beta\lib\QDMS.dll</HintPath>
+      <HintPath>..\packages\QDMSClient.0.9.3-beta\lib\QDMS.dll</HintPath>
     </Reference>
     <Reference Include="QDMSClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\QDMSClient.0.8.2-beta\lib\QDMSClient.dll</HintPath>
+      <HintPath>..\packages\QDMSClient.0.9.3-beta\lib\QDMSClient.dll</HintPath>
     </Reference>
     <Reference Include="QLNet, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\QLNet.1.3.0.1\lib\net35\QLNet.dll</HintPath>
+    </Reference>
+    <Reference Include="QuickConverter, Version=0.9.7.0, Culture=neutral, PublicKeyToken=9c892aa7bc2af2cf, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\QuickConverter.0.9.7.0\lib\net40\QuickConverter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -170,7 +175,7 @@
     <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\MahApps.Metro.0.13.1.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
+      <HintPath>..\packages\MahApps.Metro.0.14.0.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -215,6 +220,12 @@
     </ApplicationDefinition>
     <Compile Include="Analysis\MultiDimensionalScaling.cs" />
     <Compile Include="ColumnOptions.cs" />
+    <Compile Include="DataSets\filterReportDS1.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>filterReportDS.xsd</DependentUpon>
+    </Compile>
+    <Compile Include="Enums\BacktestSource.cs" />
     <Compile Include="Interfaces\ICheckListItem.cs" />
     <Compile Include="Reporting\ExportOptions.cs" />
     <Compile Include="Serialization\SerializableKvp.cs" />
@@ -265,11 +276,6 @@
       <DependentUpon>filterReportDS.xsd</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="DataSets\filterReportDS.Designer.cs">
-      <DependentUpon>filterReportDS.xsd</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="DataSourcer.cs" />
     <Compile Include="Enums\FilterMethod.cs" />
     <Compile Include="Enums\ReturnType.cs" />
@@ -303,6 +309,7 @@
     <Compile Include="Utilities\MySQLBackup.cs" />
     <Compile Include="Utilities\SqlServerBackup.cs" />
     <Compile Include="Utilities\Utils.cs" />
+    <Compile Include="ViewModels\BacktestImportViewModel.cs" />
     <Compile Include="ViewModels\ExecutionReportViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MainViewSubModels\BenchmarksPageViewModel.cs" />
@@ -325,6 +332,9 @@
     </Compile>
     <Compile Include="Windows\AccountMigrationWindow.xaml.cs">
       <DependentUpon>AccountMigrationWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\BacktestImportWindow.xaml.cs">
+      <DependentUpon>BacktestImportWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\ChangelogWindow.xaml.cs">
       <DependentUpon>ChangelogWindow.xaml</DependentUpon>
@@ -352,6 +362,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\AccountMigrationWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\BacktestImportWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -437,8 +451,8 @@
     </None>
     <None Include="DataSets\filterReportDS.xsd">
       <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>filterReportDS.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>filterReportDS1.Designer.cs</LastGenOutput>
     </None>
     <None Include="DataSets\filterReportDS.xss">
       <DependentUpon>filterReportDS.xsd</DependentUpon>
