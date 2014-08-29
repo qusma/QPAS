@@ -130,6 +130,8 @@ namespace QPAS.DataSets {
         
         private BacktestStatsDataTable tableBacktestStats;
         
+        private BacktestMonteCarloDataTable tableBacktestMonteCarlo;
+        
         private global::System.Data.SchemaSerializationMode _schemaSerializationMode = global::System.Data.SchemaSerializationMode.IncludeSchema;
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -316,6 +318,9 @@ namespace QPAS.DataSets {
                 }
                 if ((ds.Tables["BacktestStats"] != null)) {
                     base.Tables.Add(new BacktestStatsDataTable(ds.Tables["BacktestStats"]));
+                }
+                if ((ds.Tables["BacktestMonteCarlo"] != null)) {
+                    base.Tables.Add(new BacktestMonteCarloDataTable(ds.Tables["BacktestMonteCarlo"]));
                 }
                 this.DataSetName = ds.DataSetName;
                 this.Prefix = ds.Prefix;
@@ -867,6 +872,16 @@ namespace QPAS.DataSets {
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+        [global::System.ComponentModel.Browsable(false)]
+        [global::System.ComponentModel.DesignerSerializationVisibility(global::System.ComponentModel.DesignerSerializationVisibility.Content)]
+        public BacktestMonteCarloDataTable BacktestMonteCarlo {
+            get {
+                return this.tableBacktestMonteCarlo;
+            }
+        }
+        
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         [global::System.ComponentModel.BrowsableAttribute(true)]
         [global::System.ComponentModel.DesignerSerializationVisibilityAttribute(global::System.ComponentModel.DesignerSerializationVisibility.Visible)]
         public override global::System.Data.SchemaSerializationMode SchemaSerializationMode {
@@ -1090,6 +1105,9 @@ namespace QPAS.DataSets {
                 }
                 if ((ds.Tables["BacktestStats"] != null)) {
                     base.Tables.Add(new BacktestStatsDataTable(ds.Tables["BacktestStats"]));
+                }
+                if ((ds.Tables["BacktestMonteCarlo"] != null)) {
+                    base.Tables.Add(new BacktestMonteCarloDataTable(ds.Tables["BacktestMonteCarlo"]));
                 }
                 this.DataSetName = ds.DataSetName;
                 this.Prefix = ds.Prefix;
@@ -1442,6 +1460,12 @@ namespace QPAS.DataSets {
                     this.tableBacktestStats.InitVars();
                 }
             }
+            this.tableBacktestMonteCarlo = ((BacktestMonteCarloDataTable)(base.Tables["BacktestMonteCarlo"]));
+            if ((initTable == true)) {
+                if ((this.tableBacktestMonteCarlo != null)) {
+                    this.tableBacktestMonteCarlo.InitVars();
+                }
+            }
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1558,6 +1582,8 @@ namespace QPAS.DataSets {
             base.Tables.Add(this.tableBacktestEquityCurves);
             this.tableBacktestStats = new BacktestStatsDataTable();
             base.Tables.Add(this.tableBacktestStats);
+            this.tableBacktestMonteCarlo = new BacktestMonteCarloDataTable();
+            base.Tables.Add(this.tableBacktestMonteCarlo);
         }
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1880,6 +1906,12 @@ namespace QPAS.DataSets {
         
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+        private bool ShouldSerializeBacktestMonteCarlo() {
+            return false;
+        }
+        
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         private void SchemaChanged(object sender, global::System.ComponentModel.CollectionChangeEventArgs e) {
             if ((e.Action == global::System.ComponentModel.CollectionChangeAction.Remove)) {
                 this.InitVars();
@@ -2091,6 +2123,9 @@ namespace QPAS.DataSets {
         
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
         public delegate void BacktestStatsRowChangeEventHandler(object sender, BacktestStatsRowChangeEvent e);
+        
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+        public delegate void BacktestMonteCarloRowChangeEventHandler(object sender, BacktestMonteCarloRowChangeEvent e);
         
         /// <summary>
         ///Represents the strongly named DataTable class.
@@ -18995,7 +19030,7 @@ namespace QPAS.DataSets {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public BacktestEquityCurvesRow AddBacktestEquityCurvesRow(System.DateTime Date, double Backtest, double Result, string CumulativeDifference) {
+            public BacktestEquityCurvesRow AddBacktestEquityCurvesRow(System.DateTime Date, double Backtest, double Result, double CumulativeDifference) {
                 BacktestEquityCurvesRow rowBacktestEquityCurvesRow = ((BacktestEquityCurvesRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Date,
@@ -19039,7 +19074,7 @@ namespace QPAS.DataSets {
                 base.Columns.Add(this.columnBacktest);
                 this.columnResult = new global::System.Data.DataColumn("Result", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnResult);
-                this.columnCumulativeDifference = new global::System.Data.DataColumn("CumulativeDifference", typeof(string), null, global::System.Data.MappingType.Element);
+                this.columnCumulativeDifference = new global::System.Data.DataColumn("CumulativeDifference", typeof(double), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnCumulativeDifference);
             }
             
@@ -19180,6 +19215,8 @@ namespace QPAS.DataSets {
             
             private global::System.Data.DataColumn columnResult;
             
+            private global::System.Data.DataColumn columnBacktestDuringLive;
+            
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public BacktestStatsDataTable() {
@@ -19239,6 +19276,14 @@ namespace QPAS.DataSets {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn BacktestDuringLiveColumn {
+                get {
+                    return this.columnBacktestDuringLive;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             [global::System.ComponentModel.Browsable(false)]
             public int Count {
                 get {
@@ -19274,12 +19319,13 @@ namespace QPAS.DataSets {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public BacktestStatsRow AddBacktestStatsRow(string Stat, string Backtest, string Result) {
+            public BacktestStatsRow AddBacktestStatsRow(string Stat, string Backtest, string Result, string BacktestDuringLive) {
                 BacktestStatsRow rowBacktestStatsRow = ((BacktestStatsRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Stat,
                         Backtest,
-                        Result};
+                        Result,
+                        BacktestDuringLive};
                 rowBacktestStatsRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowBacktestStatsRow);
                 return rowBacktestStatsRow;
@@ -19305,6 +19351,7 @@ namespace QPAS.DataSets {
                 this.columnStat = base.Columns["Stat"];
                 this.columnBacktest = base.Columns["Backtest"];
                 this.columnResult = base.Columns["Result"];
+                this.columnBacktestDuringLive = base.Columns["BacktestDuringLive"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -19316,6 +19363,8 @@ namespace QPAS.DataSets {
                 base.Columns.Add(this.columnBacktest);
                 this.columnResult = new global::System.Data.DataColumn("Result", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnResult);
+                this.columnBacktestDuringLive = new global::System.Data.DataColumn("BacktestDuringLive", typeof(string), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnBacktestDuringLive);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -19402,6 +19451,409 @@ namespace QPAS.DataSets {
                 global::System.Xml.Schema.XmlSchemaAttribute attribute2 = new global::System.Xml.Schema.XmlSchemaAttribute();
                 attribute2.Name = "tableTypeName";
                 attribute2.FixedValue = "BacktestStatsDataTable";
+                type.Attributes.Add(attribute2);
+                type.Particle = sequence;
+                global::System.Xml.Schema.XmlSchema dsSchema = ds.GetSchemaSerializable();
+                if (xs.Contains(dsSchema.TargetNamespace)) {
+                    global::System.IO.MemoryStream s1 = new global::System.IO.MemoryStream();
+                    global::System.IO.MemoryStream s2 = new global::System.IO.MemoryStream();
+                    try {
+                        global::System.Xml.Schema.XmlSchema schema = null;
+                        dsSchema.Write(s1);
+                        for (global::System.Collections.IEnumerator schemas = xs.Schemas(dsSchema.TargetNamespace).GetEnumerator(); schemas.MoveNext(); ) {
+                            schema = ((global::System.Xml.Schema.XmlSchema)(schemas.Current));
+                            s2.SetLength(0);
+                            schema.Write(s2);
+                            if ((s1.Length == s2.Length)) {
+                                s1.Position = 0;
+                                s2.Position = 0;
+                                for (; ((s1.Position != s1.Length) 
+                                            && (s1.ReadByte() == s2.ReadByte())); ) {
+                                    ;
+                                }
+                                if ((s1.Position == s1.Length)) {
+                                    return type;
+                                }
+                            }
+                        }
+                    }
+                    finally {
+                        if ((s1 != null)) {
+                            s1.Close();
+                        }
+                        if ((s2 != null)) {
+                            s2.Close();
+                        }
+                    }
+                }
+                xs.Add(dsSchema);
+                return type;
+            }
+        }
+        
+        /// <summary>
+        ///Represents the strongly named DataTable class.
+        ///</summary>
+        [global::System.Serializable()]
+        [global::System.Xml.Serialization.XmlSchemaProviderAttribute("GetTypedTableSchema")]
+        public partial class BacktestMonteCarloDataTable : global::System.Data.TypedTableBase<BacktestMonteCarloRow> {
+            
+            private global::System.Data.DataColumn columnPeriod;
+            
+            private global::System.Data.DataColumn column50PctileUpper;
+            
+            private global::System.Data.DataColumn column50PctileLower;
+            
+            private global::System.Data.DataColumn column90PctileUpper;
+            
+            private global::System.Data.DataColumn column90PctileLower;
+            
+            private global::System.Data.DataColumn column95PctileUpper;
+            
+            private global::System.Data.DataColumn column95PctileLower;
+            
+            private global::System.Data.DataColumn column99PctileUpper;
+            
+            private global::System.Data.DataColumn column99PctileLower;
+            
+            private global::System.Data.DataColumn columnAverage;
+            
+            private global::System.Data.DataColumn columnResult;
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public BacktestMonteCarloDataTable() {
+                this.TableName = "BacktestMonteCarlo";
+                this.BeginInit();
+                this.InitClass();
+                this.EndInit();
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            internal BacktestMonteCarloDataTable(global::System.Data.DataTable table) {
+                this.TableName = table.TableName;
+                if ((table.CaseSensitive != table.DataSet.CaseSensitive)) {
+                    this.CaseSensitive = table.CaseSensitive;
+                }
+                if ((table.Locale.ToString() != table.DataSet.Locale.ToString())) {
+                    this.Locale = table.Locale;
+                }
+                if ((table.Namespace != table.DataSet.Namespace)) {
+                    this.Namespace = table.Namespace;
+                }
+                this.Prefix = table.Prefix;
+                this.MinimumCapacity = table.MinimumCapacity;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            protected BacktestMonteCarloDataTable(global::System.Runtime.Serialization.SerializationInfo info, global::System.Runtime.Serialization.StreamingContext context) : 
+                    base(info, context) {
+                this.InitVars();
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn PeriodColumn {
+                get {
+                    return this.columnPeriod;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn _50PctileUpperColumn {
+                get {
+                    return this.column50PctileUpper;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn _50PctileLowerColumn {
+                get {
+                    return this.column50PctileLower;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn _90PctileUpperColumn {
+                get {
+                    return this.column90PctileUpper;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn _90PctileLowerColumn {
+                get {
+                    return this.column90PctileLower;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn _95PctileUpperColumn {
+                get {
+                    return this.column95PctileUpper;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn _95PctileLowerColumn {
+                get {
+                    return this.column95PctileLower;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn _99PctileUpperColumn {
+                get {
+                    return this.column99PctileUpper;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn _99PctileLowerColumn {
+                get {
+                    return this.column99PctileLower;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn AverageColumn {
+                get {
+                    return this.columnAverage;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataColumn ResultColumn {
+                get {
+                    return this.columnResult;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            [global::System.ComponentModel.Browsable(false)]
+            public int Count {
+                get {
+                    return this.Rows.Count;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public BacktestMonteCarloRow this[int index] {
+                get {
+                    return ((BacktestMonteCarloRow)(this.Rows[index]));
+                }
+            }
+            
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public event BacktestMonteCarloRowChangeEventHandler BacktestMonteCarloRowChanging;
+            
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public event BacktestMonteCarloRowChangeEventHandler BacktestMonteCarloRowChanged;
+            
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public event BacktestMonteCarloRowChangeEventHandler BacktestMonteCarloRowDeleting;
+            
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public event BacktestMonteCarloRowChangeEventHandler BacktestMonteCarloRowDeleted;
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void AddBacktestMonteCarloRow(BacktestMonteCarloRow row) {
+                this.Rows.Add(row);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public BacktestMonteCarloRow AddBacktestMonteCarloRow(int Period, double _50PctileUpper, double _50PctileLower, double _90PctileUpper, double _90PctileLower, double _95PctileUpper, double _95PctileLower, double _99PctileUpper, double _99PctileLower, double Average, double Result) {
+                BacktestMonteCarloRow rowBacktestMonteCarloRow = ((BacktestMonteCarloRow)(this.NewRow()));
+                object[] columnValuesArray = new object[] {
+                        Period,
+                        _50PctileUpper,
+                        _50PctileLower,
+                        _90PctileUpper,
+                        _90PctileLower,
+                        _95PctileUpper,
+                        _95PctileLower,
+                        _99PctileUpper,
+                        _99PctileLower,
+                        Average,
+                        Result};
+                rowBacktestMonteCarloRow.ItemArray = columnValuesArray;
+                this.Rows.Add(rowBacktestMonteCarloRow);
+                return rowBacktestMonteCarloRow;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public override global::System.Data.DataTable Clone() {
+                BacktestMonteCarloDataTable cln = ((BacktestMonteCarloDataTable)(base.Clone()));
+                cln.InitVars();
+                return cln;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            protected override global::System.Data.DataTable CreateInstance() {
+                return new BacktestMonteCarloDataTable();
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            internal void InitVars() {
+                this.columnPeriod = base.Columns["Period"];
+                this.column50PctileUpper = base.Columns["50PctileUpper"];
+                this.column50PctileLower = base.Columns["50PctileLower"];
+                this.column90PctileUpper = base.Columns["90PctileUpper"];
+                this.column90PctileLower = base.Columns["90PctileLower"];
+                this.column95PctileUpper = base.Columns["95PctileUpper"];
+                this.column95PctileLower = base.Columns["95PctileLower"];
+                this.column99PctileUpper = base.Columns["99PctileUpper"];
+                this.column99PctileLower = base.Columns["99PctileLower"];
+                this.columnAverage = base.Columns["Average"];
+                this.columnResult = base.Columns["Result"];
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            private void InitClass() {
+                this.columnPeriod = new global::System.Data.DataColumn("Period", typeof(int), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnPeriod);
+                this.column50PctileUpper = new global::System.Data.DataColumn("50PctileUpper", typeof(double), null, global::System.Data.MappingType.Element);
+                this.column50PctileUpper.ExtendedProperties.Add("Generator_ColumnVarNameInTable", "column50PctileUpper");
+                this.column50PctileUpper.ExtendedProperties.Add("Generator_UserColumnName", "50PctileUpper");
+                base.Columns.Add(this.column50PctileUpper);
+                this.column50PctileLower = new global::System.Data.DataColumn("50PctileLower", typeof(double), null, global::System.Data.MappingType.Element);
+                this.column50PctileLower.ExtendedProperties.Add("Generator_ColumnVarNameInTable", "column50PctileLower");
+                this.column50PctileLower.ExtendedProperties.Add("Generator_UserColumnName", "50PctileLower");
+                base.Columns.Add(this.column50PctileLower);
+                this.column90PctileUpper = new global::System.Data.DataColumn("90PctileUpper", typeof(double), null, global::System.Data.MappingType.Element);
+                this.column90PctileUpper.ExtendedProperties.Add("Generator_ColumnVarNameInTable", "column90PctileUpper");
+                this.column90PctileUpper.ExtendedProperties.Add("Generator_UserColumnName", "90PctileUpper");
+                base.Columns.Add(this.column90PctileUpper);
+                this.column90PctileLower = new global::System.Data.DataColumn("90PctileLower", typeof(double), null, global::System.Data.MappingType.Element);
+                this.column90PctileLower.ExtendedProperties.Add("Generator_ColumnVarNameInTable", "column90PctileLower");
+                this.column90PctileLower.ExtendedProperties.Add("Generator_UserColumnName", "90PctileLower");
+                base.Columns.Add(this.column90PctileLower);
+                this.column95PctileUpper = new global::System.Data.DataColumn("95PctileUpper", typeof(double), null, global::System.Data.MappingType.Element);
+                this.column95PctileUpper.ExtendedProperties.Add("Generator_ColumnVarNameInTable", "column95PctileUpper");
+                this.column95PctileUpper.ExtendedProperties.Add("Generator_UserColumnName", "95PctileUpper");
+                base.Columns.Add(this.column95PctileUpper);
+                this.column95PctileLower = new global::System.Data.DataColumn("95PctileLower", typeof(double), null, global::System.Data.MappingType.Element);
+                this.column95PctileLower.ExtendedProperties.Add("Generator_ColumnVarNameInTable", "column95PctileLower");
+                this.column95PctileLower.ExtendedProperties.Add("Generator_UserColumnName", "95PctileLower");
+                base.Columns.Add(this.column95PctileLower);
+                this.column99PctileUpper = new global::System.Data.DataColumn("99PctileUpper", typeof(double), null, global::System.Data.MappingType.Element);
+                this.column99PctileUpper.ExtendedProperties.Add("Generator_ColumnVarNameInTable", "column99PctileUpper");
+                this.column99PctileUpper.ExtendedProperties.Add("Generator_UserColumnName", "99PctileUpper");
+                base.Columns.Add(this.column99PctileUpper);
+                this.column99PctileLower = new global::System.Data.DataColumn("99PctileLower", typeof(double), null, global::System.Data.MappingType.Element);
+                this.column99PctileLower.ExtendedProperties.Add("Generator_ColumnVarNameInTable", "column99PctileLower");
+                this.column99PctileLower.ExtendedProperties.Add("Generator_UserColumnName", "99PctileLower");
+                base.Columns.Add(this.column99PctileLower);
+                this.columnAverage = new global::System.Data.DataColumn("Average", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnAverage);
+                this.columnResult = new global::System.Data.DataColumn("Result", typeof(double), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnResult);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public BacktestMonteCarloRow NewBacktestMonteCarloRow() {
+                return ((BacktestMonteCarloRow)(this.NewRow()));
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            protected override global::System.Data.DataRow NewRowFromBuilder(global::System.Data.DataRowBuilder builder) {
+                return new BacktestMonteCarloRow(builder);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            protected override global::System.Type GetRowType() {
+                return typeof(BacktestMonteCarloRow);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            protected override void OnRowChanged(global::System.Data.DataRowChangeEventArgs e) {
+                base.OnRowChanged(e);
+                if ((this.BacktestMonteCarloRowChanged != null)) {
+                    this.BacktestMonteCarloRowChanged(this, new BacktestMonteCarloRowChangeEvent(((BacktestMonteCarloRow)(e.Row)), e.Action));
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            protected override void OnRowChanging(global::System.Data.DataRowChangeEventArgs e) {
+                base.OnRowChanging(e);
+                if ((this.BacktestMonteCarloRowChanging != null)) {
+                    this.BacktestMonteCarloRowChanging(this, new BacktestMonteCarloRowChangeEvent(((BacktestMonteCarloRow)(e.Row)), e.Action));
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            protected override void OnRowDeleted(global::System.Data.DataRowChangeEventArgs e) {
+                base.OnRowDeleted(e);
+                if ((this.BacktestMonteCarloRowDeleted != null)) {
+                    this.BacktestMonteCarloRowDeleted(this, new BacktestMonteCarloRowChangeEvent(((BacktestMonteCarloRow)(e.Row)), e.Action));
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            protected override void OnRowDeleting(global::System.Data.DataRowChangeEventArgs e) {
+                base.OnRowDeleting(e);
+                if ((this.BacktestMonteCarloRowDeleting != null)) {
+                    this.BacktestMonteCarloRowDeleting(this, new BacktestMonteCarloRowChangeEvent(((BacktestMonteCarloRow)(e.Row)), e.Action));
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void RemoveBacktestMonteCarloRow(BacktestMonteCarloRow row) {
+                this.Rows.Remove(row);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public static global::System.Xml.Schema.XmlSchemaComplexType GetTypedTableSchema(global::System.Xml.Schema.XmlSchemaSet xs) {
+                global::System.Xml.Schema.XmlSchemaComplexType type = new global::System.Xml.Schema.XmlSchemaComplexType();
+                global::System.Xml.Schema.XmlSchemaSequence sequence = new global::System.Xml.Schema.XmlSchemaSequence();
+                filterReportDS ds = new filterReportDS();
+                global::System.Xml.Schema.XmlSchemaAny any1 = new global::System.Xml.Schema.XmlSchemaAny();
+                any1.Namespace = "http://www.w3.org/2001/XMLSchema";
+                any1.MinOccurs = new decimal(0);
+                any1.MaxOccurs = decimal.MaxValue;
+                any1.ProcessContents = global::System.Xml.Schema.XmlSchemaContentProcessing.Lax;
+                sequence.Items.Add(any1);
+                global::System.Xml.Schema.XmlSchemaAny any2 = new global::System.Xml.Schema.XmlSchemaAny();
+                any2.Namespace = "urn:schemas-microsoft-com:xml-diffgram-v1";
+                any2.MinOccurs = new decimal(1);
+                any2.ProcessContents = global::System.Xml.Schema.XmlSchemaContentProcessing.Lax;
+                sequence.Items.Add(any2);
+                global::System.Xml.Schema.XmlSchemaAttribute attribute1 = new global::System.Xml.Schema.XmlSchemaAttribute();
+                attribute1.Name = "namespace";
+                attribute1.FixedValue = ds.Namespace;
+                type.Attributes.Add(attribute1);
+                global::System.Xml.Schema.XmlSchemaAttribute attribute2 = new global::System.Xml.Schema.XmlSchemaAttribute();
+                attribute2.Name = "tableTypeName";
+                attribute2.FixedValue = "BacktestMonteCarloDataTable";
                 type.Attributes.Add(attribute2);
                 type.Particle = sequence;
                 global::System.Xml.Schema.XmlSchema dsSchema = ds.GetSchemaSerializable();
@@ -29589,10 +30041,10 @@ namespace QPAS.DataSets {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
-            public string CumulativeDifference {
+            public double CumulativeDifference {
                 get {
                     try {
-                        return ((string)(this[this.tableBacktestEquityCurves.CumulativeDifferenceColumn]));
+                        return ((double)(this[this.tableBacktestEquityCurves.CumulativeDifferenceColumn]));
                     }
                     catch (global::System.InvalidCastException e) {
                         throw new global::System.Data.StrongTypingException("The value for column \'CumulativeDifference\' in table \'BacktestEquityCurves\' is DB" +
@@ -29717,6 +30169,22 @@ namespace QPAS.DataSets {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public string BacktestDuringLive {
+                get {
+                    try {
+                        return ((string)(this[this.tableBacktestStats.BacktestDuringLiveColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'BacktestDuringLive\' in table \'BacktestStats\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableBacktestStats.BacktestDuringLiveColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public bool IsStatNull() {
                 return this.IsNull(this.tableBacktestStats.StatColumn);
             }
@@ -29749,6 +30217,341 @@ namespace QPAS.DataSets {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public void SetResultNull() {
                 this[this.tableBacktestStats.ResultColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool IsBacktestDuringLiveNull() {
+                return this.IsNull(this.tableBacktestStats.BacktestDuringLiveColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void SetBacktestDuringLiveNull() {
+                this[this.tableBacktestStats.BacktestDuringLiveColumn] = global::System.Convert.DBNull;
+            }
+        }
+        
+        /// <summary>
+        ///Represents strongly named DataRow class.
+        ///</summary>
+        public partial class BacktestMonteCarloRow : global::System.Data.DataRow {
+            
+            private BacktestMonteCarloDataTable tableBacktestMonteCarlo;
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            internal BacktestMonteCarloRow(global::System.Data.DataRowBuilder rb) : 
+                    base(rb) {
+                this.tableBacktestMonteCarlo = ((BacktestMonteCarloDataTable)(this.Table));
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public int Period {
+                get {
+                    try {
+                        return ((int)(this[this.tableBacktestMonteCarlo.PeriodColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'Period\' in table \'BacktestMonteCarlo\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableBacktestMonteCarlo.PeriodColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double _50PctileUpper {
+                get {
+                    try {
+                        return ((double)(this[this.tableBacktestMonteCarlo._50PctileUpperColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'50PctileUpper\' in table \'BacktestMonteCarlo\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableBacktestMonteCarlo._50PctileUpperColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double _50PctileLower {
+                get {
+                    try {
+                        return ((double)(this[this.tableBacktestMonteCarlo._50PctileLowerColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'50PctileLower\' in table \'BacktestMonteCarlo\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableBacktestMonteCarlo._50PctileLowerColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double _90PctileUpper {
+                get {
+                    try {
+                        return ((double)(this[this.tableBacktestMonteCarlo._90PctileUpperColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'90PctileUpper\' in table \'BacktestMonteCarlo\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableBacktestMonteCarlo._90PctileUpperColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double _90PctileLower {
+                get {
+                    try {
+                        return ((double)(this[this.tableBacktestMonteCarlo._90PctileLowerColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'90PctileLower\' in table \'BacktestMonteCarlo\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableBacktestMonteCarlo._90PctileLowerColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double _95PctileUpper {
+                get {
+                    try {
+                        return ((double)(this[this.tableBacktestMonteCarlo._95PctileUpperColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'95PctileUpper\' in table \'BacktestMonteCarlo\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableBacktestMonteCarlo._95PctileUpperColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double _95PctileLower {
+                get {
+                    try {
+                        return ((double)(this[this.tableBacktestMonteCarlo._95PctileLowerColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'95PctileLower\' in table \'BacktestMonteCarlo\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableBacktestMonteCarlo._95PctileLowerColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double _99PctileUpper {
+                get {
+                    try {
+                        return ((double)(this[this.tableBacktestMonteCarlo._99PctileUpperColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'99PctileUpper\' in table \'BacktestMonteCarlo\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableBacktestMonteCarlo._99PctileUpperColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double _99PctileLower {
+                get {
+                    try {
+                        return ((double)(this[this.tableBacktestMonteCarlo._99PctileLowerColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'99PctileLower\' in table \'BacktestMonteCarlo\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableBacktestMonteCarlo._99PctileLowerColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double Average {
+                get {
+                    try {
+                        return ((double)(this[this.tableBacktestMonteCarlo.AverageColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'Average\' in table \'BacktestMonteCarlo\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableBacktestMonteCarlo.AverageColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public double Result {
+                get {
+                    try {
+                        return ((double)(this[this.tableBacktestMonteCarlo.ResultColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'Result\' in table \'BacktestMonteCarlo\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableBacktestMonteCarlo.ResultColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool IsPeriodNull() {
+                return this.IsNull(this.tableBacktestMonteCarlo.PeriodColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void SetPeriodNull() {
+                this[this.tableBacktestMonteCarlo.PeriodColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool Is_50PctileUpperNull() {
+                return this.IsNull(this.tableBacktestMonteCarlo._50PctileUpperColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void Set_50PctileUpperNull() {
+                this[this.tableBacktestMonteCarlo._50PctileUpperColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool Is_50PctileLowerNull() {
+                return this.IsNull(this.tableBacktestMonteCarlo._50PctileLowerColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void Set_50PctileLowerNull() {
+                this[this.tableBacktestMonteCarlo._50PctileLowerColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool Is_90PctileUpperNull() {
+                return this.IsNull(this.tableBacktestMonteCarlo._90PctileUpperColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void Set_90PctileUpperNull() {
+                this[this.tableBacktestMonteCarlo._90PctileUpperColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool Is_90PctileLowerNull() {
+                return this.IsNull(this.tableBacktestMonteCarlo._90PctileLowerColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void Set_90PctileLowerNull() {
+                this[this.tableBacktestMonteCarlo._90PctileLowerColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool Is_95PctileUpperNull() {
+                return this.IsNull(this.tableBacktestMonteCarlo._95PctileUpperColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void Set_95PctileUpperNull() {
+                this[this.tableBacktestMonteCarlo._95PctileUpperColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool Is_95PctileLowerNull() {
+                return this.IsNull(this.tableBacktestMonteCarlo._95PctileLowerColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void Set_95PctileLowerNull() {
+                this[this.tableBacktestMonteCarlo._95PctileLowerColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool Is_99PctileUpperNull() {
+                return this.IsNull(this.tableBacktestMonteCarlo._99PctileUpperColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void Set_99PctileUpperNull() {
+                this[this.tableBacktestMonteCarlo._99PctileUpperColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool Is_99PctileLowerNull() {
+                return this.IsNull(this.tableBacktestMonteCarlo._99PctileLowerColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void Set_99PctileLowerNull() {
+                this[this.tableBacktestMonteCarlo._99PctileLowerColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool IsAverageNull() {
+                return this.IsNull(this.tableBacktestMonteCarlo.AverageColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void SetAverageNull() {
+                this[this.tableBacktestMonteCarlo.AverageColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public bool IsResultNull() {
+                return this.IsNull(this.tableBacktestMonteCarlo.ResultColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public void SetResultNull() {
+                this[this.tableBacktestMonteCarlo.ResultColumn] = global::System.Convert.DBNull;
             }
         }
         
@@ -31540,6 +32343,40 @@ namespace QPAS.DataSets {
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
             public BacktestStatsRow Row {
+                get {
+                    return this.eventRow;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public global::System.Data.DataRowAction Action {
+                get {
+                    return this.eventAction;
+                }
+            }
+        }
+        
+        /// <summary>
+        ///Row event argument class
+        ///</summary>
+        [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+        public class BacktestMonteCarloRowChangeEvent : global::System.EventArgs {
+            
+            private BacktestMonteCarloRow eventRow;
+            
+            private global::System.Data.DataRowAction eventAction;
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public BacktestMonteCarloRowChangeEvent(BacktestMonteCarloRow row, global::System.Data.DataRowAction action) {
+                this.eventRow = row;
+                this.eventAction = action;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "4.0.0.0")]
+            public BacktestMonteCarloRow Row {
                 get {
                     return this.eventRow;
                 }
