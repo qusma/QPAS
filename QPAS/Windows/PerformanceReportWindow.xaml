@@ -79,6 +79,7 @@
             <TreeViewItem Header="ACF/PACF" Tag="ACFPACF" />
             <TreeViewItem Header="Risk" Tag="Risk" />
             <TreeViewItem Header="Monte Carlo" Tag="MonteCarlo" />
+            <TreeViewItem Header="Backtest Comparison" Tag="BacktestComparison" />
         </TreeView>
         <Rectangle Stroke="Black" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.RowSpan="2" />
         <TabControl Grid.Row="0" Grid.Column="2" Name="MainTabCtrl" Grid.RowSpan="2">
@@ -1728,6 +1729,175 @@
                         </oxy:PlotView>
                     </StackPanel>
                 </ScrollViewer>
+            </TabItem>
+            
+            <TabItem Header="BacktestComparison">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Backtest vs Results" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=BacktestVsResultsChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=BacktestVsResultsChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+
+                        <oxy:PlotView Name="BacktestVsResultsChart" 
+                                      LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal"
+                                      Width="700" Height="400" HorizontalAlignment="Center">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" StringFormat="f1" IsZoomEnabled="True" />
+                                <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" IsZoomEnabled="True" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:LineSeries ItemsSource="{Binding Data.BacktestEquityCurves}"
+                                                        Name="BacktestRoacEcChartBacktestSeries" CanTrackerInterpolatePoints="False"
+                                                        MarkerType="None" Color="DodgerBlue" Title="Backtest" Smooth="True"
+                                                        TrackerFormatString="Backtest: {2:yyyy-MM-dd} - {4:f1}"
+                                                        
+                                                        DataFieldX="Date" DataFieldY="Backtest" />
+
+                                <oxy:LineSeries ItemsSource="{Binding Data.BacktestEquityCurves}"
+                                                        Name="BacktestRoacEcChartResultSeries" CanTrackerInterpolatePoints="False"
+                                                        MarkerType="None" Color="#DE0000" Title="Live Results" Smooth="True"
+                                                        TrackerFormatString="Live Result: {2:yyyy-MM-dd} - {4:f1}"
+                                                        DataFieldX="Date" DataFieldY="Result" />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Backtest vs Results - Cumulative Difference" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=BacktestVsResultsCumulativeDiffChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=BacktestVsResultsCumulativeDiffChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+
+                    <oxy:PlotView Name="BacktestVsResultsCumulativeDiffChart" 
+                                  IsLegendVisible="False"
+                                  Width="700" Height="400" HorizontalAlignment="Center">
+                        <oxy:PlotView.Axes>
+                            <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" StringFormat="p2" IsZoomEnabled="True" />
+                            <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" IsZoomEnabled="True" />
+                        </oxy:PlotView.Axes>
+                        <oxy:PlotView.Series>
+                            <oxy:LineSeries ItemsSource="{Binding Data.BacktestEquityCurves}"
+                                                        Name="BacktestVsResultsCumulativeDiffSeries" CanTrackerInterpolatePoints="False"
+                                                        MarkerType="None" Color="DodgerBlue" Title="Backtest" Smooth="True"
+                                                        TrackerFormatString="Difference: {2:0.00} - {4:p1}"
+                                                        
+                                                        DataFieldX="Date" DataFieldY="CumulativeDifference" />
+                        </oxy:PlotView.Series>
+                    </oxy:PlotView>
+
+                        <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Stats" />
+                        <DataGrid Name="BacktestStatsGrid" IsReadOnly="True" AutoGenerateColumns="False" FontSize="12"
+                                  Margin="0,20,0,0"
+                              Width="600" CanUserAddRows="False" CanUserDeleteRows="False" ItemsSource="{Binding Data.BacktestStats}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Stat" Width="250" FontWeight="Bold" Binding="{Binding Stat}" />
+                                <DataGridTextColumn Header="Backtest (Before Live)" Width="*" Binding="{Binding Backtest}" />
+                                <DataGridTextColumn Header="Backtest (During Live)" Width="*" Binding="{Binding BacktestDuringLive}" />
+                                <DataGridTextColumn Header="Live Trading" Width="*" Binding="{Binding Result}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Backtest Monte Carlo vs Performance" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=BacktestMCChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=BacktestMCChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="BacktestMCChart" Width="700" Height="400" HorizontalAlignment="Center"
+                                  LegendPosition="BottomCenter" LegendPlacement="Outside" LegendOrientation="Horizontal">
+                            <oxy:PlotView.Axes>
+                                <oxy:LinearAxis Position="Bottom" />
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dash" />
+                            </oxy:PlotView.Axes>
+                            <oxy:PlotView.Series>
+                                <oxy:AreaSeries ItemsSource="{Binding Data.BacktestMonteCarlo}"
+                                                Name="BacktestMcCi99" CanTrackerInterpolatePoints="False"
+                                                MarkerType="None" Color="#FF0000" Title="99% C.I." 
+                                                TrackerFormatString="99% C.I. Period: {2:0}&#x0a;Value: {4:0}"
+                                                DataFieldX="Period" DataFieldX2="Period" StrokeThickness="1"
+                                                DataFieldY="_99PctileLower" DataFieldY2="_99PctileUpper" />
+                                
+                                <oxy:AreaSeries ItemsSource="{Binding Data.BacktestMonteCarlo}"
+                                                Name="BacktestMcCi95" CanTrackerInterpolatePoints="False"
+                                                MarkerType="None" Color="#FF9933" Title="95% C.I." 
+                                                TrackerFormatString="95% C.I. Period: {2:0}&#x0a;Value: {4:0}"
+                                                DataFieldX="Period" DataFieldX2="Period" StrokeThickness="1"
+                                                DataFieldY="_95PctileLower" DataFieldY2="_95PctileUpper" />
+
+                                <oxy:AreaSeries ItemsSource="{Binding Data.BacktestMonteCarlo}"
+                                                Name="BacktestMcCi90" CanTrackerInterpolatePoints="False"
+                                                MarkerType="None" Color="#4F81BD" Title="90% C.I." 
+                                                TrackerFormatString="90% C.I. Period: {2:0}&#x0a;Value: {4:0}"
+                                                DataFieldX="Period" DataFieldX2="Period" StrokeThickness="1"
+                                                DataFieldY="_90PctileLower" DataFieldY2="_90PctileUpper" />
+
+                                <oxy:AreaSeries ItemsSource="{Binding Data.BacktestMonteCarlo}"
+                                                Name="BacktestMcCi50" CanTrackerInterpolatePoints="False"
+                                                MarkerType="None" Color="#DE0000" Title="50% C.I." 
+                                                TrackerFormatString="50% C.I. Period: {2:0}&#x0a;Value: {4:0}"
+                                                DataFieldX="Period" DataFieldX2="Period" StrokeThickness="1"
+                                                DataFieldY="_50PctileLower" DataFieldY2="_50PctileUpper" />
+                                
+                                <oxy:LineSeries ItemsSource="{Binding Data.BacktestMonteCarlo}"
+                                                Name="BacktestMcResults"
+                                                MarkerType="None"
+                                                Color="Black"
+                                                Title="Live Results"
+                                                DataFieldX="Period"
+                                                DataFieldY="Result"
+                                                TrackerFormatString="Result Period: {2:0}&#x0a;Value: {4:0}"
+                                                />
+
+                                <oxy:LineSeries ItemsSource="{Binding Data.BacktestMonteCarlo}"
+                                                Name="BacktestMcAverage"
+                                                MarkerType="None"
+                                                Color="DodgerBlue"
+                                                Title="Average Expected"
+                                                DataFieldX="Period"
+                                                DataFieldY="Average"
+                                                TrackerFormatString="Average Period: {2:0}&#x0a;Value: {4:0}"
+                                                />
+                            </oxy:PlotView.Series>
+                        </oxy:PlotView>
+                    </StackPanel>
+                </ScrollViewer>
+
+                
+                <!-- One chart with monte carlo comparison-->
+                <!-- Stats comparison, over the relevant period-->
             </TabItem>
         </TabControl>
     </Grid>

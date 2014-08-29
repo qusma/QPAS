@@ -77,7 +77,8 @@ namespace QPAS
                 "CashTransactions",
                 "ACFPACF",
                 "Risk",
-                "MonteCarlo"
+                "MonteCarlo",
+                "BacktestComparison"
             };
             var title = (string)((TreeViewItem)NavigationMenu.SelectedItem).Tag;
             MainTabCtrl.SelectedIndex = pages.IndexOf(title);
