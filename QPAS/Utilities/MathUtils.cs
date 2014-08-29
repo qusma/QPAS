@@ -38,20 +38,20 @@ namespace QPAS
         /// <summary>
         /// Multiple linear regression. Do not include intercept column, it's added automatically.
         /// </summary>
-        public static void MLR(List<double> y, List<List<double>> x, out double[] b, out double rSquared)
+        public static void MLR(IEnumerable<double> y, List<IEnumerable<double>> x, out double[] b, out double rSquared)
         {
-            if (y.Count <= 1)
+            if (y.Count() <= 1)
             {
                 b = Enumerable.Range(1, x.Count + 1).Select(z => 0.0).ToArray();
                 rSquared = 0;
                 return;
             }
-            DenseMatrix yMatrix = DenseMatrix.OfColumns(y.Count, 1, new List<List<double>> { y });
+            DenseMatrix yMatrix = DenseMatrix.OfColumns(y.Count(), 1, new List<IEnumerable<double>> { y });
 
             //insert a list of zeroes, the intercept
-            x.Insert(0, Enumerable.Range(0, x[0].Count).Select(z => 1.0).ToList());
+            x.Insert(0, Enumerable.Range(0, x[0].Count()).Select(z => 1.0).ToList());
 
-            DenseMatrix xMatrix = DenseMatrix.OfColumns(x[0].Count, x.Count, x);
+            DenseMatrix xMatrix = DenseMatrix.OfColumns(x[0].Count(), x.Count, x);
 
             var p = xMatrix.QR().Solve(yMatrix);
 
@@ -96,9 +96,9 @@ namespace QPAS
         /// <summary>
         /// Multiple linear regression. Do not include intercept column, it's added automatically.
         /// </summary>
-        public static void MLR(List<double> y, List<double> x, out double[] b, out double rSquared)
+        public static void MLR(IEnumerable<double> y, IEnumerable<double> x, out double[] b, out double rSquared)
         {
-            MLR(y, new List<List<double>> { x }, out b, out rSquared);
+            MLR(y, new List<IEnumerable<double>> { x }, out b, out rSquared);
         }
 
         public static List<double> AutoCorr(List<double> input, int n)
