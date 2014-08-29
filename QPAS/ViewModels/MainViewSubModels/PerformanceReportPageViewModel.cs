@@ -13,18 +13,32 @@ namespace QPAS
         internal IDBContext Context;
         internal MainViewModel Parent;
         private string _toggleInstrumentsText;
+        private IDataSourcer _datasourcer;
+        private BacktestSource _backtestSource;
 
         public ReportSettings ReportSettings { get; set; }
 
         public TradeFilterSettings TradeFilterSettings { get; set; }
 
-        public ObservableCollection<CheckListItem<Strategy>> Strategies { get; set; }
+        public ObservableCollection<CheckListItem<Strategy>> Strategies { get; private set; }
 
-        public ObservableCollection<CheckListItem<Tag>> Tags { get; set; }
+        public ObservableCollection<CheckListItem<Tag>> Tags { get; private set; }
 
-        public ObservableCollection<CheckListItem<Instrument>> Instruments { get; set; }
+        public ObservableCollection<CheckListItem<Instrument>> Instruments { get; private set; }
 
-        public ObservableCollection<Benchmark> Benchmarks { get; set; }
+        public ObservableCollection<Benchmark> Benchmarks { get; private set; }
+        public ObservableCollection<QDMS.Instrument> BacktestSeries { get; private set; }
+
+        public BacktestSource BacktestSource
+        {
+            get { return _backtestSource; }
+            set
+            {
+                if (value == _backtestSource) return;
+                _backtestSource = value;
+                OnPropertyChanged();
+            }
+        }
 
         public string ToggleStratsText
         {
@@ -59,18 +73,31 @@ namespace QPAS
             }
         }
 
+        public IDataSourcer Datasourcer
+        {
+            get { return _datasourcer; }
+            private set
+            {
+                if (Equals(value, _datasourcer)) return;
+                _datasourcer = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand ToggleAllStrategies { get; set; }
 
         public ICommand ToggleAllTags { get; set; }
+
         public ICommand ToggleAllInstruments { get; set; }
 
         public ICommand GenerateReport { get; set; }
 
-        public PerformanceReportPageViewModel(IDBContext context, IDialogService dialogService, MainViewModel parent)
+        public PerformanceReportPageViewModel(IDBContext context, IDialogService dialogService, MainViewModel parent, IDataSourcer datasourcer)
             : base(dialogService)
         {
             Context = context;
             Parent = parent;
+            Datasourcer = datasourcer;
 
             ReportSettings = new ReportSettings();
             TradeFilterSettings = new TradeFilterSettings(Context);
@@ -83,6 +110,7 @@ namespace QPAS
             Tags = new ObservableCollection<CheckListItem<Tag>>();
             Instruments = new ObservableCollection<CheckListItem<Instrument>>();
             Benchmarks = new ObservableCollection<Benchmark>();
+            BacktestSeries = new ObservableCollection<QDMS.Instrument>();
 
             CreateCommands();
         }
@@ -226,10 +254,28 @@ namespace QPAS
             {
                 Benchmarks.Add(b);
             }
+
+            //backtest results from the external data source
+            BacktestSeries.Clear();
+            if(Datasourcer.ExternalDataSource.Connected)
+            {
+                BacktestSeries.AddRange(
+                    Datasourcer
+                    .ExternalDataSource
+                    .GetBacktestSeries());
+            }
+        }
+
+        private TimeSeries GetBacktestData()
+        {
+            return new TimeSeries(new System.Collections.Generic.List<QDMS.OHLCBar>());
         }
 
         private void GenReport()
         {
+            //Load backtest result if it has been specified
+            var backtestData = GetBacktestData();
+
             var selectedTags =
                 Tags
                 .Where(x => x.IsChecked)

@@ -1359,10 +1359,8 @@
                     </Grid.RowDefinitions>
 
                     <Label Grid.Row="0" Grid.Column="2" Content="Instruments" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
-                    <Label Grid.Row="0" Content="Strategies" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
+                    <Label Grid.Row="0" Grid.Column="0" Content="Strategies" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
                     <Label Grid.Row="0" Grid.Column="1" Content="Tags" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
-                    <Label Grid.Row="0" Grid.Column="3" Content="Dates" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
-                    <Label Grid.Row="0" Grid.Column="4" Content="Monte Carlo" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
 
                     <Grid Grid.Row="1" Grid.Column="2" Margin="5">
                         <Grid.RowDefinitions>
@@ -1385,8 +1383,12 @@
                                 Name="PRSelectAllInstrumentsBtn" 
                                 Grid.Row="1" Margin="5" />
 
-                        <ListBox Name="PRInstrumentsListBox" Margin="0,5,0,0" Grid.Row="2" PreviewKeyDown="CheckItemListBox_PreviewKeyDown"
+                        <ListBox Name="PRInstrumentsListBox" Margin="0,5,0,0" Grid.Row="2" 
+                                 PreviewKeyDown="CheckItemListBox_PreviewKeyDown"
+                                 IsTextSearchEnabled="True"
+                                 TextSearch.TextPath="Item.Symbol" 
                                  SelectionMode="Extended" ItemsSource="{Binding Instruments}">
+                            <!-- TODO finish text search in lists -->
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -1464,86 +1466,136 @@
                         </ListBox>
                     </Grid>
 
-                    <StackPanel Grid.Row="1" Grid.Column="3" Margin="5">
-                        <TextBlock Text="From:" FontSize="18" Foreground="DimGray" />
-                        <DatePicker SelectedDate="{Binding TradeFilterSettings.From, Mode=TwoWay}" SelectedDateFormat="Short" Margin="5,0,5,0" />
-                        <TextBlock Text="To:" FontSize="18" Foreground="DimGray" />
-                        <DatePicker SelectedDate="{Binding TradeFilterSettings.To, Mode=TwoWay}" SelectedDateFormat="Short" Name="PRDateTo"  Margin="5,0,5,0"/>
+                    <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="3">
 
-                        <CheckBox IsChecked="{Binding TradeFilterSettings.ClosedTradesOnly}" Margin="5,10,0,0" Content="Closed Trades Only" />
+                        <GroupBox Header="Dates">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="From:" FontSize="18" Foreground="DimGray" />
+                                <DatePicker SelectedDate="{Binding TradeFilterSettings.From, Mode=TwoWay}" SelectedDateFormat="Short" Margin="5,0,5,0" />
+                                <TextBlock Text="To:" FontSize="18" Foreground="DimGray" />
+                                <DatePicker SelectedDate="{Binding TradeFilterSettings.To, Mode=TwoWay}" SelectedDateFormat="Short" Name="PRDateTo"  Margin="5,0,5,0"/>
 
-                        <Label Content="Value at Risk" Margin="-5,25,0,0" FontSize="30" Foreground="DimGray" />
-                        <UniformGrid Columns="2" Margin="5,0,5,0">
-                            <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Value at Risk">
+                            <StackPanel Orientation="Vertical">
+                                <UniformGrid Columns="2" Margin="5,0,5,0">
+                                    <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
                                          IsChecked="{Binding ReportSettings.VaRReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
-                            <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
+                                    <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
                                          IsChecked="{Binding ReportSettings.VaRReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
-                        </UniformGrid>
+                                </UniformGrid>
 
-                        <UniformGrid Columns="2" Margin="0,10,0,0" >
-                            <TextBlock Text="Days:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
-                            <TextBox Height="15" Text="{Binding ReportSettings.VaRDays}" />
-                        </UniformGrid>
+                                <UniformGrid Columns="2" Margin="0,10,0,0" >
+                                    <TextBlock Text="Days:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
+                                    <TextBox Height="15" Text="{Binding ReportSettings.VaRDays}" />
+                                </UniformGrid>
+                            </StackPanel>
+                        </GroupBox>
 
-                        <Label Content="ACF/PACF" Margin="-5,25,0,0" FontSize="30" Foreground="DimGray" />
-                        <UniformGrid Columns="2" Margin="5,0,5,0">
-                            <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
+
+                        <GroupBox Header="ACF/PACF">
+                            <UniformGrid Columns="2" Margin="5,0,5,0">
+                                <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
                                          IsChecked="{Binding ReportSettings.AutoCorrReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
-                            <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
+                                <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
                                          IsChecked="{Binding ReportSettings.AutoCorrReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
-                        </UniformGrid>
+                            </UniformGrid>
+                        </GroupBox>
 
-                        <Label Content="Benchmark" Margin="-5,25,0,0" FontSize="30" Foreground="DimGray" />
-                        <TextBlock Text="Bench. Against:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray"  />
-                        <UniformGrid Columns="2" Margin="5,0,5,0">
-                            <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
+
+                        <GroupBox Header="Benchmark">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="Bench. Against:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray"  />
+                                <UniformGrid Columns="2" Margin="5,0,5,0">
+                                    <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
                                          IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
-                            <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
+                                    <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
                                          IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
-                        </UniformGrid>
+                                </UniformGrid>
 
-                        <TextBlock Text="Benchmark:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray"  />
-                        <ComboBox Name="RPBenchmarkComboBox" DisplayMemberPath="Name"
+                                <TextBlock Text="Benchmark:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray"  />
+                                <ComboBox Name="RPBenchmarkComboBox" DisplayMemberPath="Name"
                                   ItemsSource="{Binding Benchmarks}"
                                   SelectedItem="{Binding ReportSettings.Benchmark}" Margin="5,0,5,0" />
+                            </StackPanel>
+                        </GroupBox>
                     </StackPanel>
                     
                     
 
-                    <Grid Grid.Row="1" Grid.Column="4">
+                    <Grid Grid.Row="0" Grid.Column="4" Grid.RowSpan="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="35"/>
                         </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0"  Margin="5">
-                            <TextBlock Text="Return Type:" FontSize="18" Foreground="DimGray"  />
-                            <UniformGrid Columns="2"  Margin="5,0,5,0" IsEnabled="{Binding ElementName=PRUnitsDaysBtn,Path=IsChecked}">
-                                <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital"
+                        <StackPanel Grid.Row="0">
+                            <GroupBox Header="Monte Carlo">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="Return Type:" FontSize="18" Foreground="DimGray"  />
+                                    <UniformGrid Columns="2"  Margin="5,0,5,0" IsEnabled="{Binding ElementName=PRUnitsDaysBtn,Path=IsChecked}">
+                                        <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital"
                                              IsChecked="{Binding ReportSettings.MCReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
-                                <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
+                                        <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
                                              IsChecked="{Binding ReportSettings.MCReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
-                            </UniformGrid>
+                                    </UniformGrid>
 
-                            <TextBlock Text="Replacement:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray"  />
-                            <UniformGrid Columns="2"  Margin="5,0,5,0">
-                                <RadioButton Content="With" IsChecked="{Binding ReportSettings.MCWithReplacement}"/>
-                                <RadioButton Content="Without" IsChecked="{Binding ReportSettings.MCWithReplacement, Converter={StaticResource InvertBooleanConverter}}"/>
-                            </UniformGrid>
+                                    <TextBlock Text="Replacement:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray"  />
+                                    <UniformGrid Columns="2"  Margin="5,0,5,0">
+                                        <RadioButton Content="With" IsChecked="{Binding ReportSettings.MCWithReplacement}"/>
+                                        <RadioButton Content="Without" IsChecked="{Binding ReportSettings.MCWithReplacement, Converter={StaticResource InvertBooleanConverter}}"/>
+                                    </UniformGrid>
 
-                            <UniformGrid Columns="2" Margin="0,10,0,0">
-                                <TextBlock Text="Periods:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
-                                <TextBox Height="15" Text="{Binding ReportSettings.MCPeriods}" />
-                            </UniformGrid>
+                                    <UniformGrid Columns="2" Margin="0,10,0,0">
+                                        <TextBlock Text="Periods:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
+                                        <TextBox Height="15" Text="{Binding ReportSettings.MCPeriods}" />
+                                    </UniformGrid>
 
-                            <UniformGrid Columns="2" Margin="0,10,0,0" >
-                                <TextBlock Text="Runs:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
-                                <TextBox Height="15" Text="{Binding ReportSettings.MCRuns}" />
-                            </UniformGrid>
+                                    <UniformGrid Columns="2" Margin="0,10,0,0" >
+                                        <TextBlock Text="Runs:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
+                                        <TextBox Height="15" Text="{Binding ReportSettings.MCRuns}" />
+                                    </UniformGrid>
 
-                            <UniformGrid Columns="2" Margin="0,10,0,0" >
-                                <TextBlock Text="Cluster Size:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
-                                <TextBox Height="15" Text="{Binding ReportSettings.MCClusterSize}" />
-                            </UniformGrid>
+                                    <UniformGrid Columns="2" Margin="0,10,0,0" >
+                                        <TextBlock Text="Cluster Size:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
+                                        <TextBox Height="15" Text="{Binding ReportSettings.MCClusterSize}" />
+                                    </UniformGrid>
+                                </StackPanel>
+                            </GroupBox>
+
+                            <GroupBox Header="Backtest Comparison">
+                                <StackPanel Orientation="Vertical">
+                                    <RadioButton Content="None" IsChecked="{Binding ReportSettings.BacktestSource, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=None}"  Margin="5"/>
+                                    <RadioButton Content="From External Datasource:" Margin="5" 
+                                                 IsChecked="{Binding ReportSettings.BacktestSource, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=External}"
+                                                 Name="BacktestFromExternalSourceRadioBtn" />
+                                    <ComboBox Name="RPBacktestComboBox" 
+                                      DisplayMemberPath="Symbol"
+                                      IsEnabled="{qc:MultiBinding '$P0 &amp;&amp; $P1', P0 = {Binding Datasourcer.ExternalDataSource.Connected}, P1 = {Binding ElementName=BacktestFromExternalSourceRadioBtn,Path=IsChecked} }" 
+                                      ItemsSource="{Binding BacktestSeries}"
+                                      SelectedItem="{Binding ReportSettings.Backtest}" Margin="5,0,5,0" />
+                                    <RadioButton Content="From File:" 
+                                                 IsChecked="{Binding ReportSettings.BacktestSource, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=File}"
+                                                 Name="BacktestFromFileSourceRadioBtn" Margin="5" />
+                                    <TextBox Margin="5" 
+                                             IsEnabled="{Binding ElementName=BacktestFromFileSourceRadioBtn,Path=IsChecked}"
+                                             Text="Click to select file..." Name="BacktestFileTextBox" PreviewMouseLeftButtonDown="BacktestFileTextBox_MouseDown" />
+
+                                    <TextBlock Text="Return Type:" FontSize="18" Foreground="DimGray"  />
+                                    <UniformGrid Columns="2"  Margin="5,0,5,0" IsEnabled="{Binding ElementName=PRUnitsDaysBtn,Path=IsChecked}">
+                                        <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital"
+                                             IsChecked="{Binding ReportSettings.BacktestComparisonReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
+                                        <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
+                                             IsChecked="{Binding ReportSettings.BacktestComparisonReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                                    </UniformGrid>
+                                </StackPanel>
+                            </GroupBox>
+                            
+                            <GroupBox Header="Other Settings">
+                                <CheckBox IsChecked="{Binding TradeFilterSettings.ClosedTradesOnly}" Margin="5,10,0,0" Content="Closed Trades Only" />
+                            </GroupBox>
+
                         </StackPanel>
 
                         <Button  Grid.Row="1"
