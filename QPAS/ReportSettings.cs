@@ -18,6 +18,9 @@ namespace QPAS
         private ReturnType _returnsToBenchmark;
         private ReturnType _mcReturnType;
         private ReturnType _autoCorrReturnType;
+        private ReturnType _backtestComparisonReturnType;
+        private BacktestSource _backtestSource;
+        private QDMS.Instrument _backtest;
 
         public List<int> TradeIDs { get; set; }
 
@@ -36,6 +39,32 @@ namespace QPAS
         public bool MCWithReplacement { get; set; }
 
         public Benchmark Benchmark { get; set; }
+
+        /// <summary>
+        /// Set an instrument to be used as a backtest series to compare against.
+        /// </summary>
+        public QDMS.Instrument Backtest
+        {
+            get { return _backtest; }
+            set { _backtest = value; OnPropertyChanged(); }
+        }
+
+        public BacktestSource BacktestSource
+        {
+            get { return _backtestSource; }
+            set { _backtestSource = value; OnPropertyChanged(); }
+        }
+
+        public ReturnType BacktestComparisonReturnType
+        {
+            get { return _backtestComparisonReturnType; }
+            set { _backtestComparisonReturnType = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>
+        /// If backtest results are loaded from a file, they're put in here.
+        /// </summary>
+        public EquityCurve BacktestData { get; set; }
 
         public ReturnType ReturnsToBenchmark
         {
