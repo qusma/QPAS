@@ -39,7 +39,7 @@ namespace QPAS
 
             benchmarkSeries = new Dictionary<DateTime, double>();
             benchmarkReturns = new List<double>();
-            var benchmarkEC = new EquityCurve(1);
+            var benchmarkEC = new EquityCurve(1, null);
 
             decimal equity = 1;
 

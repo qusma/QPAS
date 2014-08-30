@@ -85,7 +85,7 @@ namespace QPAS
             BenchmarksPageViewModel = new BenchmarksPageViewModel(Context, DialogService, Datasourcer);
             PerformanceOverviewPageViewModel = new PerformanceOverviewPageViewModel(Context, DialogService);
             OrdersPageViewModel = new OrdersPageViewModel(Context, DialogService, Datasourcer, this);
-            PerformanceReportPageViewModel = new PerformanceReportPageViewModel(Context, DialogService, this);
+            PerformanceReportPageViewModel = new PerformanceReportPageViewModel(Context, DialogService, this, Datasourcer);
             FXTransactionsPageViewModel = new FXTransactionsPageViewModel(Context, Datasourcer, DialogService);
         }
 

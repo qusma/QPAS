@@ -278,9 +278,9 @@ namespace QPAS
 
         private EquityCurve EcFromEquitySummaries(Dictionary<DateTime, decimal> summaries, Dictionary<DateTime, decimal> depositsWithdrawals)
         {
-            if (summaries.Count == 0) return new EquityCurve();
+            if (summaries.Count == 0) return new EquityCurve(100, summaries.First().Key);
 
-            var ec = new EquityCurve();
+            var ec = new EquityCurve(100, summaries.First().Key);
             decimal lastTotal = summaries.First().Value;
             bool first = true;
             foreach(var kvp in summaries)
