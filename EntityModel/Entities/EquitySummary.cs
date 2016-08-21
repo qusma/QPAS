@@ -18,7 +18,7 @@ namespace EntityModel
         [NotXmlMapped]
         public int ID { get; set; }
 
-        [AttributeName("reportDate", "yyyy-MM-dd")]
+        [AttributeName("reportDate", "yyyyMMdd")]
         public DateTime Date { get; set; }
 
         [AttributeName("cash")]
