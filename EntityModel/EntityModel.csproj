@@ -91,6 +91,7 @@
     <Compile Include="Entities\Strategy.cs" />
     <Compile Include="Entities\Tag.cs" />
     <Compile Include="Entities\Trade.cs" />
+    <Compile Include="Entities\UserScript.cs" />
     <Compile Include="Enums\AssetClass.cs" />
     <Compile Include="Interfaces\IDBContext.cs" />
     <Compile Include="Migrations\201406051250474_Initial.cs" />
@@ -100,6 +101,10 @@
     <Compile Include="Migrations\201406261506327_Accounts.cs" />
     <Compile Include="Migrations\201406261506327_Accounts.Designer.cs">
       <DependentUpon>201406261506327_Accounts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201502041555581_UserScripts.cs" />
+    <Compile Include="Migrations\201502041555581_UserScripts.Designer.cs">
+      <DependentUpon>201502041555581_UserScripts.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\MyDbContextMigrationConfiguration.cs" />
     <Compile Include="MySqlHistoryContext.cs" />
@@ -119,6 +124,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201406261506327_Accounts.resx">
       <DependentUpon>201406261506327_Accounts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201502041555581_UserScripts.resx">
+      <DependentUpon>201502041555581_UserScripts.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
