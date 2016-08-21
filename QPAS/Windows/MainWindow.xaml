@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
-        xmlns:oxy="http://oxyplot.codeplex.com"
+        xmlns:oxy="http://oxyplot.org/wpf"
         xmlns:filterLibrary="clr-namespace:DataGridFilterLibrary;assembly=DataGridFilterLibrary"
         xmlns:qdms="clr-namespace:EntityModel;assembly=EntityModel"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
@@ -31,6 +31,7 @@
         <qpas:SideToImageConverter x:Key="SideToImageConverter" />
         <qpas:DivideByHundredConverter x:Key="DivideByHundredConverter" />
         <qpas:ProfitToBgColorConverter x:Key="ProfitToBgColorConverter" />
+        <qpas:TradeToVisibilityConverter x:Key="OrderToVisibilityConverter" />
 
         <ObjectDataProvider x:Key="AssetClasses" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
             <ObjectDataProvider.MethodParameters>
@@ -99,6 +100,14 @@
                     </ControlTemplate>
                 </MenuItem.Template>
             </MenuItem>
+            <MenuItem Header="Run User Scripts" Name="OrdersGridUserScriptsBtn" 
+                      Command="{Binding RunScripts}"
+                      CommandParameter="{Binding ElementName=OrdersGrid,Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/script.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            
             <MenuItem Header="Generate Execution Report" Name="OrdersGridGenExecutionReportBtn"
                       Command="{Binding SetExecutionReportOrders}"
                       CommandParameter="{Binding ElementName=OrdersGrid,Path=SelectedItems}">
@@ -176,6 +185,13 @@
                       CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
                 <MenuItem.Icon>
                     <Image Source="../Resources/Refresh.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Run User Scripts" Name="TradesGridUserScriptsBtn" 
+                      Command="{Binding RunScripts}"
+                      CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
+                <MenuItem.Icon>
+                    <Image Source="../Resources/script.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>
@@ -275,6 +291,8 @@
             <MenuItem Header="_Tools">
                 <MenuItem Header="Load Statement From Web" x:Name="LoadStatementFromWebBtn" />
                 <MenuItem Header="Load Statement From File" x:Name="LoadStatementFromFileBtn" />
+                <Separator/>
+                <MenuItem Header="Scripts" x:Name="ScriptsBtn" Click="ScriptsBtn_Click" />
                 <Separator/>
                 <MenuItem Header="Settings" x:Name="SettingsBtn" Click="SettingsBtn_Click" />
             </MenuItem>
@@ -867,7 +885,14 @@
                                                 filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Trade.Name}" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="../Resources/lock.png" 
+                                                   RenderOptions.BitmapScalingMode="NearestNeighbor" 
+                                                   Height="12"
+                                                   Visibility="{Binding Trade, Converter={StaticResource OrderToVisibilityConverter}}"
+                                                   Margin="0,0,5,0"/>
+                                            <TextBlock Text="{Binding Trade.Name}" />
+                                        </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                                 <DataGridTemplateColumn.CellEditingTemplate>
@@ -947,6 +972,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Order Ref." DisplayIndex="21" Binding="{Binding OrderReference}" Width="100" IsReadOnly="True" />
                         </DataGrid.Columns>
                     </DataGrid>
 
@@ -1251,6 +1277,10 @@
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                             <TextBlock Text="Account:" Foreground="DimGray" FontSize="22"/>
                             <ComboBox Margin="5,3,5,3" ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="AccountId"  />
+                            
+                            <TextBlock Text="Currency:" Foreground="DimGray" FontSize="22"/>
+                            <ComboBox Margin="5,3,5,3" ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}" DisplayMemberPath="Name"  />
+
                         </StackPanel>
                         <Label Content="Total Equity:"  FontSize="26" Foreground="DimGray" Margin="0,-10" DockPanel.Dock="Left" />
                     </DockPanel>
