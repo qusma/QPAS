@@ -275,6 +275,14 @@ namespace EntityModel
         public string OrderType { get; set; }
 
         /// <summary>
+        /// The order reference number as defined by the user on the order ticket. 
+        /// Available on daily (single-day) activity flex queries only.
+        /// </summary>
+        [MaxLength(255)]
+        [AttributeName("orderReference")]
+        public string OrderReference { get; set; }
+
+        /// <summary>
         /// Is the order actually real? False for virtual "helper" orders.
         /// </summary>
         [NotXmlMapped]
