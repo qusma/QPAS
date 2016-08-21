@@ -52,7 +52,7 @@ namespace QPAS
         public ICommand LoadStatementFromWeb { get; set; }
         public ICommand LoadStatementFromFile { get; set; }
 
-        public MainViewModel(IDBContext context, IDataSourcer datasourcer, IDialogService dialogService)
+        public MainViewModel(IDBContext context, IDataSourcer datasourcer, IDialogCoordinator dialogService)
             : base(dialogService)
         {
             Context = context;
@@ -152,12 +152,12 @@ namespace QPAS
             if (tradeIDs == null) throw new NullReferenceException("tradeIDs");
             if (tradeIDs.Count == 0)
             {
-                await DialogService.ShowMessageAsync("Error", "No trades meet the given criteria");
+                await DialogService.ShowMessageAsync(this, "Error", "No trades meet the given criteria");
                 return;
             }
 
             var gen = new ReportGenerator();
-            ProgressDialogController progressDialog = await DialogService.ShowProgressAsync("Generating Report", "Generating Report");
+            ProgressDialogController progressDialog = await DialogService.ShowProgressAsync(this, "Generating Report", "Generating Report");
             var ds = await Task.Run(() => gen.TradeStats(tradeIDs, PerformanceReportPageViewModel.ReportSettings, Datasourcer, progressDialog));
             progressDialog.CloseAsync().Forget(); //don't await it!
 

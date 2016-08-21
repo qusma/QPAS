@@ -44,9 +44,9 @@
     <Reference Include="LZ4">
       <HintPath>..\packages\lz4net.1.0.5.93\lib\net40-client\LZ4.dll</HintPath>
     </Reference>
-    <Reference Include="MahApps.Metro, Version=1.1.2.0, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MahApps.Metro.1.1.2.0\lib\net45\MahApps.Metro.dll</HintPath>
+    <Reference Include="MahApps.Metro, Version=1.2.4.0, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
+      <HintPath>..\packages\MahApps.Metro.1.2.4.0\lib\net45\MahApps.Metro.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=3.13.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.3.13.0\lib\net40\MathNet.Numerics.dll</HintPath>
@@ -79,6 +79,10 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\MahApps.Metro.1.2.4.0\lib\net45\System.Windows.Interactivity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -97,7 +101,6 @@
     <Compile Include="ExtensionMethods\LinkedListExtensions.cs" />
     <Compile Include="ExtensionMethods\TaskExtensions.cs" />
     <Compile Include="Interfaces\IDataSourcer.cs" />
-    <Compile Include="Interfaces\IDialogService.cs" />
     <Compile Include="Interfaces\IExternalDataSource.cs" />
     <Compile Include="Interfaces\ITradesRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

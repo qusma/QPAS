@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+using MahApps.Metro.Controls.Dialogs;
 using MathNet.Numerics.Statistics;
 using OxyPlot;
 using OxyPlot.Wpf;
@@ -154,7 +155,7 @@ namespace QPAS
         public List<KeyValuePair<int, double>> AvgCumulativeWinnerRets { get; set; }
         public List<KeyValuePair<int, double>> AvgCumulativeLoserRets { get; set; }
 
-        public PerformanceReportViewModel(filterReportDS data, ReportSettings settings, IDialogService dialogService) : base(null)
+        public PerformanceReportViewModel(filterReportDS data, ReportSettings settings, IDialogCoordinator dialogService) : base(null)
         {
             Data = data;
             Settings = settings;
@@ -167,7 +168,7 @@ namespace QPAS
                     }
                     catch (Exception ex)
                     {
-                        dialogService.ShowMessageAsync("Error saving image", ex.Message);
+                        dialogService.ShowMessageAsync(this, "Error saving image", ex.Message);
                     }
                 });
 

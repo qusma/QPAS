@@ -12,6 +12,7 @@ using System.Windows;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
+using MahApps.Metro.Controls.Dialogs;
 using QPAS.DataSets;
 
 namespace QPAS
@@ -69,7 +70,7 @@ namespace QPAS
             }
         }
 
-        public ExecutionReportViewModel(ExecutionStatsGenerator statsGenerator, IDialogService dialogService)
+        public ExecutionReportViewModel(ExecutionStatsGenerator statsGenerator, IDialogCoordinator dialogService)
             : base(dialogService)
         {
             UseSessionsTime = true;
@@ -114,7 +115,7 @@ namespace QPAS
 
             if(!string.IsNullOrEmpty(error))
             {
-                await DialogService.ShowMessageAsync("Error", error);
+                await DialogService.ShowMessageAsync(this, "Error", error);
             }
         }
 

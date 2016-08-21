@@ -25,7 +25,7 @@ namespace QPAS
 
         public ICommand Delete { get; set; }
 
-        public FXTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogService dialogService, MainViewModel parent)
+        public FXTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogCoordinator dialogService, MainViewModel parent)
             : base(dialogService)
         {
             Context = context;
@@ -47,7 +47,7 @@ namespace QPAS
         {
             if (fxts == null || fxts.Count == 0) return;
 
-            var res = await DialogService.ShowMessageAsync(
+            var res = await DialogService.ShowMessageAsync(this,
                 "Delete Order(s)",
                 string.Format("Are you sure you want to delete {0} FX transaction(s)?", fxts.Count),
                 MessageDialogStyle.AffirmativeAndNegative);

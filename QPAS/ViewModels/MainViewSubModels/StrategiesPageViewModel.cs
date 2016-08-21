@@ -18,7 +18,7 @@ namespace QPAS
 
         public ICommand Delete { get; set; }
 
-        public StrategiesPageViewModel(IDBContext context, IDialogService dialogService, MainViewModel parent)
+        public StrategiesPageViewModel(IDBContext context, IDialogCoordinator dialogService, MainViewModel parent)
             : base(dialogService)
         {
             Context = context;
@@ -48,11 +48,12 @@ namespace QPAS
 
             if (tradesCount > 0)
             {
-                await DialogService.ShowMessageAsync("Cannot delete", string.Format("Can't delete this strategy, it still has {0} trades in it.", tradesCount));
+                await DialogService.ShowMessageAsync(this, 
+                    "Cannot delete", string.Format("Can't delete this strategy, it still has {0} trades in it.", tradesCount));
                 return;
             }
 
-            MessageDialogResult result = await DialogService.ShowMessageAsync(
+            MessageDialogResult result = await DialogService.ShowMessageAsync(this,
                 "Delete strategy",
                 String.Format("Are you sure you want to delete {0}?", strategy.Name),
                 MessageDialogStyle.AffirmativeAndNegative);

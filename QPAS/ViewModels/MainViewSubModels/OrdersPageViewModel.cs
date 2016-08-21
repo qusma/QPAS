@@ -32,7 +32,7 @@ namespace QPAS
         public ICommand SetExecutionReportOrders { get; private set; }
         public ICommand RunScripts { get; private set; }
 
-        public OrdersPageViewModel(IDBContext context, IDialogService dialogService, IDataSourcer datasourcer, MainViewModel parent)
+        public OrdersPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer, MainViewModel parent)
             : base(dialogService)
         {
             Context = context;
@@ -78,7 +78,7 @@ namespace QPAS
             if (orders == null || orders.Count == 0) return;
             var selectedOrders = orders.Cast<Order>().ToList();
 
-            var res = await DialogService.ShowMessageAsync(
+            var res = await DialogService.ShowMessageAsync(this,
                 "Delete Order(s)",
                 string.Format("Are you sure you want to delete {0} order(s)?", selectedOrders.Count),
                 MessageDialogStyle.AffirmativeAndNegative);
@@ -116,7 +116,7 @@ namespace QPAS
 
             if (size <= 0) return;
 
-            var res = await DialogService.ShowMessageAsync(
+            var res = await DialogService.ShowMessageAsync(this,
                 "Virtual Order Creation",
                 string.Format("Are you sure you want to create virtual orders for {0} shares?", size),
                 MessageDialogStyle.AffirmativeAndNegative);

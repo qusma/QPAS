@@ -23,7 +23,7 @@ namespace QPAS
         public CollectionViewSource CashTransactionsSource { get; set; }
         public ICommand Delete { get; private set; }
 
-        public CashTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogService dialogService, MainViewModel parent)
+        public CashTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogCoordinator dialogService, MainViewModel parent)
             : base(dialogService)
         {
             Context = context;
@@ -58,7 +58,7 @@ namespace QPAS
         {
             if (cts == null || cts.Count == 0) return;
 
-            var res = await DialogService.ShowMessageAsync(
+            var res = await DialogService.ShowMessageAsync(this,
                 "Delete Order(s)",
                 string.Format("Are you sure you want to delete {0} cash transaction(s)?", cts.Count),
                 MessageDialogStyle.AffirmativeAndNegative);

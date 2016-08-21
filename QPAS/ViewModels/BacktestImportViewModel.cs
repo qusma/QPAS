@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace QPAS
 {
@@ -75,14 +76,14 @@ namespace QPAS
 
         public RelayCommand OpenFileCmd { get; private set; }
 
-        private IDialogService _dialogService;
+        private IDialogCoordinator _dialogService;
         private string _selectedDelimiter;
         private string _rawData;
         private string _dateTimeFormat;
         private string _filePath;
         private int _skipLines;
 
-        public BacktestImportViewModel(IDialogService dialogService)
+        public BacktestImportViewModel(IDialogCoordinator dialogService)
         {
             _dialogService = dialogService;
             RawSplitData = new ObservableCollection<KeyValuePair<string, string>>();
@@ -96,7 +97,7 @@ namespace QPAS
         private void OpenFile()
         {
             string file;
-            bool? res = _dialogService.OpenFileDialog("CSV Files (*.csv)|*.csv", out file);
+            bool? res = Dialogs.OpenFileDialog("CSV Files (*.csv)|*.csv", out file);
             if(!res.HasValue || res.Value == false)
             {
                 //No file
@@ -112,7 +113,7 @@ namespace QPAS
             }
             catch(Exception ex)
             {
-                _dialogService.ShowMessageAsync("Error opening file.", ex.Message).Forget();
+                _dialogService.ShowMessageAsync(this, "Error opening file.", ex.Message).Forget();
                 return;
             }
 
@@ -173,7 +174,7 @@ namespace QPAS
                 DateTime date;
                 if(!DateTime.TryParseExact(kvp.Key, DateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
                 {
-                    _dialogService.ShowMessageAsync("Parsing error.",
+                    _dialogService.ShowMessageAsync(this, "Parsing error.",
                         string.Format("Failed to date value at line {0}: {1}", count, kvp.Key));
                     return false;
                 }
@@ -182,7 +183,7 @@ namespace QPAS
                 double equity;
                 if(!double.TryParse(kvp.Value, out equity))
                 {
-                    _dialogService.ShowMessageAsync("Parsing error.",
+                    _dialogService.ShowMessageAsync(this, "Parsing error.",
                         string.Format("Failed to parse equity value at line {0}: {1}", count, kvp.Value));
                     return false;
                 }
@@ -194,7 +195,7 @@ namespace QPAS
             //Make sure there's sufficient data
             if (dates.Count <= 1)
             {
-                _dialogService.ShowMessageAsync("Parsing error.", "Parsed backtest data too short.");
+                _dialogService.ShowMessageAsync(this, "Parsing error.", "Parsed backtest data too short.");
                 EquityCurve = null;
                 return false;
             }

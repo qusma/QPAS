@@ -6,18 +6,19 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace QPAS
 {
     public class ViewModelBase : INotifyPropertyChanged
     {
-        protected IDialogService DialogService;
+        protected IDialogCoordinator DialogService;
 
         public virtual void Refresh()
         {
         }
 
-        public ViewModelBase(IDialogService dialogService = null)
+        public ViewModelBase(IDialogCoordinator dialogService = null)
         {
             DialogService = dialogService;
         }

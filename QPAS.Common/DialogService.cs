@@ -4,23 +4,16 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using MahApps.Metro.Controls;
-using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
-using System.Threading.Tasks;
 
 namespace QPAS
 {
-    public class DialogService : IDialogService
+    public static class Dialogs
     {
-        private readonly MetroWindow _window;
+        //todo remove this, use built-in mahapps stuff
+        //todo remove reference to mahapps in QPAS.Common
 
-        public DialogService(MetroWindow window)
-        {
-            _window = window;
-        }
-
-        public bool? OpenFileDialog(string filter, out string filePath)
+        public static bool? OpenFileDialog(string filter, out string filePath)
         {
             OpenFileDialog fd = new OpenFileDialog();
             fd.Filter = filter;
@@ -35,28 +28,6 @@ namespace QPAS
             }
 
             return result;
-        }
-
-        public Task<MessageDialogResult> ShowMessageAsync(string title, string message, MessageDialogStyle style = MessageDialogStyle.Affirmative,
-            MetroDialogSettings settings = null)
-        {
-            
-            return _window.ShowMessageAsync(title, message, style, settings);
-        }
-
-        public Task<ProgressDialogController> ShowProgressAsync(string title, string message, bool isCancelable = false, MetroDialogSettings settings = null)
-        {
-            return _window.ShowProgressAsync(title, message, isCancelable, settings);
-        }
-
-        public Task ShowMetroDialogAsync(BaseMetroDialog dialog)
-        {
-            return _window.ShowMetroDialogAsync(dialog);
-        }
-
-        public Task HideMetroDialogAsync(BaseMetroDialog dialog)
-        {
-            return _window.HideMetroDialogAsync(dialog);
         }
     }
 }

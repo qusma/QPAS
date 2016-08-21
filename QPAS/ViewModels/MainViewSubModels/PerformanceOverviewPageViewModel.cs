@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace QPAS
 {
@@ -104,7 +105,7 @@ namespace QPAS
 
         public ObservableCollection<Account> Accounts { get; set; }
 
-        public PerformanceOverviewPageViewModel(IDBContext context, IDialogService dialogService)
+        public PerformanceOverviewPageViewModel(IDBContext context, IDialogCoordinator dialogService)
             : base(dialogService)
         {
             Context = context;

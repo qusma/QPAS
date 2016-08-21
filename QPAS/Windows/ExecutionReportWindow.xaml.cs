@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace QPAS
 {
@@ -19,9 +20,8 @@ namespace QPAS
         public ExecutionReportViewModel ViewModel { get; set; }
         public ExecutionReportWindow(ExecutionStatsGenerator statsGen)
         {
-            var dialogService = new DialogService(this);
             InitializeComponent();
-            ViewModel = new ExecutionReportViewModel(statsGen, dialogService);
+            ViewModel = new ExecutionReportViewModel(statsGen, DialogCoordinator.Instance);
             DataContext = ViewModel;
         }
 

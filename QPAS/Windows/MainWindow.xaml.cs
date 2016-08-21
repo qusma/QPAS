@@ -22,6 +22,7 @@ using System.Windows.Threading;
 using System.Xml.Serialization;
 using EntityModel;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using NLog;
 using NLog.Targets;
 using QLNet;
@@ -112,9 +113,7 @@ namespace QPAS
 
             TradesRepository = new TradesRepository(Context, Datasourcer, Properties.Settings.Default.optionsCapitalUsageMultiplier);
 
-            IDialogService dialogService = new DialogService(this);
-
-            ViewModel = new MainViewModel(Context, Datasourcer, dialogService);
+            ViewModel = new MainViewModel(Context, Datasourcer, DialogCoordinator.Instance);
 
             //Load user scripts
             ScriptLoader.LoadUserScriptTypes();

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using NLog;
 using QPAS.DataSets;
 
@@ -21,8 +22,6 @@ namespace QPAS
     {
         public PerformanceReportViewModel ViewModel { get; set; }
 
-        internal IDialogService DialogService { get; set; }
-
         public PerformanceReportWindow(filterReportDS data, ReportSettings settings)
         {
             InitializeComponent();
@@ -31,9 +30,9 @@ namespace QPAS
             Style s = new Style();
             s.Setters.Add(new Setter(VisibilityProperty, Visibility.Collapsed));
             MainTabCtrl.ItemContainerStyle = s;
-            DialogService = new DialogService(this);
 
-            ViewModel = new PerformanceReportViewModel(data, settings, DialogService);
+
+            ViewModel = new PerformanceReportViewModel(data, settings, DialogCoordinator.Instance);
             DataContext = ViewModel;
 
             //give instrument pnl chart 30 pixels height for every bar, there's no better way of fitting it to the contents
@@ -111,9 +110,9 @@ namespace QPAS
                 if (!string.IsNullOrEmpty(path))
                 {
                     //exported file was successfully saved, ask if we should open it
-                    var res = await DialogService.ShowMessageAsync(
-                        "Export Completed", "Open File?", MahApps.Metro.Controls.Dialogs.MessageDialogStyle.AffirmativeAndNegative);
-                    if (res == MahApps.Metro.Controls.Dialogs.MessageDialogResult.Affirmative)
+                    var res = await DialogCoordinator.Instance.ShowMessageAsync(this,
+                        "Export Completed", "Open File?", MessageDialogStyle.AffirmativeAndNegative);
+                    if (res == MessageDialogResult.Affirmative)
                     {
                         System.Diagnostics.Process.Start(path);
                     }
@@ -122,8 +121,9 @@ namespace QPAS
             catch(Exception ex)
             {
                 var logger = LogManager.GetCurrentClassLogger();
-                logger.Error("Error exporting report to Excel: ", ex);
-                DialogService.ShowMessageAsync("Error", "There was a problem during the export. The error has been logged.").Forget();
+                logger.Error(ex, "Error exporting report to Excel: ");
+                DialogCoordinator.Instance.ShowMessageAsync(this,
+                    "Error", "There was a problem during the export. The error has been logged.").Forget();
             }
         }
     }

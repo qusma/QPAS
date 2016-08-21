@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace QPAS
 {
@@ -20,14 +21,14 @@ namespace QPAS
 
         public TradeFilterSettings TradeFilterSettings { get; set; }
 
-        public ObservableCollection<CheckListItem<Strategy>> Strategies { get; private set; }
+        public ObservableCollection<CheckListItem<Strategy>> Strategies { get; }
 
-        public ObservableCollection<CheckListItem<Tag>> Tags { get; private set; }
+        public ObservableCollection<CheckListItem<Tag>> Tags { get; }
 
-        public ObservableCollection<CheckListItem<Instrument>> Instruments { get; private set; }
+        public ObservableCollection<CheckListItem<Instrument>> Instruments { get; }
 
-        public ObservableCollection<Benchmark> Benchmarks { get; private set; }
-        public ObservableCollection<QDMS.Instrument> BacktestSeries { get; private set; }
+        public ObservableCollection<Benchmark> Benchmarks { get; }
+        public ObservableCollection<QDMS.Instrument> BacktestSeries { get; }
 
         public BacktestSource BacktestSource
         {
@@ -92,7 +93,7 @@ namespace QPAS
 
         public ICommand GenerateReport { get; set; }
 
-        public PerformanceReportPageViewModel(IDBContext context, IDialogService dialogService, MainViewModel parent, IDataSourcer datasourcer)
+        public PerformanceReportPageViewModel(IDBContext context, IDialogCoordinator dialogService, MainViewModel parent, IDataSourcer datasourcer)
             : base(dialogService)
         {
             Context = context;

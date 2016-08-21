@@ -38,7 +38,7 @@ namespace QPAS
         public ICommand RunScripts { get; private set; }
 
 
-        public TradesPageViewModel(IDBContext context, IDialogService dialogService, IDataSourcer datasourcer, MainViewModel parent)
+        public TradesPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer, MainViewModel parent)
             : base(dialogService)
         {
             Context = context;
@@ -155,7 +155,7 @@ namespace QPAS
         {
             if (trades == null || trades.Count == 0) return;
 
-            MessageDialogResult res = await DialogService.ShowMessageAsync(
+            MessageDialogResult res = await DialogService.ShowMessageAsync(this,
                 "Reset Trade",
                 string.Format("Are you sure you want to reset {0} trades?", trades.Count),
                 MessageDialogStyle.AffirmativeAndNegative);
@@ -174,7 +174,7 @@ namespace QPAS
         {
             if (trades == null || trades.Count == 0) return;
 
-            MessageDialogResult res = await DialogService.ShowMessageAsync(
+            MessageDialogResult res = await DialogService.ShowMessageAsync(this,
                 "Delete Trade",
                 string.Format("Are you sure you want to delete {0} trades?", trades.Count),
                 MessageDialogStyle.AffirmativeAndNegative);

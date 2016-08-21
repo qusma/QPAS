@@ -21,7 +21,7 @@ namespace QPAS
 {
     public class ScriptingViewModel : ViewModelBase
     {
-        private IDialogService _dialogService;
+        private IDialogCoordinator _dialogService;
         private IDBContext _dbContext;
 
         public bool ChangedSinceLastSave
@@ -85,7 +85,7 @@ namespace QPAS
         public ICommand RemoveReference { get; private set; }
         public ICommand LaunchHelp { get; private set; }
 
-        public ScriptingViewModel(IDBContext context, IDialogService dialogService)
+        public ScriptingViewModel(IDBContext context, IDialogCoordinator dialogService)
         {
             Scripts = new ObservableCollection<UserScript>(context.UserScripts.ToList());
             _dialogService = dialogService;
@@ -106,6 +106,7 @@ namespace QPAS
             if (SelectedScript == null) return;
 
             MessageDialogResult result = await _dialogService.ShowMessageAsync(
+                this,
                 "Delete Script",
                 "Are you sure you want to delete the script " + SelectedScript.Name + "?", 
                 MessageDialogStyle.AffirmativeAndNegative);
@@ -127,7 +128,7 @@ namespace QPAS
             if (SelectedScript == null) return;
 
             string filePath;
-            bool? success = _dialogService.OpenFileDialog("DLL Files (*.dll)|*.dll", out filePath);
+            bool? success = Dialogs.OpenFileDialog("DLL Files (*.dll)|*.dll", out filePath);
             if(success.HasValue && success.Value)
             {
                 if (SelectedScript.ReferencedAssemblies.Contains(filePath)) return;
@@ -181,7 +182,9 @@ namespace QPAS
             if (!ChangedSinceLastSave) return;
 
             MessageDialogResult res = await _dialogService
-                .ShowMessageAsync("Unsaved Changes", 
+                .ShowMessageAsync(
+                    this,
+                    "Unsaved Changes", 
                     "There are unsaved changes, would you like to save them?", 
                     MessageDialogStyle.AffirmativeAndNegative);
 
@@ -224,14 +227,14 @@ namespace QPAS
                 {
                     string scriptType = (orderRadioBtn.IsChecked.HasValue && orderRadioBtn.IsChecked.Value) ? "Order" : "Trade";
                     CreateNewScript(textBox.Text, scriptType);
-                    _dialogService.HideMetroDialogAsync(dialog);
+                    _dialogService.HideMetroDialogAsync(this, dialog);
 
                 };
 
             Button cancelBtn = new Button { Content = "Cancel", Margin = new Thickness(5) };
             cancelBtn.Click += (s, e) =>
                 {
-                    _dialogService.HideMetroDialogAsync(dialog);
+                    _dialogService.HideMetroDialogAsync(this, dialog);
                 };
 
             btnPanel.Children.Add(nextBtn);
@@ -246,7 +249,7 @@ namespace QPAS
             dialog.Content = panel;
 
             //There is no point to awaiting this one, it returns immediately
-            _dialogService.ShowMetroDialogAsync(dialog);
+            _dialogService.ShowMetroDialogAsync(this, dialog);
         }
 
         private void CreateNewScript(string name, string type)
@@ -254,7 +257,7 @@ namespace QPAS
             if (string.IsNullOrEmpty(name)) return;
             if(_dbContext.UserScripts.Any(x => x.Name == name))
             {
-                _dialogService.ShowMessageAsync("Script Already Exists", "A script with that name already exists.");
+                _dialogService.ShowMessageAsync(this, "Script Already Exists", "A script with that name already exists.");
                 return;
             }
 

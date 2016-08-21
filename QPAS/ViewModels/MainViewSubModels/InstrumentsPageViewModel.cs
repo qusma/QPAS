@@ -16,6 +16,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Windows.Data;
 using System.Windows.Input;
+using MahApps.Metro.Controls.Dialogs;
 using Instrument = EntityModel.Instrument;
 
 namespace QPAS
@@ -89,7 +90,7 @@ namespace QPAS
 
         public ICommand SaveChart { get; private set; }
 
-        public InstrumentsPageViewModel(IDBContext context, IDialogService dialogService, IDataSourcer datasourcer)
+        public InstrumentsPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer)
             : base(dialogService)
         {
             Context = context;
@@ -117,7 +118,7 @@ namespace QPAS
                 }
                 catch (Exception ex)
                 {
-                    DialogService.ShowMessageAsync("Error saving image", ex.Message);
+                    DialogService.ShowMessageAsync(this, "Error saving image", ex.Message);
                 }
             });
         }
@@ -146,7 +147,7 @@ namespace QPAS
             }
             catch (Exception ex)
             {
-                DialogService.ShowMessageAsync("Error Getting Data", ex.Message);
+                DialogService.ShowMessageAsync(this, "Error Getting Data", ex.Message);
                 return;
             }
 

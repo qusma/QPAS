@@ -11,6 +11,8 @@
         Icon="../Resources/icon.ico"
         TitlebarHeight="32"
         FontFamily="Segoe UI Semibold"
+                      xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+    Dialog:DialogParticipation.Register="{Binding}"
         >
     <Window.Resources>
         <Style x:Key="CopyBtnStyle" TargetType="Button" BasedOn="{StaticResource MetroButton}">

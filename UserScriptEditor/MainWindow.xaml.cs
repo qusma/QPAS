@@ -9,6 +9,7 @@ using System.Configuration;
 using System.Reflection;
 using EntityModel;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using NLog;
 
 namespace QPAS.UserScriptEditor
@@ -37,7 +38,7 @@ namespace QPAS.UserScriptEditor
 
             InitializeComponent();
             
-            ViewModel = new ScriptingViewModel(context, new DialogService(this));
+            ViewModel = new ScriptingViewModel(context, DialogCoordinator.Instance);
             DataContext = ViewModel;
         }
 

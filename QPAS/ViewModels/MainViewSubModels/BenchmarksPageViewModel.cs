@@ -43,7 +43,7 @@ namespace QPAS
             }
         }
 
-        public BenchmarksPageViewModel(IDBContext context, IDialogService dialogService, IDataSourcer datasourcer)
+        public BenchmarksPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer)
             : base(dialogService)
         {
             Context = context;
@@ -100,7 +100,7 @@ namespace QPAS
         {
             if (benchmark == null) return;
 
-            var result = await DialogService.ShowMessageAsync(
+            var result = await DialogService.ShowMessageAsync(this,
                 "Delete Benchmark",
                 string.Format("Are you sure you want to delete {0}?", benchmark.Name),
                 MessageDialogStyle.AffirmativeAndNegative);

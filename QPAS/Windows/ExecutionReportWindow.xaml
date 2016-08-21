@@ -11,7 +11,9 @@
         TitlebarHeight="32"
         Icon="../Resources/icon.ico"
         FontFamily="Segoe UI Semibold"
-        Title="Execution Report" Height="800" Width="1200">
+        Title="Execution Report" Height="800" Width="1200"
+                      xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+    Dialog:DialogParticipation.Register="{Binding}">
     <Window.Resources>
         <qpas:EnumBooleanConverter x:Key="EnumBooleanConverter" />
         <qpas:InvertBooleanConverter x:Key="InvertBooleanConverter"/>

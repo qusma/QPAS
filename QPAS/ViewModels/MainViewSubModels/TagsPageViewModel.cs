@@ -25,7 +25,7 @@ namespace QPAS
 
         public ICommand Delete { get; set; }
 
-        public TagsPageViewModel(IDBContext context, IDialogService dialogService, MainViewModel parent)
+        public TagsPageViewModel(IDBContext context, IDialogCoordinator dialogService, MainViewModel parent)
             : base(dialogService)
         {
             Context = context;
@@ -61,7 +61,7 @@ namespace QPAS
 
         private async void DeleteTag(Tag tag)
         {
-            MessageDialogResult res = await DialogService.ShowMessageAsync(
+            MessageDialogResult res = await DialogService.ShowMessageAsync(this,
                 "Delete Tag",
                 string.Format("Are you sure you want to delete {0}?", tag.Name),
                 MessageDialogStyle.AffirmativeAndNegative);

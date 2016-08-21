@@ -23,7 +23,7 @@ namespace QPAS
 {
     public class StatementHandler
     {
-        private readonly IDialogService _dialogService;
+        private readonly IDialogCoordinator _dialogService;
         private readonly ITradesRepository _tradeRepository;
 
         [ImportMany(typeof(IStatementParser))]
@@ -35,7 +35,7 @@ namespace QPAS
         public List<string> DownloaderNames { get; private set; }
         public List<string> ParserNames { get; private set; }
 
-        public StatementHandler(IDBContext context, IDialogService dialogService, IDataSourcer dataSourcer, ITradesRepository repository)
+        public StatementHandler(IDBContext context, IDialogCoordinator dialogService, IDataSourcer dataSourcer, ITradesRepository repository)
         {
             _dialogService = dialogService;
 
@@ -72,7 +72,7 @@ namespace QPAS
             }
             catch (CompositionException compositionException)
             {
-                _dialogService.ShowMessageAsync("Error", string.Format("There was an error loading plugins: {0}", compositionException)).Forget();
+                _dialogService.ShowMessageAsync(this, "Error", string.Format("There was an error loading plugins: {0}", compositionException)).Forget();
             }
         }
 
@@ -80,7 +80,7 @@ namespace QPAS
         {
             if (!DownloaderNames.Contains(name))
             {
-                await _dialogService.ShowMessageAsync("Error", "Statement downloader not found.");
+                await _dialogService.ShowMessageAsync(this, "Error", "Statement downloader not found.");
                 return null;
             }
 
@@ -91,7 +91,7 @@ namespace QPAS
         {
             if (!ParserNames.Contains(name))
             {
-                await _dialogService.ShowMessageAsync("Error", "Statement parser not found.");
+                await _dialogService.ShowMessageAsync(this, "Error", "Statement parser not found.");
                 return null;
             }
 
@@ -109,7 +109,7 @@ namespace QPAS
             var parser = await GetParserByName(name);
             if (parser == null) return;
 
-            ProgressDialogController progress = await _dialogService.ShowProgressAsync("Load Statement from Web", "Downloading");
+            ProgressDialogController progress = await _dialogService.ShowProgressAsync(this, "Load Statement from Web", "Downloading");
 
             Exception ex = null;
             var flex = await Task.Run(() =>
@@ -128,7 +128,7 @@ namespace QPAS
             if (flex == "" || ex != null)
             {
                 await progress.CloseAsync();
-                await _dialogService.ShowMessageAsync("Error downloading statement", ex.Message);
+                await _dialogService.ShowMessageAsync(this, "Error downloading statement", ex.Message);
 
                 return;
             }
@@ -153,11 +153,11 @@ namespace QPAS
             if (parser == null) return;
 
             string file;
-            bool? res = _dialogService.OpenFileDialog(parser.GetFileFilter(), out file);
+            bool? res = Dialogs.OpenFileDialog(parser.GetFileFilter(), out file);
 
             if (res != true) return;
 
-            ProgressDialogController progress = await _dialogService.ShowProgressAsync("Load Statement from File", "Opening File");
+            ProgressDialogController progress = await _dialogService.ShowProgressAsync(this, "Load Statement from File", "Opening File");
             string flexqText = "";
             try
             {
@@ -166,7 +166,7 @@ namespace QPAS
             catch (IOException)
             {
                 progress.CloseAsync().Forget();
-                _dialogService.ShowMessageAsync("Error", "Could not open file.").Forget();
+                _dialogService.ShowMessageAsync(this, "Error", "Could not open file.").Forget();
                 return;
             }
 

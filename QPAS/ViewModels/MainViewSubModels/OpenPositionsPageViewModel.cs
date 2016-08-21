@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Data.Entity;
 using System.Linq;
 using System.Windows.Data;
+using MahApps.Metro.Controls.Dialogs;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
@@ -20,11 +21,11 @@ namespace QPAS
     {
         private Account _selectedAccount;
 
-        public ObservableCollection<OpenPosition> OpenPositions { get; private set; }
+        public ObservableCollection<OpenPosition> OpenPositions { get; }
 
-        public ObservableCollection<FXPosition> FXPositions { get; private set; }
+        public ObservableCollection<FXPosition> FXPositions { get; }
 
-        public ObservableCollection<Account> Accounts { get; private set; }
+        public ObservableCollection<Account> Accounts { get; }
 
         public Account SelectedAccount
         {
@@ -45,7 +46,7 @@ namespace QPAS
         /// </summary>
         public ObservableCollection<Tuple<string, decimal>> UnrealizedPnL { get; set; }
 
-        public OpenPositionsPageViewModel(IDBContext context, IDialogService dialogService)
+        public OpenPositionsPageViewModel(IDBContext context, IDialogCoordinator dialogService)
             : base(dialogService)
         {
             UnrealizedPnL = new ObservableCollection<Tuple<string, decimal>>();

@@ -8,6 +8,8 @@
     Title="Import Data" Height="788" Width="930"
     BorderBrush="Black"
     BorderThickness="1"
+    xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+    Dialog:DialogParticipation.Register="{Binding}"
     >
 
     <controls:MetroWindow.Resources>

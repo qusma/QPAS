@@ -7,6 +7,7 @@
 using System.Diagnostics;
 using System.Windows;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace QPAS
 {
@@ -21,7 +22,7 @@ namespace QPAS
 
         public BacktestImportWindow()
         {
-            ViewModel = new BacktestImportViewModel(new DialogService(this));
+            ViewModel = new BacktestImportViewModel(DialogCoordinator.Instance);
             DataContext = ViewModel;
             InitializeComponent();
             Canceled = true;
