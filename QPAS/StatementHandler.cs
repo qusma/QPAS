@@ -24,7 +24,7 @@ namespace QPAS
     public class StatementHandler
     {
         private readonly IDialogService _dialogService;
-        private readonly TradesRepository _tradeRepository;
+        private readonly ITradesRepository _tradeRepository;
 
         [ImportMany(typeof(IStatementParser))]
         private IEnumerable<Lazy<IStatementParser, IPlugin>> StatementParsers { get; set; }
@@ -35,7 +35,7 @@ namespace QPAS
         public List<string> DownloaderNames { get; private set; }
         public List<string> ParserNames { get; private set; }
 
-        public StatementHandler(IDBContext context, IDialogService dialogService, IDataSourcer dataSourcer)
+        public StatementHandler(IDBContext context, IDialogService dialogService, IDataSourcer dataSourcer, ITradesRepository repository)
         {
             _dialogService = dialogService;
 
@@ -44,7 +44,7 @@ namespace QPAS
             DownloaderNames = StatementDownloaders.Select(x => x.Metadata.Name).ToList();
             ParserNames = StatementParsers.Select(x => x.Metadata.Name).ToList();
 
-            _tradeRepository = new TradesRepository(context, dataSourcer);
+            _tradeRepository = repository;
         }
 
         /// <summary>
