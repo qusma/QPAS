@@ -30,8 +30,6 @@ using QPAS.Scripting;
 using Path = System.IO.Path;
 using Tag = EntityModel.Tag;
 
-//TODO add risk contribution by strategy
-//todo MAR ratio calc for ROAC incorrect (?)
 namespace QPAS
 {
     /// <summary>

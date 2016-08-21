@@ -321,7 +321,7 @@ namespace QPAS
                     ItemsSource = Data.StrategyROAC.Select(x => new { X = x.Date, Y = x.Field<double>(column1.ColumnName) }),
                     Title = column.ColumnName,
                     CanTrackerInterpolatePoints = false,
-                    TrackerFormatString = "Strategy: " + column.ColumnName + @" Date: {2:yyyy-MM-dd} P/L: {4:p12",
+                    TrackerFormatString = "Strategy: " + column.ColumnName + @" Date: {2:yyyy-MM-dd} P/L: {4:p12}",
                     DataFieldX = "X",
                     DataFieldY = "Y",
                     MarkerType = MarkerType.None
