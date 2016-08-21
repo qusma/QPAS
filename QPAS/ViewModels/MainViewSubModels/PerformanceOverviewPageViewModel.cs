@@ -24,6 +24,7 @@ namespace QPAS
         private List<AreaPoint> _totalEquityDrawdownSeries;
         private DataTable _stats;
         private Account _selectedAccount;
+        private Currency _selectedCurrency;
 
         public List<AreaPoint> EquitySummaryPercentSeries
         {
@@ -87,6 +88,20 @@ namespace QPAS
             }
         }
 
+        public Currency SelectedCurrency
+        {
+            get { return _selectedCurrency; }
+            set
+            {
+                if (Equals(value, _selectedCurrency)) return;
+                _selectedCurrency = value;
+                OnPropertyChanged();
+                Refresh();
+            }
+        }
+
+        public ObservableCollection<Currency> Currencies { get; set; }
+
         public ObservableCollection<Account> Accounts { get; set; }
 
         public PerformanceOverviewPageViewModel(IDBContext context, IDialogService dialogService)
@@ -95,6 +110,9 @@ namespace QPAS
             Context = context;
             Accounts = new ObservableCollection<Account>();
             Accounts.Add(new Account { ID = -1, AccountId = "All" });
+
+            Currencies = new ObservableCollection<Currency>(context.Currencies.ToList());
+            SelectedCurrency = Currencies.FirstOrDefault(x => x.Name == "USD");
 
             SelectedAccount = Accounts.First();
         }
@@ -148,9 +166,8 @@ namespace QPAS
 
             //adjust the % returns for deposits/withdrawals as they obviously don't affect performance
             Dictionary<DateTime, decimal> depositsWithdrawals = GetDepositsWithdrawals();
-
             Dictionary<DateTime, decimal> totalCapital = GetTotalCapitalSeries();
-
+            
             foreach (var es in totalCapital)
             {
                 decimal total = es.Value;
@@ -165,8 +182,9 @@ namespace QPAS
                         if (lastTotal != 0)
                         //make sure we avoid division by zero...equity can't change if we have 0 to start with anyway
                         {
-                            rets.Add((double)(((total - externalCashFlow) - lastTotal) / lastTotal));
-                            equity *= 1 + rets.Last();
+                            double todaysRet = (double)(((total - externalCashFlow) - lastTotal) / lastTotal);
+                            rets.Add(todaysRet);
+                            equity *= 1 + todaysRet;
                         }
 
                         maxEquity = Math.Max(equity, maxEquity);
@@ -190,9 +208,10 @@ namespace QPAS
 
         private Dictionary<DateTime, decimal> GetTotalCapitalSeries()
         {
+            Dictionary<DateTime, decimal> totalCapital;
             if (SelectedAccount.AccountId == "All")
             {
-                return Context
+                totalCapital = Context
                     .EquitySummaries
                     .GroupBy(x => x.Date)
                     .OrderBy(x => x.Key)
@@ -200,19 +219,52 @@ namespace QPAS
             }
             else
             {
-                return Context
+                totalCapital = Context
                     .EquitySummaries
                     .Where(x => x.AccountID == SelectedAccount.ID)
                     .OrderBy(x => x.Date)
                     .ToDictionary(x => x.Date, x => x.Total);
             }
+
+            return PerformCurrencyAdjustment(totalCapital);
+        }
+
+        private Dictionary<DateTime, decimal> PerformCurrencyAdjustment(Dictionary<DateTime, decimal> inputSeries)
+        {
+            if (SelectedCurrency == null || SelectedCurrency.Name == "USD")
+            {
+                //no fx adjustment needed, return
+                return inputSeries;
+            }
+            else
+            {
+                //Grab fx data and move the timeseries to the start of the equity data
+                TimeSeries fxRates =
+                    Utils.TimeSeriesFromFXRates(Context.FXRates.Where(x => x.FromCurrencyID == _selectedCurrency.ID).OrderBy(x => x.Date));
+
+                Dictionary<DateTime, decimal> newSeries = new Dictionary<DateTime, decimal>();
+
+                foreach(var kvp in inputSeries)
+                {
+                    //move fx rate series to the time of the current item from the input series
+                    fxRates.ProgressTo(kvp.Key);
+
+                    //precaution to make sure we actually have data for this point
+                    decimal fxRate = fxRates.CurrentBar >= 0 ? fxRates[0].Close : 1;
+
+                    newSeries.Add(kvp.Key, kvp.Value / fxRate);
+                }
+
+                return newSeries;
+            }
         }
 
         private Dictionary<DateTime, decimal> GetDepositsWithdrawals()
         {
+            Dictionary<DateTime, decimal> depositsWithdrawals;
             if (SelectedAccount.AccountId == "All")
             {
-                return Context
+                depositsWithdrawals = Context
                     .CashTransactions
                     .Where(x => x.Type == "Deposits & Withdrawals")
                     .ToList()
@@ -221,7 +273,7 @@ namespace QPAS
             }
             else
             {
-                return Context
+                depositsWithdrawals = Context
                     .CashTransactions
                     .Where(x => x.AccountID == SelectedAccount.ID)
                     .Where(x => x.Type == "Deposits & Withdrawals")
@@ -229,6 +281,8 @@ namespace QPAS
                     .GroupBy(x => x.TransactionDate)
                     .ToDictionary(x => x.Key, x => x.Sum(y => y.Amount * y.FXRateToBase));
             }
+
+            return PerformCurrencyAdjustment(depositsWithdrawals);
         }
 
         private DataTable GeneratePerformanceOverviewStats()
@@ -278,7 +332,7 @@ namespace QPAS
 
         private EquityCurve EcFromEquitySummaries(Dictionary<DateTime, decimal> summaries, Dictionary<DateTime, decimal> depositsWithdrawals)
         {
-            if (summaries.Count == 0) return new EquityCurve(100, summaries.First().Key);
+            if (summaries.Count == 0) return new EquityCurve(100, DateTime.Now);
 
             var ec = new EquityCurve(100, summaries.First().Key);
             decimal lastTotal = summaries.First().Value;
