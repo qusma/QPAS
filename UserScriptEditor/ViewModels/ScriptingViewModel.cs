@@ -294,6 +294,8 @@ namespace QPAS
             script.ReferencedAssemblies.Add(entityModelDllPath);
             string qpasCommonPath = Path.Combine(Path.GetDirectoryName(exePath), "QPAS.Common.dll");
             script.ReferencedAssemblies.Add(qpasCommonPath);
+            string nlogPath = Path.Combine(Path.GetDirectoryName(exePath), "NLog.dll");
+            script.ReferencedAssemblies.Add(nlogPath);
         }
 
         private const string OrderScriptBase =
@@ -303,6 +305,7 @@ using QPAS;
 using QPAS.Scripting;
 using EntityModel;
 using System.Linq;
+using NLog;
 
 public class {0} : OrderScriptBase
 {{
@@ -325,6 +328,7 @@ using QPAS;
 using QPAS.Scripting;
 using EntityModel;
 using System.Linq;
+using NLog;
 
 public class {0} : TradeScriptBase
 {{
