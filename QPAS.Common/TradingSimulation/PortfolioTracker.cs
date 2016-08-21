@@ -183,7 +183,7 @@ namespace QPAS
 
                 Position p = kvp.Value;
                 decimal fxRate = p.Currency == null || p.Currency.ID == 1 ? 1 : _fxData[p.Currency.ID][0].Close;
-                decimal? lastPrice = !_data.ContainsKey(id) || _data[id].CurrentBar < 0 ? (decimal?)null : _data[id][0].Close;
+                decimal? lastPrice = GetLastPrice(id, todaysDate);
                 p.GetPnL(lastPrice, fxRate);
             }
 
@@ -226,6 +226,25 @@ namespace QPAS
             }
 
             Capital.EndOfDay();
+        }
+
+        private decimal? GetLastPrice(int id, DateTime todaysDate)
+        {
+            if (!_data.ContainsKey(id) || _data[id].CurrentBar < 0)
+            {
+                //we have nothing
+                return null;
+            }
+
+            if (_data[id][0].Date.ToDateTimeUnspecified().Date != todaysDate.Date)
+            {
+                //if there is no proper data and we are using the PriorPositions, this can be wrong and cause a lot of trouble
+                //in that case, just use the trade price
+                return null;
+            }
+
+            //everything's alright, return today's closing price
+            return _data[id][0].Close;
         }
     }
 }

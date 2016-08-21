@@ -274,7 +274,7 @@ namespace QPAS
 
                 Position p = kvp.Value;
                 decimal fxRate = p.Currency == null || p.Currency.ID <= 1 ? 1 : fxData[p.Currency.ID][0].Close;
-                decimal? lastPrice = !data.ContainsKey(id) || data[id].CurrentBar < 0 ? (decimal?)null : data[id][0].Close;
+                decimal? lastPrice = GetLastPrice(id, currentDate, data);
                 TodaysPnL += p.GetPnL(lastPrice, fxRate);
             }
 
@@ -316,6 +316,25 @@ namespace QPAS
                 CurrencyPositions.Values.Sum(x => x.Quantity) != 0 ||
                 (_ordersRemaining > 0 && _ordersRemaining < Trade.Orders.Count) ||
                 (_cashTransactionsRemaining > 0 && _cashTransactionsRemaining < Trade.CashTransactions.Count);
+        }
+
+        private decimal? GetLastPrice(int id, DateTime todaysDate, Dictionary<int, TimeSeries> data)
+        {
+            if (!data.ContainsKey(id) || data[id].CurrentBar < 0)
+            {
+                //we have nothing
+                return null;
+            }
+
+            if (data[id][0].Date.ToDateTimeUnspecified().Date != todaysDate.Date)
+            {
+                //if there is no proper data and we are using the PriorPositions, this can be wrong and cause a lot of trouble
+                //in that case, just use the trade price
+                return null;
+            }
+
+            //everything's alright, return today's closing price
+            return data[id][0].Close;
         }
     }
 }
