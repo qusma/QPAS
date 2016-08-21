@@ -29,7 +29,7 @@ namespace QPASTest
             _contextMock = new Mock<IDBContext>();
             _externalSourceMock = new Mock<IExternalDataSource>();
 
-            _datasourcer = new DataSourcer(_contextMock.Object, _externalSourceMock.Object);
+            _datasourcer = new DataSourcer(_contextMock.Object, _externalSourceMock.Object, true);
         }
 
         [Test]

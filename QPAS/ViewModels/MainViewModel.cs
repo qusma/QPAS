@@ -13,6 +13,7 @@ using System.Windows.Input;
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
 using OxyPlot;
+using QPAS.Scripting;
 
 namespace QPAS
 {
@@ -22,8 +23,9 @@ namespace QPAS
 
         public IDataSourcer Datasourcer { get; set; }
         public StatementHandler StatementHandler { get; set; }
-
+        public ScriptRunner ScriptRunner { get; private set; }
         public PlotModel InstrumentsChartPlotModel { get; set; }
+        public ITradesRepository TradesRepository { get; private set; }
         
         //ViewModels for each individual page
         public CashTransactionsPageViewModel CashTransactionsPageViewModel { get; set; }
@@ -55,17 +57,21 @@ namespace QPAS
         {
             Context = context;
             Datasourcer = datasourcer;
+            TradesRepository = new TradesRepository(context, datasourcer, Properties.Settings.Default.optionsCapitalUsageMultiplier);
 
             StatementHandler = new StatementHandler(
                 context,
                 dialogService,
-                datasourcer);
+                datasourcer,
+                TradesRepository);
 
             CreateSubViewModels();
 
             SelectedPageViewModel = OpenPositionsPageViewModel;
 
             CreateCommands();
+
+            ScriptRunner = new ScriptRunner(TradesRepository);
         }
 
         public void RefreshCurrentPage()
@@ -76,7 +82,7 @@ namespace QPAS
 
         private void CreateSubViewModels()
         {
-            CashTransactionsPageViewModel = new CashTransactionsPageViewModel(Context, Datasourcer, DialogService);
+            CashTransactionsPageViewModel = new CashTransactionsPageViewModel(Context, Datasourcer, DialogService, this);
             OpenPositionsPageViewModel = new OpenPositionsPageViewModel(Context, DialogService);
             InstrumentsPageViewModel = new InstrumentsPageViewModel(Context, DialogService, Datasourcer);
             StrategiesPageViewModel = new StrategiesPageViewModel(Context, DialogService, this);
@@ -86,7 +92,7 @@ namespace QPAS
             PerformanceOverviewPageViewModel = new PerformanceOverviewPageViewModel(Context, DialogService);
             OrdersPageViewModel = new OrdersPageViewModel(Context, DialogService, Datasourcer, this);
             PerformanceReportPageViewModel = new PerformanceReportPageViewModel(Context, DialogService, this, Datasourcer);
-            FXTransactionsPageViewModel = new FXTransactionsPageViewModel(Context, Datasourcer, DialogService);
+            FXTransactionsPageViewModel = new FXTransactionsPageViewModel(Context, Datasourcer, DialogService, this);
         }
 
         private void CreateCommands()
@@ -97,14 +103,25 @@ namespace QPAS
 
             LoadStatementFromWeb = new RelayCommand<string>(async x =>
             { 
-                await StatementHandler.LoadFromWeb(x); 
-                RefreshCurrentPage(); 
+                await StatementHandler.LoadFromWeb(x);
+                PostStatementLoadProcedures();
+
             });
             LoadStatementFromFile = new RelayCommand<string>(async x => 
             {
                 await StatementHandler.LoadFromFile(x);
-                RefreshCurrentPage();
+                PostStatementLoadProcedures();
             });
+        }
+
+        /// <summary>
+        /// Stuff that needs to be done after loading data from a statement.
+        /// </summary>
+        private void PostStatementLoadProcedures()
+        {
+            RefreshCurrentPage();
+            ScriptRunner.RunOrderScripts(Context.Orders.Where(y => y.Trade == null).OrderBy(y => y.TradeDate).ToList(), Context);
+            ScriptRunner.RunTradeScripts(Context.Trades.Where(y => y.Open).ToList(), Context.Strategies.ToList(), Context.Tags.ToList(), Context);
         }
 
         private void GenReportFromStrategy(IList selectedItems)

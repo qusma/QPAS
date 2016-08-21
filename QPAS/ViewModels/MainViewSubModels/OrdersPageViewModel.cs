@@ -23,13 +23,14 @@ namespace QPAS
 
         internal IDataSourcer Datasourcer;
         internal IDBContext Context;
-        internal TradesRepository TradesRepository;
+        internal ITradesRepository TradesRepository;
         internal ExecutionStatsGenerator ExecutionStatsGenerator;
 
 
-        public ICommand Delete { get; set; }
-        public ICommand CloneSelected { get; set; }
-        public ICommand SetExecutionReportOrders { get; set; }
+        public ICommand Delete { get; private set; }
+        public ICommand CloneSelected { get; private set; }
+        public ICommand SetExecutionReportOrders { get; private set; }
+        public ICommand RunScripts { get; private set; }
 
         public OrdersPageViewModel(IDBContext context, IDialogService dialogService, IDataSourcer datasourcer, MainViewModel parent)
             : base(dialogService)
@@ -38,7 +39,7 @@ namespace QPAS
             Parent = parent;
             Datasourcer = datasourcer;
 
-            TradesRepository = new TradesRepository(Context, Datasourcer);
+            TradesRepository = parent.TradesRepository;
 
             OrdersSource = new CollectionViewSource();
             OrdersSource.Source = Context.Orders.Local;
@@ -54,6 +55,14 @@ namespace QPAS
             CloneSelected = new RelayCommand<int>(CloneOrder);
             Delete = new RelayCommand<IList>(DeleteOrders);
             SetExecutionReportOrders = new RelayCommand<IList>(SetExecReportOrders);
+            RunScripts = new RelayCommand<IList>(RunUserScripts);
+        }
+
+        private void RunUserScripts(IList orders)
+        {
+            if (orders == null || orders.Count == 0) return;
+
+            Parent.ScriptRunner.RunOrderScripts(orders.Cast<Order>().OrderBy(x => x.TradeDate).ToList(), Context);
         }
 
         private void SetExecReportOrders(IList orders)
@@ -74,32 +83,31 @@ namespace QPAS
                 string.Format("Are you sure you want to delete {0} order(s)?", selectedOrders.Count),
                 MessageDialogStyle.AffirmativeAndNegative);
 
-            if (res == MessageDialogResult.Affirmative)
+            if (res != MessageDialogResult.Affirmative) return;
+
+            foreach (Order o in selectedOrders)
             {
-                foreach (Order o in selectedOrders)
+                //remove executions first
+                if(o.Executions != null)
                 {
-                    //remove executions first
-                    if(o.Executions != null)
+                    List<Execution> toRemove = o.Executions.ToList();
+                    foreach(Execution exec in toRemove)
                     {
-                        List<Execution> toRemove = o.Executions.ToList();
-                        foreach(Execution exec in toRemove)
-                        {
-                            Context.Executions.Remove(exec);
-                        }
-                        o.Executions.Clear();
+                        Context.Executions.Remove(exec);
                     }
-
-                    //if the order belongs to a trade, remove it
-                    if (o.Trade != null)
-                    {
-                        TradesRepository.RemoveOrder(o.Trade, o);
-                    }
-
-                    //finally delete the order
-                    Context.Orders.Remove(o);
+                    o.Executions.Clear();
                 }
-                Context.SaveChanges();
+
+                //if the order belongs to a trade, remove it
+                if (o.Trade != null)
+                {
+                    TradesRepository.RemoveOrder(o.Trade, o);
+                }
+
+                //finally delete the order
+                Context.Orders.Remove(o);
             }
+            Context.SaveChanges();
         }
 
         private async void CloneOrder(int size)

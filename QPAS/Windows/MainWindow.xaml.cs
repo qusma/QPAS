@@ -6,9 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Deployment.Application;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,9 +24,13 @@ using EntityModel;
 using MahApps.Metro.Controls;
 using NLog;
 using NLog.Targets;
+using QLNet;
+using QPAS.Scripting;
+using Path = System.IO.Path;
 using Tag = EntityModel.Tag;
 
-
+//TODO add risk contribution by strategy
+//todo MAR ratio calc for ROAC incorrect (?)
 namespace QPAS
 {
     /// <summary>
@@ -101,13 +108,16 @@ namespace QPAS
             }
 
             var qdmsSource = new ExternalDataSources.QDMS();
-            Datasourcer = new DataSourcer(Context, qdmsSource);
+            Datasourcer = new DataSourcer(Context, qdmsSource, Properties.Settings.Default.allowExternalDataSource);
 
-            TradesRepository = new TradesRepository(Context, Datasourcer);
+            TradesRepository = new TradesRepository(Context, Datasourcer, Properties.Settings.Default.optionsCapitalUsageMultiplier);
 
             IDialogService dialogService = new DialogService(this);
 
             ViewModel = new MainViewModel(Context, Datasourcer, dialogService);
+
+            //Load user scripts
+            ScriptLoader.LoadUserScriptTypes();
 
             /////////////////////////////////////////////////////////
             InitializeComponent();
@@ -1143,6 +1153,26 @@ namespace QPAS
                 BacktestFileTextBox.Text = window.ViewModel.FilePath;
                 ViewModel.PerformanceReportPageViewModel.ReportSettings.BacktestData = window.ViewModel.EquityCurve;
             }
+        }
+
+        /// <summary>
+        /// Starts the user script editor and exits this program. 
+        /// Can't compile the user scripts library while this is running.
+        /// </summary>
+        private void ScriptsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var connString = ConfigurationManager.ConnectionStrings["qpasEntities"];
+            ProcessStartInfo start = new ProcessStartInfo 
+            {
+                Arguments = string.Format("\"{0}\" \"{1}\"", connString.ConnectionString, connString.ProviderName), 
+                FileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "UserScriptEditor.exe"),
+                UseShellExecute = true
+            };
+
+            Process.Start(start);
+            Application.Current.Shutdown();
+
+            //todo fix the damn calendar
         }
     }
 }

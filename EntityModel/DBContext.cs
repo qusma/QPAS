@@ -15,6 +15,12 @@ namespace EntityModel
         public DBContext()
             : base("Name=qpasEntities")
         {
+
+        }
+
+        public DBContext(string nameOrConnectionString)
+            : base(nameOrConnectionString)
+        {
         }
 
         public IDbSet<Benchmark> Benchmarks { get; set; }
@@ -54,6 +60,8 @@ namespace EntityModel
         public IDbSet<DatasourcePreference> DatasourcePreferences { get; set; }
 
         public IDbSet<Account> Accounts { get; set; }
+
+        public IDbSet<UserScript> UserScripts { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

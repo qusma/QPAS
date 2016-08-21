@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EntityModel;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 using QPAS;
 
 namespace QPASTest
@@ -847,7 +848,6 @@ namespace QPASTest
         }
 
         [Test]
-        [ExpectedException]
         public void AddingAnOrderForTheWrongInstrumentThrowsException()
         {
             var pos = new Position(_instrument);
@@ -867,7 +867,10 @@ namespace QPASTest
                 Instrument = new Instrument { ID = 2, Multiplier = 1, AssetCategory = AssetClass.Stock },
                 FXRateToBase = 1
             };
-            pos.AddOrder(o2);
+
+            ActualValueDelegate<object> testDelegate = () => pos.AddOrder(o2);
+
+            Assert.That(testDelegate, Throws.Exception);
         }
 
         [Test]

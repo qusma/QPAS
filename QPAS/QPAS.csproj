@@ -87,12 +87,10 @@
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="EPPlus, Version=4.1.0.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
       <HintPath>..\packages\EPPlus.4.1.0\lib\net40\EPPlus.dll</HintPath>
@@ -108,12 +106,10 @@
     <Reference Include="MahApps.Metro, Version=1.2.4.0, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.1.2.4.0\lib\net45\MahApps.Metro.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\MahApps.Metro.0.14.0.0\lib\net45\MahApps.Metro.dll</HintPath>
     </Reference>
     <Reference Include="MathNet.Numerics, Version=3.13.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MathNet.Numerics.3.13.0\lib\net40\MathNet.Numerics.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\MathNet.Numerics.3.2.1\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="MySql.Data, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
@@ -123,13 +119,10 @@
     <Reference Include="MySql.Data.Entity.EF6, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>..\packages\MySql.Data.Entity.6.9.9\lib\net45\MySql.Data.Entity.EF6.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\MySql.ConnectorNET.Entity.6.8.3.2\lib\net45\MySql.Data.Entity.EF6.dll</HintPath>
     </Reference>
     <Reference Include="MySqlBackup, Version=2.0.9.2, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MySqlBackup.NET.2.0.9.4\lib\net45\MySqlBackup.dll</HintPath>
       <Private>True</Private>
-    <Reference Include="NetMQ">
-      <HintPath>..\packages\NetMQ.3.3.0.10\lib\net40\NetMQ.dll</HintPath>
     </Reference>
     <Reference Include="NetMQ, Version=3.3.0.11, Culture=neutral, PublicKeyToken=a6decef4ddc58b3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -142,7 +135,6 @@
     <Reference Include="NodaTime, Version=1.3.0.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
       <HintPath>..\packages\NodaTime.1.3.2\lib\net35-Client\NodaTime.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\NodaTime.1.3.0\lib\net35-Client\NodaTime.dll</HintPath>
     </Reference>
     <Reference Include="NXmlMapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -175,12 +167,10 @@
     <Reference Include="QLNet, Version=1.7.0.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\QLNet.1.7.0.1\lib\net40\QLNet.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\QLNet.1.3.0.1\lib\net35\QLNet.dll</HintPath>
     </Reference>
     <Reference Include="QuickConverter, Version=1.2.3.0, Culture=neutral, PublicKeyToken=9c892aa7bc2af2cf, processorArchitecture=MSIL">
       <HintPath>..\packages\QuickConverter.1.2.3.0\lib\net40\QuickConverter.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\QuickConverter.0.9.7.0\lib\net40\QuickConverter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -210,32 +200,26 @@
     <Reference Include="Xceed.Wpf.AvalonDock, Version=2.9.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
       <HintPath>..\packages\Extended.Wpf.Toolkit.2.9\lib\net40\Xceed.Wpf.AvalonDock.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\Extended.Wpf.Toolkit.2.2.1\lib\net40\Xceed.Wpf.AvalonDock.dll</HintPath>
     </Reference>
     <Reference Include="Xceed.Wpf.AvalonDock.Themes.Aero, Version=2.9.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
       <HintPath>..\packages\Extended.Wpf.Toolkit.2.9\lib\net40\Xceed.Wpf.AvalonDock.Themes.Aero.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\Extended.Wpf.Toolkit.2.2.1\lib\net40\Xceed.Wpf.AvalonDock.Themes.Aero.dll</HintPath>
     </Reference>
     <Reference Include="Xceed.Wpf.AvalonDock.Themes.Metro, Version=2.9.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
       <HintPath>..\packages\Extended.Wpf.Toolkit.2.9\lib\net40\Xceed.Wpf.AvalonDock.Themes.Metro.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\Extended.Wpf.Toolkit.2.2.1\lib\net40\Xceed.Wpf.AvalonDock.Themes.Metro.dll</HintPath>
     </Reference>
     <Reference Include="Xceed.Wpf.AvalonDock.Themes.VS2010, Version=2.9.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
       <HintPath>..\packages\Extended.Wpf.Toolkit.2.9\lib\net40\Xceed.Wpf.AvalonDock.Themes.VS2010.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\Extended.Wpf.Toolkit.2.2.1\lib\net40\Xceed.Wpf.AvalonDock.Themes.VS2010.dll</HintPath>
     </Reference>
     <Reference Include="Xceed.Wpf.DataGrid, Version=2.9.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
       <HintPath>..\packages\Extended.Wpf.Toolkit.2.9\lib\net40\Xceed.Wpf.DataGrid.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\Extended.Wpf.Toolkit.2.2.1\lib\net40\Xceed.Wpf.DataGrid.dll</HintPath>
     </Reference>
     <Reference Include="Xceed.Wpf.Toolkit, Version=2.9.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
       <HintPath>..\packages\Extended.Wpf.Toolkit.2.9\lib\net40\Xceed.Wpf.Toolkit.dll</HintPath>
       <Private>True</Private>
-      <HintPath>..\packages\Extended.Wpf.Toolkit.2.2.1\lib\net40\Xceed.Wpf.Toolkit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -245,20 +229,23 @@
     </ApplicationDefinition>
     <Compile Include="Analysis\MultiDimensionalScaling.cs" />
     <Compile Include="ColumnOptions.cs" />
+    <Compile Include="Converters\TradeToVisibilityConverter.cs" />
     <Compile Include="DataSets\filterReportDS1.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>filterReportDS.xsd</DependentUpon>
     </Compile>
     <Compile Include="Enums\BacktestSource.cs" />
+    <Compile Include="ExtensionMethods\BitmapSourceExtensions.cs" />
+    <Compile Include="ExtensionMethods\DataGridExtensions.cs" />
+    <Compile Include="ExtensionMethods\DependencyObjectExtensions.cs" />
+    <Compile Include="ExtensionMethods\PlotExtensions.cs" />
     <Compile Include="Interfaces\ICheckListItem.cs" />
     <Compile Include="Reporting\ExportOptions.cs" />
     <Compile Include="Serialization\SerializableKvp.cs" />
-    <Compile Include="TradingSimulation\AllocatedCapital.cs" />
     <Compile Include="AreaPoint.cs" />
     <Compile Include="BenchmarkBuilder.cs" />
     <Compile Include="CheckListItem.cs" />
-    <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Converters\AssetClassToImageConverter.cs" />
     <Compile Include="Converters\DivideByHundredConverter.cs" />
     <Compile Include="Converters\EnumBooleanConverter.cs" />
@@ -269,60 +256,35 @@
     <Compile Include="Converters\ProfitToBgColorConverter.cs" />
     <Compile Include="Converters\SideToImageConverter.cs" />
     <Compile Include="Converters\TimeSpanToStringConverter.cs" />
-    <Compile Include="TradingSimulation\CurrencyPosition.cs" />
     <Compile Include="DataSets\ExecutionReportDS.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ExecutionReportDS.xsd</DependentUpon>
     </Compile>
-    <Compile Include="DialogService.cs" />
     <Compile Include="Enums\ExecutionBenchmark.cs" />
     <Compile Include="Reporting\ExcelExporter.cs" />
     <Compile Include="ExecutionStats.cs" />
     <Compile Include="ExecutionStatsGenerator.cs" />
-    <Compile Include="ExtensionMethods\TaskExtensions.cs" />
     <Compile Include="ExternalDataSources\QDMS.cs" />
     <Compile Include="Factories\QDMSClientFactory.cs" />
     <Compile Include="InstrumentChartCreator.cs" />
-    <Compile Include="Interfaces\IDataSourcer.cs" />
-    <Compile Include="Interfaces\IExternalDataSource.cs" />
-    <Compile Include="Interfaces\IDialogService.cs" />
     <Compile Include="Interfaces\IPlugin.cs" />
     <Compile Include="Interfaces\IStatementDownloader.cs" />
     <Compile Include="Interfaces\IStatementParser.cs" />
-    <Compile Include="TradingSimulation\PortfolioTracker.cs" />
     <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="Repositories\GenericRepository.cs" />
-    <Compile Include="Repositories\TradesRepository.cs" />
     <Compile Include="Seed.cs" />
     <Compile Include="StatementHandler.cs" />
     <Compile Include="TradeFilterSettings.cs" />
     <Compile Include="DataSets\filterReportDS.cs">
       <DependentUpon>filterReportDS.xsd</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
-    <Compile Include="DataSourcer.cs" />
     <Compile Include="Enums\FilterMethod.cs" />
     <Compile Include="Enums\ReturnType.cs" />
-    <Compile Include="TradingSimulation\EquityCurve.cs" />
-    <Compile Include="ExtensionMethods\AssetClassExtensions.cs" />
-    <Compile Include="ExtensionMethods\BitmapSourceExtensions.cs" />
-    <Compile Include="ExtensionMethods\DataGridExtensions.cs" />
-    <Compile Include="ExtensionMethods\DependencyObjectExtensions.cs" />
-    <Compile Include="ExtensionMethods\GenericExtensions.cs" />
-    <Compile Include="ExtensionMethods\HistogramExtensions.cs" />
-    <Compile Include="ExtensionMethods\InstrumentExtensions.cs" />
-    <Compile Include="ExtensionMethods\LinkedListExtensions.cs" />
-    <Compile Include="ExtensionMethods\PlotExtensions.cs" />
     <Compile Include="StatementHandling\InteractiveBrokers\FlexDownloader.cs" />
     <Compile Include="MonteCarlo.cs" />
     <Compile Include="PerformanceMeasurement.cs" />
-    <Compile Include="TradingSimulation\Position.cs" />
     <Compile Include="ReportGenerator.cs" />
     <Compile Include="ReportSettings.cs" />
-    <Compile Include="TradingSimulation\TimeSeries.cs" />
-    <Compile Include="TradingSimulation\TradeSim.cs" />
-    <Compile Include="TradingSimulation\TradeTracker.cs" />
     <Compile Include="StatementHandling\InteractiveBrokers\FlexParser.cs" />
     <Compile Include="Utilities\DbBackup.cs" />
     <Compile Include="Utilities\DBUtils.cs" />
@@ -351,7 +313,6 @@
     <Compile Include="ViewModels\PerformanceReportViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\TradeViewModel.cs" />
-    <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
@@ -373,6 +334,9 @@
     <Compile Include="Windows\PerformanceReportWindow.xaml.cs">
       <DependentUpon>PerformanceReportWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\ScriptingWindow.xaml.cs">
+      <DependentUpon>ScriptingWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
@@ -382,6 +346,14 @@
     <Compile Include="Windows\TradeWindow.xaml.cs">
       <DependentUpon>TradeWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="Resources\Icons.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\IconsNonShared.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Windows\AboutWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -418,11 +390,11 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Resources\Icons.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Windows\PerformanceReportWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\ScriptingWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -453,6 +425,11 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Resource Include="Resources\Entypo-license.txt" />
+    <Resource Include="Resources\Entypo.ttf" />
+    <Resource Include="Resources\WindowsIcons-license.txt" />
+    <Resource Include="Resources\lock.png" />
+    <Resource Include="Resources\script.png" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -487,9 +464,12 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="..\UserScriptEditor\bin\$(Configuration)\UserScriptEditor.exe.config">
+      <Link>UserScriptEditor.exe.config</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <AppDesigner Include="Properties\" />
     <EmbeddedResource Include="Resources\ExportTemplate.xlsx" />
-    <Resource Include="Resources\Entypo.ttf" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -517,15 +497,17 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\WindowsIcons-license.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Entypo-license.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\EntityModel\EntityModel.csproj">
       <Project>{ff382c58-a9b1-4327-bdfb-026c9e539591}</Project>
       <Name>EntityModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QPAS.Common\QPAS.Common.csproj">
+      <Project>{1d19ffb1-8a69-41d2-8fc8-cafeb4ca7fa1}</Project>
+      <Name>QPAS.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UserScriptEditor\UserScriptEditor.csproj">
+      <Project>{e48be88d-c0fa-4309-ab39-99aa0ac237dd}</Project>
+      <Name>UserScriptEditor</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

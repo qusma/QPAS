@@ -398,6 +398,8 @@ namespace QPAS
             //orderPlacementTime="--" clearingFirmID="--" exchOrderId="--" extExecID="--" orderTime="20140325;093002" openDateTime="--"
             //holdingPeriodDateTime="--" whenRealized="--" whenReopened="--" levelOfDetail="ORDER" changeInPrice="--" changeInQuantity="--"
             //netCash="25984.185715" orderType="LMT" />
+            
+            //TODO it seems that the orderReference field is not set on the order level, only execution level...we don't even save that to db! fix it!
         }
 
         private static Instrument TryAddAndGetCurrencyInstrument(Order order, IDBContext context)

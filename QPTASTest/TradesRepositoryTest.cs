@@ -73,7 +73,7 @@ namespace QPASTest
             _dbSetStub.AddRange(equitySummaries);
             _contextMock.SetupGet(x => x.EquitySummaries).Returns(_dbSetStub);
 
-            _repository = new TradesRepository(_contextMock.Object, _dsMock.Object);
+            _repository = new TradesRepository(_contextMock.Object, _dsMock.Object, 0.1m);
         }
 
         [Test]

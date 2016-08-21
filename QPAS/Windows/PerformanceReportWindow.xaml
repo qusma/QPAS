@@ -4,13 +4,14 @@
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:qpas="clr-namespace:QPAS"
         xmlns:qc="http://QuickConverter.CodePlex.com/"
-        xmlns:oxy="http://oxyplot.codeplex.com"
+        xmlns:oxy="http://oxyplot.org/wpf"
         Title="Performance Report" Height="850" Width="1020"
         BorderBrush="Black"
         BorderThickness="1"
         Icon="../Resources/icon.ico"
         TitlebarHeight="32"
-        FontFamily="Segoe UI Semibold">
+        FontFamily="Segoe UI Semibold"
+        >
     <Window.Resources>
         <Style x:Key="CopyBtnStyle" TargetType="Button" BasedOn="{StaticResource MetroButton}">
             <Setter Property="Margin" Value="5,5,0,0"/>

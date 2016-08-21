@@ -124,6 +124,7 @@ namespace QPAS
             double turnover;
             try
             {
+                //TODO ensure turnover is calculated using a starting date only after the strat has started trading, not the whole period!
                 decimal moneyTraded = trades.Where(x => x.Orders != null).SelectMany(x => x.Orders).Sum(x => Math.Abs(x.TradeMoney)) / 2;
                 turnover = ((365 / (maxDate - minDate).TotalDays) * (double)moneyTraded / (double)capitalInPeriod.Average());
             }

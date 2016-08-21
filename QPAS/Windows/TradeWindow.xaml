@@ -4,7 +4,7 @@
         xmlns:qc="clr-namespace:QuickConverter;assembly=QuickConverter"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:qpas="clr-namespace:QPAS"
-        xmlns:oxy="http://oxyplot.codeplex.com"
+        xmlns:oxy="http://oxyplot.org/wpf"
         Height="609" Width="1280"
         BorderBrush="Black" BorderThickness="1"
         FontFamily="Segoe UI Semibold"

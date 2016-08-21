@@ -88,7 +88,7 @@ namespace QPASTest
                 { 2, TimeSeriesGenerator.GenerateData(new DateTime(2000,1,1), new DateTime(2000,2,1), 20) }
             };
 
-            var tracker = new PortfolioTracker(_data, _fxData, trades, "test", new DateTime(2000, 1, 1));
+            var tracker = new PortfolioTracker(_data, _fxData, trades, "test", new DateTime(2000, 1, 1), 1);
 
             var date = new DateTime(2000, 1, 1);
             foreach (TimeSeries ts in _data.Values)
@@ -189,7 +189,7 @@ namespace QPASTest
                 { 2, TimeSeriesGenerator.GenerateData(new DateTime(2000,1,1), new DateTime(2000,2,1), 20) }
             };
 
-            var tracker = new PortfolioTracker(_data, _fxData, trades, "test", new DateTime(2000, 1, 1));
+            var tracker = new PortfolioTracker(_data, _fxData, trades, "test", new DateTime(2000, 1, 1), 1);
 
             var date = new DateTime(2000, 1, 1);
             foreach (TimeSeries ts in _data.Values)

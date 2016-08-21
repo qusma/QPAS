@@ -220,14 +220,14 @@ namespace QPAS
             }
 
             //start up the portfolio trackers
-            _totalPortfolioTracker = new PortfolioTracker(data, fxData, _trades, "Total Pfolio", _datesInPeriod.First());
+            _totalPortfolioTracker = new PortfolioTracker(data, fxData, _trades, "Total Pfolio", _datesInPeriod.First(), Properties.Settings.Default.optionsCapitalUsageMultiplier);
 
             //tracker per-strategy
             var distinctStrats = _trades.Select(x => x.Strategy).Distinct().ToList();
             _strategyPfolioTrackers = distinctStrats
                 .ToDictionary(
                     x => x.Name,
-                    x => new PortfolioTracker(data, fxData, _trades.Where(t => t.StrategyID == x.ID).ToList(), x.Name, _datesInPeriod.First()));
+                    x => new PortfolioTracker(data, fxData, _trades.Where(t => t.StrategyID == x.ID).ToList(), x.Name, _datesInPeriod.First(), Properties.Settings.Default.optionsCapitalUsageMultiplier));
 
 
             //then we do the calcs
@@ -339,7 +339,7 @@ namespace QPAS
                 if (id == 1) continue;
 
                 int id1 = id;
-                fxData.Add(id, TimeSeriesFromFXRates(Context.FXRates.Where(x => x.FromCurrencyID == id1).OrderBy(x => x.Date)));
+                fxData.Add(id, Utils.TimeSeriesFromFXRates(Context.FXRates.Where(x => x.FromCurrencyID == id1).OrderBy(x => x.Date)));
 
                 SetProgress(string.Format("Loading FX Data ({0}/{1})", counter, fxIDs.Count),
                     15 + 5 * ((double)counter / (fxIDs.Count)));
@@ -980,28 +980,7 @@ namespace QPAS
             }
         }
 
-        private TimeSeries TimeSeriesFromFXRates(IEnumerable<FXRate> rates)
-        {
-            var bars = new List<OHLCBar>();
-            foreach (var rate in rates)
-            {
-                var bar = new OHLCBar
-                {
-                    Open = rate.Rate,
-                    High = rate.Rate,
-                    Low = rate.Rate,
-                    Close = rate.Rate,
-                    AdjOpen = rate.Rate,
-                    AdjHigh = rate.Rate,
-                    AdjLow = rate.Rate,
-                    AdjClose = rate.Rate,
-                    DT = rate.Date
-                };
-                bars.Add(bar);
-            }
 
-            return new TimeSeries(bars);
-        }
 
         private IEnumerable<int> GetNeededFxIDs()
         {

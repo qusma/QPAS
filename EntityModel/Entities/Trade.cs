@@ -257,6 +257,15 @@ namespace EntityModel
 
         public ICollection<FXTransaction> FXTransactions { get; set; }
 
+        public override string ToString()
+        {
+            return string.Format("{0} {1} ({2}) {3}",
+                ID,
+                Name,
+                Strategy == null ? "" : Strategy.Name,
+                Open ? "Open" : "Closed");
+        }
+
         /// <summary>
         /// Returns true if there are no open positions.
         /// </summary>

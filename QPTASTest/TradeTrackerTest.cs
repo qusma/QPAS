@@ -34,7 +34,7 @@ namespace QPASTest
                 new Order { Instrument = _inst, Quantity = -5, FXRateToBase = 1, Price = 105, BuySell = "SELL", TradeDate = date }
             };
             
-            var tracker = new TradeTracker(trade);
+            var tracker = new TradeTracker(trade, 1);
             foreach(Order o in trade.Orders)
             {
                 tracker.AddOrder(o);
@@ -66,7 +66,7 @@ namespace QPASTest
                 new Order { Instrument = _inst, Quantity = 5, FXRateToBase = 1, Price = 95, BuySell = "SELL", TradeDate = date }
             };
 
-            var tracker = new TradeTracker(trade);
+            var tracker = new TradeTracker(trade, 1);
             foreach (Order o in trade.Orders)
             {
                 tracker.AddOrder(o);
@@ -99,7 +99,7 @@ namespace QPASTest
                 new FXTransaction { FXCurrency = fxCurrency, Quantity = -500, Proceeds = -850, Cost = 850 },
             };
 
-            var tracker = new TradeTracker(trade);
+            var tracker = new TradeTracker(trade, 1);
             foreach (FXTransaction fxt in trade.FXTransactions)
             {
                 tracker.AddFXTransaction(fxt);
@@ -127,7 +127,7 @@ namespace QPASTest
             var eur = new Currency { ID = 2, Name = "EUR" };
             var ct = new CashTransaction { InstrumentID = 1, Currency = eur, CurrencyID = 2, Amount = 50, FXRateToBase = 1.5m, Instrument = _inst, TransactionDate = date, AssetCategory = AssetClass.Stock };
             trade.CashTransactions = new List<CashTransaction> { ct };
-            var tracker = new TradeTracker(trade);
+            var tracker = new TradeTracker(trade, 1);
             foreach (CashTransaction c in trade.CashTransactions)
             {
                 tracker.AddCashTransaction(c);
@@ -149,7 +149,7 @@ namespace QPASTest
                 new Order { Instrument = _inst, Quantity = 10, FXRateToBase = 1.5m, Multiplier = 1, Price = 100, BuySell = "BUY", TradeDate = date, Currency = eur, CurrencyID = 2 },
             };
 
-            var tracker = new TradeTracker(trade);
+            var tracker = new TradeTracker(trade, 1);
             foreach (Order o in trade.Orders)
             {
                 tracker.AddOrder(o);
@@ -171,7 +171,7 @@ namespace QPASTest
                 new Order { Instrument = _inst, Quantity = 5, FXRateToBase = 1, Price = 95, BuySell = "SELL", TradeDate = date }
             };
 
-            var tracker = new TradeTracker(trade);
+            var tracker = new TradeTracker(trade, 1);
             foreach (Order o in trade.Orders)
             {
                 tracker.AddOrder(o);

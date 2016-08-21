@@ -14,6 +14,7 @@ using NXmlMapper;
 
 namespace EntityModel
 {
+    [Serializable]
     public class Order : ICloneable, INotifyPropertyChanged
     {
         private Trade _trade;
@@ -354,8 +355,23 @@ namespace EntityModel
             clone.IsReal = false;
             clone.IBOrderID = null;
             clone.ReferencePrice = ReferencePrice;
+            clone.AccountID = AccountID;
+            clone.Account = Account;
+            clone.OrderReference = OrderReference;
 
             return clone;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} {1} {2} {3} for {4:c2} ({5}) at {6}",
+                ID,
+                OrderType,
+                BuySell,
+                Quantity,
+                Price,
+                Currency.Name,
+                TradeDate);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

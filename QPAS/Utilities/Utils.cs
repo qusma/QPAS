@@ -8,6 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
+using EntityModel;
+using QDMS;
+
 namespace QPAS
 {
     public static class Utils
@@ -30,6 +33,29 @@ namespace QPAS
                     }
                 }
             }
+        }
+
+        public static TimeSeries TimeSeriesFromFXRates(IEnumerable<FXRate> rates)
+        {
+            var bars = new List<OHLCBar>();
+            foreach (var rate in rates)
+            {
+                var bar = new OHLCBar
+                {
+                    Open = rate.Rate,
+                    High = rate.Rate,
+                    Low = rate.Rate,
+                    Close = rate.Rate,
+                    AdjOpen = rate.Rate,
+                    AdjHigh = rate.Rate,
+                    AdjLow = rate.Rate,
+                    AdjClose = rate.Rate,
+                    DT = rate.Date
+                };
+                bars.Add(bar);
+            }
+
+            return new TimeSeries(bars);
         }
 
         public static T GetDataFromClipboard<T>() where T: class

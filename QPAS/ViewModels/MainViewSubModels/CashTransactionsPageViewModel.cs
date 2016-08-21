@@ -18,12 +18,12 @@ namespace QPAS
     public class CashTransactionsPageViewModel : ViewModelBase
     {
         internal IDBContext Context;
-        internal TradesRepository TradesRepository;
+        internal ITradesRepository TradesRepository;
 
         public CollectionViewSource CashTransactionsSource { get; set; }
         public ICommand Delete { get; private set; }
 
-        public CashTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogService dialogService)
+        public CashTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogService dialogService, MainViewModel parent)
             : base(dialogService)
         {
             Context = context;
@@ -32,7 +32,7 @@ namespace QPAS
             CashTransactionsSource.Source = Context.CashTransactions.Local;
             CashTransactionsSource.View.SortDescriptions.Add(new SortDescription("TransactionDate", ListSortDirection.Descending));
 
-            TradesRepository = new TradesRepository(Context, datasourcer);
+            TradesRepository = parent.TradesRepository;
 
             CreateCommands();
         }

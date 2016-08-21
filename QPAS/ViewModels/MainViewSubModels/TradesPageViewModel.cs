@@ -28,13 +28,15 @@ namespace QPAS
 
         internal IDataSourcer Datasourcer;
         internal IDBContext Context;
-        internal TradesRepository TradesRepository;
+        internal ITradesRepository TradesRepository;
 
         public ICommand Delete { get; private set; }
         public ICommand Reset { get; private set; }
         public ICommand UpdateStats { get; private set; }
         public ICommand OpenTrades { get; private set; }
         public ICommand CloseTrades { get; private set; }
+        public ICommand RunScripts { get; private set; }
+
 
         public TradesPageViewModel(IDBContext context, IDialogService dialogService, IDataSourcer datasourcer, MainViewModel parent)
             : base(dialogService)
@@ -42,7 +44,7 @@ namespace QPAS
             Context = context;
             Parent = parent;
             Datasourcer = datasourcer;
-            TradesRepository = new TradesRepository(Context, Datasourcer);
+            TradesRepository = parent.TradesRepository;
 
             TradesSource = new CollectionViewSource();
             TradesSource.Source = Context.Trades.Local;
@@ -60,6 +62,18 @@ namespace QPAS
             UpdateStats = new RelayCommand<IList>(UpdateTradeStats);
             OpenTrades = new RelayCommand<IList>(Open);
             CloseTrades = new RelayCommand<IList>(Close);
+            RunScripts = new RelayCommand<IList>(RunUserScripts);
+        }
+
+        private void RunUserScripts(IList trades)
+        {
+            if (trades == null || trades.Count == 0) return;
+            Parent.ScriptRunner.RunTradeScripts(trades.Cast<Trade>().ToList(), Context.Strategies.ToList(), Context.Tags.ToList(), Context);
+
+            foreach(Trade trade in trades)
+            {
+                trade.TagStringUpdated();
+            }
         }
 
         public override void Refresh()
@@ -78,6 +92,7 @@ namespace QPAS
             }
 
             TradesSource.View.Refresh();
+            //TODO trade window orders grid should include instrument type
         }
 
         private void Close(IList trades)

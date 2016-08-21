@@ -21,15 +21,15 @@ namespace QPAS
         public CollectionViewSource FXTransactions { get; set; }
 
         internal IDBContext Context;
-        internal TradesRepository TradesRepository;
+        internal ITradesRepository TradesRepository;
 
         public ICommand Delete { get; set; }
 
-        public FXTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogService dialogService)
+        public FXTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogService dialogService, MainViewModel parent)
             : base(dialogService)
         {
             Context = context;
-            TradesRepository = new TradesRepository(Context, datasourcer);
+            TradesRepository = parent.TradesRepository;
 
             FXTransactions = new CollectionViewSource();
             FXTransactions.Source = Context.FXTransactions.Local;

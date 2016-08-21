@@ -62,7 +62,7 @@ namespace QPAS
                     .Load();
 
             Trade = trade;
-            Tracker = TradeSim.SimulateTrade(trade, context, dataSourcer);
+            Tracker = TradeSim.SimulateTrade(trade, context, dataSourcer, Properties.Settings.Default.optionsCapitalUsageMultiplier);
         }
     }
 }
