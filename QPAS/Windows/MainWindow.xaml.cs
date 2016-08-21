@@ -159,7 +159,7 @@ namespace QPAS
         private void AppDomain_CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             Logger logger = LogManager.GetCurrentClassLogger();
-            logger.Error("Unhandled exception", (Exception)e.ExceptionObject);
+            logger.Error((Exception)e.ExceptionObject, "Unhandled exception");
         }
 
         /// <summary>

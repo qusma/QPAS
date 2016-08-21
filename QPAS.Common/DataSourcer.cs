@@ -172,7 +172,7 @@ namespace QPAS
             }
             catch(Exception ex)
             {
-                _logger.Error(string.Format("Exception on requesting data for instrument {0}", instrument), ex);
+                _logger.Error(ex, string.Format("Exception on requesting data for instrument {0}", instrument));
                 return new List<OHLCBar>();
             }
         }
