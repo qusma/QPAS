@@ -56,16 +56,17 @@ namespace QPAS
         public Dictionary<int, TradeTracker> TradeTrackers { get; private set; }
 
         private const int NullInstrumentId = -99;
+        private decimal _optionsCapitalUsageMultiplier;
 
-        public PortfolioTracker(Dictionary<int, TimeSeries> data, Dictionary<int, TimeSeries> fxData, List<Trade> trades, string name, DateTime firstDate)
+        public PortfolioTracker(Dictionary<int, TimeSeries> data, Dictionary<int, TimeSeries> fxData, List<Trade> trades, string name, DateTime firstDate, decimal optionsCapitalUsageMultiplier)
         {
             _data = data;
             _fxData = fxData;
             Name = name;
-
+            _optionsCapitalUsageMultiplier = optionsCapitalUsageMultiplier;
             Trades = trades;
 
-            TradeTrackers = trades.ToDictionary(t => t.ID, t => new TradeTracker(t));
+            TradeTrackers = trades.ToDictionary(t => t.ID, t => new TradeTracker(t, optionsCapitalUsageMultiplier));
 
             ProfitLossEquityCurve = new EquityCurve(0, firstDate);
             ProfitLossLongEquityCurve = new EquityCurve(0, firstDate);
@@ -79,7 +80,7 @@ namespace QPAS
             Positions = new Dictionary<int, Position>
             {
                 //dummy position used for cash transactions without a related instrument
-                { NullInstrumentId, new Position(new Instrument())} 
+                { NullInstrumentId, new Position(new Instrument(), _optionsCapitalUsageMultiplier)} 
             };
 
             //group cash transactions by date so they're easily accessible
@@ -119,7 +120,7 @@ namespace QPAS
                 //add orders to positions
                 if(!Positions.ContainsKey(o.InstrumentID))
                 {
-                    Positions.Add(o.InstrumentID, new Position(o.Instrument));
+                    Positions.Add(o.InstrumentID, new Position(o.Instrument, _optionsCapitalUsageMultiplier));
                 }
                 Positions[o.InstrumentID].AddOrder(o);
             }
@@ -156,7 +157,7 @@ namespace QPAS
                 {
                     if (!Positions.ContainsKey(ct.InstrumentID.Value))
                     {
-                        Positions.Add(ct.InstrumentID.Value, new Position(ct.Instrument));
+                        Positions.Add(ct.InstrumentID.Value, new Position(ct.Instrument, _optionsCapitalUsageMultiplier));
                     }
                     Positions[ct.InstrumentID.Value].AddCashTransaction(ct);
                 }

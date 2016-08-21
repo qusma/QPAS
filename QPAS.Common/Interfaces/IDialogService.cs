@@ -52,6 +52,9 @@ namespace QPAS
         //     A task promising the result of which button was pressed.
         Task<MessageDialogResult> ShowMessageAsync(string title, string message, MessageDialogStyle style = MessageDialogStyle.Affirmative, MetroDialogSettings settings = null);
 
+        Task ShowMetroDialogAsync(BaseMetroDialog dialog);
+        Task HideMetroDialogAsync(BaseMetroDialog dialog);
+
         bool? OpenFileDialog(string type, out string filePath);
     }
 }

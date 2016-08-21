@@ -16,6 +16,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{31490B
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserScriptEditor", "UserScriptEditor\UserScriptEditor.csproj", "{E48BE88D-C0FA-4309-AB39-99AA0AC237DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QPAS.Common", "QPAS.Common\QPAS.Common.csproj", "{1D19FFB1-8A69-41D2-8FC8-CAFEB4CA7FA1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

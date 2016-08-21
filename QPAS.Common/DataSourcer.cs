@@ -35,9 +35,9 @@ namespace QPAS
 
         private readonly bool _useExternalDataSource;
 
-        public DataSourcer(IDBContext context, IExternalDataSource externalDataSource)
+        public DataSourcer(IDBContext context, IExternalDataSource externalDataSource, bool allowExternalDataSource = false)
         {
-            _useExternalDataSource = Properties.Settings.Default.allowExternalDataSource && externalDataSource != null;
+            _useExternalDataSource = allowExternalDataSource && externalDataSource != null;
             if (_useExternalDataSource)
             {
                 ExternalDataSource = externalDataSource;

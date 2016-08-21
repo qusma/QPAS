@@ -1,0 +1,96 @@
+﻿<controls:MetroWindow x:Class="QPAS.UserScriptEditor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:qpas="clr-namespace:QPAS"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:qdms="clr-namespace:EntityModel;assembly=EntityModel"
+        xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
+        xmlns:quickConverter="http://QuickConverter.CodePlex.com/"
+        Title="Scripts" Height="632" Width="1084"
+        Icon="Resources/icon.ico"
+        TitlebarHeight="32"
+        BorderBrush="Black" BorderThickness="1" 
+                      FontFamily="Segoe UI Semibold"
+        RenderOptions.BitmapScalingMode="NearestNeighbor">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Orientation="Horizontal">
+            <Button Margin="5" Content="New Script..." Command="{Binding NewScript}" />
+            <Button Margin="5" Content="Delete" Command="{Binding DeleteScript}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Margin="5" Content="Compile" Command="{Binding Compile}"
+                    IsEnabled="{quickConverter:Binding '$P > 0', P={Binding Scripts.Count}}"/>
+            <Button Margin="5" Content="Save" Command="{Binding Save}"
+                    IsEnabled="{quickConverter:MultiBinding '$P0 != null ## $P1', P0={Binding SelectedScript}, P1={Binding ChangedSinceLastSave}}"/>
+            <Button Margin="5" Content="Help" Command="{Binding LaunchHelp}" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" >
+            <TextBlock FontWeight="Bold" Text="Scripts:" />
+            <ListBox ItemsSource="{Binding Scripts}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Path=Name}" 
+                       Width="{Binding Path=ActualWidth, 
+                                 RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" >
+                            <TextBlock.InputBindings>
+                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding DataContext.Open,
+                                            RelativeSource={RelativeSource FindAncestor, 
+                                            AncestorType={x:Type ListBox}}}"
+                                          CommandParameter="{Binding .}"/>
+                            </TextBlock.InputBindings>
+                        </TextBlock>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        <Border Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" BorderBrush="Black" BorderThickness="1">
+            <qpas:MvvmTextEditor 
+            IsEnabled="{quickConverter:Binding '$P != null', P={Binding SelectedScript}}"
+            BorderBrush="Black"
+            BorderThickness="1"
+            Text="{Binding Code, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            x:Name="TextEditor"
+            ShowLineNumbers="True"
+            FontFamily="Consolas"
+            SyntaxHighlighting="C#"
+            FontSize="10pt">
+                <qpas:MvvmTextEditor.InputBindings>
+                    <KeyBinding Modifiers="Control"
+                    Key="S"
+                    Command="{Binding Save}" />
+                </qpas:MvvmTextEditor.InputBindings>
+            </qpas:MvvmTextEditor>
+        </Border>
+
+        <StackPanel Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Margin="5">
+            <TextBlock FontWeight="Bold" Text="Referenced Assemblies:" />
+            <ListBox Name="ReferencesListBox" ItemsSource="{Binding SelectedScript.ReferencedAssemblies}" />
+        </StackPanel>
+        
+        <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal" Height="35" VerticalAlignment="Top">
+            <Button Margin="5" Content="Add" Command="{Binding AddReference}" />
+            <Button Margin="5" Content="Remove" 
+                    Command="{Binding RemoveReference}" 
+                    CommandParameter="{Binding ElementName=ReferencesListBox,Path=SelectedItem}" />
+        </StackPanel>
+
+        <TextBox Text="{Binding CompileStatus, Mode=OneWay}" Grid.Row="3" Grid.Column="1" TextWrapping="Wrap"
+                 Background="{quickConverter:Binding '$P != \'Compiled succesfully.\' ? \'#FFADB3\' : \'#D1FFD3\'', P={Binding CompileStatus, Mode=OneWay}}" />
+    </Grid>
+</controls:MetroWindow>

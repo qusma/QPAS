@@ -40,12 +40,23 @@ namespace QPAS
         public Task<MessageDialogResult> ShowMessageAsync(string title, string message, MessageDialogStyle style = MessageDialogStyle.Affirmative,
             MetroDialogSettings settings = null)
         {
+            
             return _window.ShowMessageAsync(title, message, style, settings);
         }
 
         public Task<ProgressDialogController> ShowProgressAsync(string title, string message, bool isCancelable = false, MetroDialogSettings settings = null)
         {
             return _window.ShowProgressAsync(title, message, isCancelable, settings);
+        }
+
+        public Task ShowMetroDialogAsync(BaseMetroDialog dialog)
+        {
+            return _window.ShowMetroDialogAsync(dialog);
+        }
+
+        public Task HideMetroDialogAsync(BaseMetroDialog dialog)
+        {
+            return _window.HideMetroDialogAsync(dialog);
         }
     }
 }

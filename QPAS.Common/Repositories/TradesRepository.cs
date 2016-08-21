@@ -14,13 +14,15 @@ using NLog;
 
 namespace QPAS
 {
-    public class TradesRepository : GenericRepository<Trade>
+    public class TradesRepository : GenericRepository<Trade>, ITradesRepository
     {
         internal IDataSourcer Datasourcer;
+        private decimal _optionsCapitalUsageMultiplier;
 
-        public TradesRepository(IDBContext context, IDataSourcer datasourcer)
+        public TradesRepository(IDBContext context, IDataSourcer datasourcer, decimal optionsCapitalUsageMultiplier)
             : base(context)
         {
+            _optionsCapitalUsageMultiplier = optionsCapitalUsageMultiplier;
             Datasourcer = datasourcer;
         }
 
@@ -206,13 +208,14 @@ namespace QPAS
 
         public void UpdateStats(Trade trade, bool skipCollectionLoad = false)
         {
+            var tradeEntry = Context.Entry(trade);
             if (!skipCollectionLoad && //used to bypass annoyances w/ automated testing
-                Context.Entry(trade).State != EntityState.Added &&
-                Context.Entry(trade).State != EntityState.Detached) //trade entry state check, otherwise the load is meaningless and will cause a crash
+                tradeEntry.State != EntityState.Added &&
+                tradeEntry.State != EntityState.Detached) //trade entry state check, otherwise the load is meaningless and will cause a crash
             {
-                Context.Entry(trade).Collection(x => x.Orders).Load();
-                Context.Entry(trade).Collection(x => x.CashTransactions).Load();
-                Context.Entry(trade).Collection(x => x.FXTransactions).Load();
+                tradeEntry.Collection(x => x.Orders).Load();
+                tradeEntry.Collection(x => x.CashTransactions).Load();
+                tradeEntry.Collection(x => x.FXTransactions).Load();
             }
 
             DateTime openDate = DetermineStartingDate(trade, Context);
@@ -227,7 +230,7 @@ namespace QPAS
                 SetClosingDate(trade);
             }
 
-            TradeTracker tracker = TradeSim.SimulateTrade(trade, Context, Datasourcer);
+            TradeTracker tracker = TradeSim.SimulateTrade(trade, Context, Datasourcer, _optionsCapitalUsageMultiplier);
             tracker.SetTradeStats(trade);
         }
 

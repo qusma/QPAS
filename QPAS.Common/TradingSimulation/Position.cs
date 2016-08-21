@@ -38,7 +38,7 @@ namespace QPAS
         private decimal _quantityEnteredAfterEodCutoff;
         private decimal _avgPriceEnteredAfterEodCutoff;
 
-        public Position(Instrument instrument)
+        public Position(Instrument instrument, decimal optionsCapitalUsageMultiplier = 1)
         {
             Instrument = instrument;
             Orders = new List<Order>();
@@ -59,6 +59,7 @@ namespace QPAS
             _deferredPnL = 0;
 
             ROAC = 1;
+            _optionsCapitalUsageMultiplier = optionsCapitalUsageMultiplier;
         }
 
         public AllocatedCapital Capital { get; private set; }
@@ -120,6 +121,20 @@ namespace QPAS
         public double ROAC { get; private set; }
 
         public decimal UnrealizedPnL { get { return PnL - RealizedPnL; } }
+
+        private decimal _optionsCapitalUsageMultiplier;
+
+        private decimal GetCapitalUsageMultiplier(AssetClass ac)
+        {
+            if (ac == AssetClass.Option || ac == AssetClass.FutureOption)
+            {
+                return _optionsCapitalUsageMultiplier;
+            }
+            else
+            {
+                return 1;
+            }
+        }
 
         /// <summary>
         /// Add a cash transaction to this position.
@@ -340,7 +355,7 @@ namespace QPAS
         {
             if (Instrument.AssetCategory == AssetClass.Option || Instrument.AssetCategory == AssetClass.FutureOption)
             {
-                return fxRate * Instrument.Strike * Instrument.Multiplier * Instrument.AssetCategory.GetCapitalUsageMultiplier();
+                return fxRate * Instrument.Strike * Instrument.Multiplier * GetCapitalUsageMultiplier(Instrument.AssetCategory);
             }
             else
             {
@@ -461,18 +476,18 @@ namespace QPAS
                     capitalUsage = GetCapitalUsage(Math.Abs(Math.Abs(order.Quantity) - Math.Abs(Quantity)), order.Price, order.FXRateToBase);
 
                     if (order.Quantity > 0)
-                        Capital.AddLong(Math.Abs(Math.Abs(order.Quantity) - Math.Abs(Quantity)) * order.Price * order.FXRateToBase * Instrument.Multiplier * Instrument.AssetCategory.GetCapitalUsageMultiplier());
+                        Capital.AddLong(Math.Abs(Math.Abs(order.Quantity) - Math.Abs(Quantity)) * order.Price * order.FXRateToBase * Instrument.Multiplier * GetCapitalUsageMultiplier(Instrument.AssetCategory));
                     else
-                        Capital.AddShort(Math.Abs(Math.Abs(order.Quantity) - Math.Abs(Quantity)) * order.Price * order.FXRateToBase * Instrument.Multiplier * Instrument.AssetCategory.GetCapitalUsageMultiplier());
+                        Capital.AddShort(Math.Abs(Math.Abs(order.Quantity) - Math.Abs(Quantity)) * order.Price * order.FXRateToBase * Instrument.Multiplier * GetCapitalUsageMultiplier(Instrument.AssetCategory));
                 }
                 else //if adding
                 {
                     capitalUsage = GetCapitalUsage(order.Quantity, order.Price, order.FXRateToBase);
 
                     if (order.Quantity > 0)
-                        Capital.AddLong(Math.Abs(order.Quantity * order.Price) * order.FXRateToBase * Instrument.Multiplier * Instrument.AssetCategory.GetCapitalUsageMultiplier());
+                        Capital.AddLong(Math.Abs(order.Quantity * order.Price) * order.FXRateToBase * Instrument.Multiplier * GetCapitalUsageMultiplier(Instrument.AssetCategory));
                     else
-                        Capital.AddShort(Math.Abs(order.Quantity * order.Price) * order.FXRateToBase * Instrument.Multiplier * Instrument.AssetCategory.GetCapitalUsageMultiplier());
+                        Capital.AddShort(Math.Abs(order.Quantity * order.Price) * order.FXRateToBase * Instrument.Multiplier * GetCapitalUsageMultiplier(Instrument.AssetCategory));
                 }
             }
 
