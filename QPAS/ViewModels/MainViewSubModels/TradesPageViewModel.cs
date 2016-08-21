@@ -92,7 +92,6 @@ namespace QPAS
             }
 
             TradesSource.View.Refresh();
-            //TODO trade window orders grid should include instrument type
         }
 
         private void Close(IList trades)

@@ -10,9 +10,6 @@ namespace QPAS
 {
     public static class Dialogs
     {
-        //todo remove this, use built-in mahapps stuff
-        //todo remove reference to mahapps in QPAS.Common
-
         public static bool? OpenFileDialog(string filter, out string filePath)
         {
             OpenFileDialog fd = new OpenFileDialog();

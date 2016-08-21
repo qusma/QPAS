@@ -146,6 +146,7 @@
                           Name="OrdersGrid" ItemsSource="{Binding Trade.Orders}" Grid.ColumnSpan="2">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Symbol" Binding="{Binding Path=Instrument.Symbol}" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding Path=Instrument.AssetCategory}" />
                         <DataGridTextColumn Header="Date" Binding="{Binding Path=TradeDate, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
                         <DataGridTextColumn Header="Side" Binding="{Binding Path=BuySell}" />
                         <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Price" Binding="{Binding Path=Price, StringFormat={}{0:0.00###}}" />
