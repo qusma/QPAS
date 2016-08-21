@@ -135,6 +135,23 @@ namespace QPAS
 
             stats.Add("Annual Turnover", turnover.ToString("p0"));
 
+            // Positive Trade Ratio
+            double ptr = 0;
+            double avg = (double)tradePL.Average();
+            List<double> rval = new List<double>();
+
+            foreach (double value in tradePL)
+                rval.Add(value - avg < 0 ? Math.Pow(value - avg, 2) : 0);
+
+            double denom = Math.Sqrt((1 / (double)(rval.Count - 1)) * rval.Sum());
+            ptr = denom != 0 ? avg / denom : 0;
+
+            stats.Add("Positive Trade Ratio", ptr.ToString("0.000"));
+
+            // System Quality Number
+            double sqn = (double)((decimal)Math.Sqrt(trades.Count) * tradePL.Average() / StandardDeviation(tradePL));
+            stats.Add("System Quality Number", sqn.ToString("0.000"));
+
             return stats;
         }
 
@@ -187,7 +204,7 @@ namespace QPAS
             stats.Add("Max Drawdown", ec.DrawdownPct.Min().ToString("p2"));
             stats.Add("Average Drawdown", ec.DrawdownPct.Average().ToString("p2"));
             if(ec.DrawdownLengths.Count > 0)
-                stats.Add("Longest Drawdown", ec.DrawdownLengths.Max().TotalDays + " days");
+                stats.Add("Longest Drawdown", ec.DrawdownLengths.Max().TotalDays.ToString("0.0") + " days");
             else
                 stats.Add("Longest Drawdown", "N/A");
 
@@ -281,6 +298,22 @@ namespace QPAS
 
             //the 2nd denominator doesn't actually matter, just makes the scale reasonable
             return slope / (se / Math.Sqrt(varX)); 
+        }
+
+        public static decimal StandardDeviation(List<decimal> samples)
+        {
+            if (samples == null) throw new ArgumentNullException(nameof(samples));
+            if (samples.Count <= 1) return decimal.MinValue;
+
+            decimal variance = 0;
+            decimal t = samples[0];
+            for (int i = 1; i < samples.Count; i++)
+            {
+                t += samples[i];
+                decimal diff = ((i + 1) * samples[i]) - t;
+                variance += (diff * diff) / ((i + 1) * i);
+            }
+            return (decimal)Math.Sqrt((double) (variance / (samples.Count - 1)));
         }
     }
 }
