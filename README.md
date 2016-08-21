@@ -1,4 +1,4 @@
-QUSMA Performance Analytics Suite
+QUSMA Performance Analytics Suite [![Build status](https://ci.appveyor.com/api/projects/status/vkcttigbnhudcwkw/branch/master?svg=true)](https://ci.appveyor.com/project/qusma/qpas/branch/master)
 ====
 
 QPAS is a trading journal with detailed performance, risk, and execution analytics, designed for Interactive Brokers clients. For an overview of its main features, check out the [performance report](http://qusma.com/qpasdocs/index.php/Performance_Report) page in the documentation.
