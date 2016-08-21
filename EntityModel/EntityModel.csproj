@@ -58,7 +58,7 @@
       <HintPath>..\packages\MySql.ConnectorNET.Entity.6.8.3.2\lib\net45\MySql.Data.Entity.EF6.dll</HintPath>
     </Reference>
     <Reference Include="NXmlMapper">
-      <HintPath>..\..\..\..\GitHub\NXmlMapper\NXmlMapper\bin\Release\NXmlMapper.dll</HintPath>
+      <HintPath>..\packages\NXmlMapper.1.0.0\lib\NXmlMapper.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
