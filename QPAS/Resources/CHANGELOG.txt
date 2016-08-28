@@ -1,3 +1,17 @@
+0.4.0
+------------------------
+* TODO: fix calendar
+
+* Added scripting functionality! You can now write scripts in C# that automatically create trades, add orders to trades, and set tags and strategies. See the documentation for more details: http://qusma.com/qpasdocs/index.php/Scripting
+* Order parsing now includes the "Order Reference" field. This is a field that can be set in the order ticket window of TWS, or through the API and can contain any text you want. This can be very useful for automating the assignment of orders to trades. NOTE: only daily flex reports include this field.
+* The performance overview page now allows you to select a currency if you want to see the performance of your account in non-USD currencies.
+* Added Average trade return by day, hour, day & hour to performance report.
+* Greatly improved handling of cases where there is no external data and performance calculations rely on positions data from IB.
+* The orders grid now displays an icon next to the name of trades that are closed.
+* Various crash fixes.
+* Improved logging layout.
+* Added Positive Trade Ratio and System Quality Number stats to trade stats
+
 0.3.5
 ------------------------
 * The performance report now provides charts and stats to compare backtests to live results. You can import backtest data from an external data source or from a .csv file. See the docs for more details: http://qusma.com/qpasdocs/index.php/Performance_Report#Backtest_Comparison

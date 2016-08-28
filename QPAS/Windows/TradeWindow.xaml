@@ -177,12 +177,12 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <oxy:PlotView Name="PnLChart" Grid.Row="3" Grid.Column="2" PlotAreaBorderThickness="0" Margin="10,10,0,0">
-                    <oxy:PlotView.Axes>
+                <oxy:Plot Name="PnLChart" Grid.Row="3" Grid.Column="2" PlotAreaBorderThickness="0" Margin="10,10,0,0">
+                    <oxy:Plot.Axes>
                         <oxy:LinearAxis Name="YAxis" Position="Right" StringFormat="c0" MajorGridlineStyle="Dash" />
                         <oxy:DateTimeAxis Name="XAxis" Position="Bottom" StringFormat="yyyy-MM-dd" />
-                    </oxy:PlotView.Axes>
-                    <oxy:PlotView.Series>
+                    </oxy:Plot.Axes>
+                    <oxy:Plot.Series>
                         <oxy:TwoColorLineSeries Name="CumulativePnlSeries" 
                                                 ItemsSource="{Binding Tracker.CumulativePnL}"
                                                 Color="DodgerBlue" 
@@ -192,8 +192,8 @@
                                                 DataFieldY="Value"
                                                 TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;P/L: {4:c2}"
                                                 CanTrackerInterpolatePoints="False" />
-                    </oxy:PlotView.Series>
-                </oxy:PlotView>
+                    </oxy:Plot.Series>
+                </oxy:Plot>
 
                 <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Horizontal" Margin="5,0,0,0">
                     <Label Content="Capital:" FontSize="22" Foreground="DimGray" />

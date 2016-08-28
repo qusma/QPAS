@@ -94,12 +94,12 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
                 
-                <oxy:PlotView Grid.Column="1" Grid.Row="0" Title="Seconds to Reference Time vs Slippage">
-                    <oxy:PlotView.Axes>
+                <oxy:Plot Grid.Column="1" Grid.Row="0" Title="Seconds to Reference Time vs Slippage">
+                    <oxy:Plot.Axes>
                         <oxy:LinearAxis Position="Bottom" StringFormat="0.00" MajorGridlineStyle="Dash" />
                         <oxy:LinearAxis Position="Left" StringFormat="p3" MajorGridlineStyle="Dash" />
-                    </oxy:PlotView.Axes>
-                    <oxy:PlotView.Series>
+                    </oxy:Plot.Axes>
+                    <oxy:Plot.Series>
                         <oxy:ScatterSeries ItemsSource="{Binding TimeVsSlippagePoints}"
                                            MarkerType="Circle" Color="#4F81BD" MarkerFill="#4F81BD"
                                            DataFieldSize="Z"
@@ -107,8 +107,8 @@
                                            Name="TimeVsSlippageScatterSeries"
                                            DataFieldX="X"
                                            DataFieldY="Y"/>
-                    </oxy:PlotView.Series>
-                    <oxy:PlotView.Annotations>
+                    </oxy:Plot.Series>
+                    <oxy:Plot.Annotations>
                         <oxy:LineAnnotation Slope="{Binding TimeDiffVsSlipBestFitLineSlope}" 
                                             Intercept="{Binding TimeDiffVsSlipBestFitLineConstant}"
                                             LineStyle="Solid"
@@ -116,19 +116,19 @@
                                             Text="Best Fit"
                                             TextColor="Black"
                                             />
-                    </oxy:PlotView.Annotations>
-                </oxy:PlotView>
-                <oxy:PlotView Grid.Row="0" Grid.Column="2" Title="Slippage by Venue" Grid.RowSpan="2"
+                    </oxy:Plot.Annotations>
+                </oxy:Plot>
+                <oxy:Plot Grid.Row="0" Grid.Column="2" Title="Slippage by Venue" Grid.RowSpan="2"
                               LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal"
                               LegendFontSize="9" Name="SlippageByVenueChart">
-                    <oxy:PlotView.Axes>
+                    <oxy:Plot.Axes>
                         <oxy:CategoryAxis Position="Left" Title="Venue" 
                                           GapWidth="0.5"
                                           ItemsSource="{Binding Data.SlippageByVenue}" LabelField="Venue" />
                         <oxy:LinearAxis Position="Bottom" Key="CurrencyAxis" StringFormat="c3" />
                         <oxy:LinearAxis Position="Top" Key="PercentAxis" StringFormat="p3" />
-                    </oxy:PlotView.Axes>
-                    <oxy:PlotView.Series>
+                    </oxy:Plot.Axes>
+                    <oxy:Plot.Series>
                         <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}" 
                                LabelPlacement="Inside"
                                LabelFormatString="{}{0:c3}"
@@ -172,17 +172,17 @@
                                 FillColor="#FF7F00"
                                 Name="WeightedPercentSlippageByVenueSeries" />
                         <oxy:BarSeries />
-                    </oxy:PlotView.Series>
-                </oxy:PlotView>
+                    </oxy:Plot.Series>
+                </oxy:Plot>
 
 
-                <oxy:PlotView Grid.Row="1" Grid.Column="0" Title="Slippage by Order Type" Name="SlippageByOrderTypeChart" IsLegendVisible="False" Grid.ColumnSpan="2">
-                    <oxy:PlotView.Axes>
+                <oxy:Plot Grid.Row="1" Grid.Column="0" Title="Slippage by Order Type" Name="SlippageByOrderTypeChart" IsLegendVisible="False" Grid.ColumnSpan="2">
+                    <oxy:Plot.Axes>
                         <oxy:CategoryAxis Position="Bottom" Title="Order Type" ItemsSource="{Binding Data.SlippageByOrderType}" LabelField="OrderType" />
                         <oxy:LinearAxis Position="Left" Key="CurrencyAxis" StringFormat="c3" />
                         <oxy:LinearAxis Position="Right" Key="PercentAxis" StringFormat="p3" />
-                    </oxy:PlotView.Axes>
-                    <oxy:PlotView.Series>
+                    </oxy:Plot.Axes>
+                    <oxy:Plot.Series>
                         <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}" 
                                 TrackerFormatString="{}{4:c3}"
                                ValueField="AvgDollarSlippage" 
@@ -218,8 +218,8 @@
                                 FillColor="#FF7F00"
                                 Name="WeightedPercentSlippageByOrderTypeSeries" />
                         <oxy:ColumnSeries />
-                    </oxy:PlotView.Series>
-                </oxy:PlotView>
+                    </oxy:Plot.Series>
+                </oxy:Plot>
             </Grid>
 
         </TabItem>

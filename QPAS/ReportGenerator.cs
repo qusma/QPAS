@@ -235,7 +235,7 @@ namespace QPAS
             //plus any positions opened today before an arbitrary cut-off point (for now I'll use 15:40:00 ET)
             //anything before that is considered to be an intraday position and should have this day's returns included in the calculations
             //anything after that is a position considered to be initiated "at the close" and thus not included in today's returns calculations
-            TimeSpan cutoffTime = new TimeSpan(15, 40, 0);
+            TimeSpan cutoffTime = new TimeSpan(15, 55, 0);
 
             //capture data to be stored here
             var instrumentUpGross = new Dictionary<string, double>();
@@ -502,6 +502,70 @@ namespace QPAS
             DoBacktestEquityCurves();
             DoBacktestStats();
             DoBacktestMonteCarlo();
+
+            //trade stats by opening day/time
+            DoTradeStatsByOpeningDayTime();
+        }
+
+        private void DoTradeStatsByOpeningDayTime()
+        {
+            var byDay = _trades.GroupBy(x => x.DateOpened.DayOfWeek);
+            var byDayAvgRet = byDay.ToDictionary(x => x.Key, x => x.Any() ? (double?)x.Average(y => y.TotalResultPct) : null);
+            var byDayError = byDay.ToDictionary(x => x.Key, x => x.Any() ? GetError(x) : 0);
+
+            foreach(var kv in byDayAvgRet.OrderBy(x => x.Key))
+            {
+                var row = ds.tradeRetsByDay.NewtradeRetsByDayRow();
+                row.weekDay = kv.Key;
+                if(kv.Value.HasValue)
+                {
+                    row.avgRet = kv.Value.Value;
+                }
+                row.error = byDayError[kv.Key];
+                ds.tradeRetsByDay.AddtradeRetsByDayRow(row);
+            }
+
+            var byHour = _trades.GroupBy(x => x.DateOpened.Hour);
+            var byHourAvgRet = byHour.ToDictionary(x => x.Key, x => x.Any() ? (double?)x.Average(y => y.TotalResultPct) : null);
+            var byHourError = byHour.ToDictionary(x => x.Key, x => x.Any() ? GetError(x) : 0);
+
+            foreach (var kv in byHourAvgRet.OrderBy(x => x.Key))
+            {
+                var row = ds.tradeRetsByHour.NewtradeRetsByHourRow();
+                row.hour = kv.Key;
+                if (kv.Value.HasValue)
+                {
+                    row.avgRet = kv.Value.Value;
+                }
+                row.error = byHourError[kv.Key];
+                ds.tradeRetsByHour.AddtradeRetsByHourRow(row);
+            }
+
+            var byDayAndHour = _trades.GroupBy(x => new { x.DateOpened.DayOfWeek, x.DateOpened.Hour });
+            var byDayAndHourAvgRet = byDayAndHour.ToDictionary(x => x.Key, x => x.Any() ? (double?)x.Average(y => y.TotalResultPct) : null);
+            var byDayAndHourError = byDayAndHour.ToDictionary(x => x.Key, x => x.Any() ? GetError(x) : 0);
+
+            //if one hour has zero entries across all days, do not add it
+            var hourHasTrades = byDayAndHourAvgRet.GroupBy(x => x.Key.Hour).Where(x => x.Any(y => y.Value.HasValue)).Select(x => x.Key);
+            foreach (var kv in byDayAndHourAvgRet.OrderBy(x => x.Key.DayOfWeek).ThenBy(x => x.Key.Hour))
+            {
+                if (!hourHasTrades.Contains(kv.Key.Hour)) continue;
+
+                var row = ds.tradeRetsByDayAndHour.NewtradeRetsByDayAndHourRow();
+                row.weekDay = kv.Key.DayOfWeek;
+                row.hour = kv.Key.Hour;
+                if (kv.Value.HasValue)
+                {
+                    row.avgRet = kv.Value.Value;
+                }
+                row.error = byDayAndHourError[kv.Key];
+                ds.tradeRetsByDayAndHour.AddtradeRetsByDayAndHourRow(row);
+            }
+        }
+
+        private double GetError<T>(IGrouping<T, Trade> trades)
+        {
+            return 2 * trades.Select(y => y.TotalResultPct).StandardDeviation() / Math.Sqrt(trades.Count());
         }
 
         private void DoAcfPacf(ReportSettings settings)

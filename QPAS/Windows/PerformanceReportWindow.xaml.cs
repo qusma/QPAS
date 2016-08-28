@@ -21,7 +21,6 @@ namespace QPAS
     public partial class PerformanceReportWindow : MetroWindow
     {
         public PerformanceReportViewModel ViewModel { get; set; }
-
         public PerformanceReportWindow(filterReportDS data, ReportSettings settings)
         {
             InitializeComponent();
@@ -70,6 +69,7 @@ namespace QPAS
                 "TradeLengths",
                 "LengthVsReturns",
                 "SizingVsReturns",
+                "TradeProfitsByDayHour",
                 "RealizedPLByInstrument",
                 "ROACByInstrument",
                 "GrossMovementCapture",

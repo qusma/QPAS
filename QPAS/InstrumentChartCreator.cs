@@ -71,10 +71,10 @@ namespace QPAS
             //prices
             model.Series.Add(new CandleStickSeries
             {
-                CandleWidth = 4,
+                CandleWidth = .4,
                 Color = OxyColors.DimGray,
-                IncreasingFill = OxyColor.FromRgb(0, 192, 0),
-                DecreasingFill = OxyColor.FromRgb(255, 0, 0),
+                IncreasingColor = OxyColor.FromRgb(0, 192, 0),
+                DecreasingColor = OxyColor.FromRgb(255, 0, 0),
                 StrokeThickness = 1
             });
 

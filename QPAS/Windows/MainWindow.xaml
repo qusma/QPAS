@@ -1291,8 +1291,8 @@
                     <Label Content="Cumulative Returns:" Grid.Row="2" Grid.Column="0"  FontSize="26" Foreground="DimGray" Margin="0,-10" />
 
                     <Border BorderThickness="1" Grid.Column="0" Grid.Row="1" Margin="5" BorderBrush="DimGray">
-                        <oxy:PlotView Grid.Row="0" Name="EquitySummaryDollarChart">
-                            <oxy:PlotView.Series>
+                        <oxy:Plot Grid.Row="0" Name="EquitySummaryDollarChart">
+                            <oxy:Plot.Series>
                                 <oxy:AreaSeries Name="EquitySummaryDollarSeries" 
                                                     Color="#4F81BD" 
                                                     DataFieldX="X" 
@@ -1314,18 +1314,18 @@
                                                     TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:c0}"
                                                     ItemsSource="{Binding TotalEquityDrawdownSeries}"
                                                     />
-                            </oxy:PlotView.Series>
-                            <oxy:PlotView.Axes>
+                            </oxy:Plot.Series>
+                            <oxy:Plot.Axes>
                                 <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
                                 <oxy:LinearAxis Position="Right" StringFormat="c0"
                                                     MajorGridlineStyle="Dash" MinorGridlineStyle="Dash" />
-                            </oxy:PlotView.Axes>
-                        </oxy:PlotView>
+                            </oxy:Plot.Axes>
+                        </oxy:Plot>
                     </Border>
 
                     <Border BorderThickness="1" BorderBrush="DimGray" Grid.Column="0" Grid.Row="3" Margin="5">
-                        <oxy:PlotView Grid.Row="0" Name="EquitySummaryPercentChart">
-                            <oxy:PlotView.Series>
+                        <oxy:Plot Grid.Row="0" Name="EquitySummaryPercentChart">
+                            <oxy:Plot.Series>
                                 <oxy:AreaSeries Name="EquitySummaryPercentSeries" Color="#4F81BD" 
                                                 DataFieldX="X" 
                                                 DataFieldY="Y1"
@@ -1345,13 +1345,13 @@
                                                 TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:p1}"
                                                 ItemsSource="{Binding EquitySummaryPercentDrawdownSeries}"
                                                 />
-                            </oxy:PlotView.Series>
-                            <oxy:PlotView.Axes>
+                            </oxy:Plot.Series>
+                            <oxy:Plot.Axes>
                                 <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
                                 <oxy:LinearAxis Position="Right" StringFormat="p1" 
                                                 MinorGridlineStyle="Dash" MajorGridlineStyle="Dash" />
-                            </oxy:PlotView.Axes>
-                        </oxy:PlotView>
+                            </oxy:Plot.Axes>
+                        </oxy:Plot>
                     </Border>
 
 

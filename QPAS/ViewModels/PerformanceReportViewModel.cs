@@ -15,8 +15,10 @@ using System.Windows.Input;
 using MahApps.Metro.Controls.Dialogs;
 using MathNet.Numerics.Statistics;
 using OxyPlot;
+using OxyPlot.Series;
 using OxyPlot.Wpf;
 using QPAS.DataSets;
+using HeatMapSeries = OxyPlot.Wpf.HeatMapSeries;
 
 namespace QPAS
 {
@@ -31,6 +33,7 @@ namespace QPAS
         private PlotModel _relativeCapitalUsageByStrategyModel;
         private PlotModel _roacByStrategyModel;
         private PlotModel _mdsChartModel;
+        private PlotModel _tradeRetsByDayAndHourModel;
 
         public filterReportDS Data { get; set; }
 
@@ -69,6 +72,12 @@ namespace QPAS
         {
             get { return _mdsChartModel; }
             set { _mdsChartModel = value; OnPropertyChanged(); }
+        }
+
+        public PlotModel TradeRetsByDayAndHourModel
+        {
+            get { return _tradeRetsByDayAndHourModel; }
+            set { _tradeRetsByDayAndHourModel = value; OnPropertyChanged(); }
         }
 
         //bit of a hack to filter the mae/mfe datatable
@@ -134,6 +143,7 @@ namespace QPAS
             set { _retVsLengthBestFitLineSlope = value; OnPropertyChanged(); }
         }
 
+       
 
         //Histograms
         public List<Tuple<string, double>> MCSharpeHistogramBuckets { get; set; }
@@ -240,6 +250,66 @@ namespace QPAS
             CreateRelativeCapitalUsageByStrategyChartModel();
             CreateRoacByStrategyChartModel();
             CreateMdsChartModel();
+            CreateTradeRetsByDayAndHourChartModel();
+        }
+
+        private void CreateTradeRetsByDayAndHourChartModel()
+        {
+            var distinctDays = Data.tradeRetsByDayAndHour.Select(x => x.weekDay).Distinct();
+            var distinctHours = Data.tradeRetsByDayAndHour.Select(x => x.hour).OrderByDescending(x => x).Distinct();
+
+            var model = new PlotModel();
+            var xAxis = new OxyPlot.Axes.CategoryAxis
+            {
+                Key = "dayAxis",
+                Position = OxyPlot.Axes.AxisPosition.Bottom,
+                ItemsSource = distinctDays.Select(x => x.ToString())
+            };
+
+            var yAxis = new OxyPlot.Axes.CategoryAxis
+            {
+                Key = "hourAxis",
+                Position = OxyPlot.Axes.AxisPosition.Left,
+                ItemsSource = distinctHours.Select(x => x.ToString())
+            };
+
+            model.Axes.Add(xAxis);
+            model.Axes.Add(yAxis);
+
+            model.Axes.Add(new OxyPlot.Axes.LinearColorAxis
+            {
+                Palette = OxyPalettes.BlueWhiteRed31
+            });
+
+            //take avg trade ret by day/hour and turn it into an array
+            int dayCount = distinctDays.Count();
+            int hourCount = distinctHours.Count();
+            var data = new double[dayCount, hourCount];
+
+            var weekDayTrans = distinctDays.Select((x, a) => new { x, a }).ToDictionary(x => x.x, x => x.a);
+            var hourTrans = distinctHours.Select((x, a) => new { x, a }).OrderByDescending(x => x.x).ToDictionary(x => x.x, x => x.a);
+            foreach (var ret in Data.tradeRetsByDayAndHour)
+            {
+                data[weekDayTrans[ret.weekDay], hourTrans[ret.hour]] = ret.avgRet;
+            }
+
+            var heatMapSeries = new OxyPlot.Series.HeatMapSeries
+            {
+                X0 = 0,
+                X1 = dayCount - 1,
+                Y0 = 0,
+                Y1 = hourCount - 1,
+                XAxisKey = "dayAxis",
+                YAxisKey = "hourAxis",
+                RenderMethod = HeatMapRenderMethod.Rectangles,
+                LabelFontSize = 0.2, // neccessary to display the label
+                LabelFormatString = "p2",
+                Data = data
+            };
+
+            model.Series.Add(heatMapSeries);
+
+            TradeRetsByDayAndHourModel = model;
         }
 
         private void CreateMdsChartModel()
