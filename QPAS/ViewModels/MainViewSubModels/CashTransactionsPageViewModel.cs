@@ -18,21 +18,23 @@ namespace QPAS
     public class CashTransactionsPageViewModel : ViewModelBase
     {
         internal IDBContext Context;
+        private readonly MainViewModel _mainVm;
         internal ITradesRepository TradesRepository;
 
         public CollectionViewSource CashTransactionsSource { get; set; }
         public ICommand Delete { get; private set; }
 
-        public CashTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogCoordinator dialogService, MainViewModel parent)
+        public CashTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogCoordinator dialogService, MainViewModel mainVm)
             : base(dialogService)
         {
             Context = context;
+            _mainVm = mainVm;
 
             CashTransactionsSource = new CollectionViewSource();
             CashTransactionsSource.Source = Context.CashTransactions.Local;
             CashTransactionsSource.View.SortDescriptions.Add(new SortDescription("TransactionDate", ListSortDirection.Descending));
 
-            TradesRepository = parent.TradesRepository;
+            TradesRepository = mainVm.TradesRepository;
 
             CreateCommands();
         }
@@ -58,7 +60,7 @@ namespace QPAS
         {
             if (cts == null || cts.Count == 0) return;
 
-            var res = await DialogService.ShowMessageAsync(this,
+            var res = await DialogService.ShowMessageAsync(_mainVm,
                 "Delete Order(s)",
                 string.Format("Are you sure you want to delete {0} cash transaction(s)?", cts.Count),
                 MessageDialogStyle.AffirmativeAndNegative);

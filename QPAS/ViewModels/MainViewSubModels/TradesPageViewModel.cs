@@ -154,7 +154,7 @@ namespace QPAS
         {
             if (trades == null || trades.Count == 0) return;
 
-            MessageDialogResult res = await DialogService.ShowMessageAsync(this,
+            MessageDialogResult res = await DialogService.ShowMessageAsync(Parent,
                 "Reset Trade",
                 string.Format("Are you sure you want to reset {0} trades?", trades.Count),
                 MessageDialogStyle.AffirmativeAndNegative);
@@ -173,7 +173,7 @@ namespace QPAS
         {
             if (trades == null || trades.Count == 0) return;
 
-            MessageDialogResult res = await DialogService.ShowMessageAsync(this,
+            MessageDialogResult res = await DialogService.ShowMessageAsync(Parent,
                 "Delete Trade",
                 string.Format("Are you sure you want to delete {0} trades?", trades.Count),
                 MessageDialogStyle.AffirmativeAndNegative);

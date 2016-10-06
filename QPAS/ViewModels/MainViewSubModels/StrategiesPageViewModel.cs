@@ -48,12 +48,12 @@ namespace QPAS
 
             if (tradesCount > 0)
             {
-                await DialogService.ShowMessageAsync(this, 
+                await DialogService.ShowMessageAsync(Parent, 
                     "Cannot delete", string.Format("Can't delete this strategy, it still has {0} trades in it.", tradesCount));
                 return;
             }
 
-            MessageDialogResult result = await DialogService.ShowMessageAsync(this,
+            MessageDialogResult result = await DialogService.ShowMessageAsync(Parent,
                 "Delete strategy",
                 String.Format("Are you sure you want to delete {0}?", strategy.Name),
                 MessageDialogStyle.AffirmativeAndNegative);

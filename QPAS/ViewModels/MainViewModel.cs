@@ -17,7 +17,7 @@ using QPAS.Scripting;
 
 namespace QPAS
 {
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel : ViewModelBase, IMainViewModel
     {
         internal IDBContext Context;
 
@@ -63,7 +63,8 @@ namespace QPAS
                 context,
                 dialogService,
                 datasourcer,
-                TradesRepository);
+                TradesRepository,
+                this);
 
             CreateSubViewModels();
 
@@ -84,11 +85,11 @@ namespace QPAS
         {
             CashTransactionsPageViewModel = new CashTransactionsPageViewModel(Context, Datasourcer, DialogService, this);
             OpenPositionsPageViewModel = new OpenPositionsPageViewModel(Context, DialogService);
-            InstrumentsPageViewModel = new InstrumentsPageViewModel(Context, DialogService, Datasourcer);
+            InstrumentsPageViewModel = new InstrumentsPageViewModel(Context, DialogService, Datasourcer, this);
             StrategiesPageViewModel = new StrategiesPageViewModel(Context, DialogService, this);
             TagsPageViewModel = new TagsPageViewModel(Context, DialogService, this);
             TradesPageViewModel = new TradesPageViewModel(Context, DialogService, Datasourcer, this);
-            BenchmarksPageViewModel = new BenchmarksPageViewModel(Context, DialogService, Datasourcer);
+            BenchmarksPageViewModel = new BenchmarksPageViewModel(Context, DialogService, Datasourcer, this);
             PerformanceOverviewPageViewModel = new PerformanceOverviewPageViewModel(Context, DialogService);
             OrdersPageViewModel = new OrdersPageViewModel(Context, DialogService, Datasourcer, this);
             PerformanceReportPageViewModel = new PerformanceReportPageViewModel(Context, DialogService, this, Datasourcer);
@@ -103,13 +104,13 @@ namespace QPAS
 
             LoadStatementFromWeb = new RelayCommand<string>(async x =>
             { 
-                await StatementHandler.LoadFromWeb(x);
+                await StatementHandler.LoadFromWeb(x).ConfigureAwait(true);
                 PostStatementLoadProcedures();
 
             });
             LoadStatementFromFile = new RelayCommand<string>(async x => 
             {
-                await StatementHandler.LoadFromFile(x);
+                await StatementHandler.LoadFromFile(x).ConfigureAwait(true);
                 PostStatementLoadProcedures();
             });
         }

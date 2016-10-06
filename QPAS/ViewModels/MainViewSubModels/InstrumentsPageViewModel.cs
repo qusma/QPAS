@@ -25,6 +25,7 @@ namespace QPAS
     {
         internal IDBContext Context;
         internal IDataSourcer Datasourcer;
+        private readonly IMainViewModel _mainVm;
 
         private Instrument _selectedInstrument;
         private string _selectedStrategyName;
@@ -90,11 +91,12 @@ namespace QPAS
 
         public ICommand SaveChart { get; private set; }
 
-        public InstrumentsPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer)
+        public InstrumentsPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer, IMainViewModel mainVm)
             : base(dialogService)
         {
             Context = context;
             Datasourcer = datasourcer;
+            _mainVm = mainVm;
             StrategyNames = new ObservableCollection<string>();
             ExternalInstruments = new ObservableCollection<KeyValuePair<string, int?>>();
 
@@ -118,7 +120,7 @@ namespace QPAS
                 }
                 catch (Exception ex)
                 {
-                    DialogService.ShowMessageAsync(this, "Error saving image", ex.Message);
+                    DialogService.ShowMessageAsync(_mainVm, "Error saving image", ex.Message);
                 }
             });
         }
@@ -147,7 +149,7 @@ namespace QPAS
             }
             catch (Exception ex)
             {
-                DialogService.ShowMessageAsync(this, "Error Getting Data", ex.Message);
+                DialogService.ShowMessageAsync(_mainVm, "Error Getting Data", ex.Message);
                 return;
             }
 

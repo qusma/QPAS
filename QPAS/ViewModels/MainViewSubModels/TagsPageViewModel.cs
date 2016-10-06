@@ -61,7 +61,7 @@ namespace QPAS
 
         private async void DeleteTag(Tag tag)
         {
-            MessageDialogResult res = await DialogService.ShowMessageAsync(this,
+            MessageDialogResult res = await DialogService.ShowMessageAsync(Parent,
                 "Delete Tag",
                 string.Format("Are you sure you want to delete {0}?", tag.Name),
                 MessageDialogStyle.AffirmativeAndNegative);

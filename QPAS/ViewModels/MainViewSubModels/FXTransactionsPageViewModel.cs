@@ -21,15 +21,17 @@ namespace QPAS
         public CollectionViewSource FXTransactions { get; set; }
 
         internal IDBContext Context;
+        private readonly IMainViewModel _mainVm;
         internal ITradesRepository TradesRepository;
 
         public ICommand Delete { get; set; }
 
-        public FXTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogCoordinator dialogService, MainViewModel parent)
+        public FXTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogCoordinator dialogService, IMainViewModel mainVm)
             : base(dialogService)
         {
             Context = context;
-            TradesRepository = parent.TradesRepository;
+            _mainVm = mainVm;
+            TradesRepository = mainVm.TradesRepository;
 
             FXTransactions = new CollectionViewSource();
             FXTransactions.Source = Context.FXTransactions.Local;
@@ -47,7 +49,7 @@ namespace QPAS
         {
             if (fxts == null || fxts.Count == 0) return;
 
-            var res = await DialogService.ShowMessageAsync(this,
+            var res = await DialogService.ShowMessageAsync(_mainVm,
                 "Delete Order(s)",
                 string.Format("Are you sure you want to delete {0} FX transaction(s)?", fxts.Count),
                 MessageDialogStyle.AffirmativeAndNegative);

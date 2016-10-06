@@ -21,6 +21,7 @@ namespace QPAS
         public CollectionViewSource BenchmarksSource { get; set; }
 
         internal IDataSourcer Datasourcer;
+        private readonly IMainViewModel _mainVm;
         internal IDBContext Context;
 
         public Benchmark SelectedBenchmark { get; set; }
@@ -43,11 +44,12 @@ namespace QPAS
             }
         }
 
-        public BenchmarksPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer)
+        public BenchmarksPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer, IMainViewModel mainVm)
             : base(dialogService)
         {
             Context = context;
             Datasourcer = datasourcer;
+            _mainVm = mainVm;
 
             ExternalInstruments = new ObservableCollection<KeyValuePair<string, int?>>();
 
@@ -100,7 +102,7 @@ namespace QPAS
         {
             if (benchmark == null) return;
 
-            var result = await DialogService.ShowMessageAsync(this,
+            var result = await DialogService.ShowMessageAsync(_mainVm,
                 "Delete Benchmark",
                 string.Format("Are you sure you want to delete {0}?", benchmark.Name),
                 MessageDialogStyle.AffirmativeAndNegative);

@@ -294,6 +294,7 @@
     <Compile Include="Utilities\Utils.cs" />
     <Compile Include="ViewModels\BacktestImportViewModel.cs" />
     <Compile Include="ViewModels\ExecutionReportViewModel.cs" />
+    <Compile Include="Interfaces\IMainViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MainViewSubModels\BenchmarksPageViewModel.cs" />
     <Compile Include="ViewModels\MainViewSubModels\CashTransactionsPageViewModel.cs" />
