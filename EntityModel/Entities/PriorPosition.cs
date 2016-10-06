@@ -18,7 +18,7 @@ namespace EntityModel
         [NotXmlMapped]
         public int ID { get; set; }
 
-        [AttributeName("date", "yyyy-MM-dd")]
+        [AttributeName("date", "yyyyMMdd")]
         [Index]
         public DateTime Date { get; set; }
 

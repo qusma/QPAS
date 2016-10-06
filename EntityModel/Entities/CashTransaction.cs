@@ -67,7 +67,7 @@ namespace EntityModel
         [AttributeName("conid")]
         public long? ConID { get; set; }
 
-        [AttributeName("dateTime", "yyyy-MM-dd")]
+        [AttributeName("dateTime", "yyyyMMdd")]
         [Index]
         public DateTime TransactionDate { get; set; }
 

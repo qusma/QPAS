@@ -40,7 +40,7 @@ namespace EntityModel
         [AttributeName("multiplier")]
         public int Multiplier { get; set; }
 
-        [AttributeName("expiry", "yyyy-MM-dd")]
+        [AttributeName("expiry", "yyyyMMdd")]
         public DateTime? Expiration { get; set; }
 
         [AttributeName("type")]

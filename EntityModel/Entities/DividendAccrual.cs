@@ -61,10 +61,10 @@ namespace EntityModel
         [AttributeName("conid")]
         public long ConID { get; set; }
 
-        [AttributeName("exDate", "yyyy-MM-dd")]
+        [AttributeName("exDate", "yyyyMMdd")]
         public DateTime ExDate { get; set; }
 
-        [AttributeName("payDate", "yyyy-MM-dd")]
+        [AttributeName("payDate", "yyyyMMdd")]
         public DateTime? PayDate { get; set; }
 
         [AttributeName("quantity")]
