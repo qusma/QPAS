@@ -106,6 +106,10 @@
     <Compile Include="Migrations\201502041555581_UserScripts.Designer.cs">
       <DependentUpon>201502041555581_UserScripts.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201610101205027_OrderReference.cs" />
+    <Compile Include="Migrations\201610101205027_OrderReference.Designer.cs">
+      <DependentUpon>201610101205027_OrderReference.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\MyDbContextMigrationConfiguration.cs" />
     <Compile Include="MySqlHistoryContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -127,6 +131,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201502041555581_UserScripts.resx">
       <DependentUpon>201502041555581_UserScripts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201610101205027_OrderReference.resx">
+      <DependentUpon>201610101205027_OrderReference.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

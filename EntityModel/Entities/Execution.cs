@@ -218,6 +218,14 @@ namespace EntityModel
         [AttributeName("ibOrderID")]
         public long IBOrderID { get; set; }
 
+        /// <summary>
+        /// The order reference number as defined by the user on the order ticket. 
+        /// Available on daily (single-day) activity flex queries only.
+        /// </summary>
+        [MaxLength(255)]
+        [AttributeName("orderReference")]
+        public string OrderReference { get; set; }
+
         [NotXmlMapped]
         public int OrderID { get; set; }
 

@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Xml.Linq;
 using EntityModel;
@@ -319,6 +321,7 @@ namespace QPAS
 
             var currencies = context.Currencies.ToList();
             var instruments = context.Instruments.ToList();
+            var orderReferenceSet = new List<long>(); //used to keep track of which orders we have set the order reference for, so we don't do it multiple times
 
             //then add the new ones
             foreach (Execution i in executions)
@@ -329,7 +332,15 @@ namespace QPAS
                     i.Instrument = instruments.FirstOrDefault(x => x.ConID == i.ConID);
                     i.Currency = currencies.FirstOrDefault(x => x.Name == i.CurrencyString);
                     i.CommissionCurrency = currencies.FirstOrDefault(x => x.Name == i.CommissionCurrencyString);
-                    i.Order = context.Orders.FirstOrDefault(x => x.IBOrderID == i.IBOrderID);
+                    var order = context.Orders.FirstOrDefault(x => x.IBOrderID == i.IBOrderID);
+                    i.Order = order;
+                    if (!string.IsNullOrEmpty(i.OrderReference) && !orderReferenceSet.Contains(i.IBOrderID))
+                    {
+                        orderReferenceSet.Add(i.IBOrderID);
+                        order.OrderReference = i.OrderReference;
+
+                        ((IObjectContextAdapter)context).ObjectContext.ObjectStateManager.ChangeObjectState(order, EntityState.Modified);
+                    }
                     context.Executions.Add(i);
                 }
             }
@@ -398,8 +409,6 @@ namespace QPAS
             //orderPlacementTime="--" clearingFirmID="--" exchOrderId="--" extExecID="--" orderTime="20140325;093002" openDateTime="--"
             //holdingPeriodDateTime="--" whenRealized="--" whenReopened="--" levelOfDetail="ORDER" changeInPrice="--" changeInQuantity="--"
             //netCash="25984.185715" orderType="LMT" />
-            
-            //TODO it seems that the orderReference field is not set on the order level, only execution level...we don't even save that to db! fix it!
         }
 
         private static Instrument TryAddAndGetCurrencyInstrument(Order order, IDBContext context)
