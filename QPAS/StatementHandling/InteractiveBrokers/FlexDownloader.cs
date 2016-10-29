@@ -7,6 +7,8 @@
 using System;
 using System.ComponentModel.Composition;
 using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using NLog;
 
@@ -18,7 +20,7 @@ namespace QPAS
     {
         public string Name { get { return "Interactive Brokers"; } }
 
-        public string DownloadStatement()
+        public async Task<string> DownloadStatement()
         {
             var logger = LogManager.GetCurrentClassLogger();
 
@@ -31,17 +33,9 @@ namespace QPAS
 
             //first we send a request for the statement
             string theURL = string.Format("https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest?t={0}&q={1}&v=3", flexToken, flexID);
-            using (System.Net.WebClient webClient = new System.Net.WebClient())
+            using (var client = new HttpClient())
             {
-                string contents;
-                try
-                {
-                    contents = webClient.DownloadString(theURL);
-                }
-                catch (System.Net.WebException ex)
-                {
-                    throw new Exception(ex.Message);
-                }
+                string contents = await client.GetStringAsync(theURL).ConfigureAwait(false);
 
                 XDocument response = XDocument.Load(new StringReader(contents));
                 var xElement = response.Element("FlexStatementResponse");
@@ -86,7 +80,7 @@ namespace QPAS
                 System.Threading.Thread.Sleep(1000);
                 while (!retrieved)
                 {
-                    flex = webClient.DownloadString(theURL);
+                    flex = await client.GetStringAsync(theURL).ConfigureAwait(false);
                     //check if we actually got the fucking thing
                     XDocument xdoc = XDocument.Load(new StringReader(flex));
 

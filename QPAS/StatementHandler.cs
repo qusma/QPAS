@@ -106,31 +106,28 @@ namespace QPAS
         /// <param name="name">The name of the parser and downloader.</param>
         public async Task LoadFromWeb(string name)
         {
-            var downloader = await GetDownloaderByName(name);
+            var downloader = await GetDownloaderByName(name).ConfigureAwait(false);
             if (downloader == null) return;
-            var parser = await GetParserByName(name);
+            var parser = await GetParserByName(name).ConfigureAwait(false);
             if (parser == null) return;
 
-            ProgressDialogController progress = await _dialogService.ShowProgressAsync(_mainVm, "Load Statement from Web", "Downloading");
+            ProgressDialogController progress = await _dialogService.ShowProgressAsync(_mainVm, "Load Statement from Web", "Downloading").ConfigureAwait(false);
 
             Exception ex = null;
-            var flex = await Task.Run(() =>
+            string flex = "";
+            try
             {
-                try
-                {
-                    return downloader.DownloadStatement();
-                }
-                catch (Exception caughtException)
-                {
-                    ex = caughtException;
-                    return "";
-                }
-            });
+                flex = await downloader.DownloadStatement().ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
 
             if (flex == "" || ex != null)
             {
                 await progress.CloseAsync();
-                await _dialogService.ShowMessageAsync(_mainVm, "Error downloading statement", ex.Message);
+                await _dialogService.ShowMessageAsync(_mainVm, "Error downloading statement", ex?.Message);
 
                 return;
             }

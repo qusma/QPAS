@@ -4,11 +4,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.Threading.Tasks;
+
 namespace QPAS
 {
     public interface IStatementDownloader
     {
         string Name { get; }
-        string DownloadStatement();
+        Task<string> DownloadStatement();
     }
 }
