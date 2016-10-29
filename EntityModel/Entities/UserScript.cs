@@ -23,6 +23,7 @@ namespace EntityModel
         public int ID { get; set; }
 
         [MaxLength(65535)]
+        [Column(TypeName = "TEXT")]
         public string Code
         {
             get { return _code; }
@@ -39,6 +40,7 @@ namespace EntityModel
         /// Used to save in the db.
         /// </summary>
         [MaxLength(65535)]
+        [Column(TypeName = "TEXT")]
         public string ReferencedAssembliesAsString
         {
             get

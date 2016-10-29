@@ -110,7 +110,7 @@ namespace EntityModel.Migrations
                         CapitalShort = c.Decimal(nullable: false, precision: 20, scale: 10),
                         CapitalTotal = c.Decimal(nullable: false, precision: 20, scale: 10),
                         CapitalNet = c.Decimal(nullable: false, precision: 20, scale: 10),
-                        Notes = c.String(maxLength: 65535),
+                        Notes = c.String(maxLength: 255),
                     })
                 .PrimaryKey(t => t.ID)
                 .ForeignKey("dbo.Strategies", t => t.StrategyID)

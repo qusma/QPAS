@@ -21,7 +21,7 @@ namespace EntityModel.Migrations
             AutomaticMigrationsEnabled = true;
             AutomaticMigrationDataLossAllowed = true;
 
-            //SetSqlGenerator("MySql.Data.MySqlClient", new MySqlMigrationSqlGenerator());
+            SetSqlGenerator("MySql.Data.MySqlClient", new MySqlMigrationSqlGenerator());
         }
     }
 }

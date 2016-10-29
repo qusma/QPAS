@@ -224,6 +224,7 @@ namespace EntityModel
         public virtual ICollection<Tag> Tags { get; set; }
 
         [MaxLength(65535)]
+        [Column(TypeName = "TEXT")]
         public string Notes { get; set; }
 
         [NotMapped]

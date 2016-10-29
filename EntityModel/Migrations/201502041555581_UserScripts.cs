@@ -12,9 +12,9 @@ namespace EntityModel.Migrations
                 c => new
                     {
                         ID = c.Int(nullable: false, identity: true),
-                        Code = c.String(maxLength: 65535),
+                        Code = c.String(maxLength: 255),
                         Name = c.String(maxLength: 255),
-                        ReferencedAssembliesAsString = c.String(maxLength: 65535),
+                        ReferencedAssembliesAsString = c.String(maxLength: 255),
                     })
                 .PrimaryKey(t => t.ID);
             
