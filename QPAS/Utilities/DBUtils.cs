@@ -6,10 +6,12 @@
 
 using System;
 using System.Configuration;
+using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using MySql.Data.Entity;
 using MySql.Data.MySqlClient;
 using QPAS.Properties;
 
@@ -28,6 +30,14 @@ namespace QPAS
             }
 
             ConfigurationManager.RefreshSection("connectionStrings");
+        }
+
+        public static void SetDbConfiguration()
+        {
+            if (Settings.Default.databaseType == "MySql")
+            {
+                DbConfiguration.SetConfiguration(new MySqlEFConfiguration());
+            }
         }
 
         private static void SetSqlServerConnectionString(string stringName, string dbName)

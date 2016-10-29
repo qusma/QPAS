@@ -14,7 +14,7 @@ using NUnit.Framework;
 using MySql.Data.Entity;
 using QPAS;
 
-namespace qpasTest
+namespace QPASTest
 {
     [TestFixture]
     public class DbCreationTest
@@ -86,7 +86,6 @@ namespace qpasTest
                     cmd.CommandText = @"IF EXISTS(SELECT name FROM sys.databases WHERE name = 'qpas_test')
                                             DROP DATABASE qpas_test";
                     cmd.ExecuteNonQuery();
-                    cmd.ExecuteNonQuery();
                     cmd.CommandText = "CREATE DATABASE qpas_test";
                     cmd.ExecuteNonQuery();
                 }
@@ -95,7 +94,7 @@ namespace qpasTest
             SetConnectionString("qpasEntities", GetSqlServerConnString("qpas_test", _sqlServerHost, _sqlServerUsername, _sqlServerPassword, false, _useWindowsAuthentication), "System.Data.SqlClient");
 
             ConfigurationManager.RefreshSection("connectionStrings");
-
+            
             using (var ctx = new DBContext())
             {
                 ctx.Database.Initialize(true);

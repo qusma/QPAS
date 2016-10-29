@@ -87,6 +87,9 @@ namespace QPAS
             //set the connection string
             DBUtils.SetConnectionString();
 
+            //set EF configuration, necessary for MySql to work
+            DBUtils.SetDbConfiguration();
+
             Context = new DBContext();
 
             //create db if it doesn't exist

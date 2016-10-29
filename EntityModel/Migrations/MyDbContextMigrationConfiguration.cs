@@ -21,26 +21,7 @@ namespace EntityModel.Migrations
             AutomaticMigrationsEnabled = true;
             AutomaticMigrationDataLossAllowed = true;
 
-
-            //Dirty hack. Check the database. If we're using MySql we need to use a special HistoryContext
-            //to bypass the problem of the too-long key when the default charset is UTF8.
-            string provider = ConfigurationManager.ConnectionStrings["qpasEntities"].ProviderName;
-
-            if (provider == "MySql.Data.MySqlClient")
-            {
-                SetSqlGenerator("MySql.Data.MySqlClient", new MySqlMigrationSqlGenerator());
-                SetHistoryContextFactory(MySqlProviderInvariantName.ProviderName,
-                    (existingConnection, defaultSchema) => new MySqlHistoryContext(existingConnection, defaultSchema));
-            }
-            else if (provider == "System.Data.SqlClient")
-            {
-                SetSqlGenerator("System.Data.SqlClient", new SqlServerMigrationSqlGenerator());
-            }
-            else
-            {
-                //sqlite....no migration generator?
-                
-            }
+            //SetSqlGenerator("MySql.Data.MySqlClient", new MySqlMigrationSqlGenerator());
         }
     }
 }
