@@ -22,6 +22,7 @@ namespace EntityModel
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
+        [MaxLength(65535)]
         public string Code
         {
             get { return _code; }
@@ -37,6 +38,7 @@ namespace EntityModel
         /// <summary>
         /// Used to save in the db.
         /// </summary>
+        [MaxLength(65535)]
         public string ReferencedAssembliesAsString
         {
             get

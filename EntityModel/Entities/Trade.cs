@@ -223,6 +223,7 @@ namespace EntityModel
 
         public virtual ICollection<Tag> Tags { get; set; }
 
+        [MaxLength(65535)]
         public string Notes { get; set; }
 
         [NotMapped]
