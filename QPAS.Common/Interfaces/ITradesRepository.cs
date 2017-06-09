@@ -10,7 +10,8 @@ namespace QPAS
     {
         void UpdateOpenTrades();
         void SetTags(List<Tag> tags, Trade trade);
-        void AddOrder(Trade trade, Order order);
+        void AddOrder(Trade trade, Order order, bool updateStats = true);
+        void AddOrders(Trade trade, IEnumerable<Order> order);
         void RemoveOrder(Trade trade, Order order);
         void AddCashTransaction(Trade trade, CashTransaction ct);
         void RemoveCashTransaction(Trade trade, CashTransaction ct);

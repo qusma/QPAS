@@ -673,10 +673,7 @@ namespace QPAS
             var selectedOrders = new List<Order>(OrdersGrid.SelectedItems.Cast<Order>());
             Task.Run(() =>
                 {
-                    foreach (Order o in selectedOrders)
-                    {
-                        TradesRepository.AddOrder(trade, o);
-                    }
+                    TradesRepository.AddOrders(trade, selectedOrders);
                     TradesRepository.Save();
                 });
         }

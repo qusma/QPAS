@@ -4,13 +4,13 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using EntityModel;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Entity;
 using System.Linq;
-using EntityModel;
-using NLog;
 
 namespace QPAS
 {
@@ -29,7 +29,7 @@ namespace QPAS
         public void UpdateOpenTrades()
         {
             var logger = LogManager.GetCurrentClassLogger();
-
+            //todo override this get to always return with these includes; enforce usage of repository so everything is always loaded
             var trades = Get(x => x.Open)
                 .Include(x => x.Strategy)
                 .Include(x => x.Orders)
@@ -59,7 +59,7 @@ namespace QPAS
         public void SetTags(List<Tag> tags, Trade trade)
         {
             if (tags == null) return;
-            if(trade.Tags == null) trade.Tags = new ObservableCollection<Tag>();
+            if (trade.Tags == null) trade.Tags = new ObservableCollection<Tag>();
             trade.Tags.Clear();
 
             foreach (Tag t in tags)
@@ -68,10 +68,19 @@ namespace QPAS
             }
         }
 
-        public void AddOrder(Trade trade, Order order)
+        public void AddOrders(Trade trade, IEnumerable<Order> orders)
         {
-            if (trade == null) throw new ArgumentNullException("trade");
-            if (order == null) throw new ArgumentNullException("order");
+            foreach (var order in orders)
+            {
+                AddOrder(trade, order, false);
+            }
+            UpdateStats(trade);
+        }
+
+        public void AddOrder(Trade trade, Order order, bool updateStats = true)
+        {
+            if (trade == null) throw new ArgumentNullException(nameof(trade));
+            if (order == null) throw new ArgumentNullException(nameof(order));
 
             var oldTrade = order.Trade;
 
@@ -93,7 +102,10 @@ namespace QPAS
             order.TradeID = trade.ID;
 
             //finally update the stats of the new trade
-            UpdateStats(order.Trade);
+            if (updateStats)
+            {
+                UpdateStats(order.Trade);
+            }
         }
 
         public void RemoveOrder(Trade trade, Order order)
@@ -107,8 +119,8 @@ namespace QPAS
 
         public void AddCashTransaction(Trade trade, CashTransaction ct)
         {
-            if (trade == null) throw new ArgumentNullException("trade");
-            if (ct == null) throw new ArgumentNullException("ct");
+            if (trade == null) throw new ArgumentNullException(nameof(trade));
+            if (ct == null) throw new ArgumentNullException(nameof(ct));
 
             var oldTrade = ct.Trade;
 
@@ -144,8 +156,8 @@ namespace QPAS
 
         public void AddFXTransaction(Trade trade, FXTransaction fxt)
         {
-            if (trade == null) throw new ArgumentNullException("trade");
-            if (fxt == null) throw new ArgumentNullException("fxt");
+            if (trade == null) throw new ArgumentNullException(nameof(trade));
+            if (fxt == null) throw new ArgumentNullException(nameof(fxt));
 
             var oldTrade = fxt.Trade;
 
@@ -181,9 +193,9 @@ namespace QPAS
 
         private static DateTime DetermineStartingDate(Trade trade, IDBContext context)
         {
-            DateTime startDate = new DateTime(9999, 1, 1); 
-            
-            if(trade.Orders != null && trade.Orders.Count > 0)
+            DateTime startDate = new DateTime(9999, 1, 1);
+
+            if (trade.Orders != null && trade.Orders.Count > 0)
             {
                 startDate = trade.Orders.Select(x => x.TradeDate).OrderBy(x => x).First();
             }
@@ -208,7 +220,7 @@ namespace QPAS
 
         public void UpdateStats(Trade trade, bool skipCollectionLoad = false)
         {
-            var tradeEntry = Context.Entry(trade);
+            var tradeEntry = Context.Entry(trade); //todo fix
             if (!skipCollectionLoad && //used to bypass annoyances w/ automated testing
                 tradeEntry.State != EntityState.Added &&
                 tradeEntry.State != EntityState.Detached) //trade entry state check, otherwise the load is meaningless and will cause a crash
@@ -271,7 +283,7 @@ namespace QPAS
                 trade.FXTransactions.Clear();
             }
 
-            if(trade.Tags != null)
+            if (trade.Tags != null)
             {
                 trade.Tags.Clear();
             }
