@@ -3,6 +3,7 @@ using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 
@@ -35,9 +36,9 @@ namespace QPAS
             Delete = new RelayCommand<Strategy>(DeleteStrategy);
         }
 
-        public override void Refresh()
+        public override async Task Refresh()
         {
-            Context.Strategies.Load();
+            await Context.Strategies.LoadAsync().ConfigureAwait(true);
         }
 
         private async void DeleteStrategy(Strategy strategy)

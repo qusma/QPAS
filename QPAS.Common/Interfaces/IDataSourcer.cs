@@ -6,9 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using EntityModel;
 using QDMS;
 using Instrument = EntityModel.Instrument;
+using Currency = EntityModel.Currency;
 
 namespace QPAS
 {
@@ -16,9 +18,9 @@ namespace QPAS
     {
         IExternalDataSource ExternalDataSource { get; }
         IDBContext Context { get; set; }
-        List<OHLCBar> GetData(Instrument inst, DateTime startTime, DateTime endTime, BarSize frequency = BarSize.OneDay);
-        List<OHLCBar> GetAllExternalData(Instrument inst);
-        List<OHLCBar> GetExternalData(int externalInstrumentID, DateTime startTime, DateTime endTime);
+        Task<List<OHLCBar>> GetData(Instrument inst, DateTime startTime, DateTime endTime, BarSize frequency = BarSize.OneDay);
+        Task<List<OHLCBar>> GetAllExternalData(Instrument inst);
+        Task<List<OHLCBar>> GetExternalData(int externalInstrumentID, DateTime startTime, DateTime endTime);
         decimal? GetLastPrice(Instrument inst, out decimal fxRate, string currency = "USD");
         decimal GetLastFxRate(Currency currency);
     }

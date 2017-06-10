@@ -9,8 +9,10 @@ using MahApps.Metro.Controls.Dialogs;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Entity;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
+using ReactiveUI;
 
 namespace QPAS
 {
@@ -36,12 +38,8 @@ namespace QPAS
 
         public bool IsExternalClientConnected
         {
-            get { return _isExternalClientConnected; }
-            set
-            {
-                _isExternalClientConnected = value;
-                OnPropertyChanged();
-            }
+            get => _isExternalClientConnected;
+            set => this.RaiseAndSetIfChanged(ref _isExternalClientConnected, value);
         }
 
         public BenchmarksPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer, IMainViewModel mainVm)
@@ -62,20 +60,20 @@ namespace QPAS
 
         private void CreateCommands()
         {
-            DeleteBenchmark = new RelayCommand(() => DeleteBench(SelectedBenchmark));
-            DeleteComponent = new RelayCommand(() => DeleteComp(SelectedComponent));
+            DeleteBenchmark = ReactiveCommand.CreateFromTask(async _ => await DeleteBench(SelectedBenchmark).ConfigureAwait(true));
+            DeleteComponent = ReactiveCommand.CreateFromTask(async _ => await DeleteComp(SelectedComponent).ConfigureAwait(true));
         }
 
-        public override void Refresh()
+        public override async Task Refresh()
         {
             Context.Benchmarks.Include(x => x.Components).Load();
 
-            PopulateQDMSInstruments();
+            await PopulateQDMSInstruments().ConfigureAwait(true);
 
             IsExternalClientConnected = Datasourcer.ExternalDataSource != null && Datasourcer.ExternalDataSource.Connected;
         }
 
-        private void PopulateQDMSInstruments()
+        private async Task PopulateQDMSInstruments()
         {
             //fill qdms instrument combobox
             if (Datasourcer.ExternalDataSource != null && Datasourcer.ExternalDataSource.Connected)
@@ -83,22 +81,22 @@ namespace QPAS
                 ExternalInstruments.Clear();
                 ExternalInstruments.Add(new KeyValuePair<string, int?>("Auto", null));
 
-                foreach (var kvp in Datasourcer.ExternalDataSource.GetInstrumentDict())
+                foreach (var kvp in await Datasourcer.ExternalDataSource.GetInstrumentDict().ConfigureAwait(true))
                 {
                     ExternalInstruments.Add(new KeyValuePair<string, int?>(kvp.Key, kvp.Value));
                 }
             }
         }
 
-        private void DeleteComp(BenchmarkComponent component)
+        private async Task DeleteComp(BenchmarkComponent component)
         {
             if (component == null) return;
 
             Context.BenchmarkComponents.Remove(component);
-            Context.SaveChanges();
+            await Context.SaveChangesAsync().ConfigureAwait(true);
         }
 
-        private async void DeleteBench(Benchmark benchmark)
+        private async Task DeleteBench(Benchmark benchmark)
         {
             if (benchmark == null) return;
 
@@ -110,7 +108,7 @@ namespace QPAS
             if (result == MessageDialogResult.Affirmative)
             {
                 Context.Benchmarks.Remove(benchmark);
-                Context.SaveChanges();
+                await Context.SaveChangesAsync().ConfigureAwait(true);
             }
         }
     }

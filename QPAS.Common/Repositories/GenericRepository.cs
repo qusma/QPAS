@@ -8,6 +8,7 @@ using System;
 using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using EntityModel;
 
 namespace QPAS
@@ -72,9 +73,9 @@ namespace QPAS
             DBSet.Remove(entityToDelete);
         }
 
-        public virtual void Save()
+        public virtual async Task Save()
         {
-            Context.SaveChanges();
+            await Context.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 }

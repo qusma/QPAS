@@ -7,6 +7,7 @@
 using System;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Threading.Tasks;
 
 namespace EntityModel
 {
@@ -43,6 +44,7 @@ namespace EntityModel
         DbEntityEntry Entry(object entity);
         DbEntityEntry<T> Entry<T>(T entity) where T : class;
         int SaveChanges();
+        Task<int> SaveChangesAsync();
         void Dispose();
     }
 }

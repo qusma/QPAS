@@ -18,6 +18,7 @@ using OxyPlot;
 using OxyPlot.Series;
 using OxyPlot.Wpf;
 using QPAS.DataSets;
+using ReactiveUI;
 using HeatMapSeries = OxyPlot.Wpf.HeatMapSeries;
 
 namespace QPAS
@@ -46,38 +47,38 @@ namespace QPAS
         //Plot models
         public PlotModel PLByStrategyModel
         {
-            get { return _plByStrategyModel; }
-            set { _plByStrategyModel = value; OnPropertyChanged(); }
+            get => _plByStrategyModel;
+            set => this.RaiseAndSetIfChanged(ref _plByStrategyModel, value);
         }
 
         public PlotModel CapitalUsageByStrategyModel
         {
-            get { return _capitalUsageByStrategyModel; }
-            set { _capitalUsageByStrategyModel = value; OnPropertyChanged(); }
+            get => _capitalUsageByStrategyModel;
+            set => this.RaiseAndSetIfChanged(ref _capitalUsageByStrategyModel, value);
         }
 
         public PlotModel RelativeCapitalUsageByStrategyModel
         {
-            get { return _relativeCapitalUsageByStrategyModel; }
-            set { _relativeCapitalUsageByStrategyModel = value; OnPropertyChanged(); }
+            get => _relativeCapitalUsageByStrategyModel;
+            set => this.RaiseAndSetIfChanged(ref _relativeCapitalUsageByStrategyModel, value);
         }
 
         public PlotModel RoacByStrategyModel
         {
-            get { return _roacByStrategyModel; }
-            set { _roacByStrategyModel = value; OnPropertyChanged(); }
+            get => _roacByStrategyModel;
+            set => this.RaiseAndSetIfChanged(ref _roacByStrategyModel, value);
         }
 
         public PlotModel MdsChartModel
         {
-            get { return _mdsChartModel; }
-            set { _mdsChartModel = value; OnPropertyChanged(); }
+            get => _mdsChartModel;
+            set => this.RaiseAndSetIfChanged(ref _mdsChartModel, value);
         }
 
         public PlotModel TradeRetsByDayAndHourModel
         {
-            get { return _tradeRetsByDayAndHourModel; }
-            set { _tradeRetsByDayAndHourModel = value; OnPropertyChanged(); }
+            get => _tradeRetsByDayAndHourModel;
+            set => this.RaiseAndSetIfChanged(ref _tradeRetsByDayAndHourModel, value);
         }
 
         //bit of a hack to filter the mae/mfe datatable
@@ -121,26 +122,26 @@ namespace QPAS
         //return vs X scatter plots
         public double RetVsSizeBestFitLineConstant
         {
-            get { return _retVsSizeBestFitLineConstant; }
-            set { _retVsSizeBestFitLineConstant = value; OnPropertyChanged(); }
+            get => _retVsSizeBestFitLineConstant;
+            set => this.RaiseAndSetIfChanged(ref _retVsSizeBestFitLineConstant, value);
         }
 
         public double RetVsSizeBestFitLineSlope
         {
-            get { return _retVsSizeBestFitLineSlope; }
-            set { _retVsSizeBestFitLineSlope = value; OnPropertyChanged(); }
+            get => _retVsSizeBestFitLineSlope;
+            set => this.RaiseAndSetIfChanged(ref _retVsSizeBestFitLineSlope, value);
         }
 
         public double RetVsLengthBestFitLineConstant
         {
-            get { return _retVsLengthBestFitLineConstant; }
-            set { _retVsLengthBestFitLineConstant = value; OnPropertyChanged(); }
+            get => _retVsLengthBestFitLineConstant;
+            set => this.RaiseAndSetIfChanged(ref _retVsLengthBestFitLineConstant, value);
         }
 
         public double RetVsLengthBestFitLineSlope
         {
-            get { return _retVsLengthBestFitLineSlope; }
-            set { _retVsLengthBestFitLineSlope = value; OnPropertyChanged(); }
+            get => _retVsLengthBestFitLineSlope;
+            set => this.RaiseAndSetIfChanged(ref _retVsLengthBestFitLineSlope, value);
         }
 
        

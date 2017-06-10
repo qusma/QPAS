@@ -16,6 +16,7 @@ using System.Windows.Input;
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
 using QPAS.Scripting;
+using ReactiveUI;
 
 namespace QPAS
 {
@@ -26,64 +27,48 @@ namespace QPAS
 
         public bool ChangedSinceLastSave
         {
-            get { return _changedSinceLastSave; }
-            private set
-            {
-                if (value == _changedSinceLastSave) return;
-                _changedSinceLastSave = value;
-                OnPropertyChanged();
-            }
+            get => _changedSinceLastSave;
+            private set => this.RaiseAndSetIfChanged(ref _changedSinceLastSave, value);
         }
 
         private UserScript _selectedScript;
         private string _compileStatus;
         private string _code;
         private bool _changedSinceLastSave;
-        public ObservableCollection<UserScript> Scripts { get; private set; }
+        public ObservableCollection<UserScript> Scripts { get; }
 
         public string CompileStatus
         {
-            get { return _compileStatus; }
-            private set
-            {
-                if (value == _compileStatus) return;
-                _compileStatus = value;
-                OnPropertyChanged();
-            }
+            get => _compileStatus;
+            private set => this.RaiseAndSetIfChanged(ref _compileStatus, value);
         }
 
         public UserScript SelectedScript
         {
-            get { return _selectedScript; }
-            private set
-            {
-                if (Equals(value, _selectedScript)) return;
-                _selectedScript = value;
-                OnPropertyChanged();
-            }
+            get => _selectedScript;
+            private set => this.RaiseAndSetIfChanged(ref _selectedScript, value);
         }
 
         public string Code
         {
-            get { return _code; }
+            get => _code;
             set
             {
                 if (value == _code) return;
-                _code = value;
                 ChangedSinceLastSave = true;
-                OnPropertyChanged();
+                this.RaiseAndSetIfChanged(ref _code, value);
                 if (SelectedScript != null) SelectedScript.Code = value;
             }
         }
 
-        public ICommand Compile { get; private set; }
-        public ICommand Open { get; private set; }
-        public ICommand NewScript { get; private set; }
-        public ICommand DeleteScript { get; private set; }
-        public ICommand Save { get; private set; }
-        public ICommand AddReference { get; private set; }
-        public ICommand RemoveReference { get; private set; }
-        public ICommand LaunchHelp { get; private set; }
+        public ICommand Compile { get; }
+        public ICommand Open { get; }
+        public ICommand NewScript { get; }
+        public ICommand DeleteScript { get; }
+        public ICommand Save { get; }
+        public ICommand AddReference { get; }
+        public ICommand RemoveReference { get; }
+        public ICommand LaunchHelp { get; }
 
         public ScriptingViewModel(IDBContext context, IDialogCoordinator dialogService)
         {
@@ -109,7 +94,7 @@ namespace QPAS
                 this,
                 "Delete Script",
                 "Are you sure you want to delete the script " + SelectedScript.Name + "?", 
-                MessageDialogStyle.AffirmativeAndNegative);
+                MessageDialogStyle.AffirmativeAndNegative).ConfigureAwait(true);
 
             if (result == MessageDialogResult.Negative) return;
 
@@ -186,7 +171,7 @@ namespace QPAS
                     this,
                     "Unsaved Changes", 
                     "There are unsaved changes, would you like to save them?", 
-                    MessageDialogStyle.AffirmativeAndNegative);
+                    MessageDialogStyle.AffirmativeAndNegative).ConfigureAwait(true);
 
             if(res == MessageDialogResult.Affirmative)
             {

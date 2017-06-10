@@ -29,7 +29,7 @@ namespace QPAS.Scripting
         /// </summary>
         protected Trade CreateTrade(string name)
         {
-            var trade = new Trade() { Name = name, Open = true };
+            var trade = new Trade() { Name = name, Open = true, Tags = new List<Tag>() };
             TradesRepository.Add(trade);
             OpenTrades.Add(trade);
 

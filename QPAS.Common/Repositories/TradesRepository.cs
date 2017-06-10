@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace QPAS
 {
@@ -26,7 +27,7 @@ namespace QPAS
             Datasourcer = datasourcer;
         }
 
-        public void UpdateOpenTrades()
+        public async Task UpdateOpenTrades()
         {
             var logger = LogManager.GetCurrentClassLogger();
             //todo override this get to always return with these includes; enforce usage of repository so everything is always loaded
@@ -47,7 +48,7 @@ namespace QPAS
             {
                 try
                 {
-                    UpdateStats(t);
+                    await UpdateStats(t).ConfigureAwait(true);
                 }
                 catch (Exception ex)
                 {
@@ -68,16 +69,16 @@ namespace QPAS
             }
         }
 
-        public void AddOrders(Trade trade, IEnumerable<Order> orders)
+        public async Task AddOrders(Trade trade, IEnumerable<Order> orders)
         {
             foreach (var order in orders)
             {
-                AddOrder(trade, order, false);
+                await AddOrder(trade, order, false).ConfigureAwait(true);
             }
-            UpdateStats(trade);
+            await UpdateStats(trade).ConfigureAwait(true);
         }
 
-        public void AddOrder(Trade trade, Order order, bool updateStats = true)
+        public async Task AddOrder(Trade trade, Order order, bool updateStats = true)
         {
             if (trade == null) throw new ArgumentNullException(nameof(trade));
             if (order == null) throw new ArgumentNullException(nameof(order));
@@ -91,7 +92,7 @@ namespace QPAS
             }
 
             //remove the order from its current trade
-            RemoveOrder(oldTrade, order);
+            await RemoveOrder(oldTrade, order).ConfigureAwait(true);
 
             //and then add it to the new one
             if (trade.Orders == null)
@@ -104,20 +105,20 @@ namespace QPAS
             //finally update the stats of the new trade
             if (updateStats)
             {
-                UpdateStats(order.Trade);
+                await UpdateStats(order.Trade).ConfigureAwait(true);
             }
         }
 
-        public void RemoveOrder(Trade trade, Order order)
+        public async Task RemoveOrder(Trade trade, Order order)
         {
-            if (trade == null || trade.Orders == null || !trade.Orders.Contains(order)) return;
+            if (trade?.Orders == null || !trade.Orders.Contains(order)) return;
             trade.Orders.Remove(order);
             order.Trade = null;
             order.TradeID = null;
-            UpdateStats(trade);
+            await UpdateStats(trade).ConfigureAwait(true);
         }
 
-        public void AddCashTransaction(Trade trade, CashTransaction ct)
+        public async Task AddCashTransaction(Trade trade, CashTransaction ct)
         {
             if (trade == null) throw new ArgumentNullException(nameof(trade));
             if (ct == null) throw new ArgumentNullException(nameof(ct));
@@ -131,7 +132,7 @@ namespace QPAS
             }
 
             //remove the ct from its current trade
-            RemoveCashTransaction(oldTrade, ct);
+            await RemoveCashTransaction(oldTrade, ct).ConfigureAwait(true);
 
             //and then add it to the new one
             if (trade.CashTransactions == null)
@@ -142,19 +143,19 @@ namespace QPAS
             ct.TradeID = trade.ID;
 
             //finally update the stats of the new trade
-            UpdateStats(ct.Trade);
+            await UpdateStats(ct.Trade).ConfigureAwait(true);
         }
 
-        public void RemoveCashTransaction(Trade trade, CashTransaction ct)
+        public async Task RemoveCashTransaction(Trade trade, CashTransaction ct)
         {
             if (trade == null || trade.CashTransactions == null || !trade.CashTransactions.Contains(ct)) return;
             trade.CashTransactions.Remove(ct);
             ct.Trade = null;
             ct.TradeID = null;
-            UpdateStats(trade);
+            await UpdateStats(trade).ConfigureAwait(true);
         }
 
-        public void AddFXTransaction(Trade trade, FXTransaction fxt)
+        public async Task AddFXTransaction(Trade trade, FXTransaction fxt)
         {
             if (trade == null) throw new ArgumentNullException(nameof(trade));
             if (fxt == null) throw new ArgumentNullException(nameof(fxt));
@@ -168,7 +169,7 @@ namespace QPAS
             }
 
             //remove the ct from its current trade
-            RemoveFXTransaction(oldTrade, fxt);
+            await RemoveFXTransaction(oldTrade, fxt).ConfigureAwait(true);
 
             //and then add it to the new one
             if (trade.FXTransactions == null)
@@ -179,16 +180,16 @@ namespace QPAS
             fxt.TradeID = trade.ID;
 
             //finally update the stats of the new trade
-            UpdateStats(fxt.Trade);
+            await UpdateStats(fxt.Trade).ConfigureAwait(true);
         }
 
-        public void RemoveFXTransaction(Trade trade, FXTransaction fxt)
+        public async Task RemoveFXTransaction(Trade trade, FXTransaction fxt)
         {
-            if (trade == null || trade.FXTransactions == null || !trade.FXTransactions.Contains(fxt)) return;
+            if (trade?.FXTransactions == null || !trade.FXTransactions.Contains(fxt)) return;
             trade.FXTransactions.Remove(fxt);
             fxt.Trade = null;
             fxt.TradeID = null;
-            UpdateStats(trade);
+            await UpdateStats(trade).ConfigureAwait(true);
         }
 
         private static DateTime DetermineStartingDate(Trade trade, IDBContext context)
@@ -218,7 +219,7 @@ namespace QPAS
             return startDate;
         }
 
-        public void UpdateStats(Trade trade, bool skipCollectionLoad = false)
+        public async Task UpdateStats(Trade trade, bool skipCollectionLoad = false)
         {
             var tradeEntry = Context.Entry(trade); //todo fix
             if (!skipCollectionLoad && //used to bypass annoyances w/ automated testing
@@ -242,7 +243,7 @@ namespace QPAS
                 SetClosingDate(trade);
             }
 
-            TradeTracker tracker = TradeSim.SimulateTrade(trade, Context, Datasourcer, _optionsCapitalUsageMultiplier);
+            TradeTracker tracker = await TradeSim.SimulateTrade(trade, Context, Datasourcer, _optionsCapitalUsageMultiplier).ConfigureAwait(true);
             tracker.SetTradeStats(trade);
         }
 
@@ -260,7 +261,7 @@ namespace QPAS
             trade.DateClosed = lastOrder > lastCashTransaction ? lastOrder : lastCashTransaction;
         }
 
-        public void Reset(Trade trade)
+        public async Task Reset(Trade trade)
         {
             Context.Entry(trade).Reload();
             Context.Entry(trade).Collection(x => x.Orders).Load();
@@ -268,27 +269,15 @@ namespace QPAS
             Context.Entry(trade).Collection(x => x.FXTransactions).Load();
             Context.Entry(trade).Collection(x => x.Tags).Load();
 
-            if (trade.Orders != null)
-            {
-                trade.Orders.Clear();
-            }
+            trade.Orders?.Clear();
 
-            if (trade.CashTransactions != null)
-            {
-                trade.CashTransactions.Clear();
-            }
+            trade.CashTransactions?.Clear();
 
-            if (trade.FXTransactions != null)
-            {
-                trade.FXTransactions.Clear();
-            }
+            trade.FXTransactions?.Clear();
 
-            if (trade.Tags != null)
-            {
-                trade.Tags.Clear();
-            }
+            trade.Tags?.Clear();
 
-            UpdateStats(trade);
+            await UpdateStats(trade).ConfigureAwait(true);
         }
     }
 }

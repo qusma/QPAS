@@ -44,8 +44,8 @@ namespace QPAS
 
             Capital = new AllocatedCapital();
 
-            _ordersRemaining = trade.Orders == null ? 0 : trade.Orders.Count;
-            _cashTransactionsRemaining = trade.CashTransactions == null ? 0 : trade.CashTransactions.Count;
+            _ordersRemaining = trade.Orders?.Count ?? 0;
+            _cashTransactionsRemaining = trade.CashTransactions?.Count ?? 0;
 
             Trade = trade;
 

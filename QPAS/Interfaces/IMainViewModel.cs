@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using OxyPlot;
 using QPAS.Scripting;
@@ -34,8 +35,8 @@ namespace QPAS
         ICommand GenerateReportFromTrades { get; set; }
         ICommand LoadStatementFromWeb { get; set; }
         ICommand LoadStatementFromFile { get; set; }
-        void RefreshCurrentPage();
-        void Refresh();
+        Task RefreshCurrentPage();
+        Task Refresh();
         event PropertyChangedEventHandler PropertyChanged;
     }
 }

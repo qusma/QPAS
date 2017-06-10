@@ -10,10 +10,12 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Windows;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
 using MahApps.Metro.Controls.Dialogs;
 using QPAS.DataSets;
+using ReactiveUI;
 
 namespace QPAS
 {
@@ -27,13 +29,8 @@ namespace QPAS
 
         public ExecutionBenchmark Benchmark
         {
-            get { return _benchmark; }
-            set
-            {
-                if (value == _benchmark) return;
-                _benchmark = value;
-                OnPropertyChanged();
-            }
+            get => _benchmark;
+            set => this.RaiseAndSetIfChanged(ref _benchmark, value);
         }
 
         public DateTime? ReferenceTime { get; set; }
@@ -50,24 +47,14 @@ namespace QPAS
 
         public double TimeDiffVsSlipBestFitLineSlope
         {
-            get { return _timeDiffVsSlipBestFitLineSlope; }
-            set
-            {
-                if (value.Equals(_timeDiffVsSlipBestFitLineSlope)) return;
-                _timeDiffVsSlipBestFitLineSlope = value;
-                OnPropertyChanged();
-            }
+            get => _timeDiffVsSlipBestFitLineSlope;
+            set => this.RaiseAndSetIfChanged(ref _timeDiffVsSlipBestFitLineSlope, value);
         }
 
         public double TimeDiffVsSlipBestFitLineConstant
         {
-            get { return _timeDiffVsSlipBestFitLineConstant; }
-            set
-            {
-                if (value.Equals(_timeDiffVsSlipBestFitLineConstant)) return;
-                _timeDiffVsSlipBestFitLineConstant = value;
-                OnPropertyChanged();
-            }
+            get => _timeDiffVsSlipBestFitLineConstant;
+            set => this.RaiseAndSetIfChanged(ref _timeDiffVsSlipBestFitLineConstant, value);
         }
 
         public ExecutionReportViewModel(ExecutionStatsGenerator statsGenerator, IDialogCoordinator dialogService)
@@ -91,10 +78,10 @@ namespace QPAS
 
         private void CreateCommands()
         {
-            RunAnalysis = new RelayCommand(Run);
+            RunAnalysis = ReactiveCommand.CreateFromTask(async _ => await Run().ConfigureAwait(true)); 
         }
 
-        private async void Run()
+        private async Task Run()
         {
             string error = "";
             try
@@ -105,7 +92,7 @@ namespace QPAS
                     (UseSessionsTime || !ReferenceTime.HasValue)
                         ? null 
                         : (TimeSpan?)ReferenceTime.Value.TimeOfDay;
-                StatsGenerator.GenerateExecutionStats(Benchmark, referenceTime);
+                await StatsGenerator.GenerateExecutionStats(Benchmark, referenceTime).ConfigureAwait(true);
                 SetStats();
             }
             catch (Exception ex)
@@ -115,7 +102,7 @@ namespace QPAS
 
             if(!string.IsNullOrEmpty(error))
             {
-                await DialogService.ShowMessageAsync(this, "Error", error);
+                await DialogService.ShowMessageAsync(this, "Error", error).ConfigureAwait(true);
             }
         }
 

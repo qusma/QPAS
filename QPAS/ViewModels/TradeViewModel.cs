@@ -6,38 +6,29 @@
 
 using System.Linq;
 using System.Data.Entity;
+using System.Threading.Tasks;
 using EntityModel;
+using QPAS.Properties;
+using ReactiveUI;
 
 namespace QPAS
 {
     public class TradeViewModel : ViewModelBase
     {
+        private readonly IDataSourcer _dataSourcer;
+        private readonly IDBContext _context;
         private Trade _trade;
         public Trade Trade
         {
-            get
-            {
-                return _trade;
-            }
-            set
-            {
-                _trade = value;
-                OnPropertyChanged();
-            }
+            get => _trade;
+            set => this.RaiseAndSetIfChanged(ref _trade, value);
         }
 
         private TradeTracker _tracker;
         public TradeTracker Tracker
         {
-            get
-            {
-                return _tracker;
-            }
-            set
-            {
-                _tracker = value;
-                OnPropertyChanged();
-            }
+            get => _tracker;
+            set => this.RaiseAndSetIfChanged(ref _tracker, value);
         }
 
         public TradeViewModel() : base(null)
@@ -47,6 +38,8 @@ namespace QPAS
 
         public TradeViewModel(Trade trade, IDataSourcer dataSourcer, IDBContext context) : base(null)
         {
+            _dataSourcer = dataSourcer;
+            _context = context;
             context.Trades
                     .Where(x => x.ID == trade.ID)
                     .Include(x => x.Strategy)
@@ -62,7 +55,11 @@ namespace QPAS
                     .Load();
 
             Trade = trade;
-            Tracker = TradeSim.SimulateTrade(trade, context, dataSourcer, Properties.Settings.Default.optionsCapitalUsageMultiplier);
+        }
+
+        public async Task SimulateTrade()
+        {
+            Tracker = await TradeSim.SimulateTrade(Trade, _context, _dataSourcer, Settings.Default.optionsCapitalUsageMultiplier).ConfigureAwait(true);
         }
     }
 }

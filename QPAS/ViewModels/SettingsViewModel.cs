@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using EntityModel;
+using ReactiveUI;
 
 namespace QPAS
 {
@@ -21,14 +22,14 @@ namespace QPAS
 
         public string StatementSaveLocation
         {
-            get { return _statementSaveLocation; }
-            set { _statementSaveLocation = value; OnPropertyChanged(); }
+            get => _statementSaveLocation;
+            set => this.RaiseAndSetIfChanged(ref _statementSaveLocation, value);
         }
 
         public string LogLocation
         {
-            get { return _logLocation; }
-            set { _logLocation = value; OnPropertyChanged(); }
+            get => _logLocation;
+            set => this.RaiseAndSetIfChanged(ref _logLocation, value);
         }
 
         public string FlexToken { get; set; }

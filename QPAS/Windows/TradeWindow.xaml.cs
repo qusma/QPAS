@@ -178,5 +178,9 @@ namespace QPAS
             _context.SaveChanges();
         }
 
+        private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            await ViewModel.SimulateTrade().ConfigureAwait(true);
+        }
     }
 }

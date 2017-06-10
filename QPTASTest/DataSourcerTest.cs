@@ -13,6 +13,7 @@ using NUnit.Framework;
 using QDMS;
 using QPAS;
 using Instrument = EntityModel.Instrument;
+using Currency = EntityModel.Currency;
 
 namespace QPASTest
 {
@@ -33,7 +34,7 @@ namespace QPASTest
         }
 
         [Test]
-        public void DataIsCachedBetweenRequests()
+        public async void DataIsCachedBetweenRequests()
         {
             DateTime startDate = new DateTime(2000, 1, 1);
             DateTime endDate = new DateTime(2000, 1, 2);
@@ -54,12 +55,12 @@ namespace QPASTest
                     It.IsAny<DateTime>(),
                     It.IsAny<DateTime>(),
                     It.IsAny<BarSize>()))
-                    .Returns(data);
+                    .ReturnsAsync(data);
 
-            _datasourcer.GetData(inst, startDate, endDate);
+            await _datasourcer.GetData(inst, startDate, endDate).ConfigureAwait(true);
 
             //request a second time: should use cache instead of external source
-            _datasourcer.GetData(inst, startDate, endDate);
+            await _datasourcer.GetData(inst, startDate, endDate).ConfigureAwait(true);
 
             _externalSourceMock.Verify(x => x.GetData(
                 It.IsAny<Instrument>(),
@@ -70,7 +71,7 @@ namespace QPASTest
         }
 
         [Test]
-        public void ExternalDataIsSupplementedWithLocalDataWhenObservationsAreMissing()
+        public async void ExternalDataIsSupplementedWithLocalDataWhenObservationsAreMissing()
         {
             DateTime startDate = new DateTime(2000, 1, 1);
             DateTime endDate = new DateTime(2000, 1, 3);
@@ -91,15 +92,15 @@ namespace QPASTest
                     It.IsAny<DateTime>(),
                     It.IsAny<DateTime>(),
                     It.IsAny<BarSize>()))
-                    .Returns(data);
+                    .ReturnsAsync(data);
 
-            _datasourcer.GetData(inst, startDate, endDate);
+            await _datasourcer.GetData(inst, startDate, endDate).ConfigureAwait(true);
 
             _contextMock.Verify(x => x.PriorPositions);
         }
 
         [Test]
-        public void CashInstrumentLocalRequestsUseFxRates()
+        public async void CashInstrumentLocalRequestsUseFxRates()
         {
             DateTime startDate = new DateTime(2000, 1, 1);
             DateTime endDate = new DateTime(2000, 1, 3);
@@ -118,15 +119,15 @@ namespace QPASTest
                     It.IsAny<DateTime>(),
                     It.IsAny<DateTime>(),
                     It.IsAny<BarSize>()))
-                    .Returns(new List<OHLCBar>());
+                    .ReturnsAsync(new List<OHLCBar>());
 
-            _datasourcer.GetData(inst, startDate, endDate);
+            await _datasourcer.GetData(inst, startDate, endDate).ConfigureAwait(true);
 
             _contextMock.Verify(x => x.FXRates);
         }
 
         [Test]
-        public void IfExternalSourceHasNoDataLocalBackupIsUsedInstead()
+        public async void IfExternalSourceHasNoDataLocalBackupIsUsedInstead()
         {
             DateTime startDate = new DateTime(2000, 1, 1);
             DateTime endDate = new DateTime(2000, 2, 1);
@@ -141,9 +142,9 @@ namespace QPASTest
                     It.IsAny<DateTime>(),
                     It.IsAny<DateTime>(),
                     It.IsAny<BarSize>()))
-                    .Returns(new List<OHLCBar>());
+                    .ReturnsAsync(new List<OHLCBar>());
             
-            _datasourcer.GetData(inst, startDate, endDate);
+            await _datasourcer.GetData(inst, startDate, endDate).ConfigureAwait(true);
 
             _externalSourceMock.Verify(x => x.GetData(
                 It.IsAny<Instrument>(),
@@ -155,12 +156,12 @@ namespace QPASTest
         }
 
         [Test]
-        public void ExternalDataRequestsAreForwardedToExternalDatasource()
+        public async void ExternalDataRequestsAreForwardedToExternalDatasource()
         {
             DateTime startDate = new DateTime(2000, 1, 1);
             DateTime endDate = new DateTime(2000, 2, 1);
 
-            _datasourcer.GetExternalData(1, startDate, endDate);
+            await _datasourcer.GetExternalData(1, startDate, endDate).ConfigureAwait(true);
             _externalSourceMock.Verify(x => x.GetData(
                 It.Is<int>(y => y == 1),
                 It.Is<DateTime>(y => y == startDate),
@@ -169,7 +170,7 @@ namespace QPASTest
         }
 
         [Test]
-        public void FxDataIsInvertedWhenNecessary()
+        public async void FxDataIsInvertedWhenNecessary()
         {
             var inst = new Instrument { Symbol = "USD.CAD", ID = 1, AssetCategory = AssetClass.Cash };
             var startDate = new DateTime(2000,1,1);
@@ -184,7 +185,7 @@ namespace QPASTest
             _contextMock.Setup(x => x.Currencies).Returns(currencySetStub);
             _contextMock.Setup(x => x.FXRates).Returns(fxrSetStub);
             
-            var data = _datasourcer.GetData(inst, startDate, endDate);
+            var data = await _datasourcer.GetData(inst, startDate, endDate).ConfigureAwait(true);
 
             Assert.AreEqual(1m / 1.1m, data[0].Close);
         }

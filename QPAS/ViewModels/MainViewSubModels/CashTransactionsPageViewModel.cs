@@ -10,8 +10,10 @@ using System.Collections;
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
+using ReactiveUI;
 
 namespace QPAS
 {
@@ -39,24 +41,24 @@ namespace QPAS
             CreateCommands();
         }
 
-        public override void Refresh()
+        public override async Task Refresh()
         {
-            Context
+            await Context
                 .CashTransactions
                 .Include(x => x.Trade)
                 .Include(x => x.Instrument)
                 .OrderByDescending(x => x.TransactionDate)
-                .Load();
+                .LoadAsync().ConfigureAwait(true);
 
             CashTransactionsSource.View.Refresh();
         }
 
         private void CreateCommands()
         {
-            Delete = new RelayCommand<IList>(DeleteCashTransactions);
+            Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteCashTransactions(x).ConfigureAwait(true));
         }
 
-        private async void DeleteCashTransactions(IList cts)
+        private async Task DeleteCashTransactions(IList cts)
         {
             if (cts == null || cts.Count == 0) return;
 
@@ -71,7 +73,7 @@ namespace QPAS
                 {
                     if (ct.Trade != null)
                     {
-                        TradesRepository.RemoveCashTransaction(ct.Trade, ct);
+                        await TradesRepository.RemoveCashTransaction(ct.Trade, ct).ConfigureAwait(true);
                     }
                     Context.CashTransactions.Remove(ct);
                 }

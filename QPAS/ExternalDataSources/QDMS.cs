@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using NLog;
@@ -20,7 +21,7 @@ namespace QPAS.ExternalDataSources
 {
     public class QDMS : IExternalDataSource
     {
-        public string Name { get { return "Interactive Brokers"; } }
+        public string Name => "Interactive Brokers";
 
 
         private QDMSClient.QDMSClient _client;
@@ -54,17 +55,11 @@ namespace QPAS.ExternalDataSources
 
         public string ConnectionStatus
         {
-            get { return _connectionStatus; }
+            get => _connectionStatus;
             private set { _connectionStatus = value; OnPropertyChanged(); }
         }
 
-        public bool Connected
-        {
-            get
-            {
-                return _client.Connected;
-            }
-        }
+        public bool Connected => _client.Connected;
 
         public QDMS()
         {
@@ -98,11 +93,11 @@ namespace QPAS.ExternalDataSources
                 e.ErrorMessage);
         }
 
-        public List<OHLCBar> GetData(EntityModel.Instrument instrument, DateTime from, DateTime to, BarSize frequency = BarSize.OneDay)
+        public async Task<List<OHLCBar>> GetData(EntityModel.Instrument instrument, DateTime from, DateTime to, BarSize frequency = BarSize.OneDay)
         {
             if (!_client.Connected) return null;
 
-            RefreshInstrumentsList();
+            await RefreshInstrumentsList().ConfigureAwait(true);
 
             var qdmsInst = instrument.GetQDMSInstrument(_instrumentsList);
             if (qdmsInst == null) //nothing like this in QDMS, just grab local data
@@ -122,11 +117,11 @@ namespace QPAS.ExternalDataSources
             return RequestData(qdmsInst, from, to, frequency);
         }
 
-        public List<OHLCBar> GetAllData(EntityModel.Instrument instrument, BarSize frequency = BarSize.OneDay)
+        public async Task<List<OHLCBar>> GetAllData(EntityModel.Instrument instrument, BarSize frequency = BarSize.OneDay)
         {
             if (!_client.Connected) return new List<OHLCBar>();
 
-            RefreshInstrumentsList();
+            await RefreshInstrumentsList().ConfigureAwait(true);
 
             //find instrument
             var qdmsInst = instrument.GetQDMSInstrument(_instrumentsList);
@@ -141,17 +136,17 @@ namespace QPAS.ExternalDataSources
                 return new List<OHLCBar>();
             }
 
-            return GetData(
+            return await GetData(
                 instrument, 
                 dataInfo.EarliestDate, 
                 dataInfo.LatestDate,
-                frequency);
+                frequency).ConfigureAwait(true);
         }
 
-        public List<OHLCBar> GetData(int externalInstrumentID, DateTime from, DateTime to, BarSize frequency = BarSize.OneDay)
+        public async Task<List<OHLCBar>> GetData(int externalInstrumentID, DateTime from, DateTime to, BarSize frequency = BarSize.OneDay)
         {
             if (!_client.Connected) return null;
-            RefreshInstrumentsList();
+            await RefreshInstrumentsList().ConfigureAwait(true);
             var instrument = _instrumentsList.FirstOrDefault(x => x.ID == externalInstrumentID);
             if (instrument == null) return null;
             return RequestData(instrument, from, to);
@@ -162,7 +157,7 @@ namespace QPAS.ExternalDataSources
             lastDate = new DateTime(1, 1, 1);
 
             var qdmsInst = instrument.GetQDMSInstrument(_instrumentsList);
-            if (qdmsInst == null || !qdmsInst.ID.HasValue)
+            if (qdmsInst?.ID == null)
             {
                 return null;
             }
@@ -211,9 +206,9 @@ namespace QPAS.ExternalDataSources
             return null;
         }
 
-        public Dictionary<string, int> GetInstrumentDict()
+        public async Task<Dictionary<string, int>> GetInstrumentDict()
         {
-            RefreshInstrumentsList();
+            await RefreshInstrumentsList().ConfigureAwait(true);
             var items = _instrumentsList
                         .OrderBy(x => x.Symbol)
                         .Where(x => x.ID.HasValue)
@@ -227,21 +222,15 @@ namespace QPAS.ExternalDataSources
             return items;
         }
 
-        public List<object> GetInstrumentList()
-        {
-            RefreshInstrumentsList();
-            return new List<object>(_instrumentsList);
-        }
-
         /// <summary>
         /// Retrieve a list of sessions that describe the regular trading hours for this instrument.
         /// </summary>
-        public List<InstrumentSession> GetSessions(EntityModel.Instrument instrument)
+        public async Task<List<InstrumentSession>> GetSessions(EntityModel.Instrument instrument)
         {
-            RefreshInstrumentsList();
+            await RefreshInstrumentsList().ConfigureAwait(true);
             var qdmsInstrument = instrument.GetQDMSInstrument(_instrumentsList);
 
-            if(qdmsInstrument == null || qdmsInstrument.Sessions == null) 
+            if(qdmsInstrument?.Sessions == null) 
             {
                 _logger.Log(LogLevel.Info, string.Format("QDMS instrument not found for local instrument: {0}", instrument));
                 return new List<InstrumentSession>();
@@ -252,9 +241,9 @@ namespace QPAS.ExternalDataSources
         /// <summary>
         /// Gets a list of available instruments that represent backtest results.
         /// </summary>
-        public List<Instrument> GetBacktestSeries()
+        public async Task<List<Instrument>> GetBacktestSeries()
         {
-            RefreshInstrumentsList();
+            await RefreshInstrumentsList().ConfigureAwait(true);
             return _instrumentsList.Where(x => x.Type == InstrumentType.Backtest).ToList();
         }
 
@@ -273,7 +262,7 @@ namespace QPAS.ExternalDataSources
                     if (_client.Connected)
                     {
                         ConnectionStatus = "Connected";
-                        OnPropertyChanged("Connected");
+                        OnPropertyChanged(nameof(Connected));
                     }
                 }
                 catch (Exception ex)
@@ -338,13 +327,20 @@ namespace QPAS.ExternalDataSources
         }
 
 
-        private void RefreshInstrumentsList()
+        private async Task RefreshInstrumentsList()
         {
             if (!_client.Connected) return;
 
             if (_instrumentsList.Count == 0 || (DateTime.Now - _lastInstrumentsListRefresh).TotalSeconds > 10)
             {
-                _instrumentsList = _client.GetAllInstruments();
+                var instrumentsReq = await _client.GetInstruments().ConfigureAwait(true);
+                if (!instrumentsReq.WasSuccessful)
+                {
+                    _logger.Error("Error getting instrument list: " + string.Join(",", instrumentsReq.Errors));
+                    return;
+                }
+
+                _instrumentsList = instrumentsReq.Result;
                 _lastInstrumentsListRefresh = DateTime.Now;
             }
         }
@@ -416,7 +412,7 @@ namespace QPAS.ExternalDataSources
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

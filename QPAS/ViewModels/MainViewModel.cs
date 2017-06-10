@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -14,6 +15,7 @@ using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
 using OxyPlot;
 using QPAS.Scripting;
+using ReactiveUI;
 
 namespace QPAS
 {
@@ -75,10 +77,10 @@ namespace QPAS
             ScriptRunner = new ScriptRunner(TradesRepository);
         }
 
-        public void RefreshCurrentPage()
+        public async Task RefreshCurrentPage()
         {
             if(SelectedPageViewModel != null)
-                SelectedPageViewModel.Refresh();
+                await SelectedPageViewModel.Refresh().ConfigureAwait(true);
         }
 
         private void CreateSubViewModels()
@@ -102,27 +104,31 @@ namespace QPAS
             GenerateReportFromTags = new RelayCommand<IList>(GenReportFromTags);
             GenerateReportFromTrades = new RelayCommand<IList>(GenReportFromTrades);
 
-            LoadStatementFromWeb = new RelayCommand<string>(async x =>
+            LoadStatementFromWeb = ReactiveCommand.CreateFromTask<string>(async x =>
             { 
                 await StatementHandler.LoadFromWeb(x).ConfigureAwait(true);
-                PostStatementLoadProcedures();
+                await PostStatementLoadProcedures().ConfigureAwait(true);
 
             });
-            LoadStatementFromFile = new RelayCommand<string>(async x => 
+            LoadStatementFromFile = ReactiveCommand.CreateFromTask<string>(async x => 
             {
                 await StatementHandler.LoadFromFile(x).ConfigureAwait(true);
-                PostStatementLoadProcedures();
+                await PostStatementLoadProcedures().ConfigureAwait(true);
             });
         }
 
         /// <summary>
         /// Stuff that needs to be done after loading data from a statement.
         /// </summary>
-        private void PostStatementLoadProcedures()
+        private async Task PostStatementLoadProcedures()
         {
-            RefreshCurrentPage();
-            ScriptRunner.RunOrderScripts(Context.Orders.Where(y => y.Trade == null).OrderBy(y => y.TradeDate).ToList(), Context);
-            ScriptRunner.RunTradeScripts(Context.Trades.Where(y => y.Open).ToList(), Context.Strategies.ToList(), Context.Tags.ToList(), Context);
+            await RefreshCurrentPage().ConfigureAwait(true);
+            await ScriptRunner.RunOrderScripts(await Context.Orders.Where(y => y.Trade == null).OrderBy(y => y.TradeDate).ToListAsync().ConfigureAwait(true), Context).ConfigureAwait(true);
+            await ScriptRunner.RunTradeScripts(
+                await Context.Trades.Where(y => y.Open).ToListAsync().ConfigureAwait(true), 
+                await Context.Strategies.ToListAsync().ConfigureAwait(true), 
+                await Context.Tags.ToListAsync().ConfigureAwait(true), 
+                Context).ConfigureAwait(true);
         }
 
         private void GenReportFromStrategy(IList selectedItems)
@@ -153,13 +159,13 @@ namespace QPAS
             if (tradeIDs == null) throw new NullReferenceException("tradeIDs");
             if (tradeIDs.Count == 0)
             {
-                await DialogService.ShowMessageAsync(this, "Error", "No trades meet the given criteria");
+                await DialogService.ShowMessageAsync(this, "Error", "No trades meet the given criteria").ConfigureAwait(true);
                 return;
             }
 
             var gen = new ReportGenerator();
-            ProgressDialogController progressDialog = await DialogService.ShowProgressAsync(this, "Generating Report", "Generating Report");
-            var ds = await Task.Run(() => gen.TradeStats(tradeIDs, PerformanceReportPageViewModel.ReportSettings, Datasourcer, progressDialog));
+            ProgressDialogController progressDialog = await DialogService.ShowProgressAsync(this, "Generating Report", "Generating Report").ConfigureAwait(true);
+            var ds = await Task.Run(() => gen.TradeStats(tradeIDs, PerformanceReportPageViewModel.ReportSettings, Datasourcer, progressDialog)).ConfigureAwait(true);
             progressDialog.CloseAsync().Forget(); //don't await it!
 
             var window = new PerformanceReportWindow(ds, PerformanceReportPageViewModel.ReportSettings);

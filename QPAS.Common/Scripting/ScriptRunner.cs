@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using EntityModel;
 using NLog;
 
@@ -22,7 +23,7 @@ namespace QPAS.Scripting
             _repository = repository;
         }
 
-        public void RunOrderScripts(List<Order> orders, IDBContext context)
+        public async Task RunOrderScripts(List<Order> orders, IDBContext context)
         {
             var scripts = ScriptLoader.LoadOrderScripts(_repository);
             if (scripts == null) return;
@@ -40,10 +41,10 @@ namespace QPAS.Scripting
                 }
             }
 
-            context.SaveChanges();
+            await context.SaveChangesAsync().ConfigureAwait(true);
         }
 
-        public void RunTradeScripts(List<Trade> trades, List<Strategy> strategies, List<Tag> tags, IDBContext context)
+        public async Task RunTradeScripts(List<Trade> trades, List<Strategy> strategies, List<Tag> tags, IDBContext context)
         {
             var scripts = ScriptLoader.LoadTradeScripts(_repository, strategies, tags);
             if (scripts == null) return;
@@ -61,7 +62,7 @@ namespace QPAS.Scripting
                 }
             }
 
-            context.SaveChanges();
+            await context.SaveChangesAsync().ConfigureAwait(true);
         }
     }
 }

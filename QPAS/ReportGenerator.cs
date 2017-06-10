@@ -1,18 +1,17 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="ReportGenerator.cs" company="">
-// Copyright 2014 Alexander Soffronow Pagonidis
+// Copyright 2017 Alexander Soffronow Pagonidis
 // </copyright>
 // -----------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
-using MathNet.Numerics.LinearAlgebra.Double;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
 using NLog;
@@ -157,7 +156,7 @@ namespace QPAS
         /// <param name="settings"></param>
         /// <param name="datasourcer"></param>
         /// <param name="progressDialog"></param>
-        public filterReportDS TradeStats(List<int> tradeIDs, ReportSettings settings, IDataSourcer datasourcer, ProgressDialogController progressDialog = null)
+        public async Task<filterReportDS> TradeStats(List<int> tradeIDs, ReportSettings settings, IDataSourcer datasourcer, ProgressDialogController progressDialog = null)
         {
             _settings = settings;
             _progressDialog = progressDialog;
@@ -191,7 +190,7 @@ namespace QPAS
             //if any trades are still open, last date is the last date with an equity summary
             _maxDate = _trades.Any(x => x.Open)
                 ? Context.EquitySummaries.Max(x => x.Date)
-                : _trades.Max(x => x.DateClosed != null ? x.DateClosed.Value : x.DateOpened);
+                : _trades.Max(x => x.DateClosed ?? x.DateOpened);
 
             //Get the dates and total equity figures
             var equitySums = GetEquity();
@@ -205,18 +204,19 @@ namespace QPAS
             }
 
             //grab the relevant instrument data...
-            Dictionary<int, TimeSeries> data = AcquireInstrumentData(datasourcer);
+            Dictionary<int, TimeSeries> data = await AcquireInstrumentData(datasourcer).ConfigureAwait(true);
 
             //Grab FX data
             var fxData = AcquireFXData();
 
             //Grab backtest data
-            AcquireBacktestData(datasourcer);
+            await AcquireBacktestData(datasourcer).ConfigureAwait(true);
 
             //also get the benchmark values for the period
             if (settings.Benchmark != null)
             {
-                _benchmarkEC = BenchmarkBuilder.GetBenchmarkReturns(settings.Benchmark.ID, Context, _datesInPeriod, datasourcer, out _benchmarkSeries, out _benchmarkReturns);
+                (_benchmarkEC, _benchmarkSeries, _benchmarkReturns) = 
+                    await BenchmarkBuilder.GetBenchmarkReturns(settings.Benchmark.ID, Context, _datesInPeriod, datasourcer).ConfigureAwait(false);
             }
 
             //start up the portfolio trackers
@@ -301,15 +301,15 @@ namespace QPAS
             return ds;
         }
 
-        private void AcquireBacktestData(IDataSourcer datasourcer)
+        private async Task AcquireBacktestData(IDataSourcer datasourcer)
         {
             if(_settings.BacktestSource == BacktestSource.None)
             {
                 return;
             }
-            else if (_settings.BacktestSource == BacktestSource.External && _settings.Backtest != null && _settings.Backtest.ID.HasValue)
+            else if (_settings.BacktestSource == BacktestSource.External && _settings.Backtest?.ID != null)
             {
-                var data = datasourcer.ExternalDataSource.GetData(_settings.Backtest.ID.Value, new DateTime(1950, 1, 1), DateTime.Now, BarSize.OneDay);
+                var data = await datasourcer.ExternalDataSource.GetData(_settings.Backtest.ID.Value, new DateTime(1950, 1, 1), DateTime.Now, BarSize.OneDay).ConfigureAwait(true);
                 if (data == null || data.Count == 0)
                 {
                     _logger.Log(LogLevel.Error, "Could not retrieve backtest data.");
@@ -349,7 +349,7 @@ namespace QPAS
             return fxData;
         }
 
-        private Dictionary<int, TimeSeries> AcquireInstrumentData(IDataSourcer datasourcer)
+        private async Task<Dictionary<int, TimeSeries>> AcquireInstrumentData(IDataSourcer datasourcer)
         {
             //determine what dates we need each instrument for
             //Instrument id - from date/to date
@@ -363,7 +363,7 @@ namespace QPAS
                 DateTime startingDate = kvp.Value.Key;
                 DateTime endingDate = kvp.Value.Value;
 
-                var series = datasourcer.GetData(instrument, startingDate, endingDate);
+                var series = await datasourcer.GetData(instrument, startingDate, endingDate).ConfigureAwait(true);
                 if (series == null || series.Count == 0)
                 {
                     //couldn't find data at qdms, use prior period positions
@@ -488,6 +488,7 @@ namespace QPAS
 
             //Value at Risk
             DoValueAtRisk(settings);
+            DoComponentValueAtRisk();
 
             //Expected shortfall
             DoExpectedShortfall(settings);
@@ -1104,6 +1105,15 @@ namespace QPAS
                 varDR.bootstrapVaR = varReturns.Percentile(varLevel, false) - 1;
                 ds.ValueAtRisk.AddValueAtRiskRow(varDR);
             }
+        }
+
+        private void DoComponentValueAtRisk()
+        {
+            //get strategy betas to the total portfolio
+
+            //get marginal VaR = alpha * beta * stdev(pfolio), where alpha = 1.65 for 95% ci
+
+            //component VaR = marginal VaR * $ position
         }
 
         private void DoExpectedShortfall(ReportSettings settings)

@@ -9,12 +9,13 @@ using QDMS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace QPAS
 {
     public static class TradeSim
     {
-        public static TradeTracker SimulateTrade(Trade trade, IDBContext context, IDataSourcer dataSourcer, decimal optionsCapitalUsageMultiplier)
+        public static async Task<TradeTracker> SimulateTrade(Trade trade, IDBContext context, IDataSourcer dataSourcer, decimal optionsCapitalUsageMultiplier)
         {
             var tracker = new TradeTracker(trade, optionsCapitalUsageMultiplier);
 
@@ -45,7 +46,7 @@ namespace QPAS
                 : trade.FXTransactions.OrderBy(x => x.DateTime).ToList();
 
             //Grab the data
-            Dictionary<int, TimeSeries> data = GetInstrumentData(trade, dataSourcer, startDate, endDate);
+            Dictionary<int, TimeSeries> data = await GetInstrumentData(trade, dataSourcer, startDate, endDate).ConfigureAwait(true);
             Dictionary<int, TimeSeries> fxData = GetFXData(trade, context);
 
             DateTime currentDate = startDate.Date;
@@ -93,14 +94,14 @@ namespace QPAS
             return tracker;
         }
 
-        private static Dictionary<int, TimeSeries> GetInstrumentData(Trade trade, IDataSourcer dataSourcer, DateTime startDate, DateTime endDate)
+        private static async Task<Dictionary<int, TimeSeries>> GetInstrumentData(Trade trade, IDataSourcer dataSourcer, DateTime startDate, DateTime endDate)
         {
             var data = new Dictionary<int, TimeSeries>();
             if (trade.Orders == null) return data;
 
             foreach (EntityModel.Instrument inst in trade.Orders.Select(x => x.Instrument).Distinct(x => x.ID))
             {
-                data.Add(inst.ID, new TimeSeries(dataSourcer.GetData(inst, startDate, endDate)));
+                data.Add(inst.ID, new TimeSeries(await dataSourcer.GetData(inst, startDate, endDate).ConfigureAwait(true)));
             }
             return data;
         }

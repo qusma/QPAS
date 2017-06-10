@@ -15,8 +15,11 @@ namespace QPAS
                 Properties.Settings.Default.qdmsHost,
                 Properties.Settings.Default.qdmsRealTimeRequestPort,
                 Properties.Settings.Default.qdmsRealTimePublishPort,
-                Properties.Settings.Default.qdmsInstrumentServerPort,
-                Properties.Settings.Default.qdmsHistoricalDataPort);
+                Properties.Settings.Default.qdmsHistoricalDataPort,
+                Properties.Settings.Default.qdmsHttpPort,
+                Properties.Settings.Default.qdmsApiKey,
+                useSsl: Properties.Settings.Default.qdmsUseSsl);
+            //TODO UI for this stuff
         }
     }
 }

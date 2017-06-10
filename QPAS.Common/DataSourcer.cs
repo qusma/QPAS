@@ -7,10 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using EntityModel;
 using NLog;
 using QDMS;
 using Instrument = EntityModel.Instrument;
+using Currency = EntityModel.Currency;
 
 namespace QPAS
 {
@@ -48,7 +50,7 @@ namespace QPAS
             Context = context;
         }
 
-        public List<OHLCBar> GetData(Instrument inst, DateTime startTime, DateTime endTime, BarSize frequency = BarSize.OneDay)
+        public async Task<List<OHLCBar>> GetData(Instrument inst, DateTime startTime, DateTime endTime, BarSize frequency = BarSize.OneDay)
         {
             _logger.Log(LogLevel.Info, string.Format("Data request for {0} from {1} to {2} @ {3}", inst, startTime, endTime, frequency));
 
@@ -71,7 +73,7 @@ namespace QPAS
             }
 
             //If the cache is not enough, go to the external datasource
-            var data = ExternalDataSource.GetData(inst, startTime, endTime);
+            var data = await ExternalDataSource.GetData(inst, startTime, endTime).ConfigureAwait(true);
 
             //External datasource didn't have anything, get data from prior positions
             if (data == null || data.Count == 0)
@@ -131,7 +133,7 @@ namespace QPAS
         /// <summary>
         /// Used for the instrument chart.
         /// </summary>
-        public List<OHLCBar> GetAllExternalData(Instrument inst)
+        public async Task<List<OHLCBar>> GetAllExternalData(Instrument inst)
         {
             if (!_useExternalDataSource)
             {
@@ -140,13 +142,13 @@ namespace QPAS
             }
 
             _logger.Log(LogLevel.Info, string.Format("Request for all external data on instrument {0}", inst));
-            return ExternalDataSource.GetAllData(inst);
+            return await ExternalDataSource.GetAllData(inst).ConfigureAwait(true);
         }
 
         /// <summary>
         /// Used for benchmarking.
         /// </summary>
-        public List<OHLCBar> GetExternalData(int externalInstrumentID, DateTime startTime, DateTime endTime)
+        public async Task<List<OHLCBar>> GetExternalData(int externalInstrumentID, DateTime startTime, DateTime endTime)
         {
             if (!_useExternalDataSource)
             {
@@ -154,7 +156,7 @@ namespace QPAS
                 return new List<OHLCBar>();
             }
 
-            return ExternalDataSource.GetData(externalInstrumentID, startTime, endTime);
+            return await ExternalDataSource.GetData(externalInstrumentID, startTime, endTime).ConfigureAwait(true);
         }
 
         private List<OHLCBar> GetLocalData(Instrument instrument, DateTime fromDate, DateTime toDate)

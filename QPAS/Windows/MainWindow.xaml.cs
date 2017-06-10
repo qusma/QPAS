@@ -224,7 +224,7 @@ namespace QPAS
             Close();
         }
 
-        private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        private async void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             var item = (TreeViewItem)e.NewValue;
             if (item.HasItems) return; //one of the high-level items, nothing to do
@@ -251,7 +251,7 @@ namespace QPAS
 
             var selectedTab = (TabItem)MainTabCtl.SelectedItem;
             ViewModel.SelectedPageViewModel = selectedTab.DataContext as ViewModelBase;
-            ViewModel.RefreshCurrentPage();
+            await ViewModel.RefreshCurrentPage().ConfigureAwait(true);
 
             RefreshSelectedPage();
         }
@@ -463,7 +463,7 @@ namespace QPAS
         }
 
 
-        private void TradesGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private async void TradesGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             if (_tradesGridIsCellEditEnding) return;
 
@@ -506,9 +506,9 @@ namespace QPAS
                     //and set the proper closing time
 
                     //first load up the collections, needed for the IsClosable() check.
-                    Context.Entry(trade).Collection(x => x.Orders).Load();
-                    Context.Entry(trade).Collection(x => x.CashTransactions).Load();
-                    Context.Entry(trade).Collection(x => x.FXTransactions).Load();
+                    await Context.Entry(trade).Collection(x => x.Orders).LoadAsync().ConfigureAwait(true);
+                    await Context.Entry(trade).Collection(x => x.CashTransactions).LoadAsync().ConfigureAwait(true);
+                    await Context.Entry(trade).Collection(x => x.FXTransactions).LoadAsync().ConfigureAwait(true);
 
                     //if we're closing the trade, make sure it's closable first
                     if (newOpen.Value == false && !trade.IsClosable())
@@ -521,11 +521,11 @@ namespace QPAS
                     }
 
                     trade.Open = newOpen.Value;
-                    Task.Run(() =>
-                        {
-                            TradesRepository.UpdateStats(trade, skipCollectionLoad: true); //we can skip collection load since it's done a few lines up
-                            Context.SaveChanges();
-                        });
+                    await Task.Run(async () =>
+                    {
+                        await TradesRepository.UpdateStats(trade, skipCollectionLoad: true).ConfigureAwait(true); //we can skip collection load since it's done a few lines up
+                        await Context.SaveChangesAsync().ConfigureAwait(true);
+                    }).ConfigureAwait(true);
                 }
             }
         }
@@ -566,7 +566,7 @@ namespace QPAS
             OrdersGridTradePickerPopup.IsOpen = true; 
         }
 
-        private void TradePickerNewTradeTextBox_KeyDown(object sender, KeyEventArgs e)
+        private async void TradePickerNewTradeTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if(e.Key == Key.Enter && !String.IsNullOrEmpty(TradePickerNewTradeTextBox.Text))
             {
@@ -575,11 +575,11 @@ namespace QPAS
                 Context.Trades.Add(newTrade);
                 newTrade.Tags = new List<Tag>();
 
-                Task.Run(() =>
-                    {
-                        TradesRepository.AddOrder(newTrade, selectedOrder);
-                        TradesRepository.Save();
-                    });
+                await Task.Run(async () =>
+                {
+                    await TradesRepository.AddOrder(newTrade, selectedOrder).ConfigureAwait(true);
+                    await TradesRepository.Save().ConfigureAwait(true);
+                }).ConfigureAwait(true);
                 TradePickerNewTradeTextBox.Text = "";
                 OrdersGridTradePickerPopup.IsOpen = false;
                 OrdersGrid.CommitEdit();
@@ -662,7 +662,7 @@ namespace QPAS
             ordersGridSetTradeSubMenu.Items.Add(ordersContextMenuNewTradeItem);
         }
 
-        private void OrdersGridSetTradeSubMenuItem_Click(object sender, RoutedEventArgs e)
+        private async void OrdersGridSetTradeSubMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (OrdersGrid.SelectedItems == null) return;
             int tradeID = (int)((MenuItem)e.Source).Tag;
@@ -671,14 +671,14 @@ namespace QPAS
             if (trade == null) return;
 
             var selectedOrders = new List<Order>(OrdersGrid.SelectedItems.Cast<Order>());
-            Task.Run(() =>
-                {
-                    TradesRepository.AddOrders(trade, selectedOrders);
-                    TradesRepository.Save();
-                });
+            await Task.Run(async () =>
+            {
+                await TradesRepository.AddOrders(trade, selectedOrders).ConfigureAwait(false);
+                await TradesRepository.Save().ConfigureAwait(false);
+            }).ConfigureAwait(true);
         }
 
-        private void OrdersGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private async void OrdersGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             //here we set the trade selected in the picker popup
             if ((string)e.Column.Header == "Trade")
@@ -689,19 +689,19 @@ namespace QPAS
                     var items = TradePickerListBox.Items.Cast<CheckListItem<Trade>>().ToList();
                     var selectedTrade = items.FirstOrDefault(x => x.IsChecked);
 
-                    Task.Run(() =>
+                    await Task.Run(async () =>
+                    {
+                        if (selectedTrade == null)
                         {
-                            if (selectedTrade == null)
-                            {
-                                TradesRepository.RemoveOrder(order.Trade, order);
-                            }
-                            else
-                            {
-                                TradesRepository.AddOrder(selectedTrade.Item, order);
-                            }
+                            await TradesRepository.RemoveOrder(order.Trade, order).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            await TradesRepository.AddOrder(selectedTrade.Item, order).ConfigureAwait(false);
+                        }
 
-                            Context.SaveChanges();
-                        });
+                        Context.SaveChanges();
+                    }).ConfigureAwait(true);
                 }
                 OrdersGridTradePickerPopup.IsOpen = false;
             }
@@ -759,7 +759,7 @@ namespace QPAS
             }
         }
 
-        private void CashTransactionsGrid_OnCellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private async void CashTransactionsGrid_OnCellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             //here we set the trade selected in the picker popup
             if ((string)e.Column.Header == "Trade")
@@ -772,14 +772,14 @@ namespace QPAS
 
                     if (selectedTrade == null)
                     {
-                        TradesRepository.RemoveCashTransaction(ct.Trade, ct);
+                        await TradesRepository.RemoveCashTransaction(ct.Trade, ct).ConfigureAwait(true);
                     }
                     else
                     {
-                        TradesRepository.AddCashTransaction(selectedTrade.Item, ct);
+                        await TradesRepository.AddCashTransaction(selectedTrade.Item, ct).ConfigureAwait(true);
                     }
                 }
-                Context.SaveChanges();
+                await Context.SaveChangesAsync().ConfigureAwait(true);
                 CashTransactionsGridTradePickerPopup.IsOpen = false;
             }
         }
@@ -821,7 +821,7 @@ namespace QPAS
             }
         }
 
-        private void FXTransactionsGrid_OnCellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private async void FXTransactionsGrid_OnCellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             //here we set the trade selected in the picker popup
             if ((string)e.Column.Header == "Trade")
@@ -834,14 +834,14 @@ namespace QPAS
 
                     if (selectedTrade == null)
                     {
-                        TradesRepository.RemoveFXTransaction(fxt.Trade, fxt);
+                        await TradesRepository.RemoveFXTransaction(fxt.Trade, fxt).ConfigureAwait(true);
                     }
                     else
                     {
-                        TradesRepository.AddFXTransaction(selectedTrade.Item, fxt);
+                        await TradesRepository.AddFXTransaction(selectedTrade.Item, fxt).ConfigureAwait(true);
                     }
                 }
-                Context.SaveChanges();
+                await Context.SaveChangesAsync().ConfigureAwait(true);
                 FxTransactionsGridTradePickerPopup.IsOpen = false;
             }
         }
@@ -859,7 +859,7 @@ namespace QPAS
             }
         }
 
-        private void CashTransactionsGridSetTradeSubMenuItem_Click(object sender, RoutedEventArgs e)
+        private async void CashTransactionsGridSetTradeSubMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (CashTransactionsGrid.SelectedItems == null) return;
             int tradeID = (int)((MenuItem)e.Source).Tag;
@@ -869,10 +869,10 @@ namespace QPAS
 
             foreach (CashTransaction ct in CashTransactionsGrid.SelectedItems)
             {
-                TradesRepository.AddCashTransaction(trade, ct);
+                await TradesRepository.AddCashTransaction(trade, ct).ConfigureAwait(true);
             }
 
-            TradesRepository.Save();
+            await TradesRepository.Save().ConfigureAwait(true);
         }
 
         private void FxTransactionsGridContextMenu_OnOpened(object sender, RoutedEventArgs e)
@@ -888,7 +888,7 @@ namespace QPAS
             }
         }
 
-        private void FxTransactionsGridSetTradeSubMenuItem_Click(object sender, RoutedEventArgs e)
+        private async void FxTransactionsGridSetTradeSubMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (FXTransactionsGrid.SelectedItems == null) return;
             int tradeID = (int)((MenuItem)e.Source).Tag;
@@ -898,10 +898,10 @@ namespace QPAS
 
             foreach (FXTransaction fxt in FXTransactionsGrid.SelectedItems)
             {
-                TradesRepository.AddFXTransaction(trade, fxt);
+                await TradesRepository.AddFXTransaction(trade, fxt).ConfigureAwait(true);
             }
 
-            TradesRepository.Save();
+            await TradesRepository.Save().ConfigureAwait(true);
         }
 
         private void UpdateBtn_Click(object sender, RoutedEventArgs e)
@@ -1044,13 +1044,13 @@ namespace QPAS
             DbBackup.Backup("qpasEntities", "qpas");
         }
 
-        private void RestoreBtn_Click(object sender, RoutedEventArgs e)
+        private async void RestoreBtn_Click(object sender, RoutedEventArgs e)
         {
             DbBackup.Restore("qpasEntities", "qpas");
-            ViewModel.RefreshCurrentPage();
+            await ViewModel.RefreshCurrentPage().ConfigureAwait(true);
         }
 
-        private void OrdersContextMenuNewTradeTextBox_KeyDown(object sender, KeyEventArgs e)
+        private async void OrdersContextMenuNewTradeTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
@@ -1068,14 +1068,14 @@ namespace QPAS
                 Context.Trades.Add(newTrade);
                 newTrade.Tags = new List<Tag>();
 
-                Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     foreach (Order o in selectedOrders)
                     {
-                        TradesRepository.AddOrder(newTrade, o);
+                        await TradesRepository.AddOrder(newTrade, o).ConfigureAwait(false);
                     }
-                    TradesRepository.Save();
-                });
+                    await TradesRepository.Save().ConfigureAwait(false);
+                }).ConfigureAwait(true);
 
                 ordersContextMenuNewTradeTextBox.Text = "";
             }

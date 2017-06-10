@@ -92,5 +92,14 @@
     <Setting Name="dataGridLayout" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="qdmsHttpPort" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">5559</Value>
+    </Setting>
+    <Setting Name="qdmsUseSsl" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="qdmsApiKey" Type="System.String" Scope="User">
+      <Value Profile="(Default)">123</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

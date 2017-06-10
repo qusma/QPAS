@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MahApps.Metro.Controls.Dialogs;
+using ReactiveUI;
 
 namespace QPAS
 {
@@ -17,61 +18,34 @@ namespace QPAS
 
         public string RawData
         {
-            get { return _rawData; }
-            private set
-            {
-                if (value == _rawData) return;
-                _rawData = value;
-                OnPropertyChanged();
-            }
+            get => _rawData;
+            private set => this.RaiseAndSetIfChanged(ref _rawData, value);
         }
 
         public string FilePath
         {
-            get { return _filePath; }
-            private set
-            {
-                if (value == _filePath) return;
-                _filePath = value;
-                OnPropertyChanged();
-            }
+            get => _filePath;
+            private set => this.RaiseAndSetIfChanged(ref _filePath, value);
         }
 
         public ObservableCollection<KeyValuePair<string, string>> RawSplitData { get; private set; }
 
         public string SelectedDelimiter
         {
-            get { return _selectedDelimiter; }
-            set
-            {
-                if (value == _selectedDelimiter) return;
-                _selectedDelimiter = value;
-                OnPropertyChanged();
-                SplitData();
-            }
+            get => _selectedDelimiter;
+            set => this.RaiseAndSetIfChanged(ref _selectedDelimiter, value);
         }
 
         public int SkipLines
         {
-            get { return _skipLines; }
-            set
-            {
-                if (value == _skipLines) return;
-                _skipLines = Math.Max(0, value);
-                OnPropertyChanged();
-                SplitData();
-            }
+            get => _skipLines;
+            set => this.RaiseAndSetIfChanged(ref _skipLines, value);
         }
 
         public string DateTimeFormat
         {
-            get { return _dateTimeFormat; }
-            set
-            {
-                if (value == _dateTimeFormat) return;
-                _dateTimeFormat = value;
-                OnPropertyChanged();
-            }
+            get => _dateTimeFormat;
+            set => this.RaiseAndSetIfChanged(ref _dateTimeFormat, value);
         }
 
         public RelayCommand OpenFileCmd { get; private set; }
@@ -92,6 +66,9 @@ namespace QPAS
 
             DateTimeFormat = "yyyy-MM-dd";
             SkipLines = 1;
+
+            this.WhenAny(x => x.SelectedDelimiter, x => x).Subscribe(_ => SplitData());
+            this.WhenAny(x => x.SkipLines, x => x).Subscribe(_ => SplitData());
         }
 
         private void OpenFile()

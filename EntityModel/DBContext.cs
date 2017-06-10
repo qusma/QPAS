@@ -76,7 +76,7 @@ namespace EntityModel
                 x.MapRightKey("TagID");
                 x.ToTable("TagMap");
             });
-
+            
             modelBuilder.Entity<Order>().HasMany(x => x.Executions).WithRequired(x => x.Order).HasForeignKey(x => x.OrderID);
             modelBuilder.Conventions.Remove<OneToManyCascadeDeleteConvention>();
 

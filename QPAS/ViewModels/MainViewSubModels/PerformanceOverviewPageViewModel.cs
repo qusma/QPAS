@@ -11,7 +11,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using MahApps.Metro.Controls.Dialogs;
+using ReactiveUI;
 
 namespace QPAS
 {
@@ -29,76 +31,44 @@ namespace QPAS
 
         public List<AreaPoint> EquitySummaryPercentSeries
         {
-            get { return _equitySummaryPercentSeries; }
-            set
-            {
-                _equitySummaryPercentSeries = value;
-                OnPropertyChanged();
-            }
+            get => _equitySummaryPercentSeries;
+            set => this.RaiseAndSetIfChanged(ref _equitySummaryPercentSeries, value);
         }
 
         public List<AreaPoint> EquitySummaryPercentDrawdownSeries
         {
-            get { return _equitySummaryPercentDrawdownSeries; }
-            set
-            {
-                _equitySummaryPercentDrawdownSeries = value;
-                OnPropertyChanged();
-            }
+            get => _equitySummaryPercentDrawdownSeries;
+            set => this.RaiseAndSetIfChanged(ref _equitySummaryPercentDrawdownSeries, value);
         }
 
         public List<AreaPoint> TotalEquitySeries
         {
-            get { return _totalEquitySeries; }
-            set
-            {
-                _totalEquitySeries = value;
-                OnPropertyChanged();
-            }
+            get => _totalEquitySeries;
+            set => this.RaiseAndSetIfChanged(ref _totalEquitySeries, value);
         }
 
         public List<AreaPoint> TotalEquityDrawdownSeries
         {
-            get { return _totalEquityDrawdownSeries; }
-            set
-            {
-                _totalEquityDrawdownSeries = value;
-                OnPropertyChanged();
-            }
+            get => _totalEquityDrawdownSeries;
+            set => this.RaiseAndSetIfChanged(ref _totalEquityDrawdownSeries, value);
         }
 
         public DataTable Stats
         {
-            get { return _stats; }
-            set
-            {
-                _stats = value;
-                OnPropertyChanged();
-            }
+            get => _stats;
+            set => this.RaiseAndSetIfChanged(ref _stats, value);
         }
 
         public Account SelectedAccount
         {
-            get { return _selectedAccount; }
-            set
-            {
-                if (Equals(value, _selectedAccount)) return;
-                _selectedAccount = value;
-                OnPropertyChanged();
-                Refresh();
-            }
+            get => _selectedAccount;
+            set => this.RaiseAndSetIfChanged(ref _selectedAccount, value);
         }
 
         public Currency SelectedCurrency
         {
-            get { return _selectedCurrency; }
-            set
-            {
-                if (Equals(value, _selectedCurrency)) return;
-                _selectedCurrency = value;
-                OnPropertyChanged();
-                Refresh();
-            }
+            get => _selectedCurrency;
+            set => this.RaiseAndSetIfChanged(ref _selectedCurrency, value);
         }
 
         public ObservableCollection<Currency> Currencies { get; set; }
@@ -116,31 +86,37 @@ namespace QPAS
             SelectedCurrency = Currencies.FirstOrDefault(x => x.Name == "USD");
 
             SelectedAccount = Accounts.First();
+
+            this.WhenAnyValue(x => x.SelectedAccount)
+                .Subscribe(async _ => await Refresh().ConfigureAwait(true));
+
+            this.WhenAny(x => x.SelectedCurrency, x => x)
+                .Subscribe(async _ => await Refresh().ConfigureAwait(true));
         }
 
-        public override void Refresh()
+        public override async Task Refresh()
         {
             Context.EquitySummaries.OrderBy(x => x.Date).Load();
 
             //Add any accounts that exist in the db but are missing here
-            var tmpAccounts = Context.Accounts.ToList();
+            var tmpAccounts = await Context.Accounts.ToListAsync().ConfigureAwait(true);
             var newAccounts = tmpAccounts.Except(Accounts, new LambdaEqualityComparer<Account>((x, y) => x.ID == y.ID));
             Accounts.AddRange(newAccounts);
 
             if (SelectedAccount == null) return;
-            CreatePctReturnSeries();
-            CreateTotalEquitySeries();
-            Stats = GeneratePerformanceOverviewStats();
+            await CreatePctReturnSeries().ConfigureAwait(true);
+            await CreateTotalEquitySeries().ConfigureAwait(true);
+            Stats = await GeneratePerformanceOverviewStats().ConfigureAwait(true);
         }
 
-        private void CreateTotalEquitySeries()
+        private async Task CreateTotalEquitySeries()
         {
             var equityPoints = new List<AreaPoint>();
             var drawdownPoints = new List<AreaPoint>();
 
             decimal maxEquity = 0;
 
-            foreach (var kvp in GetTotalCapitalSeries())
+            foreach (var kvp in await GetTotalCapitalSeries().ConfigureAwait(true))
             {
                 DateTime date = kvp.Key;
                 decimal total = kvp.Value;
@@ -153,7 +129,7 @@ namespace QPAS
             TotalEquityDrawdownSeries = drawdownPoints;
         }
 
-        private void CreatePctReturnSeries()
+        private async Task CreatePctReturnSeries()
         {
             var returnsPoints = new List<AreaPoint>();
             var drawdownPoints = new List<AreaPoint>();
@@ -166,8 +142,8 @@ namespace QPAS
             double maxEquity = 1;
 
             //adjust the % returns for deposits/withdrawals as they obviously don't affect performance
-            Dictionary<DateTime, decimal> depositsWithdrawals = GetDepositsWithdrawals();
-            Dictionary<DateTime, decimal> totalCapital = GetTotalCapitalSeries();
+            Dictionary<DateTime, decimal> depositsWithdrawals = await GetDepositsWithdrawals().ConfigureAwait(true);
+            Dictionary<DateTime, decimal> totalCapital = await GetTotalCapitalSeries().ConfigureAwait(true);
             
             foreach (var es in totalCapital)
             {
@@ -207,30 +183,30 @@ namespace QPAS
             EquitySummaryPercentDrawdownSeries = drawdownPoints;
         }
 
-        private Dictionary<DateTime, decimal> GetTotalCapitalSeries()
+        private async Task<Dictionary<DateTime, decimal>> GetTotalCapitalSeries()
         {
             Dictionary<DateTime, decimal> totalCapital;
             if (SelectedAccount.AccountId == "All")
             {
-                totalCapital = Context
+                totalCapital = await Context
                     .EquitySummaries
                     .GroupBy(x => x.Date)
                     .OrderBy(x => x.Key)
-                    .ToDictionary(x => x.Key, x => x.Sum(y => y.Total));
+                    .ToDictionaryAsync(x => x.Key, x => x.Sum(y => y.Total)).ConfigureAwait(true);
             }
             else
             {
-                totalCapital = Context
+                totalCapital = await Context
                     .EquitySummaries
                     .Where(x => x.AccountID == SelectedAccount.ID)
                     .OrderBy(x => x.Date)
-                    .ToDictionary(x => x.Date, x => x.Total);
+                    .ToDictionaryAsync(x => x.Date, x => x.Total).ConfigureAwait(true);
             }
 
-            return PerformCurrencyAdjustment(totalCapital);
+            return await PerformCurrencyAdjustment(totalCapital).ConfigureAwait(true);
         }
 
-        private Dictionary<DateTime, decimal> PerformCurrencyAdjustment(Dictionary<DateTime, decimal> inputSeries)
+        private async Task<Dictionary<DateTime, decimal>> PerformCurrencyAdjustment(Dictionary<DateTime, decimal> inputSeries)
         {
             if (SelectedCurrency == null || SelectedCurrency.Name == "USD")
             {
@@ -241,7 +217,7 @@ namespace QPAS
             {
                 //Grab fx data and move the timeseries to the start of the equity data
                 TimeSeries fxRates =
-                    Utils.TimeSeriesFromFXRates(Context.FXRates.Where(x => x.FromCurrencyID == _selectedCurrency.ID).OrderBy(x => x.Date));
+                    Utils.TimeSeriesFromFXRates(await Context.FXRates.Where(x => x.FromCurrencyID == _selectedCurrency.ID).OrderBy(x => x.Date).ToListAsync().ConfigureAwait(true));
 
                 Dictionary<DateTime, decimal> newSeries = new Dictionary<DateTime, decimal>();
 
@@ -260,33 +236,33 @@ namespace QPAS
             }
         }
 
-        private Dictionary<DateTime, decimal> GetDepositsWithdrawals()
+        private async Task<Dictionary<DateTime, decimal>> GetDepositsWithdrawals()
         {
             Dictionary<DateTime, decimal> depositsWithdrawals;
             if (SelectedAccount.AccountId == "All")
             {
-                depositsWithdrawals = Context
-                    .CashTransactions
-                    .Where(x => x.Type == "Deposits & Withdrawals")
-                    .ToList()
+                depositsWithdrawals = (await Context
+                        .CashTransactions
+                        .Where(x => x.Type == "Deposits & Withdrawals")
+                        .ToListAsync().ConfigureAwait(true))
                     .GroupBy(x => x.TransactionDate)
                     .ToDictionary(x => x.Key, x => x.Sum(y => y.Amount * y.FXRateToBase));
             }
             else
             {
-                depositsWithdrawals = Context
-                    .CashTransactions
-                    .Where(x => x.AccountID == SelectedAccount.ID)
-                    .Where(x => x.Type == "Deposits & Withdrawals")
-                    .ToList()
+                depositsWithdrawals = (await Context
+                        .CashTransactions
+                        .Where(x => x.AccountID == SelectedAccount.ID)
+                        .Where(x => x.Type == "Deposits & Withdrawals")
+                        .ToListAsync().ConfigureAwait(true))
                     .GroupBy(x => x.TransactionDate)
                     .ToDictionary(x => x.Key, x => x.Sum(y => y.Amount * y.FXRateToBase));
             }
 
-            return PerformCurrencyAdjustment(depositsWithdrawals);
+            return await PerformCurrencyAdjustment(depositsWithdrawals).ConfigureAwait(true);
         }
 
-        private DataTable GeneratePerformanceOverviewStats()
+        private async Task<DataTable> GeneratePerformanceOverviewStats()
         {
             var statsDT = new DataTable();
             statsDT.Columns.Add("Stat", typeof(string));
@@ -294,9 +270,9 @@ namespace QPAS
             statsDT.Columns.Add("YTD", typeof(string));
             statsDT.Columns.Add("All Time", typeof(string));
 
-            Dictionary<DateTime, decimal> depositsWithdrawals = GetDepositsWithdrawals();
+            Dictionary<DateTime, decimal> depositsWithdrawals = await GetDepositsWithdrawals().ConfigureAwait(true);
 
-            Dictionary<DateTime, decimal> totalCapital = GetTotalCapitalSeries();
+            Dictionary<DateTime, decimal> totalCapital = await GetTotalCapitalSeries().ConfigureAwait(true);
             if (totalCapital.Count == 0) return statsDT;
 
             var last30DaysEC = EcFromEquitySummaries(

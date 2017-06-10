@@ -6,29 +6,25 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using MahApps.Metro.Controls.Dialogs;
+using ReactiveUI;
 
 namespace QPAS
 {
-    public class ViewModelBase : INotifyPropertyChanged
+    public class ViewModelBase : ReactiveObject
     {
         protected IDialogCoordinator DialogService;
 
-        public virtual void Refresh()
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public virtual async Task Refresh()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
         }
 
         public ViewModelBase(IDialogCoordinator dialogService = null)
         {
             DialogService = dialogService;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

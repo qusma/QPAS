@@ -13,7 +13,8 @@
         TitlebarHeight="32"
         Closing="MetroWindow_Closing"
         ResizeMode="NoResize"
-        DataContext="{Binding ViewModel}">
+        DataContext="{Binding ViewModel}"
+                      Loaded="MetroWindow_Loaded">
     <Window.Resources>
         <Style TargetType="Label" x:Key="OpenColor">
             <Style.Triggers>

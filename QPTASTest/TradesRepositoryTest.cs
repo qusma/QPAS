@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
+using System.Threading.Tasks;
 using EntityModel;
 using Moq;
 using NUnit.Framework;
@@ -57,7 +58,7 @@ namespace QPASTest
             _dsMock = new Mock<IDataSourcer>();
 
             _dsMock.Setup(x => x.GetData(It.IsAny<Instrument>(), It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<QDMS.BarSize>()))
-                .Returns<Instrument, DateTime, DateTime, QDMS.BarSize>((a, b, c, d) => GenerateData(b, c));
+                .Returns<Instrument, DateTime, DateTime, QDMS.BarSize>((a, b, c, d) => Task.FromResult(GenerateData(b, c)));
 
             _contextMock = new Mock<IDBContext>();
 

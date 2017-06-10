@@ -14,9 +14,11 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 using MahApps.Metro.Controls.Dialogs;
+using ReactiveUI;
 using Instrument = EntityModel.Instrument;
 
 namespace QPAS
@@ -42,35 +44,20 @@ namespace QPAS
 
         public string SelectedStrategyName
         {
-            get { return _selectedStrategyName; }
-            set
-            {
-                if (value == _selectedStrategyName) return;
-                _selectedStrategyName = value;
-                OnPropertyChanged();
-            }
+            get => _selectedStrategyName;
+            set => this.RaiseAndSetIfChanged(ref _selectedStrategyName, value);
         }
 
         public Instrument SelectedInstrument
         {
-            get { return _selectedInstrument; }
-            set
-            {
-                if (Equals(value, _selectedInstrument)) return;
-                _selectedInstrument = value;
-                OnPropertyChanged();
-            }
+            get => _selectedInstrument;
+            set => this.RaiseAndSetIfChanged(ref _selectedInstrument, value);
         }
 
         public bool IsExternalClientConnected
         {
-            get { return _isExternalClientConnected; }
-            set
-            {
-                if (value.Equals(_isExternalClientConnected)) return;
-                _isExternalClientConnected = value;
-                OnPropertyChanged();
-            }
+            get => _isExternalClientConnected;
+            set => this.RaiseAndSetIfChanged(ref _isExternalClientConnected, value);
         }
 
         public bool ShowOrderAnnotations { get; set; }
@@ -79,12 +66,8 @@ namespace QPAS
 
         public PlotModel InstrumentChartModel
         {
-            get { return _instrumentChartModel; }
-            set
-            {
-                _instrumentChartModel = value;
-                OnPropertyChanged();
-            }
+            get => _instrumentChartModel;
+            set => this.RaiseAndSetIfChanged(ref _instrumentChartModel, value);
         }
 
         public ICommand CopyChart { get; private set; }
@@ -109,7 +92,7 @@ namespace QPAS
 
         private void CreateCommands()
         {
-            UpdateChartCommand = new RelayCommand(UpdateChart);
+            UpdateChartCommand = ReactiveCommand.CreateFromTask(async _ => await UpdateChart().ConfigureAwait(true));
 
             CopyChart = new RelayCommand<PlotView>(x => x.CopyToClipboard());
             SaveChart = new RelayCommand<PlotView>(x =>
@@ -125,7 +108,7 @@ namespace QPAS
             });
         }
 
-        private void UpdateChart()
+        private async Task UpdateChart()
         {
             if (SelectedInstrument == null) return;
             if (Datasourcer.ExternalDataSource == null || !Datasourcer.ExternalDataSource.Connected) return;
@@ -145,11 +128,11 @@ namespace QPAS
             List<OHLCBar> data;
             try
             {
-                data = Datasourcer.GetAllExternalData(SelectedInstrument);
+                data = await Datasourcer.GetAllExternalData(SelectedInstrument).ConfigureAwait(true);
             }
             catch (Exception ex)
             {
-                DialogService.ShowMessageAsync(_mainVm, "Error Getting Data", ex.Message);
+                await DialogService.ShowMessageAsync(_mainVm, "Error Getting Data", ex.Message).ConfigureAwait(true);
                 return;
             }
 
@@ -209,7 +192,7 @@ namespace QPAS
             }
         }
 
-        private void PopulateQDMSInstruments()
+        private async Task PopulateQDMSInstruments()
         {
             //fill qdms instrument combobox
             if (Datasourcer.ExternalDataSource != null && Datasourcer.ExternalDataSource.Connected)
@@ -217,18 +200,18 @@ namespace QPAS
                 ExternalInstruments.Clear();
                 ExternalInstruments.Add(new KeyValuePair<string, int?>("Auto", null));
 
-                foreach (var kvp in Datasourcer.ExternalDataSource.GetInstrumentDict())
+                foreach (var kvp in await Datasourcer.ExternalDataSource.GetInstrumentDict().ConfigureAwait(true))
                 {
                     ExternalInstruments.Add(new KeyValuePair<string, int?>(kvp.Key, kvp.Value));
                 }
             }
         }
 
-        public override void Refresh()
+        public override async Task Refresh()
         {
             Context.Instruments.OrderBy(x => x.Symbol).Load();
             PopulateStrategyNames();
-            PopulateQDMSInstruments();
+            await PopulateQDMSInstruments().ConfigureAwait(true);
 
             if (Datasourcer.ExternalDataSource != null)
             {

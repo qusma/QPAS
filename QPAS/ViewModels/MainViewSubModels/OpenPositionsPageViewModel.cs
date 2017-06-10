@@ -9,11 +9,13 @@ using System;
 using System.Collections.ObjectModel;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using MahApps.Metro.Controls.Dialogs;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
+using ReactiveUI;
 
 namespace QPAS
 {
@@ -29,13 +31,8 @@ namespace QPAS
 
         public Account SelectedAccount
         {
-            get { return _selectedAccount; }
-            set 
-            { 
-                _selectedAccount = value;
-                OnPropertyChanged();
-                Refresh();
-            }
+            get => _selectedAccount;
+            set => this.RaiseAndSetIfChanged(ref _selectedAccount, value);
         }
 
         public PlotModel UnrealizedPnLChartModel { get; private set; }
@@ -59,6 +56,7 @@ namespace QPAS
             CreatePlotModel();
 
             SelectedAccount = Accounts.First();
+            this.WhenAnyValue(x => x.SelectedAccount).Subscribe(async _ => await Refresh().ConfigureAwait(true));
         }
 
         private void CreatePlotModel()
@@ -101,7 +99,7 @@ namespace QPAS
             UnrealizedPnLChartModel.InvalidatePlot(true);
         }
 
-        public override void Refresh()
+        public override async Task Refresh()
         {
             //Necessary hack, openpositions are deleted in another context when importing statements
             //so we need to detach and reload everything
@@ -112,13 +110,13 @@ namespace QPAS
             {
                 if (SelectedAccount.AccountId == "All")
                 {
-                    OpenPositions.AddRange(context.OpenPositions.Include(x => x.Instrument).Include(x => x.Currency).ToList());
-                    FXPositions.AddRange(context.FXPositions.Include(x => x.FXCurrency).ToList());
+                    OpenPositions.AddRange(await context.OpenPositions.Include(x => x.Instrument).Include(x => x.Currency).ToListAsync().ConfigureAwait(true));
+                    FXPositions.AddRange(await context.FXPositions.Include(x => x.FXCurrency).ToListAsync().ConfigureAwait(true));
                 }
                 else if (SelectedAccount != null)
                 {
-                    OpenPositions.AddRange(context.OpenPositions.Where(x => x.AccountID == SelectedAccount.ID).Include(x => x.Instrument).Include(x => x.Currency).ToList());
-                    FXPositions.AddRange(context.FXPositions.Where(x => x.AccountID == SelectedAccount.ID).Include(x => x.FXCurrency).ToList());
+                    OpenPositions.AddRange(await context.OpenPositions.Where(x => x.AccountID == SelectedAccount.ID).Include(x => x.Instrument).Include(x => x.Currency).ToListAsync().ConfigureAwait(true));
+                    FXPositions.AddRange(await context.FXPositions.Where(x => x.AccountID == SelectedAccount.ID).Include(x => x.FXCurrency).ToListAsync().ConfigureAwait(true));
                 }
 
                 //Add any accounts that exist in the db but are missing here

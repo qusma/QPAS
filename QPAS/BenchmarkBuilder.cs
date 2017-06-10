@@ -1,7 +1,12 @@
-﻿using System;
+﻿// -----------------------------------------------------------------------
+// <copyright file="BenchmarkBuilder.cs" company="">
+// Copyright 2017 Alexander Soffronow Pagonidis
+// </copyright>
+// -----------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using EntityModel;
 using NLog;
@@ -13,13 +18,11 @@ namespace QPAS
         /// <summary>
         /// generate EC and other curves for a benchmark
         /// </summary>
-        public static EquityCurve GetBenchmarkReturns(
+        public static async Task<(EquityCurve equityCurve, Dictionary<DateTime, double> benchmarkSeries, List<double> benchmarkReturns)> GetBenchmarkReturns(
             int benchmarkID, 
             DBContext context, 
             List<DateTime> datesInPeriod, 
-            IDataSourcer dataSourcer, 
-            out Dictionary<DateTime, double> benchmarkSeries,
-            out List<double> benchmarkReturns)
+            IDataSourcer dataSourcer)
         {
             Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -28,17 +31,18 @@ namespace QPAS
             DateTime earliestDate = datesInPeriod[0].Date;
             DateTime latestDate = datesInPeriod.Last();
 
-            Dictionary<int, TimeSeries> data =
-                components
-                .ToDictionary(
-                    component => component.QDMSInstrumentID,
-                    component => new TimeSeries(
-                        dataSourcer.GetExternalData(component.QDMSInstrumentID, earliestDate, latestDate)));
+            var data = new Dictionary<int, TimeSeries>();
+            foreach (var component in components)
+            {
+                data.Add(component.QDMSInstrumentID,
+                    new TimeSeries(await dataSourcer.GetExternalData(component.QDMSInstrumentID, earliestDate, latestDate).ConfigureAwait(true)));
+            }
+
 
             Dictionary<int, decimal> weights = components.ToDictionary(x => x.QDMSInstrumentID, x => (decimal)x.Weight);
 
-            benchmarkSeries = new Dictionary<DateTime, double>();
-            benchmarkReturns = new List<double>();
+            var benchmarkSeries = new Dictionary<DateTime, double>();
+            var benchmarkReturns = new List<double>();
             var benchmarkEC = new EquityCurve(1, null);
 
             decimal equity = 1;
@@ -79,7 +83,7 @@ namespace QPAS
                 benchmarkSeries.Add(today, (double)equity);
             }
 
-            return benchmarkEC;
+            return (benchmarkEC, benchmarkSeries, benchmarkReturns);
         }
     }
 }

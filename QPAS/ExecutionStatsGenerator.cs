@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using EntityModel;
 using QDMS;
 using Instrument = EntityModel.Instrument;
@@ -43,7 +44,7 @@ namespace QPAS
         /// </summary>
         /// <param name="benchmarkPrice"></param>
         /// <param name="referenceTime">Null to use QDMS-provided time, the reference time otherwise.</param>
-        public void GenerateExecutionStats(ExecutionBenchmark benchmarkPrice, TimeSpan? referenceTime)
+        public async Task GenerateExecutionStats(ExecutionBenchmark benchmarkPrice, TimeSpan? referenceTime)
         {
             if(Orders == null || Orders.Count == 0)
             {
@@ -55,7 +56,7 @@ namespace QPAS
 
             if (referenceTime == null && benchmarkPrice != ExecutionBenchmark.Reference)
             {
-                _instrumentSessions = GetSessionTimes(Orders.Select(x => x.Instrument).Distinct());
+                _instrumentSessions = await GetSessionTimes(Orders.Select(x => x.Instrument).Distinct());
             }
 
             //if it's at the open we have to grab external data
@@ -68,7 +69,7 @@ namespace QPAS
                 }
 
                 //grab the data
-                RequestRequiredData();
+                await RequestRequiredData().ConfigureAwait(true);
             }
 
             //generate the stats
@@ -79,7 +80,7 @@ namespace QPAS
         /// When we need external data (benchmarking vs Opening price), this is
         /// where we request it.
         /// </summary>
-        private void RequestRequiredData()
+        private async Task RequestRequiredData()
         {
             _data.Clear();
             Dictionary<Instrument, KeyValuePair<DateTime, DateTime>> neededDates = GetNeededDates();
@@ -89,7 +90,7 @@ namespace QPAS
                 DateTime fromDate = kvp.Value.Key;
                 DateTime toDate = kvp.Value.Value;
 
-                var data = _datasourcer.GetData(instrument, fromDate, toDate);
+                var data = await _datasourcer.GetData(instrument, fromDate, toDate).ConfigureAwait(true);
                 _data.Add(instrument.ID, data);
             }
         }
@@ -117,14 +118,20 @@ namespace QPAS
         /// <summary>
         /// Returns a dictionary of instrument IDs and the sessions that correspond to that instrument.
         /// </summary>
-        private Dictionary<int, List<InstrumentSession>> GetSessionTimes(IEnumerable<Instrument> instruments)
+        private async Task<Dictionary<int, List<InstrumentSession>>> GetSessionTimes(IEnumerable<Instrument> instruments)
         {
             if(_datasourcer.ExternalDataSource == null || !_datasourcer.ExternalDataSource.Connected)
             {
                 throw new Exception("Must be connected to external data source.");
             }
 
-            return instruments.ToDictionary(x => x.ID, x => _datasourcer.ExternalDataSource.GetSessions(x));
+            var dict = new Dictionary<int, List<InstrumentSession>>();
+            foreach (var inst in instruments)
+            {
+                dict.Add(inst.ID, await _datasourcer.ExternalDataSource.GetSessions(inst).ConfigureAwait(true));
+            }
+
+            return dict;
         }
 
         /// <summary>

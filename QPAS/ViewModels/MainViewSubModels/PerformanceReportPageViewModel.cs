@@ -1,8 +1,11 @@
 ﻿using EntityModel;
 using System.Collections.ObjectModel;
+using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using MahApps.Metro.Controls.Dialogs;
+using ReactiveUI;
 
 namespace QPAS
 {
@@ -32,57 +35,32 @@ namespace QPAS
 
         public BacktestSource BacktestSource
         {
-            get { return _backtestSource; }
-            set
-            {
-                if (value == _backtestSource) return;
-                _backtestSource = value;
-                OnPropertyChanged();
-            }
+            get => _backtestSource;
+            set => this.RaiseAndSetIfChanged(ref _backtestSource, value);
         }
 
         public string ToggleStratsText
         {
-            get { return _toggleStratsText; }
-            set
-            {
-                if (value == _toggleStratsText) return;
-                _toggleStratsText = value;
-                OnPropertyChanged();
-            }
+            get => _toggleStratsText;
+            set => this.RaiseAndSetIfChanged(ref _toggleStratsText, value);
         }
 
         public string ToggleTagsText
         {
-            get { return _toggleTagsText; }
-            set
-            {
-                if (value == _toggleTagsText) return;
-                _toggleTagsText = value;
-                OnPropertyChanged();
-            }
+            get => _toggleTagsText;
+            set => this.RaiseAndSetIfChanged(ref _toggleTagsText, value);
         }
 
         public string ToggleInstrumentsText
         {
-            get { return _toggleInstrumentsText; }
-            set
-            {
-                if (value == _toggleInstrumentsText) return;
-                _toggleInstrumentsText = value;
-                OnPropertyChanged();
-            }
+            get => _toggleInstrumentsText;
+            set => this.RaiseAndSetIfChanged(ref _toggleInstrumentsText, value);
         }
 
         public IDataSourcer Datasourcer
         {
-            get { return _datasourcer; }
-            private set
-            {
-                if (Equals(value, _datasourcer)) return;
-                _datasourcer = value;
-                OnPropertyChanged();
-            }
+            get => _datasourcer;
+            private set => this.RaiseAndSetIfChanged(ref _datasourcer, value);
         }
 
         public ICommand ToggleAllStrategies { get; set; }
@@ -184,7 +162,7 @@ namespace QPAS
             }
         }
 
-        public override void Refresh()
+        public override async Task Refresh()
         {
             //tags
             var selectedTags = Tags
@@ -222,10 +200,10 @@ namespace QPAS
             if (Instruments.Count == 0)
             {
                 //on first load we want all instruments selected, otherwise remember previous selection
-                foreach (var checkItem in Context
-                    .Instruments
-                    .OrderBy(x => x.Symbol)
-                    .ToList()
+                foreach (var checkItem in (await Context
+                        .Instruments
+                        .OrderBy(x => x.Symbol)
+                        .ToListAsync().ConfigureAwait(true))
                     .Select(x => new CheckListItem<Instrument>(x, true)))
                 {
                     Instruments.Add(checkItem);
@@ -261,9 +239,9 @@ namespace QPAS
             if(Datasourcer.ExternalDataSource.Connected)
             {
                 BacktestSeries.AddRange(
-                    Datasourcer
-                    .ExternalDataSource
-                    .GetBacktestSeries());
+                    await Datasourcer
+                        .ExternalDataSource
+                        .GetBacktestSeries().ConfigureAwait(true));
             }
         }
 

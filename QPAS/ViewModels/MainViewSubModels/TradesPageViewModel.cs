@@ -15,6 +15,8 @@ using System.Data.Entity;
 using System.Linq;
 using System.Windows.Data;
 using System.Windows.Input;
+using ReactiveUI;
+using System;
 
 namespace QPAS
 {
@@ -58,17 +60,21 @@ namespace QPAS
         private void CreateCommands()
         {
             Delete = new RelayCommand<IList>(DeleteTrades);
-            Reset = new RelayCommand<IList>(ResetTrades);
-            UpdateStats = new RelayCommand<IList>(UpdateTradeStats);
+            Reset = ReactiveCommand.CreateFromTask<IList>(async x => await ResetTrades(x).ConfigureAwait(true));
+            UpdateStats = ReactiveCommand.CreateFromTask<IList>(async x => await UpdateTradeStats(x).ConfigureAwait(true));
             OpenTrades = new RelayCommand<IList>(Open);
-            CloseTrades = new RelayCommand<IList>(Close);
-            RunScripts = new RelayCommand<IList>(RunUserScripts);
+            CloseTrades = ReactiveCommand.CreateFromTask<IList>(async x => await Close(x).ConfigureAwait(true));
+            RunScripts = ReactiveCommand.CreateFromTask<IList>(async x => await RunUserScripts(x).ConfigureAwait(true));
         }
 
-        private void RunUserScripts(IList trades)
+        private async Task RunUserScripts(IList trades)
         {
             if (trades == null || trades.Count == 0) return;
-            Parent.ScriptRunner.RunTradeScripts(trades.Cast<Trade>().ToList(), Context.Strategies.ToList(), Context.Tags.ToList(), Context);
+            await Parent.ScriptRunner.RunTradeScripts(
+                trades.Cast<Trade>().ToList(), 
+                await Context.Strategies.ToListAsync().ConfigureAwait(true), 
+                await Context.Tags.ToListAsync().ConfigureAwait(true), 
+                Context).ConfigureAwait(true);
 
             foreach(Trade trade in trades)
             {
@@ -76,12 +82,12 @@ namespace QPAS
             }
         }
 
-        public override void Refresh()
+        public override async Task Refresh()
         {
-            Context.Trades
+            await Context.Trades
                 .Include(x => x.Strategy)
                 .OrderByDescending(x => x.DateOpened)
-                .Load();
+                .LoadAsync().ConfigureAwait(true);
 
             //populate Strategies, used in combobox strategy selector
             Strategies.Clear();
@@ -94,7 +100,7 @@ namespace QPAS
             TradesSource.View.Refresh();
         }
 
-        private void Close(IList trades)
+        private async Task Close(IList trades)
         {
             if (trades == null || trades.Count == 0) return;
 
@@ -117,15 +123,15 @@ namespace QPAS
             }
 
             //Update the stats of the trades we closed
-            Task.Run(() =>
+            await Task.Run(async () =>
             {
                 foreach (Trade trade in closedTrades)
                 {
                     //we can skip collection load since it's done a few lines up
-                    TradesRepository.UpdateStats(trade, skipCollectionLoad: true); 
+                    await TradesRepository.UpdateStats(trade, skipCollectionLoad: true).ConfigureAwait(false); 
                 }
-                Context.SaveChanges();
-            });
+                await Context.SaveChangesAsync().ConfigureAwait(false);
+            }).ConfigureAwait(false);
         }
 
         private void Open(IList trades)
@@ -139,18 +145,18 @@ namespace QPAS
             Context.SaveChanges();
         }
 
-        private void UpdateTradeStats(IList trades)
+        private async Task UpdateTradeStats(IList trades)
         {
             if (trades == null || trades.Count == 0) return;
 
             foreach (Trade t in trades)
             {
-                TradesRepository.UpdateStats(t);
+                await TradesRepository.UpdateStats(t).ConfigureAwait(true);
             }
-            Context.SaveChanges();
+            await Context.SaveChangesAsync().ConfigureAwait(true);
         }
 
-        private async void ResetTrades(IList trades)
+        private async Task ResetTrades(IList trades)
         {
             if (trades == null || trades.Count == 0) return;
 
@@ -164,9 +170,9 @@ namespace QPAS
             //reset the trades
             foreach (Trade trade in trades)
             {
-                TradesRepository.Reset(trade);
+                await TradesRepository.Reset(trade).ConfigureAwait(true);
             }
-            Context.SaveChanges();
+            await Context.SaveChangesAsync().ConfigureAwait(true);
         }
 
         private async void DeleteTrades(IList trades)
@@ -187,7 +193,7 @@ namespace QPAS
             {
                 Context.Trades.Remove(trade);
             }
-            Context.SaveChanges();
+            await Context.SaveChangesAsync().ConfigureAwait(true);
         }
     }
 }

@@ -225,7 +225,7 @@ namespace EntityModel
 
         [MaxLength(65535)]
         [Column(TypeName = "TEXT")]
-        public string Notes { get; set; }
+        public string Notes { get; set; } //TODO it's possible this is massively slowing things down, investigate
 
         [NotMapped]
         public string TagString

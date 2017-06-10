@@ -9,10 +9,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
+using ReactiveUI;
 
 namespace QPAS
 {
@@ -42,10 +44,10 @@ namespace QPAS
 
         private void CreateCommands()
         {
-            Delete = new RelayCommand<IList>(DeleteFxTransactions);
+            Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteFxTransactions(x).ConfigureAwait(true));
         }
 
-        private async void DeleteFxTransactions(IList fxts)
+        private async Task DeleteFxTransactions(IList fxts)
         {
             if (fxts == null || fxts.Count == 0) return;
 
@@ -60,7 +62,7 @@ namespace QPAS
                 {
                     if (fxt.Trade != null)
                     {
-                        TradesRepository.RemoveFXTransaction(fxt.Trade, fxt);
+                        await TradesRepository.RemoveFXTransaction(fxt.Trade, fxt).ConfigureAwait(true);
                     }
                     Context.FXTransactions.Remove(fxt);
                 }
@@ -68,9 +70,9 @@ namespace QPAS
             }
         }
 
-        public override void Refresh()
+        public override async Task Refresh()
         {
-            Context.FXTransactions.Include(x => x.FXCurrency).OrderBy(x => x.DateTime).Load();
+            await Context.FXTransactions.Include(x => x.FXCurrency).OrderBy(x => x.DateTime).LoadAsync().ConfigureAwait(true);
 
             FXTransactions.View.Refresh();
         }

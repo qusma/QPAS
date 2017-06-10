@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using QDMS;
 
 namespace QPAS
@@ -28,17 +29,17 @@ namespace QPAS
         /// <summary>
         /// Given a native-format Instrument, return data from the external data source between the from and to dates.
         /// </summary>
-        List<OHLCBar> GetData(EntityModel.Instrument instrument, DateTime from, DateTime to, BarSize frequency = BarSize.OneDay);
+        Task<List<OHLCBar>> GetData(EntityModel.Instrument instrument, DateTime from, DateTime to, BarSize frequency = BarSize.OneDay);
         
         /// <summary>
         /// Given a native-format Instrument, return all available data from the external source.
         /// </summary>
-        List<OHLCBar> GetAllData(EntityModel.Instrument instrument, BarSize frequency = BarSize.OneDay);
+        Task<List<OHLCBar>> GetAllData(EntityModel.Instrument instrument, BarSize frequency = BarSize.OneDay);
 
         /// <summary>
         /// Given an instrument ID from the external data source, returns data between the from and to dates.
         /// </summary>
-        List<OHLCBar> GetData(int externalInstrumentID, DateTime from, DateTime to, BarSize frequency = BarSize.OneDay);
+        Task<List<OHLCBar>> GetData(int externalInstrumentID, DateTime from, DateTime to, BarSize frequency = BarSize.OneDay);
 
         /// <summary>
         /// Returns the last price and the DateTime at which it occured, from the external data source.
@@ -52,21 +53,16 @@ namespace QPAS
         /// The value is the instrument ID.
         /// </summary>
         /// <returns></returns>
-        Dictionary<string, int> GetInstrumentDict();
-
-        /// <summary>
-        /// Returns a list of instruments in the format of the external data source.
-        /// </summary>
-        List<object> GetInstrumentList();
+        Task<Dictionary<string, int>> GetInstrumentDict();
 
         /// <summary>
         /// Retrieve a list of sessions that describe the regular trading hours for this instrument.
         /// </summary>
-        List<InstrumentSession> GetSessions(EntityModel.Instrument instrument);
+        Task<List<InstrumentSession>> GetSessions(EntityModel.Instrument instrument);
 
         /// <summary>
         /// Gets a list of available instruments that represent backtest results.
         /// </summary>
-        List<Instrument> GetBacktestSeries();
+        Task<List<Instrument>> GetBacktestSeries();
     }
 }

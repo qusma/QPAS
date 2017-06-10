@@ -6,8 +6,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
+using ReactiveUI;
 
 namespace QPAS
 {
@@ -53,16 +55,16 @@ namespace QPAS
         private void CreateCommands()
         {
             CloneSelected = new RelayCommand<int>(CloneOrder);
-            Delete = new RelayCommand<IList>(DeleteOrders);
+            Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteOrders(x).ConfigureAwait(true));
             SetExecutionReportOrders = new RelayCommand<IList>(SetExecReportOrders);
-            RunScripts = new RelayCommand<IList>(RunUserScripts);
+            RunScripts = ReactiveCommand.CreateFromTask<IList>(async x => await RunUserScripts(x).ConfigureAwait(true));
         }
 
-        private void RunUserScripts(IList orders)
+        private async Task RunUserScripts(IList orders)
         {
             if (orders == null || orders.Count == 0) return;
 
-            Parent.ScriptRunner.RunOrderScripts(orders.Cast<Order>().OrderBy(x => x.TradeDate).ToList(), Context);
+            await Parent.ScriptRunner.RunOrderScripts(orders.Cast<Order>().OrderBy(x => x.TradeDate).ToList(), Context).ConfigureAwait(true);
         }
 
         private void SetExecReportOrders(IList orders)
@@ -73,7 +75,7 @@ namespace QPAS
             window.Show();
         }
 
-        private async void DeleteOrders(IList orders)
+        private async Task DeleteOrders(IList orders)
         {
             if (orders == null || orders.Count == 0) return;
             var selectedOrders = orders.Cast<Order>().ToList();
@@ -101,13 +103,13 @@ namespace QPAS
                 //if the order belongs to a trade, remove it
                 if (o.Trade != null)
                 {
-                    TradesRepository.RemoveOrder(o.Trade, o);
+                    await TradesRepository.RemoveOrder(o.Trade, o).ConfigureAwait(true);
                 }
 
                 //finally delete the order
                 Context.Orders.Remove(o);
             }
-            Context.SaveChanges();
+            await Context.SaveChangesAsync().ConfigureAwait(true);
         }
 
         private async void CloneOrder(int size)
@@ -162,9 +164,9 @@ namespace QPAS
             OrdersSource.View.Refresh();
         }
 
-        public override void Refresh()
+        public override async Task Refresh()
         {
-            Context
+            await Context
                 .Orders
                 .OrderByDescending(z => z.TradeDate)
                 .Include(x => x.Instrument)
@@ -172,7 +174,7 @@ namespace QPAS
                 .Include(x => x.CommissionCurrency)
                 .Include(x => x.Executions)
                 .Include(x => x.Account)
-                .Load();
+                .LoadAsync().ConfigureAwait(true);
 
             OrdersSource.View.Refresh();
         }

@@ -10,6 +10,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 
@@ -43,9 +44,9 @@ namespace QPAS
             Delete = new RelayCommand<IList>(DeleteTags);
         }
 
-        public override void Refresh()
+        public override async Task Refresh()
         {
-            Context.Tags.Load();
+            await Context.Tags.LoadAsync().ConfigureAwait(true);
 
             TagsSource.View.Refresh();
         }

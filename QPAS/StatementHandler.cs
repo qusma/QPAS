@@ -126,18 +126,18 @@ namespace QPAS
 
             if (flex == "" || ex != null)
             {
-                await progress.CloseAsync();
-                await _dialogService.ShowMessageAsync(_mainVm, "Error downloading statement", ex?.Message);
+                await progress.CloseAsync().ConfigureAwait(true);
+                await _dialogService.ShowMessageAsync(_mainVm, "Error downloading statement", ex?.Message).ConfigureAwait(true);
 
                 return;
             }
 
-            await Task.Run(() => parser.Parse(flex, progress));
+            await Task.Run(() => parser.Parse(flex, progress)).ConfigureAwait(true);
 
             progress.SetMessage("Updating open trades");
 
-            _tradeRepository.UpdateOpenTrades();
-            _tradeRepository.Save();
+            await _tradeRepository.UpdateOpenTrades().ConfigureAwait(true);
+            await _tradeRepository.Save().ConfigureAwait(true);
 
             progress.CloseAsync().Forget();
         }
@@ -148,7 +148,7 @@ namespace QPAS
         /// <param name="name">The name of the parser.</param>
         public async Task LoadFromFile(string name)
         {
-            var parser = await GetParserByName(name);
+            var parser = await GetParserByName(name).ConfigureAwait(true);
             if (parser == null) return;
 
             string file;
@@ -156,7 +156,7 @@ namespace QPAS
 
             if (res != true) return;
 
-            ProgressDialogController progress = await _dialogService.ShowProgressAsync(_mainVm, "Load Statement from File", "Opening File");
+            ProgressDialogController progress = await _dialogService.ShowProgressAsync(_mainVm, "Load Statement from File", "Opening File").ConfigureAwait(true);
             string flexqText = "";
             try
             {
@@ -169,12 +169,12 @@ namespace QPAS
                 return;
             }
 
-            await Task.Run(() => parser.Parse(flexqText, progress));
+            await Task.Run(() => parser.Parse(flexqText, progress)).ConfigureAwait(true);
 
             progress.SetMessage("Updating open trades");
 
-            _tradeRepository.UpdateOpenTrades();
-            _tradeRepository.Save();
+            await _tradeRepository.UpdateOpenTrades().ConfigureAwait(true);
+            await _tradeRepository.Save().ConfigureAwait(true);
 
             progress.CloseAsync().Forget();
         }
