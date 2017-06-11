@@ -51,7 +51,11 @@ namespace QPAS
 
         public int QdmsRealTimePublishPort { get; set; }
 
-        public int QdmsInstrumentServerPort { get; set; }
+        public int QdmsHttpPort { get; set; }
+
+        public bool QdmsUseSsl { get; set; }
+
+        public string QdmsApiKey { get; set; }
 
         public int QdmsHistoricalDataPort { get; set; }
 
@@ -93,7 +97,9 @@ namespace QPAS
             QdmsHost = Properties.Settings.Default.qdmsHost;
             QdmsRealTimeRequestPort = Properties.Settings.Default.qdmsRealTimeRequestPort;
             QdmsRealTimePublishPort = Properties.Settings.Default.qdmsRealTimePublishPort;
-            QdmsInstrumentServerPort = Properties.Settings.Default.qdmsInstrumentServerPort;
+            QdmsHttpPort = Properties.Settings.Default.qdmsHttpPort;
+            QdmsUseSsl = Properties.Settings.Default.qdmsUseSsl;
+            QdmsApiKey = Properties.Settings.Default.qdmsApiKey;
             QdmsHistoricalDataPort = Properties.Settings.Default.qdmsHistoricalDataPort;
 
             AllowExternalDataSource = Properties.Settings.Default.allowExternalDataSource;
@@ -151,7 +157,9 @@ namespace QPAS
             Properties.Settings.Default.qdmsHost = QdmsHost;
             Properties.Settings.Default.qdmsRealTimeRequestPort = QdmsRealTimeRequestPort;
             Properties.Settings.Default.qdmsRealTimePublishPort = QdmsRealTimePublishPort;
-            Properties.Settings.Default.qdmsInstrumentServerPort = QdmsInstrumentServerPort;
+            Properties.Settings.Default.qdmsHttpPort = QdmsHttpPort;
+            Properties.Settings.Default.qdmsUseSsl = QdmsUseSsl;
+            Properties.Settings.Default.qdmsApiKey = QdmsApiKey;
             Properties.Settings.Default.qdmsHistoricalDataPort = QdmsHistoricalDataPort;
 
             Properties.Settings.Default.allowExternalDataSource = AllowExternalDataSource;

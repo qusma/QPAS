@@ -115,6 +115,8 @@
                         <RowDefinition Height="35"/>
                         <RowDefinition Height="35"/>
                         <RowDefinition Height="35"/>
+                        <RowDefinition Height="35"/>
+                        <RowDefinition Height="35"/>
                         <RowDefinition Height="72*"/>
                     </Grid.RowDefinitions>
 
@@ -134,14 +136,20 @@
                     <Label Grid.Row="4" Grid.Column="0" Content="Historical Data Port:" Margin="0,5,0,0" />
                     <TextBox Grid.Row="4" Grid.Column="1" Margin="4" Text="{Binding QdmsHistoricalDataPort}" />
 
-                    <Label Grid.Row="5" Grid.Column="0" Content="Instrument Server Port:" Margin="0,5,0,0" />
-                    <TextBox Grid.Row="5" Grid.Column="1" Margin="4" Text="{Binding QdmsInstrumentServerPort}" />
+                    <Label Grid.Row="5" Grid.Column="0" Content="Instrument Http Port:" Margin="0,5,0,0" />
+                    <TextBox Grid.Row="5" Grid.Column="1" Margin="4" Text="{Binding QdmsHttpPort}" />
 
-                    <Label Grid.Column="0" Grid.Row="6" Content="Default data source by instrument type:" Margin="0,10,0,0" Grid.ColumnSpan="2"/>
+                    <Label Grid.Row="6" Grid.Column="0" Content="Use SSL:" Margin="0,5,0,0" />
+                    <CheckBox Grid.Row="6" Grid.Column="1" Margin="4" IsChecked="{Binding QdmsUseSsl}" />
+
+                    <Label Grid.Row="7" Grid.Column="0" Content="API Key:" Margin="0,5,0,0" />
+                    <TextBox Grid.Row="7" Grid.Column="1" Margin="4" Text="{Binding QdmsApiKey}" />
+
+                    <Label Grid.Column="0" Grid.Row="8" Content="Default data source by instrument type:" Margin="0,10,0,0" Grid.ColumnSpan="2"/>
                     <DataGrid Name="DefaultSourcesGrid" 
                               ItemsSource="{Binding DatasourcePreferences}"
                               AutoGenerateColumns="False"
-                              Grid.Row="7" Grid.Column="0" CanUserAddRows="False" CanUserDeleteRows="False" Grid.ColumnSpan="2">
+                              Grid.Row="9" Grid.Column="0" CanUserAddRows="False" CanUserDeleteRows="False" Grid.ColumnSpan="2">
                         <DataGrid.Columns>
                             <DataGridComboBoxColumn Header="Type" 
                                                     ItemsSource="{Binding Source={StaticResource AssetClasses}}"
