@@ -1541,14 +1541,14 @@
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:LineSeries ItemsSource="{Binding Data.ValueAtRisk}"
-                                                Name="VaRChartGaussianLine" CanTrackerInterpolatePoints="False" Smooth="True"
+                                                Name="VaRChartGaussianLine" CanTrackerInterpolatePoints="False"
                                                 MarkerType="Circle" Color="#41B1E1" Title="Gaussian" 
                                                 MarkerFill="#41B1E1" MarkerSize="5"
                                                 LabelFormatString="Nrml: {}{0:p1}: {1:p1}" LabelMargin="50"
                                                 TrackerFormatString="Probability: {2:p1}&#x0a;Value at Risk: {4:p2}"
                                                 DataFieldX="level" DataFieldY="var" />
                                 <oxy:LineSeries ItemsSource="{Binding Data.ValueAtRisk}"
-                                                Name="VaRChartBootstrapLine" CanTrackerInterpolatePoints="False" Smooth="True"
+                                                Name="VaRChartBootstrapLine" CanTrackerInterpolatePoints="False"
                                                 MarkerType="Circle" Color="#DE0000" Title="Historical" 
                                                 MarkerFill="#DE0000" MarkerSize="5"
                                                 LabelFormatString="Historical: {}{0:p1}: {1:p1}" LabelMargin="-10"
@@ -1581,14 +1581,14 @@
                         </oxy:Plot.Axes>
                         <oxy:Plot.Series>
                             <oxy:LineSeries ItemsSource="{Binding Data.ExpectedShortfall}"
-                                                Name="ESChartGaussianLine" CanTrackerInterpolatePoints="False" Smooth="True"
+                                                Name="ESChartGaussianLine" CanTrackerInterpolatePoints="False"
                                                 MarkerType="Circle" Color="#41B1E1" Title="Gaussian" 
                                                 MarkerFill="#41B1E1" MarkerSize="5"
                                                 LabelFormatString="Nrml: {}{0:p1}: {1:p1}" LabelMargin="50"
                                                 TrackerFormatString="Probability: {2:p1}&#x0a;Expected Shortfall: {4:p2}"
                                                 DataFieldX="level" DataFieldY="es" />
                             <oxy:LineSeries ItemsSource="{Binding Data.ExpectedShortfall}"
-                                                Name="ESChartBootstrapLine" CanTrackerInterpolatePoints="False" Smooth="True"
+                                                Name="ESChartBootstrapLine" CanTrackerInterpolatePoints="False"
                                                 MarkerType="Circle" Color="#DE0000" Title="Historical" 
                                                 MarkerFill="#DE0000" MarkerSize="5"
                                                 LabelFormatString="Historical: {}{0:p1}: {1:p1}" LabelMargin="-10"
@@ -1699,7 +1699,7 @@
                                 <oxy:LineSeries ItemsSource="{Binding Data.MCDrawdowns}"
                                                     YAxisKey="CumulativeProbAxis"
                                                     Name="MCMaxDDDistributionChartCumulativeLine" CanTrackerInterpolatePoints="False"
-                                                    MarkerType="None" Color="#DE0000" Title="Cumulative" Smooth="True"
+                                                    MarkerType="None" Color="#DE0000" Title="Cumulative"
                                                     TrackerFormatString="Drawdown Level: {2:p2}&#x0a;% of drawdowns less than this: {4:p1}"
                                                     DataFieldX="ddLevel" DataFieldY="cumulative" />
                             </oxy:Plot.Series>
@@ -1742,7 +1742,7 @@
                                                     YAxisKey="CumulativeProbAxis"
                                                     XAxisKey="ValueAxis"
                                                     Name="MCSharpeChartCumulativeLine" CanTrackerInterpolatePoints="False"
-                                                    MarkerType="None" Color="#DE0000" Title="Cumulative" Smooth="True"
+                                                    MarkerType="None" Color="#DE0000" Title="Cumulative"
                                                     TrackerFormatString="Sharpe ratio: {2:0.00}&#x0a;% of ratios less than this: {4:p1}"
                                                     DataFieldX="Sharpe" DataFieldY="SharpeCumulativePct" />
                             </oxy:Plot.Series>
@@ -1785,7 +1785,7 @@
                                                     YAxisKey="CumulativeProbAxis"
                                                     XAxisKey="ValueAxis"
                                                     Name="MCMARChartCumulativeLine" CanTrackerInterpolatePoints="False"
-                                                    MarkerType="None" Color="#DE0000" Title="Cumulative" Smooth="False"
+                                                    MarkerType="None" Color="#DE0000" Title="Cumulative"
                                                     TrackerFormatString="MAR ratio: {2:0.00}&#x0a;% of ratios less than this: {4:p1}"
                                                     DataFieldX="MAR" DataFieldY="MARCumulativePct" />
                             </oxy:Plot.Series>
@@ -1828,7 +1828,7 @@
                                                     YAxisKey="CumulativeProbAxis"
                                                     XAxisKey="ValueAxis"
                                                     Name="MCKRatioChartCumulativeLine" CanTrackerInterpolatePoints="False"
-                                                    MarkerType="None" Color="#DE0000" Title="Cumulative" Smooth="True"
+                                                    MarkerType="None" Color="#DE0000" Title="Cumulative"
                                                     TrackerFormatString="K Ratio: {2:0.00}&#x0a;% of ratios less than this: {4:p1}"
                                                     DataFieldX="KRatio" DataFieldY="KRatioCumulativePct" />
                             </oxy:Plot.Series>
@@ -1866,14 +1866,14 @@
                             <oxy:Plot.Series>
                                 <oxy:LineSeries ItemsSource="{Binding Data.BacktestEquityCurves}"
                                                         Name="BacktestRoacEcChartBacktestSeries" CanTrackerInterpolatePoints="False"
-                                                        MarkerType="None" Color="DodgerBlue" Title="Backtest" Smooth="True"
+                                                        MarkerType="None" Color="DodgerBlue" Title="Backtest"
                                                         TrackerFormatString="Backtest: {2:yyyy-MM-dd} - {4:f1}"
                                                         
                                                         DataFieldX="Date" DataFieldY="Backtest" />
 
                                 <oxy:LineSeries ItemsSource="{Binding Data.BacktestEquityCurves}"
                                                         Name="BacktestRoacEcChartResultSeries" CanTrackerInterpolatePoints="False"
-                                                        MarkerType="None" Color="#DE0000" Title="Live Results" Smooth="True"
+                                                        MarkerType="None" Color="#DE0000" Title="Live Results"
                                                         TrackerFormatString="Live Result: {2:yyyy-MM-dd} - {4:f1}"
                                                         DataFieldX="Date" DataFieldY="Result" />
                             </oxy:Plot.Series>
@@ -1905,7 +1905,7 @@
                         <oxy:Plot.Series>
                             <oxy:LineSeries ItemsSource="{Binding Data.BacktestEquityCurves}"
                                                         Name="BacktestVsResultsCumulativeDiffSeries" CanTrackerInterpolatePoints="False"
-                                                        MarkerType="None" Color="DodgerBlue" Title="Backtest" Smooth="True"
+                                                        MarkerType="None" Color="DodgerBlue" Title="Backtest"
                                                         TrackerFormatString="Difference: {2:0.00} - {4:p1}"
                                                         
                                                         DataFieldX="Date" DataFieldY="CumulativeDifference" />

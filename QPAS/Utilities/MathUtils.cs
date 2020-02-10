@@ -118,7 +118,7 @@ namespace QPAS
         {
             int n = input.Count;
 
-            Vector v = DenseVector.OfEnumerable(input);
+            DenseVector v = DenseVector.OfEnumerable(input);
             List<double> coeffs = new List<double>();
             coeffs.Add(1);
 
@@ -141,7 +141,7 @@ namespace QPAS
             return coeffs;
         }
 
-        public static void PCA(DenseMatrix input, out Vector<double> latent, out Matrix<double> score, out Matrix<double> coeff)
+        public static void PCA(DenseMatrix input, out MathNet.Numerics.LinearAlgebra.Vector<double> latent, out Matrix<double> score, out Matrix<double> coeff)
         {
             int n = input.RowCount;
             int p = input.ColumnCount;
