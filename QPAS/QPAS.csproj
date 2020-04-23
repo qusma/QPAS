@@ -99,7 +99,7 @@
       <HintPath>..\packages\DataGridFilter.1.0.3\lib\DataGridFilterLibrary.dll</HintPath>
     </Reference>
     <Reference Include="DynamicData, Version=6.14.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\DynamicData.6.14.3\lib\net461\DynamicData.dll</HintPath>
+      <HintPath>..\packages\DynamicData.6.14.14\lib\net461\DynamicData.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.dll</HintPath>
@@ -107,8 +107,8 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="EPPlus, Version=4.5.3.3, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
-      <HintPath>..\packages\EPPlus.4.5.3.3\lib\net40\EPPlus.dll</HintPath>
+    <Reference Include="EPPlus, Version=5.1.0.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.5.1.0\lib\net45\EPPlus.dll</HintPath>
     </Reference>
     <Reference Include="Flurl, Version=2.8.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Flurl.2.8.2\lib\net40\Flurl.dll</HintPath>
@@ -122,14 +122,11 @@
     <Reference Include="K4os.Compression.LZ4, Version=1.1.11.0, Culture=neutral, PublicKeyToken=2186fa9121ef231d, processorArchitecture=MSIL">
       <HintPath>..\packages\K4os.Compression.LZ4.1.1.11\lib\net46\K4os.Compression.LZ4.dll</HintPath>
     </Reference>
-    <Reference Include="LZ4, Version=1.0.15.93, Culture=neutral, PublicKeyToken=62e1b5ec1eec9bdd, processorArchitecture=MSIL">
-      <HintPath>..\packages\lz4net.1.0.15.93\lib\net4-client\LZ4.dll</HintPath>
-    </Reference>
     <Reference Include="MahApps.Metro, Version=1.6.5.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.1.6.5\lib\net47\MahApps.Metro.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics, Version=4.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MathNet.Numerics.4.9.0\lib\net461\MathNet.Numerics.dll</HintPath>
+    <Reference Include="MathNet.Numerics, Version=4.9.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.4.9.1\lib\net461\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="MetaLinq, Version=1.0.11.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MetaLinqStandard.1.0.11\lib\netstandard2.0\MetaLinq.dll</HintPath>
@@ -141,8 +138,8 @@
     <Reference Include="MySql.Data.Entity.EF6, Version=6.10.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>..\packages\MySql.Data.Entity.6.10.9\lib\net452\MySql.Data.Entity.EF6.dll</HintPath>
     </Reference>
-    <Reference Include="MySqlBackup, Version=2.0.9.2, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MySqlBackup.NET.2.0.9.5\lib\net45\MySqlBackup.dll</HintPath>
+    <Reference Include="MySqlBackup, Version=2.3.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySqlBackup.NET.2.3.1\lib\net452\MySqlBackup.dll</HintPath>
     </Reference>
     <Reference Include="NetMQ, Version=4.0.0.207, Culture=neutral, PublicKeyToken=a6decef4ddc58b3a, processorArchitecture=MSIL">
       <HintPath>..\packages\NetMQ.4.0.0.207\lib\net40\NetMQ.dll</HintPath>
@@ -151,7 +148,7 @@
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.6.8\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.7.0\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="NodaTime, Version=2.4.7.0, Culture=neutral, PublicKeyToken=4226afe0d9b296d1, processorArchitecture=MSIL">
       <HintPath>..\packages\NodaTime.2.4.7\lib\net45\NodaTime.dll</HintPath>
@@ -171,36 +168,36 @@
       <HintPath>..\packages\protobuf-net.2.4.4\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="QDMS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\QDMSClient.0.10.1-beta\lib\netstandard2.0\QDMS.dll</HintPath>
+      <HintPath>..\packages\QDMSClient.0.10.2\lib\netstandard2.0\QDMS.dll</HintPath>
     </Reference>
-    <Reference Include="QDMSClient, Version=0.10.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\QDMSClient.0.10.1-beta\lib\netstandard2.0\QDMSClient.dll</HintPath>
+    <Reference Include="QDMSClient, Version=0.10.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\QDMSClient.0.10.2\lib\netstandard2.0\QDMSClient.dll</HintPath>
     </Reference>
-    <Reference Include="QLNet, Version=1.11.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\QLNet.1.11.3\lib\net452\QLNet.dll</HintPath>
+    <Reference Include="QLNet, Version=1.11.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\QLNet.1.11.4\lib\netstandard2.0\QLNet.dll</HintPath>
     </Reference>
     <Reference Include="QuickConverter, Version=1.2.5.0, Culture=neutral, PublicKeyToken=9c892aa7bc2af2cf, processorArchitecture=MSIL">
       <HintPath>..\packages\QuickConverter.1.2.5\lib\net40\QuickConverter.dll</HintPath>
     </Reference>
     <Reference Include="ReachFramework" />
-    <Reference Include="ReactiveUI, Version=11.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveUI.11.1.23\lib\net461\ReactiveUI.dll</HintPath>
+    <Reference Include="ReactiveUI, Version=11.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ReactiveUI.11.3.7\lib\net461\ReactiveUI.dll</HintPath>
     </Reference>
-    <Reference Include="ReactiveUI.WPF, Version=11.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveUI.WPF.11.1.23\lib\net461\ReactiveUI.WPF.dll</HintPath>
+    <Reference Include="ReactiveUI.WPF, Version=11.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ReactiveUI.WPF.11.3.7\lib\net461\ReactiveUI.WPF.dll</HintPath>
     </Reference>
     <Reference Include="Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
       <HintPath>..\packages\SSH.NET.2016.1.0\lib\net40\Renci.SshNet.dll</HintPath>
     </Reference>
-    <Reference Include="Splat, Version=9.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Splat.9.3.11\lib\net461\Splat.dll</HintPath>
+    <Reference Include="Splat, Version=9.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Splat.9.4.5\lib\net461\Splat.dll</HintPath>
     </Reference>
     <Reference Include="Splat.Drawing, Version=9.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Splat.Drawing.9.3.11\lib\net461\Splat.Drawing.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -223,31 +220,32 @@
     </Reference>
     <Reference Include="System.Management" />
     <Reference Include="System.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard2.0\System.Memory.dll</HintPath>
+      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Numerics.Vectors.4.4.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
     <Reference Include="System.Printing" />
-    <Reference Include="System.Reactive, Version=4.3.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Reactive.4.3.2\lib\net46\System.Reactive.dll</HintPath>
+    <Reference Include="System.Reactive, Version=4.4.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reactive.4.4.1\lib\net46\System.Reactive.dll</HintPath>
     </Reference>
     <Reference Include="System.Reflection, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reflection.4.3.0\lib\net462\System.Reflection.dll</HintPath>
     </Reference>
-    <Reference Include="System.Reflection.TypeExtensions, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Reflection.TypeExtensions.4.3.0\lib\net462\System.Reflection.TypeExtensions.dll</HintPath>
+    <Reference Include="System.Reflection.TypeExtensions, Version=4.1.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reflection.TypeExtensions.4.7.0\lib\net461\System.Reflection.TypeExtensions.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.7.1\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Threading.Tasks, Version=4.0.11.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.3\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System.Transactions" />
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -413,14 +411,6 @@
     <Compile Include="Windows\TradeWindow.xaml.cs">
       <DependentUpon>TradeWindow.xaml</DependentUpon>
     </Compile>
-    <Page Include="Resources\Icons.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Resources\IconsNonShared.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Windows\AboutWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -492,9 +482,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Resource Include="Resources\Entypo-license.txt" />
-    <Resource Include="Resources\Entypo.ttf" />
-    <Resource Include="Resources\WindowsIcons-license.txt" />
     <Resource Include="Resources\lock.png" />
     <Resource Include="Resources\script.png" />
     <EmbeddedResource Include="Properties\Resources.resx">
