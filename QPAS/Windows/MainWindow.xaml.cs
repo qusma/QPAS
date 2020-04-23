@@ -198,7 +198,7 @@ namespace QPAS
             else
             {
                 var target = (FileTarget)LogManager.Configuration.FindTargetByName("default");
-                target.FileName = string.Format("{0}/{1}", logLocation, "qptaslog.log");
+                target.FileName = string.Format("{0}/{1}", logLocation, "qpaslog.log");
                 target.ArchiveFileName = string.Format("{0}/{1}", logLocation, @"${shortdate}.{##}.log");
 #if DEBUG
                 var rule = LogManager.Configuration.LoggingRules[0];
