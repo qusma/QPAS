@@ -4,11 +4,11 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using EntityModel;
 using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using EntityModel;
 
 namespace QPAS
 {

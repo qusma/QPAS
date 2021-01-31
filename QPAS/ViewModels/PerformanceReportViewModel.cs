@@ -4,14 +4,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Input;
 using MahApps.Metro.Controls.Dialogs;
 using MathNet.Numerics.Statistics;
 using OxyPlot;
@@ -19,7 +11,12 @@ using OxyPlot.Series;
 using OxyPlot.Wpf;
 using QPAS.DataSets;
 using ReactiveUI;
-using HeatMapSeries = OxyPlot.Wpf.HeatMapSeries;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Windows;
+using System.Windows.Input;
 
 namespace QPAS
 {
@@ -144,7 +141,7 @@ namespace QPAS
             set => this.RaiseAndSetIfChanged(ref _retVsLengthBestFitLineSlope, value);
         }
 
-       
+
 
         //Histograms
         public List<Tuple<string, double>> MCSharpeHistogramBuckets { get; set; }
@@ -202,8 +199,8 @@ namespace QPAS
                 out b,
                 out rsq);
 
-                _retVsLengthBestFitLineConstant = b[0];
-                _retVsLengthBestFitLineSlope = b[1];
+            _retVsLengthBestFitLineConstant = b[0];
+            _retVsLengthBestFitLineSlope = b[1];
 
             //Histograms
             try
@@ -233,7 +230,7 @@ namespace QPAS
             }
 
             //avg cumulative winner/loser returns by day in trade
-            AvgCumulativeWinnerRets = 
+            AvgCumulativeWinnerRets =
                 Enumerable.Select(data
                     .AverageDailyRets
                     .Where(x => !x.IswinnersRetsNull()), x => new KeyValuePair<int, double>(x.day, x.winnersRets))
@@ -344,7 +341,7 @@ namespace QPAS
 
             model.Series.Add(series);
 
-            foreach(filterReportDS.MdsCoordsRow dr in Data.MdsCoords.Rows)
+            foreach (filterReportDS.MdsCoordsRow dr in Data.MdsCoords.Rows)
             {
                 var annotation = new OxyPlot.Annotations.TextAnnotation
                 {
@@ -482,9 +479,10 @@ namespace QPAS
                 {
                     ItemsSource = Data
                     .CapitalUsageByStrategy
-                    .Select((x, i) => 
-                        new { 
-                            X = x.date, 
+                    .Select((x, i) =>
+                        new
+                        {
+                            X = x.date,
                             Y = sum[i],
                             Y2 = sum[i] + x.Field<double>(column1.ColumnName),
                         }),

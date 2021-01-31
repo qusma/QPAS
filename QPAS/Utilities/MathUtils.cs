@@ -4,14 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using MathNet.Numerics.IntegralTransforms;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
+using MathNet.Numerics.Statistics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using MathNet.Numerics.IntegralTransforms;
-using MathNet.Numerics.LinearAlgebra.Double;
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.Statistics;
 
 namespace QPAS
 {
@@ -104,7 +104,7 @@ namespace QPAS
         public static List<double> AutoCorr(List<double> input, int n)
         {
             double avg = input.Average();
-            Complex[] inputAsComplex = input.Select(x => new Complex(x - avg,0)).ToArray();
+            Complex[] inputAsComplex = input.Select(x => new Complex(x - avg, 0)).ToArray();
             Fourier.Forward(inputAsComplex, FourierOptions.Matlab);
             var conjugate = inputAsComplex.Select(Complex.Conjugate);
             var S = conjugate.Select((x, i) => x * inputAsComplex[i]).ToArray();
@@ -135,7 +135,7 @@ namespace QPAS
                 var qr = tmpMatrix.QR();
                 var R = qr.R.SubMatrix(0, i + 1, 0, i + 1);
                 var Q = qr.Q.SubMatrix(0, n - i, 0, i + 1);
-                var b = R.Inverse().Multiply((Q.Transpose() * v.SubVector(i,n - i)));
+                var b = R.Inverse().Multiply((Q.Transpose() * v.SubVector(i, n - i)));
                 coeffs.Add(b.Last());
             }
             return coeffs;

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra.Double;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace QPAS
 {
@@ -13,7 +13,7 @@ namespace QPAS
         {
             int n = input.RowCount;
 
-            Matrix<double> p = DenseMatrix.Build.DenseIdentity(n) - DenseMatrix.Create(n,n, (_, __) => 1.0 / n);
+            Matrix<double> p = DenseMatrix.Build.DenseIdentity(n) - DenseMatrix.Create(n, n, (_, __) => 1.0 / n);
 
             Matrix<double> a = -.5 * input.PointwiseMultiply(input);
             Matrix<double> b = p.Multiply(p.Multiply(a));
@@ -25,7 +25,7 @@ namespace QPAS
 
             DenseVector i = DenseVector.Create(E.Count, x => x);
             Sorting.Sort(E, i);
-            
+
 
             var e = DenseVector.OfEnumerable(E.Reverse());
             i = DenseVector.OfEnumerable(i.Reverse());

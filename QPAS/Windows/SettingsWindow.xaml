@@ -3,12 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:qpas="clr-namespace:QPAS"
-        xmlns:dataGridFilterLibrary="clr-namespace:DataGridFilterLibrary;assembly=DataGridFilterLibrary"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:qdms="clr-namespace:EntityModel;assembly=EntityModel"
         Title="Settings" Height="600" Width="396"
         Icon="../Resources/icon.ico"
-        TitlebarHeight="32" ResizeMode="NoResize"
+        TitleBarHeight="32" ResizeMode="NoResize"
         BorderBrush="Black" BorderThickness="1" 
                       FontFamily="Segoe UI Semibold"
         RenderOptions.BitmapScalingMode="NearestNeighbor">
@@ -49,20 +48,20 @@
                     </Grid.ColumnDefinitions>
 
                     <Label Content="Assume interest rate:" Grid.Row="0" Grid.Column="0" Margin="0,5,0,0" />
-                    <TextBox Name="InterestRateTextBox" Text="{Binding AssumedInterestRate, StringFormat={}{0:p2}}" Grid.Row="0" Grid.Column="1" Margin="4" />
+                    <TextBox Name="InterestRateTextBox" Text="{Binding Settings.AssumedInterestRate, StringFormat={}{0:p2}}" Grid.Row="0" Grid.Column="1" Margin="4" />
 
                     <Label Content="Save downloaded statements to:" Grid.Row="1" Grid.Column="0" Margin="0,5,0,0" />
-                    <TextBox Name="FlexSavePathTextBox" Text="{Binding StatementSaveLocation}"
+                    <TextBox Name="FlexSavePathTextBox" Text="{Binding Settings.StatementSaveLocation}"
                              Grid.Row="1" Grid.Column="1" Margin="4" GotFocus="FlexSavePathTextBox_GotFocus" />
 
                     <Label Content="Flex token (24 characters):" Grid.Row="2" Grid.Column="0" Margin="0,5,0,0" />
-                    <TextBox Name="FlexTokenTextBox" Text="{Binding FlexToken}" Grid.Row="2" Grid.Column="1" Margin="4" />
+                    <TextBox Name="FlexTokenTextBox" Text="{Binding Settings.FlexToken}" Grid.Row="2" Grid.Column="1" Margin="4" />
 
                     <Label Content="Flex Query ID:" Grid.Row="3" Grid.Column="0" Margin="0,5,0,0" />
-                    <TextBox Name="FlexIDTextBox" Text="{Binding FlexID}" Grid.Row="3" Grid.Column="1" Margin="4" />
+                    <TextBox Name="FlexIDTextBox" Text="{Binding Settings.FlexId}" Grid.Row="3" Grid.Column="1" Margin="4" />
 
                     <Label Content="Use QDMS:" ToolTip="Leaving this unchecked will result in using Flex statement data only. Some features such as benchmarks will be unavailable." Grid.Row="5" Grid.Column="0" Margin="0,5,0,0" />
-                    <CheckBox Name="UseQDMSCheckBox" IsChecked="{Binding AllowExternalDataSource}" Grid.Row="5" Grid.Column="1" Margin="70,0,0,0" />
+                    <CheckBox Name="UseQDMSCheckBox" IsChecked="{Binding Settings.AllowExternalDataSource}" Grid.Row="5" Grid.Column="1" Margin="70,0,0,0" />
 
                     <Label Content="Prevent Duplicate Data Import" 
                            Grid.Row="7" Grid.Column="0" Margin="0,5,0,0">
@@ -74,7 +73,7 @@
                             </TextBlock>
                         </Label.ToolTip>
                     </Label>
-                    <CheckBox Name="PreventDupesCheckBox" IsChecked="{Binding PreventDuplicateImports}" Grid.Row="7" Grid.Column="1" Margin="70,0,0,0" />
+                    <CheckBox Name="PreventDupesCheckBox" IsChecked="{Binding Settings.PreventDuplicateImports}" Grid.Row="7" Grid.Column="1" Margin="70,0,0,0" />
 
                     <Label Content="Always use all accounts for total capital" 
                            Grid.Row="8" Grid.Column="0" Margin="0,5,0,0">
@@ -86,18 +85,18 @@
                             </TextBlock>
                         </Label.ToolTip>
                     </Label>
-                    <CheckBox Name="UseAllAccountsForTotalCapitalCheckBox" IsChecked="{Binding TotalCapitalAlwaysUsesAllAccounts}" Grid.Row="8" Grid.Column="1" Margin="70,0,0,0" />
+                    <CheckBox Name="UseAllAccountsForTotalCapitalCheckBox" IsChecked="{Binding Settings.TotalCapitalAlwaysUsesAllAccounts}" Grid.Row="8" Grid.Column="1" Margin="70,0,0,0" />
 
                     <Label Content="Clear Data" Grid.Row="9" Grid.Column="0" Margin="0,5,0,0" />
-                    <Button Name="ClearDataBtn" Content="Clear Data" Grid.Row="9" Grid.Column="1" Margin="4" Click="ClearDataBtn_Click" />
+                    <Button Name="ClearDataBtn" Content="Clear Data" Grid.Row="9" Grid.Column="1" Margin="4" IsEnabled="True" Click="ClearDataBtn_Click" />
 
                     <Label Content="Log file location:" Grid.Row="6" Grid.Column="0" Margin="0,5,0,0" />
-                    <TextBox Name="LogFilePathTextBox" Text="{Binding LogLocation}"
+                    <TextBox Name="LogFilePathTextBox" Text="{Binding Settings.LogLocation}"
                              Grid.Row="6" Grid.Column="1" Margin="4" GotFocus="LogFilePathTextBox_GotFocus" />
 
                     <Label Content="Options Capital Usage Multiplier:" Grid.Row="4" Grid.Column="0" Margin="0,5,0,0"
                            ToolTip="Capital usage for options positions is calculated as the notional amount times this number." />
-                    <TextBox Name="OptionsMultiplierTextBox" Text="{Binding OptionsCapitalUsageMultiplier}"
+                    <TextBox Name="OptionsMultiplierTextBox" Text="{Binding Settings.OptionsCapitalUsageMultiplier}"
                              Grid.Row="4" Grid.Column="1" Margin="4" />
                 </Grid>
             </TabItem>
@@ -122,28 +121,28 @@
 
                     <CheckBox Grid.Row="0" ToolTip="It is recommended to leave this unchecked and use the QDMS scheduler to keep data up to date." 
                               Content="QDMS requests: allow external data download." Margin="5,0" Grid.ColumnSpan="2"
-                              IsChecked="{Binding QdmsAllowFreshData}"/>
+                              IsChecked="{Binding Settings.QdmsAllowFreshData}"/>
 
                     <Label Grid.Row="1" Grid.Column="0" Content="QDMS Host:" Margin="0,5,0,0" />
-                    <TextBox Grid.Row="1" Grid.Column="1" Margin="4" Text="{Binding QdmsHost}" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="4" Text="{Binding Settings.QdmsHost}" />
 
                     <Label Grid.Row="2" Grid.Column="0" Content="Realtime Data Sub Port:" Margin="0,5,0,0" />
-                    <TextBox Grid.Row="2" Grid.Column="1" Margin="4" Text="{Binding QdmsRealTimePublishPort}" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Margin="4" Text="{Binding Settings.QdmsRealTimePublishPort}" />
 
                     <Label Grid.Row="3" Grid.Column="0" Content="Realtime Data Req Port" Margin="0,5,0,0" />
-                    <TextBox Grid.Row="3" Grid.Column="1" Margin="4" Text="{Binding QdmsRealTimeRequestPort}" />
+                    <TextBox Grid.Row="3" Grid.Column="1" Margin="4" Text="{Binding Settings.QdmsRealTimeRequestPort}" />
 
                     <Label Grid.Row="4" Grid.Column="0" Content="Historical Data Port:" Margin="0,5,0,0" />
-                    <TextBox Grid.Row="4" Grid.Column="1" Margin="4" Text="{Binding QdmsHistoricalDataPort}" />
+                    <TextBox Grid.Row="4" Grid.Column="1" Margin="4" Text="{Binding Settings.QdmsHistoricalDataPort}" />
 
                     <Label Grid.Row="5" Grid.Column="0" Content="Instrument Http Port:" Margin="0,5,0,0" />
-                    <TextBox Grid.Row="5" Grid.Column="1" Margin="4" Text="{Binding QdmsHttpPort}" />
+                    <TextBox Grid.Row="5" Grid.Column="1" Margin="4" Text="{Binding Settings.QdmsHttpPort}" />
 
                     <Label Grid.Row="6" Grid.Column="0" Content="Use SSL:" Margin="0,5,0,0" />
-                    <CheckBox Grid.Row="6" Grid.Column="1" Margin="4" IsChecked="{Binding QdmsUseSsl}" />
+                    <CheckBox Grid.Row="6" Grid.Column="1" Margin="4" IsChecked="{Binding Settings.QdmsUseSsl}" />
 
                     <Label Grid.Row="7" Grid.Column="0" Content="API Key:" Margin="0,5,0,0" />
-                    <TextBox Grid.Row="7" Grid.Column="1" Margin="4" Text="{Binding QdmsApiKey}" />
+                    <TextBox Grid.Row="7" Grid.Column="1" Margin="4" Text="{Binding Settings.QdmsApiKey}" />
 
                     <Label Grid.Column="0" Grid.Row="8" Content="Default data source by instrument type:" Margin="0,10,0,0" Grid.ColumnSpan="2"/>
                     <DataGrid Name="DefaultSourcesGrid" 
@@ -177,86 +176,12 @@
             <TabItem Header="DB">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="35"/>
+
                         <RowDefinition Height="60*"/>
                     </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <RadioButton Name="MySQLRadioBtn" 
-                                     Checked="DbRadioBtnCheckChange"
-                                     IsChecked="{Binding MySqlSelected}"  Content="MySQL" Margin="10,0,0,0" />
-                        <RadioButton Name="SqlServerRadioBtn" 
-                                     Checked="DbRadioBtnCheckChange"
-                                     IsChecked="{Binding SqlServerSelected}" Content="SQL Server" Margin="10,0,0,0"/>
-                        <RadioButton Visibility="Hidden" 
-                                    Name="SqliteRadioBtn" 
-                                     Checked="DbRadioBtnCheckChange"
-                                     IsChecked="{Binding SqliteSelected}" Content="SQLite" Margin="10,0,0,0"/>
-                    </StackPanel>
 
                     <TabControl Grid.Row="1" Name="DbSettingsTabCtrl">
-                        <TabItem Header="MySQL">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="25*"/>
-                                    <ColumnDefinition Width="50*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="50"/>
-                                    <RowDefinition Height="50"/>
-                                    <RowDefinition Height="50"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <Label Grid.Row="0" Content="Host:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="118" Grid.ColumnSpan="2"/>
-                                <TextBox Name="MySqlHostTextBox" 
-                                         Text="{Binding MySqlHost}"
-                                         HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" 
-                                         TextWrapping="Wrap" VerticalAlignment="Top" Width="179" Grid.Column="1"/>
-                                <Label Grid.Row="1" Content="Username:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="118" Grid.ColumnSpan="2"/>
-                                <TextBox Grid.Row="1" 
-                                         Text="{Binding MySqlUsername}"
-                                         Name="MySqlUsernameTextBox" 
-                                         HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" 
-                                         TextWrapping="Wrap" VerticalAlignment="Top" Width="179" Grid.Column="1"/>
-                                <Label Grid.Row="2" Content="Password:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="118" Grid.ColumnSpan="2"/>
-                                <PasswordBox Grid.Row="2" 
-                                             Name="MySqlPasswordBox" HorizontalAlignment="Left" 
-                                             Height="23" Margin="10,10,0,0" VerticalAlignment="Top" Width="179" Grid.Column="1"/>
-
-                            </Grid>
-                        </TabItem>
-                        <TabItem Header="MSSQL">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <Label Grid.Row="0" Content="Authentication:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="118"/>
-                                <RadioButton Name="SqlServerAuthenticationWindowsRadioBtn" 
-                                             IsChecked="{Binding SqlServerUseWindowsAuthentication}"
-                                             Content="Windows" HorizontalAlignment="Left" Margin="10,10,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-                                <RadioButton Name="SqlServerAuthenticationServerRadioBtn" 
-                                             IsChecked="{Binding SqlServerUseWindowsAuthentication, Converter={StaticResource InvertBooleanConverter}}"
-                                             Content="SQL Server" HorizontalAlignment="Left" Margin="108,10,0,0" Grid.Row="1" VerticalAlignment="Top"/>
-
-                                <Label Grid.Row="2" Content="Host:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="118"/>
-                                <TextBox Grid.Row="3" Name="SqlServerHost" 
-                                         Text="{Binding SqlServerHost}"
-                                         HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="179"/>
-                                <Label Grid.Row="4" Content="Username:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="118"/>
-                                <TextBox Name="SqlServerUsername" 
-                                         Text="{Binding SqlServerUsername}"
-                                         IsEnabled="{Binding ElementName=SqlServerAuthenticationServerRadioBtn,Path=IsChecked}" Grid.Row="5" HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="179"/>
-                                <Label Grid.Row="6" Content="Password:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="118"/>
-                                <PasswordBox Name="SqlServerPassword" IsEnabled="{Binding ElementName=SqlServerAuthenticationServerRadioBtn,Path=IsChecked}" Grid.Row="7" HorizontalAlignment="Left" Height="23" Margin="10,10,0,0" VerticalAlignment="Top" Width="179"/>
-
-                            </Grid>
-                        </TabItem>
+                        
                         <TabItem Header="SQLite">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -271,7 +196,8 @@
                                        HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="118"/>
                                 <PasswordBox Grid.Row="0" Name="SqlitePasswordBox" HorizontalAlignment="Left" Height="23" 
                                          Margin="10,10,0,0"
-                                         VerticalAlignment="Top" Width="179" Grid.Column="1"/>
+                                         VerticalAlignment="Top" Width="179" Grid.Column="1"
+                                         IsEnabled="False"   />
                             </Grid>
                         </TabItem>
                     </TabControl>

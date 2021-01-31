@@ -6,7 +6,7 @@
                       ResizeMode="NoResize"
                       WindowStyle="None"
                       WindowStartupLocation="CenterScreen"
-                      TitlebarHeight="0">
+                      TitleBarHeight="0">
     <Grid Background="#41B1E1">
         <Grid.RowDefinitions>
             <RowDefinition Height="235"/>

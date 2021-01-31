@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -38,12 +39,26 @@ namespace EntityModel
             return Name;
         }
 
+        public ICollection<Trade> Trades { get; set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Tag tag &&
+                   _id == tag._id &&
+                   _name == tag._name;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(_id, _name);
         }
     }
 }

@@ -8,7 +8,7 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         BorderBrush="Black"
         BorderThickness="1"
-        TitlebarHeight="32"
+        TitleBarHeight="32"
         Icon="../Resources/icon.ico"
         FontFamily="Segoe UI Semibold"
         Title="Execution Report" Height="800" Width="1200"
@@ -42,11 +42,9 @@
                     <RadioButton Content="Use Sessions or Per-order Time" IsChecked="{Binding UseSessionsTime}" />
                     <RadioButton Content="Use Fixed Reference Time:" Name="UseFixedTimeRadioBtn" 
                                  IsChecked="{Binding UseSessionsTime, Converter={StaticResource InvertBooleanConverter}}" />
-                    <xctk:TimePicker Name="FixedTimePicker" 
-                                     Margin="10,5,10,0" 
-                                     Value="{Binding ReferenceTime}"
-                                     Format="Custom"
-                                     FormatString="HH:mm:ss"
+                    <controls:TimePicker Name="FixedTimePicker"
+                                         Margin="10,5,10,0"
+                                         SelectedDateTime="{Binding ReferenceTime}"
                                      IsEnabled="{Binding ElementName=UseFixedTimeRadioBtn,Path=IsChecked}" />
                 </StackPanel>
 
@@ -63,7 +61,7 @@
                 </StackPanel>
 
                 <Button Grid.Row="2" Grid.Column="1" 
-                            Style="{StaticResource AccentedSquareButtonStyle}" 
+                            Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}" 
                             Click="GenerateExecutionReportBtn_Click"
                             Content="Generate Report"
                             VerticalAlignment="Top"

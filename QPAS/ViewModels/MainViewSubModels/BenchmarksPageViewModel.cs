@@ -6,13 +6,12 @@
 
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
+using ReactiveUI;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data.Entity;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
-using ReactiveUI;
 
 namespace QPAS
 {
@@ -22,9 +21,10 @@ namespace QPAS
 
         public CollectionViewSource BenchmarksSource { get; set; }
 
+        private readonly IContextFactory _contextFactory;
         internal IDataSourcer Datasourcer;
+        private readonly DataContainer _data;
         private readonly IMainViewModel _mainVm;
-        internal IDBContext Context;
 
         public Benchmark SelectedBenchmark { get; set; }
 
@@ -42,18 +42,18 @@ namespace QPAS
             set => this.RaiseAndSetIfChanged(ref _isExternalClientConnected, value);
         }
 
-        public BenchmarksPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer, IMainViewModel mainVm)
+        public BenchmarksPageViewModel(IContextFactory contextFactory, IDialogCoordinator dialogService, IDataSourcer datasourcer, DataContainer data, IMainViewModel mainVm)
             : base(dialogService)
         {
-            Context = context;
+            _contextFactory = contextFactory;
             Datasourcer = datasourcer;
+            _data = data;
             _mainVm = mainVm;
 
             ExternalInstruments = new ObservableCollection<KeyValuePair<string, int?>>();
 
             BenchmarksSource = new CollectionViewSource();
-            BenchmarksSource.Source = Context.Benchmarks.Local;
-            Context.Tags.Load();
+            BenchmarksSource.Source = data.Benchmarks;
 
             CreateCommands();
         }
@@ -66,8 +66,6 @@ namespace QPAS
 
         public override async Task Refresh()
         {
-            Context.Benchmarks.Include(x => x.Components).Load();
-
             await PopulateQDMSInstruments().ConfigureAwait(true);
 
             IsExternalClientConnected = Datasourcer.ExternalDataSource != null && Datasourcer.ExternalDataSource.Connected;
@@ -92,8 +90,11 @@ namespace QPAS
         {
             if (component == null) return;
 
-            Context.BenchmarkComponents.Remove(component);
-            await Context.SaveChangesAsync().ConfigureAwait(true);
+            using (var dbContext = _contextFactory.Get())
+            {
+                dbContext.BenchmarkComponents.Remove(component);
+                await dbContext.SaveChangesAsync().ConfigureAwait(true);
+            }
         }
 
         private async Task DeleteBench(Benchmark benchmark)
@@ -105,10 +106,14 @@ namespace QPAS
                 string.Format("Are you sure you want to delete {0}?", benchmark.Name),
                 MessageDialogStyle.AffirmativeAndNegative);
 
-            if (result == MessageDialogResult.Affirmative)
+            if (result != MessageDialogResult.Affirmative) return;
+
+
+            using (var dbContext = _contextFactory.Get())
             {
-                Context.Benchmarks.Remove(benchmark);
-                await Context.SaveChangesAsync().ConfigureAwait(true);
+                dbContext.Benchmarks.Remove(benchmark);
+                await dbContext.SaveChangesAsync().ConfigureAwait(true);
+                _data.Benchmarks.Remove(benchmark);
             }
         }
     }

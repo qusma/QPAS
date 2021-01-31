@@ -4,17 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Data;
-using System.Windows.Input;
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
 using ReactiveUI;
+using System.Collections;
+using System.ComponentModel;
+using System.Threading.Tasks;
+using System.Windows.Data;
+using System.Windows.Input;
 
 namespace QPAS
 {
@@ -22,22 +19,23 @@ namespace QPAS
     {
         public CollectionViewSource FXTransactions { get; set; }
 
-        internal IDBContext Context;
+        private readonly IContextFactory _contextFactory;
         private readonly IMainViewModel _mainVm;
-        internal ITradesRepository TradesRepository;
 
         public ICommand Delete { get; set; }
+        public TradesRepository TradesRepository { get; }
 
-        public FXTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogCoordinator dialogService, IMainViewModel mainVm)
+        public FXTransactionsPageViewModel(IContextFactory contextFactory, IDataSourcer datasourcer, IDialogCoordinator dialogService, IAppSettings settings, DataContainer data, IMainViewModel mainVm)
             : base(dialogService)
         {
-            Context = context;
+            _contextFactory = contextFactory;
             _mainVm = mainVm;
-            TradesRepository = mainVm.TradesRepository;
 
             FXTransactions = new CollectionViewSource();
-            FXTransactions.Source = Context.FXTransactions.Local;
+            FXTransactions.Source = data.FXTransactions;
             FXTransactions.View.SortDescriptions.Add(new SortDescription("DateTime", ListSortDirection.Descending));
+
+            TradesRepository = new TradesRepository(contextFactory, datasourcer, settings);
 
             CreateCommands();
         }
@@ -56,7 +54,12 @@ namespace QPAS
                 string.Format("Are you sure you want to delete {0} FX transaction(s)?", fxts.Count),
                 MessageDialogStyle.AffirmativeAndNegative);
 
-            if (res == MessageDialogResult.Affirmative)
+            if (res != MessageDialogResult.Affirmative)
+            {
+                return;
+            }
+
+            using (var dbContext = _contextFactory.Get())
             {
                 foreach (FXTransaction fxt in fxts)
                 {
@@ -64,17 +67,15 @@ namespace QPAS
                     {
                         await TradesRepository.RemoveFXTransaction(fxt.Trade, fxt).ConfigureAwait(true);
                     }
-                    Context.FXTransactions.Remove(fxt);
+                    dbContext.FXTransactions.Remove(fxt);
                 }
-                Context.SaveChanges();
+                dbContext.SaveChanges();
             }
         }
 
         public override async Task Refresh()
         {
-            await Context.FXTransactions.Include(x => x.FXCurrency).OrderBy(x => x.DateTime).LoadAsync().ConfigureAwait(true);
 
-            FXTransactions.View.Refresh();
         }
     }
 }

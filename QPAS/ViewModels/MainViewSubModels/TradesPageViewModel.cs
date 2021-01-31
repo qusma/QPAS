@@ -4,19 +4,19 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
-using System.Collections;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Data.Entity;
-using System.Linq;
-using System.Windows.Data;
-using System.Windows.Input;
+using NLog;
 using ReactiveUI;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Data;
+using System.Windows.Input;
 
 namespace QPAS
 {
@@ -26,11 +26,14 @@ namespace QPAS
 
         public ObservableCollection<Strategy> Strategies { get; set; }
 
-        public MainViewModel Parent { get; set; }
+        public IMainViewModel Parent { get; set; }
 
+        private readonly IContextFactory _contextFactory;
         internal IDataSourcer Datasourcer;
-        internal IDBContext Context;
-        internal ITradesRepository TradesRepository;
+        private readonly DataContainer _data;
+        private Logger _logger = LogManager.GetCurrentClassLogger();
+
+        public TradesRepository TradesRepository { get; }
 
         public ICommand Delete { get; private set; }
         public ICommand Reset { get; private set; }
@@ -38,111 +41,119 @@ namespace QPAS
         public ICommand OpenTrades { get; private set; }
         public ICommand CloseTrades { get; private set; }
         public ICommand RunScripts { get; private set; }
+        public ReactiveCommand<string, Trade> Create { get; private set; }
 
-
-        public TradesPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer, MainViewModel parent)
+        public TradesPageViewModel(IContextFactory contextFactory, IDialogCoordinator dialogService, IDataSourcer datasourcer, IAppSettings settings, DataContainer data, IMainViewModel parent)
             : base(dialogService)
         {
-            Context = context;
             Parent = parent;
+            _contextFactory = contextFactory;
             Datasourcer = datasourcer;
-            TradesRepository = parent.TradesRepository;
+            _data = data;
+            TradesRepository = new TradesRepository(contextFactory, datasourcer, settings);
 
             TradesSource = new CollectionViewSource();
-            TradesSource.Source = Context.Trades.Local;
+            TradesSource.Source = _data.Trades;
             TradesSource.View.SortDescriptions.Add(new SortDescription("DateOpened", ListSortDirection.Descending));
 
-            Strategies = new ObservableCollection<Strategy>();
+            Strategies = data.Strategies;
 
             CreateCommands();
         }
 
         private void CreateCommands()
         {
-            Delete = new RelayCommand<IList>(DeleteTrades);
+            Delete = new RelayCommand<IList>(async x => await DeleteTrades(x));
             Reset = ReactiveCommand.CreateFromTask<IList>(async x => await ResetTrades(x).ConfigureAwait(true));
             UpdateStats = ReactiveCommand.CreateFromTask<IList>(async x => await UpdateTradeStats(x).ConfigureAwait(true));
-            OpenTrades = new RelayCommand<IList>(Open);
+            OpenTrades = ReactiveCommand.CreateFromTask<IList>(async x => await Open(x).ConfigureAwait(true));
             CloseTrades = ReactiveCommand.CreateFromTask<IList>(async x => await Close(x).ConfigureAwait(true));
             RunScripts = ReactiveCommand.CreateFromTask<IList>(async x => await RunUserScripts(x).ConfigureAwait(true));
+            Create = ReactiveCommand.CreateFromTask<string, Trade>(async x => await CreateTrade(x).ConfigureAwait(true));
+        }
+
+        public async Task<Trade> CreateTrade(string name)
+        {
+            //only add a trade if there's a name in the box
+            if (String.IsNullOrEmpty(name)) return null;
+
+            var newTrade = new Trade { Name = name, Open = true };
+            await TradesRepository.Add(newTrade).ConfigureAwait(true);
+            _data.Trades.Add(newTrade);
+            return newTrade;
+        }
+
+        public async Task AddOrders(Trade trade, List<Order> orders)
+        {
+            await TradesRepository.AddOrders(trade, orders);
+        }
+
+        public async Task RemoveOrder(Trade trade, Order order)
+        {
+            await TradesRepository.RemoveOrder(trade, order);
+        }
+
+        /// <summary>
+        /// Opens/closes a trade
+        /// </summary>
+        public async Task ChangeOpenState(bool newOpenState, Trade trade)
+        {
+            if (newOpenState == false && !trade.IsClosable()) return;
+
+            using (var dbContext = _contextFactory.Get())
+            {
+                trade.Open = newOpenState;
+                await TradesRepository.UpdateStats(trade).ConfigureAwait(true);
+                await TradesRepository.UpdateTrade(trade).ConfigureAwait(true);
+            }
         }
 
         private async Task RunUserScripts(IList trades)
         {
             if (trades == null || trades.Count == 0) return;
-            await Parent.ScriptRunner.RunTradeScripts(
-                trades.Cast<Trade>().ToList(), 
-                await Context.Strategies.ToListAsync().ConfigureAwait(true), 
-                await Context.Tags.ToListAsync().ConfigureAwait(true), 
-                Context).ConfigureAwait(true);
 
-            foreach(Trade trade in trades)
+            var openTrades = trades.Cast<Trade>().Where(x => x.Open).ToList();
+
+            if (openTrades.Count == 0) return;
+
+            List<UserScript> scripts;
+            using (var dbContext = _contextFactory.Get())
             {
-                trade.TagStringUpdated();
+                scripts = dbContext.UserScripts.Where(x => x.Type == UserScriptType.TradeScript).ToList();
+            }
+
+            foreach (var script in scripts)
+            {
+                try
+                {
+                    await Parent.ScriptRunner.RunTradeScript(script, openTrades).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(LogLevel.Error, "User script {0} generated an exception: ", script.Name);
+                    _logger.Log(LogLevel.Error, ex);
+                    await DialogService.ShowMessageAsync(Parent, "Error", $"User script {script.Name} generated an exception: {ex.Message}. See log for more details.");
+                }
             }
         }
 
         public override async Task Refresh()
         {
-            await Context.Trades
-                .Include(x => x.Strategy)
-                .OrderByDescending(x => x.DateOpened)
-                .LoadAsync().ConfigureAwait(true);
-
-            //populate Strategies, used in combobox strategy selector
-            Strategies.Clear();
-            var strats = Context.Strategies.OrderBy(x => x.Name).ToList();
-            foreach (Strategy s in strats)
-            {
-                Strategies.Add(s);
-            }
-
-            TradesSource.View.Refresh();
         }
 
         private async Task Close(IList trades)
         {
-            if (trades == null || trades.Count == 0) return;
-
-            var closedTrades = new List<Trade>();
-            foreach(Trade trade in trades)
-            {
-                //Already closed or can't close -> skip it
-                if (!trade.Open) continue;
-                
-                //first load up the collections, needed for the IsClosable() check.
-                Context.Entry(trade).Collection(x => x.Orders).Load();
-                Context.Entry(trade).Collection(x => x.CashTransactions).Load();
-                Context.Entry(trade).Collection(x => x.FXTransactions).Load();
-
-                //this needs to be done after loading the orders
-                if (!trade.IsClosable()) continue;
-
-                trade.Open = false;
-                closedTrades.Add(trade);
-            }
-
-            //Update the stats of the trades we closed
-            await Task.Run(async () =>
-            {
-                foreach (Trade trade in closedTrades)
-                {
-                    //we can skip collection load since it's done a few lines up
-                    await TradesRepository.UpdateStats(trade, skipCollectionLoad: true).ConfigureAwait(false); 
-                }
-                await Context.SaveChangesAsync().ConfigureAwait(false);
-            }).ConfigureAwait(false);
+            await TradesRepository.CloseTrades(trades).ConfigureAwait(true);
         }
 
-        private void Open(IList trades)
+        private async Task Open(IList trades)
         {
-            if (trades == null || trades.Count == 0) return;
-
             foreach (Trade trade in trades)
             {
                 trade.Open = true;
             }
-            Context.SaveChanges();
+
+            await TradesRepository.UpdateTrade(trades: trades.Cast<Trade>());
         }
 
         private async Task UpdateTradeStats(IList trades)
@@ -153,7 +164,8 @@ namespace QPAS
             {
                 await TradesRepository.UpdateStats(t).ConfigureAwait(true);
             }
-            await Context.SaveChangesAsync().ConfigureAwait(true);
+
+            await TradesRepository.UpdateTrade(trades: trades.Cast<Trade>());
         }
 
         private async Task ResetTrades(IList trades)
@@ -172,10 +184,32 @@ namespace QPAS
             {
                 await TradesRepository.Reset(trade).ConfigureAwait(true);
             }
-            await Context.SaveChangesAsync().ConfigureAwait(true);
         }
 
-        private async void DeleteTrades(IList trades)
+        public async Task AddCashTransactionsToTrade(Trade trade, IEnumerable<CashTransaction> cashTransactions)
+        {
+            await TradesRepository.AddCashTransactions(trade, cashTransactions).ConfigureAwait(false);
+        }
+
+        public async Task RemoveCashTransactionsFromTrade(Trade trade, IEnumerable<CashTransaction> cashTransactions)
+        {
+            foreach (var ct in cashTransactions)
+            {
+                await TradesRepository.RemoveCashTransaction(trade, ct).ConfigureAwait(false);
+            }
+        }
+
+        public async Task AddFxTransactionToTrade(Trade trade, FXTransaction fxTransaction)
+        {
+            await TradesRepository.AddFXTransaction(trade, fxTransaction);
+        }
+
+        public async Task RemoveFxTransactionFromTrade(Trade trade, FXTransaction fxTransaction)
+        {
+            await TradesRepository.RemoveFXTransaction(trade, fxTransaction);
+        }
+
+        private async Task DeleteTrades(IList trades)
         {
             if (trades == null || trades.Count == 0) return;
 
@@ -188,12 +222,17 @@ namespace QPAS
 
             var selectedTrades = trades.Cast<Trade>().ToList();
 
-            //reset the trades
-            foreach (Trade trade in selectedTrades)
+            //delete the trades
+            using (var dbContext = _contextFactory.Get())
             {
-                Context.Trades.Remove(trade);
+                foreach (Trade trade in selectedTrades)
+                {
+                    _data.Trades.Remove(trade);
+                    dbContext.Trades.Remove(trade);
+                }
+                await dbContext.SaveChangesAsync().ConfigureAwait(true);
             }
-            await Context.SaveChangesAsync().ConfigureAwait(true);
         }
+
     }
 }

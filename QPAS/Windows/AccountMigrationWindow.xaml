@@ -42,8 +42,6 @@
 
         <TextBlock Grid.Column="0" Grid.Row="1" Text="Account ID:" Margin="5,15,5,5"  Height="20" />
         <TextBox Grid.Column="1" Grid.Row="1" Text="" Name="AccountIdTextBox" Margin="5,15,5,5" Height="20" />
-
-        <Button Content="Backup" Grid.Row="2" Grid.Column="0" Margin="5" Name="BackupBtn" Click="BackupBtn_OnClick" />
         <Button Content="Set Account" Grid.Row="2" Grid.Column="1" Margin="5" Name="NextBtn" Click="NextBtn_Click" />
     </Grid>
 </controls:MetroWindow>

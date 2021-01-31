@@ -4,16 +4,15 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Collections.ObjectModel;
 using EntityModel;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
 using MahApps.Metro.Controls.Dialogs;
 using ReactiveUI;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace QPAS
 {
@@ -22,12 +21,14 @@ namespace QPAS
         private List<AreaPoint> _equitySummaryPercentSeries;
         private List<AreaPoint> _equitySummaryPercentDrawdownSeries;
 
-        internal IDBContext Context;
         private List<AreaPoint> _totalEquitySeries;
         private List<AreaPoint> _totalEquityDrawdownSeries;
         private DataTable _stats;
         private Account _selectedAccount;
         private Currency _selectedCurrency;
+        private readonly IContextFactory _contextFactory;
+        private readonly IAppSettings _settings;
+        private readonly DataContainer _data;
 
         public List<AreaPoint> EquitySummaryPercentSeries
         {
@@ -75,14 +76,18 @@ namespace QPAS
 
         public ObservableCollection<Account> Accounts { get; set; }
 
-        public PerformanceOverviewPageViewModel(IDBContext context, IDialogCoordinator dialogService)
+        public PerformanceOverviewPageViewModel(IContextFactory contextFactory, IDialogCoordinator dialogService, IAppSettings settings, DataContainer data)
             : base(dialogService)
         {
-            Context = context;
+            _contextFactory = contextFactory;
+            _settings = settings;
+            _data = data;
+
             Accounts = new ObservableCollection<Account>();
             Accounts.Add(new Account { ID = -1, AccountId = "All" });
+            Accounts.AddRange(_data.Accounts);
 
-            Currencies = new ObservableCollection<Currency>(context.Currencies.ToList());
+            Currencies = _data.Currencies;
             SelectedCurrency = Currencies.FirstOrDefault(x => x.Name == "USD");
 
             SelectedAccount = Accounts.First();
@@ -96,14 +101,8 @@ namespace QPAS
 
         public override async Task Refresh()
         {
-            Context.EquitySummaries.OrderBy(x => x.Date).Load();
-
-            //Add any accounts that exist in the db but are missing here
-            var tmpAccounts = await Context.Accounts.ToListAsync().ConfigureAwait(true);
-            var newAccounts = tmpAccounts.Except(Accounts, new LambdaEqualityComparer<Account>((x, y) => x.ID == y.ID));
-            Accounts.AddRange(newAccounts);
-
             if (SelectedAccount == null) return;
+
             await CreatePctReturnSeries().ConfigureAwait(true);
             await CreateTotalEquitySeries().ConfigureAwait(true);
             Stats = await GeneratePerformanceOverviewStats().ConfigureAwait(true);
@@ -144,7 +143,7 @@ namespace QPAS
             //adjust the % returns for deposits/withdrawals as they obviously don't affect performance
             Dictionary<DateTime, decimal> depositsWithdrawals = await GetDepositsWithdrawals().ConfigureAwait(true);
             Dictionary<DateTime, decimal> totalCapital = await GetTotalCapitalSeries().ConfigureAwait(true);
-            
+
             foreach (var es in totalCapital)
             {
                 decimal total = es.Value;
@@ -188,19 +187,19 @@ namespace QPAS
             Dictionary<DateTime, decimal> totalCapital;
             if (SelectedAccount.AccountId == "All")
             {
-                totalCapital = await Context
+                totalCapital = _data
                     .EquitySummaries
                     .GroupBy(x => x.Date)
                     .OrderBy(x => x.Key)
-                    .ToDictionaryAsync(x => x.Key, x => x.Sum(y => y.Total)).ConfigureAwait(true);
+                    .ToDictionary(x => x.Key, x => x.Sum(y => y.Total));
             }
             else
             {
-                totalCapital = await Context
+                totalCapital = _data
                     .EquitySummaries
                     .Where(x => x.AccountID == SelectedAccount.ID)
                     .OrderBy(x => x.Date)
-                    .ToDictionaryAsync(x => x.Date, x => x.Total).ConfigureAwait(true);
+                    .ToDictionary(x => x.Date, x => x.Total);
             }
 
             return await PerformCurrencyAdjustment(totalCapital).ConfigureAwait(true);
@@ -217,11 +216,11 @@ namespace QPAS
             {
                 //Grab fx data and move the timeseries to the start of the equity data
                 TimeSeries fxRates =
-                    Utils.TimeSeriesFromFXRates(await Context.FXRates.Where(x => x.FromCurrencyID == _selectedCurrency.ID).OrderBy(x => x.Date).ToListAsync().ConfigureAwait(true));
+                    Utils.TimeSeriesFromFXRates(_data.FXRates.Where(x => x.FromCurrencyID == _selectedCurrency.ID).OrderBy(x => x.Date).ToList());
 
                 Dictionary<DateTime, decimal> newSeries = new Dictionary<DateTime, decimal>();
 
-                foreach(var kvp in inputSeries)
+                foreach (var kvp in inputSeries)
                 {
                     //move fx rate series to the time of the current item from the input series
                     fxRates.ProgressTo(kvp.Key);
@@ -241,20 +240,20 @@ namespace QPAS
             Dictionary<DateTime, decimal> depositsWithdrawals;
             if (SelectedAccount.AccountId == "All")
             {
-                depositsWithdrawals = (await Context
+                depositsWithdrawals = (_data
                         .CashTransactions
                         .Where(x => x.Type == "Deposits & Withdrawals")
-                        .ToListAsync().ConfigureAwait(true))
+                        .ToList())
                     .GroupBy(x => x.TransactionDate)
                     .ToDictionary(x => x.Key, x => x.Sum(y => y.Amount * y.FXRateToBase));
             }
             else
             {
-                depositsWithdrawals = (await Context
+                depositsWithdrawals = (_data
                         .CashTransactions
                         .Where(x => x.AccountID == SelectedAccount.ID)
                         .Where(x => x.Type == "Deposits & Withdrawals")
-                        .ToListAsync().ConfigureAwait(true))
+                        .ToList())
                     .GroupBy(x => x.TransactionDate)
                     .ToDictionary(x => x.Key, x => x.Sum(y => y.Amount * y.FXRateToBase));
             }
@@ -285,17 +284,17 @@ namespace QPAS
 
             var allTimeEC = EcFromEquitySummaries(totalCapital, depositsWithdrawals);
 
-            var last30DayStats = PerformanceMeasurement.EquityCurveStats(last30DaysEC, 30);
-            var ytdStats = PerformanceMeasurement.EquityCurveStats(ytdEC, DateTime.Now.DayOfYear);
+            var last30DayStats = PerformanceMeasurement.EquityCurveStats(last30DaysEC, 30, _settings.AssumedInterestRate);
+            var ytdStats = PerformanceMeasurement.EquityCurveStats(ytdEC, DateTime.Now.DayOfYear, _settings.AssumedInterestRate);
             var allTimeStats = PerformanceMeasurement.EquityCurveStats(allTimeEC,
-                (int)(totalCapital.Last().Key - totalCapital.First().Key).TotalDays);
+                (int)(totalCapital.Last().Key - totalCapital.First().Key).TotalDays, _settings.AssumedInterestRate);
 
             foreach (var kvp in allTimeStats)
             {
                 var dr = statsDT.NewRow();
                 dr["Stat"] = kvp.Key;
 
-                if(last30DayStats.ContainsKey(kvp.Key))
+                if (last30DayStats.ContainsKey(kvp.Key))
                     dr["Last 30 Days"] = last30DayStats[kvp.Key];
 
                 if (ytdStats.ContainsKey(kvp.Key))
@@ -314,7 +313,7 @@ namespace QPAS
             var ec = new EquityCurve(100, summaries.First().Key);
             decimal lastTotal = summaries.First().Value;
             bool first = true;
-            foreach(var kvp in summaries)
+            foreach (var kvp in summaries)
             {
                 if (first)
                 {

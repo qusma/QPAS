@@ -4,8 +4,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EntityModel
 {
@@ -13,7 +13,6 @@ namespace EntityModel
     {
         public int ID { get; set; }
 
-        [Index(IsUnique=true)]
         [MaxLength(20)]
         public string AccountId { get; set; }
     }

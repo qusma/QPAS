@@ -4,12 +4,12 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using EntityModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using EntityModel;
 
 namespace QPAS
 {
@@ -59,13 +59,14 @@ namespace QPAS
 
         public bool ClosedTradesOnly { get; set; }
 
-        public TradeFilterSettings(IDBContext context)
+        public TradeFilterSettings(IList<EquitySummary> equitySummaries)
         {
+            var ordered = equitySummaries.OrderBy(x => x.Date);
             //set dates
-            var firstES = context.EquitySummaries.OrderBy(x => x.Date).FirstOrDefault();
+            var firstES = ordered.FirstOrDefault();
             From = firstES == null ? new DateTime(1, 1, 1) : firstES.Date;
 
-            var lastES = context.EquitySummaries.OrderByDescending(x => x.Date).FirstOrDefault();
+            var lastES = ordered.LastOrDefault();
             To = lastES == null ? DateTime.Now : lastES.Date;
         }
 

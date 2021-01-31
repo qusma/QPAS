@@ -1,18 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using EntityModel;
-using MahApps.Metro.Controls;
+﻿using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace QPAS
 {
@@ -21,10 +8,14 @@ namespace QPAS
     /// </summary>
     public partial class ScriptingWindow : MetroWindow
     {
-        public ScriptingWindow(IDBContext context)
+        public ScriptingViewModel ViewModel { get; set; }
+
+        public ScriptingWindow(IContextFactory contextFactory, IScriptRunner scriptRunner, DataContainer data)
         {
             InitializeComponent();
 
+            ViewModel = new ScriptingViewModel(contextFactory, scriptRunner, data, DialogCoordinator.Instance);
+            DataContext = ViewModel;
         }
     }
 }

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -47,12 +48,12 @@ namespace EntityModel
             set { _id = value; OnPropertyChanged(); }
         }
 
-        public int? StrategyID { get; set; }
+        public int? StrategyID { get; private set; }
 
         public virtual Strategy Strategy
         {
             get { return _strategy; }
-            set { _strategy = value; OnPropertyChanged(); }
+            set { _strategy = value; StrategyID = value?.ID; OnPropertyChanged(); }
         }
 
         [MaxLength(255)]
@@ -64,7 +65,6 @@ namespace EntityModel
             set { _open = value; OnPropertyChanged(); }
         }
 
-        [Index]
         public DateTime DateOpened
         {
             get { return _dateOpened; }
@@ -258,6 +258,14 @@ namespace EntityModel
         public ICollection<CashTransaction> CashTransactions { get; set; }
 
         public ICollection<FXTransaction> FXTransactions { get; set; }
+
+        public Trade()
+        {
+            Orders = new ObservableCollection<Order>();
+            CashTransactions = new ObservableCollection<CashTransaction>();
+            FXTransactions = new ObservableCollection<FXTransaction>();
+            Tags = new ObservableCollection<Tag>();
+        }
 
         public override string ToString()
         {

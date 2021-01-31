@@ -5,34 +5,34 @@
 // -----------------------------------------------------------------------
 
 using EntityModel;
+using MahApps.Metro.Controls.Dialogs;
 using OxyPlot;
 using OxyPlot.Wpf;
 using QDMS;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
-using MahApps.Metro.Controls.Dialogs;
-using ReactiveUI;
 using Instrument = EntityModel.Instrument;
 
 namespace QPAS
 {
     public sealed class InstrumentsPageViewModel : ViewModelBase
     {
-        internal IDBContext Context;
         internal IDataSourcer Datasourcer;
+        private readonly DataContainer _data;
         private readonly IMainViewModel _mainVm;
 
         private Instrument _selectedInstrument;
         private string _selectedStrategyName;
         private PlotModel _instrumentChartModel;
         private bool _isExternalClientConnected;
+        private readonly IContextFactory contextFactory;
 
         public CollectionViewSource InstrumentsSource { get; set; }
 
@@ -74,21 +74,23 @@ namespace QPAS
 
         public ICommand SaveChart { get; private set; }
 
-        public InstrumentsPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer, IMainViewModel mainVm)
+        public InstrumentsPageViewModel(IContextFactory contextFactory, IDialogCoordinator dialogService, IDataSourcer datasourcer, DataContainer data, IMainViewModel mainVm)
             : base(dialogService)
         {
-            Context = context;
             Datasourcer = datasourcer;
+            _data = data;
             _mainVm = mainVm;
             StrategyNames = new ObservableCollection<string>();
             ExternalInstruments = new ObservableCollection<KeyValuePair<string, int?>>();
 
             InstrumentsSource = new CollectionViewSource();
-            InstrumentsSource.Source = Context.Instruments.Local;
+            InstrumentsSource.Source = data.Instruments;
             InstrumentsSource.View.SortDescriptions.Add(new SortDescription("Symbol", ListSortDirection.Ascending));
 
             CreateCommands();
+            this.contextFactory = contextFactory;
         }
+
 
         private void CreateCommands()
         {
@@ -129,6 +131,18 @@ namespace QPAS
             try
             {
                 data = await Datasourcer.GetAllExternalData(SelectedInstrument).ConfigureAwait(true);
+
+                //we couldn't get external data, use internal instead
+                if (data.Count == 0)
+                {
+                    var firstOrder = _data.Orders.Where(x => x.InstrumentID == SelectedInstrument.ID).OrderBy(x => x.TradeDate).FirstOrDefault();
+                    var lastOrder = _data.Orders.Where(x => x.InstrumentID == SelectedInstrument.ID).OrderByDescending(x => x.TradeDate).FirstOrDefault();
+
+                    if (firstOrder != null && lastOrder != firstOrder)
+                    {
+                        data = Datasourcer.GetLocalData(SelectedInstrument, firstOrder.TradeDate, lastOrder.TradeDate);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -157,11 +171,11 @@ namespace QPAS
         private List<Tuple<DateTime, decimal, int>> GetGroupedOrders()
         {
             //grab the applicable orders dependong on the selected strategy and instrument
-            var orders = Context.Orders.Where(x => x.InstrumentID == SelectedInstrument.ID);
+            var orders = _data.Orders.Where(x => x.InstrumentID == SelectedInstrument.ID);
 
             if (SelectedStrategyName != "All")
             {
-                var strat = Context.Strategies.FirstOrDefault(x => x.Name == SelectedStrategyName);
+                var strat = _data.Strategies.FirstOrDefault(x => x.Name == SelectedStrategyName);
                 if (strat == null) return new List<Tuple<DateTime, decimal, int>>();
 
                 orders = orders.Where(x => x.Trade != null && x.Trade.StrategyID == strat.ID);
@@ -183,7 +197,7 @@ namespace QPAS
                 StrategyNames.Add("All");
             }
 
-            foreach (Strategy s in Context.Strategies)
+            foreach (Strategy s in _data.Strategies)
             {
                 if (!StrategyNames.Contains(s.Name))
                 {
@@ -209,7 +223,6 @@ namespace QPAS
 
         public override async Task Refresh()
         {
-            Context.Instruments.OrderBy(x => x.Symbol).Load();
             PopulateStrategyNames();
             await PopulateQDMSInstruments().ConfigureAwait(true);
 
@@ -217,8 +230,6 @@ namespace QPAS
             {
                 IsExternalClientConnected = Datasourcer.ExternalDataSource.Connected;
             }
-
-            InstrumentsSource.View.Refresh();
         }
     }
 }

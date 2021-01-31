@@ -4,12 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Media;
 using EntityModel;
 using QDMS;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Windows;
+using System.Windows.Media;
 
 namespace QPAS
 {
@@ -35,6 +37,32 @@ namespace QPAS
             }
         }
 
+        /// <summary>
+        /// Returns true if this is the first time running on this version.
+        /// </summary>
+        /// <returns></returns>
+        public static bool CheckAndSaveVersion()
+        {
+            var dirPath = AppDomain.CurrentDomain.BaseDirectory;
+            var filePath = Path.Combine(dirPath, "lastversion");
+            var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+
+            if (!File.Exists(filePath))
+            {
+                File.WriteAllText(filePath, currentVersion.ToString());
+                return true;
+            }
+
+            var contents = File.ReadAllText(filePath);
+            if (contents == currentVersion.ToString())
+            {
+                return false;
+            }
+
+            File.WriteAllText(filePath, currentVersion.ToString());
+            return true;
+        }
+
         public static TimeSeries TimeSeriesFromFXRates(IEnumerable<FXRate> rates)
         {
             var bars = new List<OHLCBar>();
@@ -58,7 +86,7 @@ namespace QPAS
             return new TimeSeries(bars);
         }
 
-        public static T GetDataFromClipboard<T>() where T: class
+        public static T GetDataFromClipboard<T>() where T : class
         {
             IDataObject dataObject = Clipboard.GetDataObject();
             if (dataObject != null)

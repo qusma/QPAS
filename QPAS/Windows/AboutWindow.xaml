@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         Title="About" Height="330" Width="572"
-        TitlebarHeight="32" Icon="../Resources/icon.ico"
+        TitleBarHeight="32" Icon="../Resources/icon.ico"
         BorderBrush="Black"
         BorderThickness="1"
         FontFamily="Segoe UI Semibold"

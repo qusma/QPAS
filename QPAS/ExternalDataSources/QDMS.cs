@@ -4,6 +4,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using NLog;
+using QDMS;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,8 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
-using NLog;
-using QDMS;
+using Instrument = QDMS.Instrument;
 using Timer = System.Timers.Timer;
 
 namespace QPAS.ExternalDataSources
@@ -36,14 +37,14 @@ namespace QPAS.ExternalDataSources
 
         private Timer _connectionTimer;
 
-        private bool _allowFreshData;
-
         /// <summary>
         /// Not all historical data arrivals are requested in here, so we keep track of the IDs
         /// Key: request ID
         /// Value: true if the request has arrived
         /// </summary>
         private readonly Dictionary<int, bool> _requestIDs;
+        private readonly IAppSettings _settings;
+        private readonly List<EntityModel.DatasourcePreference> _dataSourcePreferences;
 
         /// <summary>
         /// Key: request ID
@@ -61,17 +62,20 @@ namespace QPAS.ExternalDataSources
 
         public bool Connected => _client.Connected;
 
-        public QDMS()
+        public QDMS(IAppSettings settings, List<EntityModel.DatasourcePreference> dataSourcePreferences)
         {
-            _client = QDMSClientFactory.Get();
+            _client = QDMSClientFactory.Get(settings);
 
-            ConnectToDataServer();
 
-            _allowFreshData = Properties.Settings.Default.qdmsAllowFreshData;
 
             _connectionTimer = new Timer(2000);
             _connectionTimer.Elapsed += _connectionTimer_Elapsed;
-            _connectionTimer.Start();
+
+            if (settings.AllowExternalDataSource)
+            {
+                ConnectToDataServer();
+                _connectionTimer.Start();
+            }
 
             _requestIDs = new Dictionary<int, bool>();
             _arrivedData = new Dictionary<int, List<OHLCBar>>();
@@ -80,10 +84,21 @@ namespace QPAS.ExternalDataSources
             _storageInfo = new Dictionary<int, StoredDataInfo>();
 
             _client.HistoricalDataReceived += dataClient_HistoricalDataReceived;
-            _client.LocallyAvailableDataInfoReceived += DataClient_LocallyAvailableDataInfoReceived;
             _client.Error += _client_Error;
+            _client.PropertyChanged += _client_PropertyChanged;
+
+            _settings = settings;
+            _dataSourcePreferences = dataSourcePreferences;
 
             RefreshInstrumentsList();
+        }
+
+        private void _client_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Connected")
+            {
+                OnPropertyChanged("Connected");
+            }
         }
 
         void _client_Error(object sender, ErrorArgs e)
@@ -91,6 +106,7 @@ namespace QPAS.ExternalDataSources
             ConnectionStatus = string.Format("{0} | {1}",
                 _client.Connected ? "Connected" : "Disconnected",
                 e.ErrorMessage);
+            _logger.Error("QDMS client error: " + e.ErrorMessage);
         }
 
         public async Task<List<OHLCBar>> GetData(EntityModel.Instrument instrument, DateTime from, DateTime to, BarSize frequency = BarSize.OneDay)
@@ -99,16 +115,16 @@ namespace QPAS.ExternalDataSources
 
             await RefreshInstrumentsList().ConfigureAwait(true);
 
-            var qdmsInst = instrument.GetQDMSInstrument(_instrumentsList);
+            var qdmsInst = instrument.GetQDMSInstrument(_instrumentsList, _dataSourcePreferences);
             if (qdmsInst == null) //nothing like this in QDMS, just grab local data
             {
                 return null;
             }
-            StoredDataInfo dataInfo = TryGetStorageInfo(qdmsInst);
+            StoredDataInfo dataInfo = await TryGetStorageInfo(qdmsInst);
 
-            //Here we check if there's is absolutely no 
+            //Here we check if there's is absolutely no data available for us
             if ((dataInfo == null || dataInfo.LatestDate < from || dataInfo.EarliestDate > to) &&
-                !_allowFreshData)
+                !_settings.QdmsAllowFreshData)
             {
                 return null;
             }
@@ -124,21 +140,22 @@ namespace QPAS.ExternalDataSources
             await RefreshInstrumentsList().ConfigureAwait(true);
 
             //find instrument
-            var qdmsInst = instrument.GetQDMSInstrument(_instrumentsList);
+            var qdmsInst = instrument.GetQDMSInstrument(_instrumentsList, _dataSourcePreferences);
             if (qdmsInst == null) //nothing like this in QDMS, just grab local data
             {
+                _logger.Warn("No QDMS instrument found for " + instrument.ToString() + ". Using local data only.");
                 return new List<OHLCBar>();
             }
 
-            StoredDataInfo dataInfo = TryGetStorageInfo(qdmsInst);
+            StoredDataInfo dataInfo = await TryGetStorageInfo(qdmsInst);
             if (dataInfo == null)
             {
                 return new List<OHLCBar>();
             }
 
             return await GetData(
-                instrument, 
-                dataInfo.EarliestDate, 
+                instrument,
+                dataInfo.EarliestDate,
                 dataInfo.LatestDate,
                 frequency).ConfigureAwait(true);
         }
@@ -152,20 +169,26 @@ namespace QPAS.ExternalDataSources
             return RequestData(instrument, from, to);
         }
 
-        public decimal? GetLastPrice(EntityModel.Instrument instrument, out DateTime lastDate)
+        /// <summary>
+        /// Get the latest price we have available for an instrument
+        /// </summary>
+        /// <param name="instrument"></param>
+        /// <param name="lastDate"></param>
+        /// <returns>Last price and last date</returns>
+        public async Task<(decimal?, DateTime?)> GetLastPrice(EntityModel.Instrument instrument)
         {
-            lastDate = new DateTime(1, 1, 1);
+            var lastDate = new DateTime(1, 1, 1);
 
-            var qdmsInst = instrument.GetQDMSInstrument(_instrumentsList);
+            var qdmsInst = instrument.GetQDMSInstrument(_instrumentsList, _dataSourcePreferences);
             if (qdmsInst?.ID == null)
             {
-                return null;
+                return (null, null);
             }
 
-            StoredDataInfo dataInfo = TryGetStorageInfo(qdmsInst);
+            StoredDataInfo dataInfo = await TryGetStorageInfo(qdmsInst);
             if (dataInfo == null)
             {
-                return null;
+                return (null, null);
             }
 
             var lastAvailableDate = dataInfo.LatestDate;
@@ -177,7 +200,7 @@ namespace QPAS.ExternalDataSources
                 StartingDate = lastAvailableDate.AddDays(-1),
                 EndingDate = lastAvailableDate,
                 Frequency = BarSize.OneDay,
-                DataLocation = _allowFreshData ? DataLocation.Both : DataLocation.LocalOnly,
+                DataLocation = _settings.QdmsAllowFreshData ? DataLocation.Both : DataLocation.LocalOnly,
                 RTHOnly = true,
                 SaveDataToStorage = false
             };
@@ -197,13 +220,13 @@ namespace QPAS.ExternalDataSources
                         var data = _arrivedData[qdmsInst.ID.Value].Last();
                         _arrivedData.Remove(qdmsInst.ID.Value);
                         lastDate = data.DT;
-                        return data.Close;
+                        return (data.Close, lastDate);
                     }
                 }
                 i++;
             }
 
-            return null;
+            return (null, null);
         }
 
         public async Task<Dictionary<string, int>> GetInstrumentDict()
@@ -228,9 +251,9 @@ namespace QPAS.ExternalDataSources
         public async Task<List<InstrumentSession>> GetSessions(EntityModel.Instrument instrument)
         {
             await RefreshInstrumentsList().ConfigureAwait(true);
-            var qdmsInstrument = instrument.GetQDMSInstrument(_instrumentsList);
+            var qdmsInstrument = instrument.GetQDMSInstrument(_instrumentsList, _dataSourcePreferences);
 
-            if(qdmsInstrument?.Sessions == null) 
+            if (qdmsInstrument?.Sessions == null)
             {
                 _logger.Log(LogLevel.Info, string.Format("QDMS instrument not found for local instrument: {0}", instrument));
                 return new List<InstrumentSession>();
@@ -268,8 +291,8 @@ namespace QPAS.ExternalDataSources
                 catch (Exception ex)
                 {
                     ConnectionStatus = "Error connecting: " + ex.Message;
-                    if(Application.Current != null)
-                        Application.Current.Dispatcher.Invoke(() =>_logger.Log(LogLevel.Error, "Error connecting to QDMS: " + ex.Message));
+                    if (Application.Current != null)
+                        Application.Current.Dispatcher.Invoke(() => _logger.Log(LogLevel.Error, "Error connecting to QDMS: " + ex.Message));
                 }
             }
         }
@@ -285,7 +308,7 @@ namespace QPAS.ExternalDataSources
                 StartingDate = startTime.Date,
                 EndingDate = endTime.Date,
                 Frequency = frequency,
-                DataLocation = _allowFreshData ? DataLocation.Both : DataLocation.LocalOnly,
+                DataLocation = _settings.QdmsAllowFreshData ? DataLocation.Both : DataLocation.LocalOnly,
                 RTHOnly = true,
                 SaveDataToStorage = true
             };
@@ -351,27 +374,29 @@ namespace QPAS.ExternalDataSources
         /// </summary>
         /// <param name="instrument"></param>
         /// <returns></returns>
-        private StoredDataInfo TryGetStorageInfo(Instrument instrument)
+        private async Task<StoredDataInfo> TryGetStorageInfo(Instrument instrument)
         {
             if (instrument.ID == null) throw new Exception("Null instrument ID return wtf");
-            _client.GetLocallyAvailableDataInfo(instrument);
+            var response = await _client.GetLocallyAvailableDataInfo(instrument);
 
-            //wait until the storage info arrives
-            int i = 0;
-            while (i < 100)
+            if (!response.WasSuccessful)
             {
-                Thread.Sleep(20);
-                lock (_storageInfoLock)
-                {
-                    if (_storageInfo.ContainsKey(instrument.ID.Value))
-                    {
-                        return _storageInfo[instrument.ID.Value];
-                    }
-                }
-                i++;
+                _logger.Error("Error getting data storage info: " + string.Join(",", response.Errors));
+                return null;
             }
 
-            return null;
+            int id = instrument.ID.Value;
+
+            StoredDataInfo info = response.Result.FirstOrDefault(x => x.Frequency == BarSize.OneDay);
+            if (info == null) return null;
+
+
+            if (_storageInfo.ContainsKey(id))
+                _storageInfo[id] = info;
+            else
+                _storageInfo.Add(id, info);
+
+            return info;
         }
 
         private void DataClient_LocallyAvailableDataInfoReceived(object sender, LocallyAvailableDataInfoReceivedEventArgs e)

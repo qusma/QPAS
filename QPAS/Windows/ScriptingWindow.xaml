@@ -1,24 +1,29 @@
 ﻿<controls:MetroWindow x:Class="QPAS.ScriptingWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:qpas="clr-namespace:QPAS"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:qdms="clr-namespace:EntityModel;assembly=EntityModel"
         xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
-        xmlns:quickConverter="http://QuickConverter.CodePlex.com/"
-        Title="Scripts" Height="632" Width="1084"
+        xmlns:quickConverter="clr-namespace:QuickConverter;assembly=QuickConverter"
+        Title="Scripts" Height="1100" Width="1080"
         Icon="../Resources/icon.ico"
-        TitlebarHeight="32"
+        TitleBarHeight="32"
         BorderBrush="Black" BorderThickness="1" 
-                      FontFamily="Segoe UI Semibold"
-        RenderOptions.BitmapScalingMode="NearestNeighbor">
+        FontFamily="Segoe UI Semibold"
+        RenderOptions.BitmapScalingMode="NearestNeighbor"
+        xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+        Dialog:DialogParticipation.Register="{Binding}">
+    <controls:MetroWindow.Resources>
+        <qpas:BoolToStatusColorConverter x:Key="BoolToStatusColorConverter" />
+    </controls:MetroWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="200"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -31,11 +36,12 @@
         </StackPanel>
         
         <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Margin="5" Content="Compile" Command="{Binding Compile}"
-                    IsEnabled="{quickConverter:Binding '$P > 0', P={Binding Scripts.Count}}"/>
-            <Button Margin="5" Content="Save" Command="{Binding Compile}"
+            <Button Margin="5" Content="Test" Command="{Binding Test}" ToolTip="Runs the script without executing its changes, for testing purposes."
                     IsEnabled="{quickConverter:Binding '$P != null', P={Binding SelectedScript}}"/>
-            <Button Margin="5" Content="Help" /> <!--TODO connect to docs -->
+
+            <Button Margin="5" Content="Save" Command="{Binding Save}"
+                    IsEnabled="{quickConverter:Binding '$P != null', P={Binding SelectedScript}}"/>
+            <Button Margin="5" Content="Help" Command="{Binding LaunchHelp}" />
         </StackPanel>
 
         <ListBox Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" 
@@ -57,17 +63,37 @@
         </ListBox>
 
         <Border Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" BorderBrush="Black" BorderThickness="1">
-           
+            <qpas:MvvmTextEditor 
+            IsEnabled="{quickConverter:Binding '$P != null', P={Binding SelectedScript}}"
+            BorderBrush="Black"
+            BorderThickness="1"
+            Text="{Binding Code, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            x:Name="TextEditor"
+            ShowLineNumbers="True"
+            FontFamily="Consolas"
+            SyntaxHighlighting="C#"
+            FontSize="10pt">
+                <qpas:MvvmTextEditor.InputBindings>
+                    <KeyBinding Modifiers="Control"
+                    Key="S"
+                    Command="{Binding Save}" />
+                </qpas:MvvmTextEditor.InputBindings>
+            </qpas:MvvmTextEditor>
         </Border>
-        
-        <StackPanel Grid.Row="1" Grid.RowSpan="3" Grid.Column="2" Margin="5">
-            <TextBlock Text="Referenced Assemblies:" />
-            <ListBox ItemsSource="{Binding SelectedScript.ReferencedAssemblies}">
-                
-            </ListBox>
+
+        <StackPanel Grid.Row="1" Grid.RowSpan="2" Grid.Column="2" Margin="5">
+            <TextBlock FontWeight="Bold" Text="Referenced Assemblies:" />
+            <ListBox Name="ReferencesListBox" ItemsSource="{Binding SelectedScript.ReferencedAssemblies}" />
         </StackPanel>
 
-        <TextBox Text="{Binding CompileStatus, Mode=OneWay}" Grid.Row="3" Grid.Column="1" TextWrapping="Wrap"
-                 Background="#FFADB3"/>
+        <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal" Height="35" VerticalAlignment="Top">
+            <Button Margin="5" Content="Add" Command="{Binding AddReference}" />
+            <Button Margin="5" Content="Remove" 
+                    Command="{Binding RemoveReference}" 
+                    CommandParameter="{Binding ElementName=ReferencesListBox,Path=SelectedItem}" />
+        </StackPanel>
+
+        <TextBox Text="{Binding Status, Mode=OneWay}" Grid.Row="3" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                 Background="{Binding StatusOk, Converter={StaticResource BoolToStatusColorConverter}}"/>
     </Grid>
 </controls:MetroWindow>

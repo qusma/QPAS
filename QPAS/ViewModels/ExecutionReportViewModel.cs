@@ -4,18 +4,16 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using MahApps.Metro.Controls.Dialogs;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.Windows;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Media3D;
-using MahApps.Metro.Controls.Dialogs;
-using QPAS.DataSets;
-using ReactiveUI;
 
 namespace QPAS
 {
@@ -39,7 +37,7 @@ namespace QPAS
 
         public ICommand RunAnalysis { get; set; }
 
-        public ExecutionReportDS Data { get; set; }
+        public QPAS.DataSets.ExecutionReportDS Data { get; set; }
 
         public ObservableCollection<Point3D> TimeVsSlippagePoints { get; set; }
 
@@ -70,7 +68,7 @@ namespace QPAS
             Benchmark = ExecutionBenchmark.Close;
 
             Stats = new ObservableCollection<KeyValuePair<string, string>>();
-            Data = new ExecutionReportDS();
+            Data = new QPAS.DataSets.ExecutionReportDS();
             TimeVsSlippagePoints = new ObservableCollection<Point3D>();
 
             CreateCommands();
@@ -78,7 +76,7 @@ namespace QPAS
 
         private void CreateCommands()
         {
-            RunAnalysis = ReactiveCommand.CreateFromTask(async _ => await Run().ConfigureAwait(true)); 
+            RunAnalysis = ReactiveCommand.CreateFromTask(async _ => await Run().ConfigureAwait(true));
         }
 
         private async Task Run()
@@ -88,9 +86,9 @@ namespace QPAS
             {
                 //If the user has selected a fixed reference time, we use tha
                 //otherwise just pass null, which uses the QDMS instruments
-                TimeSpan? referenceTime = 
+                TimeSpan? referenceTime =
                     (UseSessionsTime || !ReferenceTime.HasValue)
-                        ? null 
+                        ? null
                         : (TimeSpan?)ReferenceTime.Value.TimeOfDay;
                 await StatsGenerator.GenerateExecutionStats(Benchmark, referenceTime).ConfigureAwait(true);
                 SetStats();
@@ -100,7 +98,7 @@ namespace QPAS
                 error = ex.Message;
             }
 
-            if(!string.IsNullOrEmpty(error))
+            if (!string.IsNullOrEmpty(error))
             {
                 await DialogService.ShowMessageAsync(this, "Error", error).ConfigureAwait(true);
             }
@@ -114,7 +112,7 @@ namespace QPAS
             Stats.Add(new KeyValuePair<string, string>("Average Slippage", stats.Average(x => x.Slippage).ToString("c4")));
             Stats.Add(new KeyValuePair<string, string>("Average Slippage (%)", stats.Average(x => x.SlippagePct).ToString("p4")));
 
-            Stats.Add(new KeyValuePair<string, string>("Average Commission (W)", 
+            Stats.Add(new KeyValuePair<string, string>("Average Commission (W)",
                 stats.WeightedAverage(x => x.Commission, x => Math.Abs(x.Value)).ToString("c4")));
             Stats.Add(new KeyValuePair<string, string>("Average Commission (%) (W)",
                 stats.WeightedAverage(x => x.CommissionPct, x => Math.Abs(x.Value)).ToString("p4")));
@@ -141,7 +139,7 @@ namespace QPAS
                 .GroupBy(x => x.Venue)
                 .OrderBy(x => x.Average(y => y.SlippagePct));
 
-            foreach(IGrouping<string,ExecutionStats> group in groupedByVenue)
+            foreach (IGrouping<string, ExecutionStats> group in groupedByVenue)
             {
                 var dr = Data.SlippageByVenue.NewSlippageByVenueRow();
                 dr.Venue = group.Key;

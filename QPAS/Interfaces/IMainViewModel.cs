@@ -1,8 +1,10 @@
-﻿using System.ComponentModel;
+﻿using OxyPlot;
+using QPAS.Scripting;
+using ReactiveUI;
+using System.ComponentModel;
+using System.Reactive;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using OxyPlot;
-using QPAS.Scripting;
 
 namespace QPAS
 {
@@ -12,7 +14,6 @@ namespace QPAS
         StatementHandler StatementHandler { get; set; }
         ScriptRunner ScriptRunner { get; }
         PlotModel InstrumentsChartPlotModel { get; set; }
-        ITradesRepository TradesRepository { get; }
         CashTransactionsPageViewModel CashTransactionsPageViewModel { get; set; }
         OpenPositionsPageViewModel OpenPositionsPageViewModel { get; set; }
         InstrumentsPageViewModel InstrumentsPageViewModel { get; set; }
@@ -34,7 +35,7 @@ namespace QPAS
         ICommand GenerateReportFromTags { get; set; }
         ICommand GenerateReportFromTrades { get; set; }
         ICommand LoadStatementFromWeb { get; set; }
-        ICommand LoadStatementFromFile { get; set; }
+        ReactiveCommand<string, Unit> LoadStatementFromFile { get; set; }
         Task RefreshCurrentPage();
         Task Refresh();
         event PropertyChangedEventHandler PropertyChanged;

@@ -8,18 +8,17 @@ namespace QPAS
 {
     public static class QDMSClientFactory
     {
-        public static QDMSClient.QDMSClient Get()
+        public static QDMSClient.QDMSClient Get(IAppSettings settings)
         {
             return new QDMSClient.QDMSClient(
-                "QPASClient", 
-                Properties.Settings.Default.qdmsHost,
-                Properties.Settings.Default.qdmsRealTimeRequestPort,
-                Properties.Settings.Default.qdmsRealTimePublishPort,
-                Properties.Settings.Default.qdmsHistoricalDataPort,
-                Properties.Settings.Default.qdmsHttpPort,
-                Properties.Settings.Default.qdmsApiKey,
-                useSsl: Properties.Settings.Default.qdmsUseSsl);
-            //TODO UI for this stuff
+                "QPASClient",
+                settings.QdmsHost,
+                settings.QdmsRealTimeRequestPort,
+                settings.QdmsRealTimePublishPort,
+                settings.QdmsHistoricalDataPort,
+                settings.QdmsHttpPort,
+                settings.QdmsApiKey,
+                useSsl: settings.QdmsUseSsl);
         }
     }
 }

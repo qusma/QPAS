@@ -25,7 +25,7 @@ namespace QPAS
             if (value == null) return "";
 
             var t = (TimeSpan)value;
-    
+
             return Utils.FormatTimespan(t);
         }
 

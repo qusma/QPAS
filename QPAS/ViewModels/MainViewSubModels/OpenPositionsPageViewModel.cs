@@ -5,23 +5,23 @@
 // -----------------------------------------------------------------------
 
 using EntityModel;
-using System;
-using System.Collections.ObjectModel;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Data;
 using MahApps.Metro.Controls.Dialogs;
+using Microsoft.EntityFrameworkCore;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using ReactiveUI;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace QPAS
 {
     public class OpenPositionsPageViewModel : ViewModelBase
     {
         private Account _selectedAccount;
+        private readonly IContextFactory contextFactory;
 
         public ObservableCollection<OpenPosition> OpenPositions { get; }
 
@@ -43,15 +43,16 @@ namespace QPAS
         /// </summary>
         public ObservableCollection<Tuple<string, decimal>> UnrealizedPnL { get; set; }
 
-        public OpenPositionsPageViewModel(IDBContext context, IDialogCoordinator dialogService)
+        public OpenPositionsPageViewModel(IContextFactory contextFactory, IDialogCoordinator dialogService)
             : base(dialogService)
         {
             UnrealizedPnL = new ObservableCollection<Tuple<string, decimal>>();
-
             OpenPositions = new ObservableCollection<OpenPosition>();
             FXPositions = new ObservableCollection<FXPosition>();
             Accounts = new ObservableCollection<Account>();
             Accounts.Add(new Account { ID = -1, AccountId = "All" });
+
+            this.contextFactory = contextFactory;
 
             CreatePlotModel();
 
@@ -69,7 +70,7 @@ namespace QPAS
                 StringFormat = "c0",
                 MajorGridlineStyle = LineStyle.Dash
             };
-            
+
             UnrealizedPnLChartModel.Axes.Add(linearAxis);
 
             var categoryAxis = new CategoryAxis
@@ -95,7 +96,7 @@ namespace QPAS
             };
 
             UnrealizedPnLChartModel.Series.Add(series);
-            
+
             UnrealizedPnLChartModel.InvalidatePlot(true);
         }
 
@@ -105,8 +106,8 @@ namespace QPAS
             //so we need to detach and reload everything
             OpenPositions.Clear();
             FXPositions.Clear();
-            
-            using (var context = new DBContext())
+
+            using (var context = contextFactory.Get())
             {
                 if (SelectedAccount.AccountId == "All")
                 {

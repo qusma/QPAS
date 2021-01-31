@@ -4,14 +4,16 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using EntityModel;
+using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
+using Microsoft.EntityFrameworkCore;
+using NLog;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Deployment.Application;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,14 +22,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using System.Xml.Serialization;
-using EntityModel;
-using MahApps.Metro.Controls;
-using MahApps.Metro.Controls.Dialogs;
-using NLog;
-using NLog.Targets;
-using QLNet;
-using QPAS.Scripting;
-using Path = System.IO.Path;
 using Tag = EntityModel.Tag;
 
 namespace QPAS
@@ -37,26 +31,28 @@ namespace QPAS
     /// </summary>
     public partial class MainWindow : MetroWindow, IDisposable
     {
-        internal IDBContext Context { get; set; }
-
         public IDataSourcer Datasourcer;
 
-        public TradesRepository TradesRepository;
         private Logger _logger = LogManager.GetCurrentClassLogger();
-        public MainViewModel ViewModel { get; set; }
+        public MainViewModel ViewModel
+        {
+            get { return viewModel; }
+            set
+            {
+                viewModel = value;
+            }
+        }
+        public DbContextFactory ContextFactory { get; private set; }
+        public IAppSettings Settings { get; }
 
         /// <summary>
         /// Ridiculous hack to end the editing of a cell without commiting changes.
         /// </summary>
         private bool _tradesGridIsCellEditEnding;
+        private MainViewModel viewModel;
 
         public void Dispose()
         {
-            if (Context != null)
-            {
-                Context.Dispose();
-                Context = null;
-            }
             if (Datasourcer != null)
             {
                 Datasourcer.Dispose();
@@ -64,104 +60,49 @@ namespace QPAS
             }
         }
 
-        public MainWindow()
+        public MainWindow(DataContainer data, IAppSettings settings)
         {
-            //make sure we have a database connection and stuff, otherwise show the dialog to set db settings
-            try
-            {
-                DBUtils.CheckDBConnection();
-            }
-            catch
-            {
-                App.Splash.LoadComplete();
-                var dbDetailsWindow = new DBPicker();
-                dbDetailsWindow.ShowDialog();
-            }
-
-            //initialize logging
-            InitializeLogging();
-
-            //Log unhandled exceptions
-            AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
-
-            //set the connection string
-            DBUtils.SetConnectionString();
-
-            //set EF configuration, necessary for MySql to work
-            DBUtils.SetDbConfiguration();
-
-            Context = new DBContext();
-
-            //create db if it doesn't exist
-            Context.Database.Initialize(false);
-
-            //check for any currencies, seed the db with initial values if nothing is found
-            if (!Context.Currencies.Any())
-            {
-                Seed.DoSeed();
-            }
-
-            //check for empty account fields
-            if(Context.EquitySummaries.Any(x => x.AccountID == null))
-            {
-                App.Splash.LoadComplete();
-                var accountMigrationWindow = new AccountMigrationWindow();
-                accountMigrationWindow.ShowDialog();
-            }
-
-            var qdmsSource = new ExternalDataSources.QDMS();
-            Datasourcer = new DataSourcer(Context, qdmsSource, Properties.Settings.Default.allowExternalDataSource);
-
-            TradesRepository = new TradesRepository(Context, Datasourcer, Properties.Settings.Default.optionsCapitalUsageMultiplier);
-
-            ViewModel = new MainViewModel(Context, Datasourcer, DialogCoordinator.Instance);
-
-            //Load user scripts
-            ScriptLoader.LoadUserScriptTypes();
-
             /////////////////////////////////////////////////////////
             InitializeComponent();
             /////////////////////////////////////////////////////////
 
-            DataContext = ViewModel;
+            Settings = settings;
+            ContextFactory = new DbContextFactory(() => new QpasDbContext());
+            var qdmsSource = new ExternalDataSources.QDMS(Settings, data.DatasourcePreferences.ToList());
+            Datasourcer = new DataSourcer(ContextFactory, qdmsSource, data, Settings.AllowExternalDataSource);
 
-            //Create the load statement menus using the loaded plugins
+
+            ViewModel = new MainViewModel(ContextFactory, Datasourcer, DialogCoordinator.Instance, Settings, data);
+            this.DataContext = ViewModel;
+
             PopulateStatementMenus();
-
             //Restore column ordering, widths, and sorting
             LoadDataGridLayouts();
 
             //A hack to force the heavy stuff to load, 
             //providing snappier navigation at the expense of longer startup time
 #if !DEBUG
-            ViewModel.TradesPageViewModel.Refresh();
             TradesGrid.Measure(new Size(500, 500));
 
-            ViewModel.OrdersPageViewModel.Refresh();
             OrdersGrid.Measure(new Size(500, 500));
 
-            ViewModel.CashTransactionsPageViewModel.Refresh();
-            CashTransactionsGrid.Measure(new Size(500, 500));
+            CashTransactionsGrid.Measure(new Size(500, 500)); //todo: remove this stuff?
 #endif
             //hiding the tab headers
             Style s = new Style();
             s.Setters.Add(new Setter(VisibilityProperty, Visibility.Collapsed));
             MainTabCtl.ItemContainerStyle = s;
 
-            //load the open positions page data
-            ViewModel.RefreshCurrentPage();
-
             //close the slash screen
-            App.Splash.LoadComplete();
+            //App.Splash.LoadComplete();
+
+            this.Show();
 
             ShowChangelog();
+
         }
 
-        private void AppDomain_CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            Logger logger = LogManager.GetCurrentClassLogger();
-            logger.Error((Exception)e.ExceptionObject, "Unhandled exception");
-        }
+
 
         /// <summary>
         /// After we have loaded the IStatementParser/IStatementDownloader plugins,
@@ -169,7 +110,7 @@ namespace QPAS
         /// </summary>
         private void PopulateStatementMenus()
         {
-            foreach(string name in ViewModel.StatementHandler.DownloaderNames)
+            foreach (string name in ViewModel.StatementHandler.DownloaderNames)
             {
                 var btn = new MenuItem();
                 btn.Header = name;
@@ -188,31 +129,11 @@ namespace QPAS
             }
         }
 
-        private void InitializeLogging()
-        {
-            var logLocation = Properties.Settings.Default.logLocation;
-            if (String.IsNullOrEmpty(logLocation))
-            {
-                LogManager.Configuration.LoggingRules.Remove(LogManager.Configuration.LoggingRules[0]);
-            }
-            else
-            {
-                var target = (FileTarget)LogManager.Configuration.FindTargetByName("default");
-                target.FileName = string.Format("{0}/{1}", logLocation, "qpaslog.log");
-                target.ArchiveFileName = string.Format("{0}/{1}", logLocation, @"${shortdate}.{##}.log");
-#if DEBUG
-                var rule = LogManager.Configuration.LoggingRules[0];
-                rule.EnableLoggingForLevel(LogLevel.Trace);
-#endif
-            }
-            LogManager.Configuration.Reload();
-            LogManager.ReconfigExistingLoggers();
-        }
+
 
         private void ShowChangelog()
         {
-            if (ApplicationDeployment.IsNetworkDeployed && 
-                ApplicationDeployment.CurrentDeployment.IsFirstRun)
+            if (Utils.CheckAndSaveVersion())
             {
                 var window = new ChangelogWindow();
                 window.Show();
@@ -246,7 +167,7 @@ namespace QPAS
 
             string pageName = (string)item.Tag;
             int pageIndex = pages.IndexOf(pageName);
-            if(pageIndex >= 0)
+            if (pageIndex >= 0)
                 MainTabCtl.SelectedIndex = pageIndex;
 
             var selectedTab = (TabItem)MainTabCtl.SelectedItem;
@@ -275,7 +196,7 @@ namespace QPAS
             //populate "Set Strategy" context submenu
             var tradesGridSetStrategySubMenu = (MenuItem)Resources["TradesGridSetStrategySubMenu"];
             tradesGridSetStrategySubMenu.Items.Clear();
-            foreach (Strategy s in Context.Strategies.OrderBy(x => x.Name))
+            foreach (Strategy s in ViewModel.Data.Strategies.OrderBy(x => x.Name))
             {
                 var menuItem = new MenuItem { Header = s.Name };
                 menuItem.Click += SetStrategySubMenuItem_Click;
@@ -285,7 +206,7 @@ namespace QPAS
             //populate "Set Tag" context submenu
             var tradesGridSetTagSubMenu = (MenuItem)Resources["TradesGridSetTagSubMenu"];
             tradesGridSetTagSubMenu.Items.Clear();
-            foreach (Tag s in Context.Tags.OrderBy(x => x.Name))
+            foreach (Tag s in ViewModel.Data.Tags.OrderBy(x => x.Name))
             {
                 var menuItem = new MenuItem { Header = s.Name };
                 menuItem.IsCheckable = true;
@@ -300,30 +221,15 @@ namespace QPAS
 
             var sourceBtn = (MenuItem)e.Source;
             string tagName = (string)sourceBtn.Header;
-            var tag = Context.Tags.FirstOrDefault(x => x.Name == tagName);
+            var tag = ViewModel.Data.Tags.First(x => x.Name == tagName);
 
             var selectedTrades = TradesGrid.SelectedItems.Cast<Trade>().ToList();
             bool add = sourceBtn.IsChecked;
 
-            await Task.Run(() => SetTags(selectedTrades, tag, add));
-        }
-
-        private void SetTags(IEnumerable<Trade> trades, Tag tag, bool add)
-        {
-            foreach (Trade t in trades)
+            foreach (var trade in selectedTrades)
             {
-                if (!add)
-                {
-                    t.Tags.Remove(tag);
-                }
-                else
-                {
-                    t.Tags.Add(tag);
-                }
-                t.TagStringUpdated();
+                await ViewModel.TradesPageViewModel.TradesRepository.SetTag(trade, tag, true);
             }
-
-            Context.SaveChanges();
         }
 
         private void TradesGridSetTagMenu_SubmenuOpened(object sender, RoutedEventArgs e)
@@ -350,20 +256,27 @@ namespace QPAS
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void SetStrategySubMenuItem_Click(object sender, RoutedEventArgs e)
+        private async void SetStrategySubMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (TradesGrid.SelectedItems == null) return;
 
             string strategyName = (string)((MenuItem)e.Source).Header;
-            var strategy = Context.Strategies.FirstOrDefault(x => x.Name == strategyName);
+            var strategy = ViewModel.Data.Strategies.FirstOrDefault(x => x.Name == strategyName);
             if (strategy == null) return;
 
-            foreach (Trade t in TradesGrid.SelectedItems)
+            using (var dbContext = ContextFactory.Get())
             {
-                t.Strategy = strategy;
-            }
+                var dbStrategy = await dbContext.Strategies.FirstAsync(x => x.ID == strategy.ID);
+                foreach (Trade t in TradesGrid.SelectedItems)
+                {
+                    var dbTrade = await dbContext.Trades.Include(x => x.Strategy).FirstAsync(x => x.ID == t.ID);
+                    dbTrade.Strategy = dbStrategy;
 
-            Context.SaveChanges();
+                    t.Strategy = strategy;
+                }
+
+                dbContext.SaveChanges();
+            }
         }
 
         /// <summary>
@@ -377,13 +290,40 @@ namespace QPAS
             if (e.EditAction == DataGridEditAction.Commit)
             {
                 var view = (ListCollectionView)CollectionViewSource.GetDefaultView(dataGrid.ItemsSource);
-                if (view.IsAddingNew || view.IsEditingItem)
+                if (view.IsAddingNew)
                 {
                     // This callback will be called after the CollectionView
                     // has pushed the changes back to the DataGrid.ItemSource.
                     Dispatcher.BeginInvoke(new DispatcherOperationCallback(param =>
                     {
-                        Context.SaveChanges();
+                        using (var dbContext = ContextFactory.Get())
+                        {
+                            dbContext.Entry(e.Row.Item).State = EntityState.Added;
+                            dbContext.SaveChanges();
+                        }
+
+                        return null;
+                    }), DispatcherPriority.Background, new object[] { null });
+                }
+                else if (view.IsEditingItem)
+                {
+                    // This callback will be called after the CollectionView
+                    // has pushed the changes back to the DataGrid.ItemSource.
+                    Dispatcher.BeginInvoke(new DispatcherOperationCallback(param =>
+                    {
+                        if (e.Row.Item is Trade)
+                        {
+                            //needs special handling
+                            ViewModel.TradesPageViewModel.TradesRepository.UpdateTrade((Trade)e.Row.Item).Wait();
+                        }
+                        else
+                        {
+                            using (var dbContext = ContextFactory.Get())
+                            {
+                                dbContext.Entry(e.Row.Item).State = EntityState.Modified;
+                                dbContext.SaveChanges();
+                            }
+                        }
                         return null;
                     }), DispatcherPriority.Background, new object[] { null });
                 }
@@ -393,7 +333,7 @@ namespace QPAS
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             SaveDataGridLayouts();
-            Properties.Settings.Default.Save();
+            SettingsUtils.SaveSettings(ViewModel.Settings);
             Dispose();
         }
 
@@ -406,8 +346,9 @@ namespace QPAS
             if (cell == null) return;
 
             if (TradesGrid.SelectedItems == null || TradesGrid.SelectedItems.Count != 1) return;
-            var tradeWindow = new TradeWindow((Trade)TradesGrid.SelectedItem, Context, Datasourcer);
-            tradeWindow.Show();
+            var tradeVm = new TradeViewModel((Trade)TradesGrid.SelectedItem, ContextFactory, Datasourcer, Settings);
+            var tradeWindow = new TradeWindow(tradeVm, ContextFactory, ViewModel.TradesPageViewModel.TradesRepository);
+            tradeWindow.ShowDialog();
         }
 
         private void AboutBtn_Click(object sender, RoutedEventArgs e)
@@ -418,12 +359,17 @@ namespace QPAS
 
         private void DocumentationBtn_OnClick(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start("http://qusma.com/qpasdocs");
+            var psi = new ProcessStartInfo
+            {
+                FileName = "https://github.com/qusma/QPAS/wiki",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
         }
 
         private void SettingsBtn_Click(object sender, RoutedEventArgs e)
         {
-            var window = new SettingsWindow(Context);
+            var window = new SettingsWindow(Settings, ContextFactory);
             window.Show();
         }
 
@@ -432,13 +378,13 @@ namespace QPAS
         /// </summary>
         private void TradesGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
         {
-            if ((string) e.Column.Header == "Tags")
+            if ((string)e.Column.Header == "Tags")
             {
                 //make sure the popup isn't too big, otherwise items can be hidden in small resolutions
                 TagPickerPopup.Height = Math.Min(600, TradesGrid.ActualHeight - 100);
 
                 //Fill it
-                TagPickerPopupListBox.ItemsSource = Context
+                TagPickerPopupListBox.ItemsSource = ViewModel.Data
                     .Tags
                     .OrderBy(x => x.Name)
                     .ToList()
@@ -486,7 +432,6 @@ namespace QPAS
                         }
                     }
 
-                    Context.SaveChanges();
                     trade.TagStringUpdated();
                 }
 
@@ -496,7 +441,7 @@ namespace QPAS
             {
                 var trade = (Trade)TradesGrid.SelectedItem;
 
-                bool originalOpen = (bool)Context.Entry(trade).OriginalValues["Open"];
+                bool originalOpen = trade.Open;
                 bool? newOpen = ((CheckBox)e.EditingElement).IsChecked;
 
                 if (newOpen.HasValue && newOpen.Value != originalOpen)
@@ -505,26 +450,19 @@ namespace QPAS
                     //so we do a stats update to make sure the numbers are right
                     //and set the proper closing time
 
-                    //first load up the collections, needed for the IsClosable() check.
-                    await Context.Entry(trade).Collection(x => x.Orders).LoadAsync().ConfigureAwait(true);
-                    await Context.Entry(trade).Collection(x => x.CashTransactions).LoadAsync().ConfigureAwait(true);
-                    await Context.Entry(trade).Collection(x => x.FXTransactions).LoadAsync().ConfigureAwait(true);
-
                     //if we're closing the trade, make sure it's closable first
                     if (newOpen.Value == false && !trade.IsClosable())
                     {
                         e.Cancel = true;
                         _tradesGridIsCellEditEnding = true;
-                        ((DataGrid) sender).CancelEdit(DataGridEditingUnit.Cell);
+                        ((DataGrid)sender).CancelEdit(DataGridEditingUnit.Cell);
                         _tradesGridIsCellEditEnding = false;
                         return;
                     }
 
-                    trade.Open = newOpen.Value;
                     await Task.Run(async () =>
                     {
-                        await TradesRepository.UpdateStats(trade, skipCollectionLoad: true).ConfigureAwait(true); //we can skip collection load since it's done a few lines up
-                        await Context.SaveChangesAsync().ConfigureAwait(true);
+                        await ViewModel.TradesPageViewModel.ChangeOpenState(newOpen.Value, trade);
                     }).ConfigureAwait(true);
                 }
             }
@@ -563,23 +501,19 @@ namespace QPAS
             //this is an even dirtier hack than the 3 above, because we have to give focus to the textbox
             //no matter what. And that closes the popup. So we re-open it.
             //The issue might be solvable by baking everything in the popup into a single usercontrol
-            OrdersGridTradePickerPopup.IsOpen = true; 
+            OrdersGridTradePickerPopup.IsOpen = true;
         }
 
         private async void TradePickerNewTradeTextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.Enter && !String.IsNullOrEmpty(TradePickerNewTradeTextBox.Text))
+            if (e.Key == Key.Enter && !String.IsNullOrEmpty(TradePickerNewTradeTextBox.Text))
             {
                 var selectedOrder = (Order)OrdersGrid.SelectedItem;
-                var newTrade = new Trade { Name = TradePickerNewTradeTextBox.Text, Open = true };
-                Context.Trades.Add(newTrade);
-                newTrade.Tags = new List<Tag>();
+                var newtrade = await ViewModel.TradesPageViewModel.CreateTrade(TradePickerNewTradeTextBox.Text);
+                newtrade.Open = true;
 
-                await Task.Run(async () =>
-                {
-                    await TradesRepository.AddOrder(newTrade, selectedOrder).ConfigureAwait(true);
-                    await TradesRepository.Save().ConfigureAwait(true);
-                }).ConfigureAwait(true);
+
+                await ViewModel.TradesPageViewModel.AddOrders(newtrade, new List<Order> { selectedOrder }).ConfigureAwait(true);
                 TradePickerNewTradeTextBox.Text = "";
                 OrdersGridTradePickerPopup.IsOpen = false;
                 OrdersGrid.CommitEdit();
@@ -588,7 +522,7 @@ namespace QPAS
 
         private void OrdersGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
         {
-            if((string)e.Column.Header == "Trade")
+            if ((string)e.Column.Header == "Trade")
             {
                 //make sure the popup isn't too big, otherwise items can be hidden in small resolutions
                 OrdersGridTradePickerPopup.Height = Math.Min(600, OrdersGrid.ActualHeight - 100);
@@ -602,7 +536,7 @@ namespace QPAS
                 }
 
                 //Fill it
-                TradePickerListBox.ItemsSource = Context
+                TradePickerListBox.ItemsSource = ViewModel.Data
                     .Trades
                     .Where(x => x.Open)
                     .OrderBy(x => x.Name)
@@ -649,7 +583,7 @@ namespace QPAS
             //populate "Set Trade" context submenu
             var ordersGridSetTradeSubMenu = (MenuItem)Resources["OrdersGridSetTradeSubMenu"];
             ordersGridSetTradeSubMenu.Items.Clear();
-            foreach (Trade t in Context.Trades.Where(x => x.Open).OrderBy(x => x.Name))
+            foreach (Trade t in ViewModel.Data.Trades.Where(x => x.Open).OrderBy(x => x.Name))
             {
                 var menuItem = new MenuItem { Header = t.Name, Tag = t.ID };
                 menuItem.Click += OrdersGridSetTradeSubMenuItem_Click;
@@ -666,16 +600,12 @@ namespace QPAS
         {
             if (OrdersGrid.SelectedItems == null) return;
             int tradeID = (int)((MenuItem)e.Source).Tag;
-            var trade = Context.Trades.FirstOrDefault(x => x.Open && x.ID == tradeID);
+            var trade = ViewModel.Data.Trades.FirstOrDefault(x => x.Open && x.ID == tradeID);
 
             if (trade == null) return;
 
             var selectedOrders = new List<Order>(OrdersGrid.SelectedItems.Cast<Order>());
-            await Task.Run(async () =>
-            {
-                await TradesRepository.AddOrders(trade, selectedOrders).ConfigureAwait(false);
-                await TradesRepository.Save().ConfigureAwait(false);
-            }).ConfigureAwait(true);
+            await ViewModel.TradesPageViewModel.AddOrders(trade, selectedOrders.ToList()).ConfigureAwait(true);
         }
 
         private async void OrdersGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
@@ -689,19 +619,14 @@ namespace QPAS
                     var items = TradePickerListBox.Items.Cast<CheckListItem<Trade>>().ToList();
                     var selectedTrade = items.FirstOrDefault(x => x.IsChecked);
 
-                    await Task.Run(async () =>
+                    if (selectedTrade == null)
                     {
-                        if (selectedTrade == null)
-                        {
-                            await TradesRepository.RemoveOrder(order.Trade, order).ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            await TradesRepository.AddOrder(selectedTrade.Item, order).ConfigureAwait(false);
-                        }
-
-                        Context.SaveChanges();
-                    }).ConfigureAwait(true);
+                        await ViewModel.TradesPageViewModel.RemoveOrder(order.Trade, order).ConfigureAwait(true);
+                    }
+                    else
+                    {
+                        await ViewModel.TradesPageViewModel.AddOrders(selectedTrade.Item, new List<Order> { order }).ConfigureAwait(true);
+                    }
                 }
                 OrdersGridTradePickerPopup.IsOpen = false;
             }
@@ -735,7 +660,7 @@ namespace QPAS
                 }
 
                 //Fill it
-                CtGridTradePickerListBox.ItemsSource = Context
+                CtGridTradePickerListBox.ItemsSource = ViewModel.Data
                     .Trades
                     .Where(x => x.Open)
                     .OrderBy(x => x.Name)
@@ -772,14 +697,14 @@ namespace QPAS
 
                     if (selectedTrade == null)
                     {
-                        await TradesRepository.RemoveCashTransaction(ct.Trade, ct).ConfigureAwait(true);
+                        await ViewModel.TradesPageViewModel.RemoveCashTransactionsFromTrade(ct.Trade, new List<CashTransaction> { ct }).ConfigureAwait(true);
                     }
                     else
                     {
-                        await TradesRepository.AddCashTransaction(selectedTrade.Item, ct).ConfigureAwait(true);
+                        await ViewModel.TradesPageViewModel.AddCashTransactionsToTrade(selectedTrade.Item, new List<CashTransaction> { ct }).ConfigureAwait(true);
                     }
                 }
-                await Context.SaveChangesAsync().ConfigureAwait(true);
+
                 CashTransactionsGridTradePickerPopup.IsOpen = false;
             }
         }
@@ -797,7 +722,7 @@ namespace QPAS
                 }
 
                 //Fill it
-                FxGridTradePickerListBox.ItemsSource = Context
+                FxGridTradePickerListBox.ItemsSource = ViewModel.Data
                     .Trades
                     .Where(x => x.Open)
                     .OrderBy(x => x.Name)
@@ -834,14 +759,14 @@ namespace QPAS
 
                     if (selectedTrade == null)
                     {
-                        await TradesRepository.RemoveFXTransaction(fxt.Trade, fxt).ConfigureAwait(true);
+                        await ViewModel.TradesPageViewModel.RemoveFxTransactionFromTrade(fxt.Trade, fxt).ConfigureAwait(true);
                     }
                     else
                     {
-                        await TradesRepository.AddFXTransaction(selectedTrade.Item, fxt).ConfigureAwait(true);
+                        await ViewModel.TradesPageViewModel.AddFxTransactionToTrade(selectedTrade.Item, fxt).ConfigureAwait(true);
                     }
                 }
-                await Context.SaveChangesAsync().ConfigureAwait(true);
+
                 FxTransactionsGridTradePickerPopup.IsOpen = false;
             }
         }
@@ -851,7 +776,7 @@ namespace QPAS
             //populate "Set Trade" context submenu
             var ctGridSetTradeSubMenu = (MenuItem)Resources["CashTransactionsGridSetTradeSubMenu"];
             ctGridSetTradeSubMenu.Items.Clear();
-            foreach (Trade t in Context.Trades.Where(x => x.Open).OrderBy(x => x.Name))
+            foreach (Trade t in ViewModel.Data.Trades.Where(x => x.Open).OrderBy(x => x.Name))
             {
                 var menuItem = new MenuItem { Header = t.Name, Tag = t.ID };
                 menuItem.Click += CashTransactionsGridSetTradeSubMenuItem_Click;
@@ -863,16 +788,11 @@ namespace QPAS
         {
             if (CashTransactionsGrid.SelectedItems == null) return;
             int tradeID = (int)((MenuItem)e.Source).Tag;
-            var trade = Context.Trades.FirstOrDefault(x => x.Open && x.ID == tradeID);
+            var trade = ViewModel.Data.Trades.FirstOrDefault(x => x.Open && x.ID == tradeID);
 
             if (trade == null) return;
 
-            foreach (CashTransaction ct in CashTransactionsGrid.SelectedItems)
-            {
-                await TradesRepository.AddCashTransaction(trade, ct).ConfigureAwait(true);
-            }
-
-            await TradesRepository.Save().ConfigureAwait(true);
+            await ViewModel.TradesPageViewModel.AddCashTransactionsToTrade(trade, CashTransactionsGrid.SelectedItems.Cast<CashTransaction>()).ConfigureAwait(true);
         }
 
         private void FxTransactionsGridContextMenu_OnOpened(object sender, RoutedEventArgs e)
@@ -880,7 +800,7 @@ namespace QPAS
             //populate "Set Trade" context submenu
             var fxtGridSetTradeSubMenu = (MenuItem)Resources["FxTransactionsGridSetTradeSubMenu"];
             fxtGridSetTradeSubMenu.Items.Clear();
-            foreach (Trade t in Context.Trades.Where(x => x.Open).OrderBy(x => x.Name))
+            foreach (Trade t in ViewModel.Data.Trades.Where(x => x.Open).OrderBy(x => x.Name))
             {
                 var menuItem = new MenuItem { Header = t.Name, Tag = t.ID };
                 menuItem.Click += FxTransactionsGridSetTradeSubMenuItem_Click;
@@ -892,85 +812,16 @@ namespace QPAS
         {
             if (FXTransactionsGrid.SelectedItems == null) return;
             int tradeID = (int)((MenuItem)e.Source).Tag;
-            var trade = Context.Trades.FirstOrDefault(x => x.Open && x.ID == tradeID);
+            var trade = ViewModel.Data.Trades.FirstOrDefault(x => x.Open && x.ID == tradeID);
 
             if (trade == null) return;
 
             foreach (FXTransaction fxt in FXTransactionsGrid.SelectedItems)
             {
-                await TradesRepository.AddFXTransaction(trade, fxt).ConfigureAwait(true);
-            }
-
-            await TradesRepository.Save().ConfigureAwait(true);
-        }
-
-        private void UpdateBtn_Click(object sender, RoutedEventArgs e)
-        {
-            UpdateCheckInfo info = null;
-
-            if (!ApplicationDeployment.IsNetworkDeployed) return;
-            ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
-
-            try
-            {
-                info = ad.CheckForDetailedUpdate();
-
-            }
-            catch (DeploymentDownloadException dde)
-            {
-                System.Windows.Forms.MessageBox.Show("The new version of the application cannot be downloaded at this time. \n\nPlease check your network connection, or try again later. Error: " + dde.Message);
-                return;
-            }
-            catch (InvalidDeploymentException ide)
-            {
-                System.Windows.Forms.MessageBox.Show("Cannot check for a new version of the application. The ClickOnce deployment is corrupt. Please redeploy the application and try again. Error: " + ide.Message);
-                return;
-            }
-            catch (InvalidOperationException ioe)
-            {
-                System.Windows.Forms.MessageBox.Show("This application cannot be updated. It is likely not a ClickOnce application. Error: " + ioe.Message);
-                return;
-            }
-
-            if (info.UpdateAvailable)
-            {
-                Boolean doUpdate = true;
-
-                if (!info.IsUpdateRequired)
-                {
-                    System.Windows.Forms.DialogResult dr = System.Windows.Forms.MessageBox.Show("An update is available. Would you like to update the application now?", "Update Available", System.Windows.Forms.MessageBoxButtons.OKCancel);
-                    if (System.Windows.Forms.DialogResult.OK != dr)
-                    {
-                        doUpdate = false;
-                    }
-                }
-                else
-                {
-                    // Display a message that the app MUST reboot. Display the minimum required version.
-                    System.Windows.Forms.MessageBox.Show("This application has detected a mandatory update from your current " +
-                                                         "version to version " + info.MinimumRequiredVersion.ToString() +
-                                                         ". The application will now install the update and restart.",
-                        "Update Available",
-                        System.Windows.Forms.MessageBoxButtons.OK,
-                        System.Windows.Forms.MessageBoxIcon.Information);
-                }
-
-                if (doUpdate)
-                {
-                    try
-                    {
-                        ad.Update();
-                        System.Windows.Forms.MessageBox.Show("The application has been upgraded, and will now restart.");
-                        System.Windows.Forms.Application.Restart();
-                    }
-                    catch (DeploymentDownloadException dde)
-                    {
-                        System.Windows.Forms.MessageBox.Show("Cannot install the latest version of the application. \n\nPlease check your network connection, or try again later. Error: " + dde);
-                        return;
-                    }
-                }
+                await ViewModel.TradesPageViewModel.AddFxTransactionToTrade(trade, fxt).ConfigureAwait(true);
             }
         }
+
 
         /// <summary>
         /// When the Space key is pressed, toggle checked status on selected items.
@@ -1005,18 +856,22 @@ namespace QPAS
             Clipboard.SetDataObject(dataObject, false);
         }
 
-        private void TradesGridContextMenuPasteTagsBtn_Click(object sender, RoutedEventArgs e)
+        private async void TradesGridContextMenuPasteTagsBtn_Click(object sender, RoutedEventArgs e)
         {
             if (TradesGrid.SelectedItems == null || TradesGrid.SelectedItems.Count == 0) return;
             List<int> tagIDs = Utils.GetDataFromClipboard<List<int>>();
-            List<Tag> tags = tagIDs.Select(id => Context.Tags.FirstOrDefault(x => x.ID == id)).Where(tag => tag != null).ToList();
+            List<Tag> tags = tagIDs.Select(id => ViewModel.Data.Tags.FirstOrDefault(x => x.ID == id)).Where(tag => tag != null).ToList();
 
-            foreach(Trade trade in TradesGrid.SelectedItems)
+            var trades = TradesGrid.SelectedItems.Cast<Trade>();
+
+            foreach (Trade trade in trades)
             {
-                TradesRepository.SetTags(tags, trade);
+                trade.Tags.Clear();
+                trade.Tags.AddRange(tags);
                 trade.TagStringUpdated();
             }
-            Context.SaveChanges();
+
+            await ViewModel.TradesPageViewModel.TradesRepository.UpdateTrade(trades: trades).ConfigureAwait(true);
         }
 
         private void ContextMenu_Opened(object sender, RoutedEventArgs e)
@@ -1031,23 +886,12 @@ namespace QPAS
 
         private void InstrumentsGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(e.OriginalSource == this.InstrumentsGrid)
+            if (e.OriginalSource == this.InstrumentsGrid)
             {
                 //the selectionchanged event is fired by the combobox when you scroll for some reason
                 //this check is needed to stop that from happening
                 ViewModel.InstrumentsPageViewModel.UpdateChartCommand.Execute(null);
             }
-        }
-
-        private void BackupBtn_Click(object sender, RoutedEventArgs e)
-        {
-            DbBackup.Backup("qpasEntities", "qpas");
-        }
-
-        private async void RestoreBtn_Click(object sender, RoutedEventArgs e)
-        {
-            DbBackup.Restore("qpasEntities", "qpas");
-            await ViewModel.RefreshCurrentPage().ConfigureAwait(true);
         }
 
         private async void OrdersContextMenuNewTradeTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -1059,23 +903,14 @@ namespace QPAS
                 var ordersContextMenuNewTradeTextBox = (TextBox)sender;
                 ordersGridContextMenu.IsOpen = false;
 
-                //only add a trade if there's a name in the box
                 if (String.IsNullOrEmpty(ordersContextMenuNewTradeTextBox.Text)) return;
 
                 List<Order> selectedOrders = OrdersGrid.SelectedItems.Cast<Order>().ToList();
 
-                var newTrade = new Trade { Name = ordersContextMenuNewTradeTextBox.Text, Open = true };
-                Context.Trades.Add(newTrade);
-                newTrade.Tags = new List<Tag>();
 
-                await Task.Run(async () =>
-                {
-                    foreach (Order o in selectedOrders)
-                    {
-                        await TradesRepository.AddOrder(newTrade, o).ConfigureAwait(false);
-                    }
-                    await TradesRepository.Save().ConfigureAwait(false);
-                }).ConfigureAwait(true);
+                var newTrade = await ViewModel.TradesPageViewModel.CreateTrade(ordersContextMenuNewTradeTextBox.Text);
+                if (newTrade != null)
+                    await ViewModel.TradesPageViewModel.AddOrders(newTrade, selectedOrders);
 
                 ordersContextMenuNewTradeTextBox.Text = "";
             }
@@ -1099,7 +934,7 @@ namespace QPAS
         private void SaveDataGridLayouts()
         {
             Dictionary<string, DataGrid> grids = GetDataGrids();
-            var settings = 
+            var settings =
                 grids
                 .Select(x => new SerializableKvp<string, string>(x.Key, x.Value.SerializeLayout()))
                 .ToList();
@@ -1108,32 +943,32 @@ namespace QPAS
             using (var sw = new StringWriter())
             {
                 serializer.Serialize(sw, settings);
-                Properties.Settings.Default.dataGridLayout = sw.ToString();
+                ViewModel.Settings.DataGridLayout = sw.ToString();
             }
         }
 
         private void LoadDataGridLayouts()
         {
-            if (String.IsNullOrEmpty(Properties.Settings.Default.dataGridLayout)) return;
+            if (String.IsNullOrEmpty(ViewModel.Settings.DataGridLayout)) return;
 
             try
             {
                 Dictionary<string, DataGrid> grids = GetDataGrids();
                 Dictionary<string, string> settings;
                 var serializer = new XmlSerializer(typeof(List<SerializableKvp<string, string>>));
-                using (var sw = new StringReader(Properties.Settings.Default.dataGridLayout))
+                using (var sw = new StringReader(ViewModel.Settings.DataGridLayout))
                 {
                     settings = ((List<SerializableKvp<string, string>>)serializer.Deserialize(sw)).ToDictionary(x => x.Key, x => x.Value);
                 }
 
-                foreach(var kvp in grids)
+                foreach (var kvp in grids)
                 {
                     if (!settings.ContainsKey(kvp.Key)) continue;
 
                     kvp.Value.DeserializeLayout(settings[kvp.Key]);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.Log(LogLevel.Error, "Could not load datagrid layout. Exception: " + ex);
             }
@@ -1158,18 +993,13 @@ namespace QPAS
         /// </summary>
         private void ScriptsBtn_Click(object sender, RoutedEventArgs e)
         {
-            var connString = ConfigurationManager.ConnectionStrings["qpasEntities"];
-            ProcessStartInfo start = new ProcessStartInfo 
-            {
-                Arguments = string.Format("\"{0}\" \"{1}\"", connString.ConnectionString, connString.ProviderName), 
-                FileName = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "UserScriptEditor.exe"),
-                UseShellExecute = true
-            };
+            var scriptingWindow = new ScriptingWindow(ContextFactory, ViewModel.ScriptRunner, ViewModel.Data);
+            scriptingWindow.Show();
+        }
 
-            Process.Start(start);
-            Application.Current.Shutdown();
-
-            //todo fix the damn calendar
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            await this.ShowMessageAsync("test", "test");
         }
     }
 }

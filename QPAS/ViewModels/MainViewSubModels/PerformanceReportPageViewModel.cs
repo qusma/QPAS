@@ -1,11 +1,12 @@
-﻿using EntityModel;
-using System.Collections.ObjectModel;
-using System.Data.Entity;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using DynamicData;
+using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
 using ReactiveUI;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace QPAS
 {
@@ -14,8 +15,9 @@ namespace QPAS
         private string _toggleStratsText;
         private string _toggleTagsText;
 
-        internal IDBContext Context;
-        internal MainViewModel Parent;
+        private readonly IContextFactory _contextFactory;
+        private readonly DataContainer _data;
+        internal IMainViewModel Parent;
         private string _toggleInstrumentsText;
         private IDataSourcer _datasourcer;
         private BacktestSource _backtestSource;
@@ -71,27 +73,94 @@ namespace QPAS
 
         public ICommand GenerateReport { get; set; }
 
-        public PerformanceReportPageViewModel(IDBContext context, IDialogCoordinator dialogService, MainViewModel parent, IDataSourcer datasourcer)
+        public PerformanceReportPageViewModel(IContextFactory contextFactory, IDialogCoordinator dialogService, IDataSourcer datasourcer, DataContainer data, IMainViewModel parent)
             : base(dialogService)
         {
-            Context = context;
+            _contextFactory = contextFactory;
             Parent = parent;
             Datasourcer = datasourcer;
-
+            _data = data;
             ReportSettings = new ReportSettings();
-            TradeFilterSettings = new TradeFilterSettings(Context);
+            TradeFilterSettings = new TradeFilterSettings(_data.EquitySummaries);
 
             ToggleTagsText = "Select All";
             ToggleStratsText = "Select All";
             ToggleInstrumentsText = "Deselect All";
 
-            Strategies = new ObservableCollection<CheckListItem<Strategy>>();
-            Tags = new ObservableCollection<CheckListItem<Tag>>();
-            Instruments = new ObservableCollection<CheckListItem<Instrument>>();
+            Strategies = new ObservableCollection<CheckListItem<Strategy>>(data.Strategies.Select(x => new CheckListItem<Strategy>(x)));
+            Tags = new ObservableCollection<CheckListItem<Tag>>(data.Tags.Select(x => new CheckListItem<Tag>(x)));
+            Instruments = new ObservableCollection<CheckListItem<Instrument>>(data.Instruments.Select(x => new CheckListItem<Instrument>(x, true)));
             Benchmarks = new ObservableCollection<Benchmark>();
             BacktestSeries = new ObservableCollection<QDMS.Instrument>();
 
+            data.Tags.CollectionChanged += Tags_CollectionChanged;
+            data.Strategies.CollectionChanged += Strategies_CollectionChanged;
+            data.Instruments.CollectionChanged += Instruments_CollectionChanged;
+
             CreateCommands();
+        }
+
+        private void Instruments_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                var newItems = e.NewItems.Cast<Instrument>().ToList();
+                Instruments.AddRange(newItems.Select(x => new CheckListItem<Instrument>(x)));
+            }
+            else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+            {
+                var removedItems = e.OldItems.Cast<Instrument>().ToList();
+                foreach (var removedItem in removedItems)
+                {
+                    var toRemove = Instruments.FirstOrDefault(x => x.Item == removedItem);
+                    if (toRemove != null)
+                    {
+                        Instruments.Remove(toRemove);
+                    }
+                }
+            }
+        }
+
+        private void Strategies_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                var newItems = e.NewItems.Cast<Strategy>().ToList();
+                Strategies.AddRange(newItems.Select(x => new CheckListItem<Strategy>(x)));
+            }
+            else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+            {
+                var removedItems = e.OldItems.Cast<Strategy>().ToList();
+                foreach (var removedItem in removedItems)
+                {
+                    var toRemove = Strategies.FirstOrDefault(x => x.Item == removedItem);
+                    if (toRemove != null)
+                    {
+                        Strategies.Remove(toRemove);
+                    }
+                }
+            }
+        }
+
+        private void Tags_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                var newItems = e.NewItems.Cast<Tag>().ToList();
+                Tags.AddRange(newItems.Select(x => new CheckListItem<Tag>(x)));
+            }
+            else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+            {
+                var removedItems = e.OldItems.Cast<Tag>().ToList();
+                foreach (var removedItem in removedItems)
+                {
+                    var toRemove = Tags.FirstOrDefault(x => x.Item == removedItem);
+                    if (toRemove != null)
+                    {
+                        Tags.Remove(toRemove);
+                    }
+                }
+            }
         }
 
         private void CreateCommands()
@@ -164,79 +233,9 @@ namespace QPAS
 
         public override async Task Refresh()
         {
-            //tags
-            var selectedTags = Tags
-                            .Where(x => x.IsChecked)
-                            .Select(x => x.Item)
-                            .ToList();
-            Tags.Clear();
-
-            foreach (var checkItem in Context
-                .Tags
-                .OrderBy(x => x.Name)
-                .ToList()
-                .Select(x => new CheckListItem<Tag>(x, selectedTags.Contains(x))))
-            {
-                Tags.Add(checkItem);
-            }
-
-            //strategies
-            var selectedStrats = Strategies
-                .Where(x => x.IsChecked)
-                .Select(x => x.Item)
-                .ToList();
-            Strategies.Clear();
-
-            foreach (var checkItem in Context
-                .Strategies
-                .OrderBy(x => x.Name)
-                .ToList()
-                .Select(x => new CheckListItem<Strategy>(x, selectedStrats.Contains(x))))
-            {
-                Strategies.Add(checkItem);
-            }
-
-            //Instruments
-            if (Instruments.Count == 0)
-            {
-                //on first load we want all instruments selected, otherwise remember previous selection
-                foreach (var checkItem in (await Context
-                        .Instruments
-                        .OrderBy(x => x.Symbol)
-                        .ToListAsync().ConfigureAwait(true))
-                    .Select(x => new CheckListItem<Instrument>(x, true)))
-                {
-                    Instruments.Add(checkItem);
-                }
-            }
-            else
-            {
-                var selectedInstruments = Instruments
-                                .Where(x => x.IsChecked)
-                                .Select(x => x.Item)
-                                .ToList();
-                Instruments.Clear();
-
-                foreach (var checkItem in Context
-                    .Instruments
-                    .OrderBy(x => x.Symbol)
-                    .ToList()
-                    .Select(x => new CheckListItem<Instrument>(x, selectedInstruments.Contains(x))))
-                {
-                    Instruments.Add(checkItem);
-                }
-            }
-
-            //benchmarks
-            Benchmarks.Clear();
-            foreach (Benchmark b in Context.Benchmarks.OrderBy(x => x.Name))
-            {
-                Benchmarks.Add(b);
-            }
-
             //backtest results from the external data source
             BacktestSeries.Clear();
-            if(Datasourcer.ExternalDataSource.Connected)
+            if (Datasourcer.ExternalDataSource != null && Datasourcer.ExternalDataSource.Connected)
             {
                 BacktestSeries.AddRange(
                     await Datasourcer
@@ -267,13 +266,13 @@ namespace QPAS
                 .Select(x => x.Item)
                 .ToList();
 
-            var selectedInstruments = 
+            var selectedInstruments =
                 Instruments
                 .Where(x => x.IsChecked)
                 .Select(x => x.Item)
                 .ToList();
 
-            var trades = TradeFiltering.Filter(selectedTags, selectedStrategies, selectedInstruments, Context, TradeFilterSettings);
+            var trades = TradeFiltering.Filter(selectedTags, selectedStrategies, selectedInstruments, _data.Trades, TradeFilterSettings);
 
             Parent.GenerateReportFromTrades.Execute(trades);
         }

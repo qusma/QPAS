@@ -4,14 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
-using System.Data.SqlClient;
-using System.Windows;
-using System.Windows.Forms;
 using EntityModel;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using Microsoft.EntityFrameworkCore;
 using NLog;
+using System;
+using System.Windows;
+using System.Windows.Forms;
 using Application = System.Windows.Application;
 
 namespace QPAS
@@ -21,22 +21,13 @@ namespace QPAS
     /// </summary>
     public partial class SettingsWindow : MetroWindow
     {
-        private readonly IDBContext _context;
-
         public SettingsViewModel ViewModel { get; set; }
 
-        public SettingsWindow(IDBContext context)
+        public SettingsWindow(IAppSettings settings, IContextFactory contextFactory)
         {
-            _context = context;
             InitializeComponent();
-            ViewModel = new SettingsViewModel(context);
+            ViewModel = new SettingsViewModel(settings, contextFactory);
             DataContext = ViewModel;
-
-            //have to load the passwords here
-            //because binding securely is basically impossible
-            MySqlPasswordBox.Password = DBUtils.Unprotect(Properties.Settings.Default.mySqlPassword);
-            SqlitePasswordBox.Password = DBUtils.Unprotect(Properties.Settings.Default.sqlitePassword);
-            SqlServerPassword.Password = DBUtils.Unprotect(Properties.Settings.Default.sqlServerPassword);
 
             //hiding the tab headers
             Style s = new Style();
@@ -47,43 +38,35 @@ namespace QPAS
         private void FlexSavePathTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             var dialog = new FolderBrowserDialog();
-            if (!String.IsNullOrEmpty(ViewModel.StatementSaveLocation))
+            if (!String.IsNullOrEmpty(ViewModel.Settings.StatementSaveLocation))
             {
-                dialog.SelectedPath = ViewModel.StatementSaveLocation;
+                dialog.SelectedPath = ViewModel.Settings.StatementSaveLocation;
             }
 
             DialogResult result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                ViewModel.StatementSaveLocation = dialog.SelectedPath;
+                ViewModel.Settings.StatementSaveLocation = dialog.SelectedPath;
             }
         }
 
         private void LogFilePathTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             var dialog = new FolderBrowserDialog();
-            if (!String.IsNullOrEmpty(ViewModel.LogLocation))
+            if (!String.IsNullOrEmpty(ViewModel.Settings.LogLocation))
             {
-                dialog.SelectedPath = ViewModel.LogLocation;
+                dialog.SelectedPath = ViewModel.Settings.LogLocation;
             }
 
             DialogResult result = dialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                ViewModel.LogLocation = dialog.SelectedPath;
+                ViewModel.Settings.LogLocation = dialog.SelectedPath;
             }
         }
 
         private async void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
-            //have to save the passwords here
-            //because binding securely is basically impossible
-            Properties.Settings.Default.mySqlPassword = DBUtils.Protect(MySqlPasswordBox.Password);
-            Properties.Settings.Default.sqlitePassword = DBUtils.Protect(SqlitePasswordBox.Password);
-            Properties.Settings.Default.sqlServerPassword = DBUtils.Protect(SqlServerPassword.Password);
-
-            Properties.Settings.Default.Save();
-
             ViewModel.Save();
 
             await this.ShowMessageAsync("Restarting", "Settings saved. Restarting application.");
@@ -103,8 +86,8 @@ namespace QPAS
         private async void ClearDataBtn_Click(object sender, RoutedEventArgs e)
         {
             MessageDialogResult res = await this.ShowMessageAsync(
-                "Are you sure?", 
-                "You are about to delete all the data, are you sure?", 
+                "Are you sure?",
+                "You are about to delete all the data, are you sure?",
                 MessageDialogStyle.AffirmativeAndNegative);
             if (res == MessageDialogResult.Negative) return;
 
@@ -116,23 +99,13 @@ namespace QPAS
 
             try
             {
-                if (Properties.Settings.Default.databaseType.ToLower() == "mysql")
-                {
-                    _context.Database.ExecuteSqlCommand("DROP DATABASE qpas");
-                }
-                else
-                {
-                    //very hacky....
-                    using (var sqlConnection = DBUtils.CreateSqlServerConnection("master"))
-                    {
-                        sqlConnection.Open();
-                        SqlCommand sqlCmd = new SqlCommand("ALTER DATABASE qpas SET SINGLE_USER WITH ROLLBACK IMMEDIATE", sqlConnection);
-                        sqlCmd.ExecuteNonQuery();
-
-                        sqlCmd.CommandText = "DROP DATABASE qpas";
-                        sqlCmd.ExecuteNonQuery();
-                    }
-                }
+                var dbContext = new QpasDbContext();
+                dbContext.Database.ExecuteSqlRaw(@"
+                        PRAGMA writable_schema = 1;
+                        delete from sqlite_master where type in ('table', 'index', 'trigger');
+                        PRAGMA writable_schema = 0;
+                        ");
+                System.Windows.Application.Current.Shutdown();
             }
             catch (Exception ex)
             {
@@ -154,7 +127,7 @@ namespace QPAS
         private void DbRadioBtnCheckChange(object sender, RoutedEventArgs e)
         {
             var btn = (System.Windows.Controls.RadioButton)sender;
-            if((string)btn.Content == "MySQL")
+            if ((string)btn.Content == "MySQL")
             {
                 DbSettingsTabCtrl.SelectedIndex = 0;
             }

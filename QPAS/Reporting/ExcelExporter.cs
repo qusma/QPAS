@@ -4,14 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
-using System.Data;
-using System.Linq;
-using System.IO;
-using System.Reflection;
 using OfficeOpenXml;
 using OfficeOpenXml.Drawing.Chart;
 using QPAS.DataSets;
+using System;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace QPAS
 {
@@ -44,7 +44,7 @@ namespace QPAS
                 //Loop through the options. If they're enable, call the exporting function
                 //assigned to it through the _exportMethodMap dictionary
                 var sheetNames = wb.Worksheets.Select(x => x.Name).ToList();
-                foreach(string sheetName in sheetNames)
+                foreach (string sheetName in sheetNames)
                 {
                     if (options.SelectedItems.Contains(sheetName))
                     {
@@ -56,7 +56,7 @@ namespace QPAS
                         //wb.Worksheets.Delete(wb.Worksheets[sheetName].Index);
                     }
                 }
-                
+
                 //save to file
                 var dialog = new Microsoft.Win32.SaveFileDialog();
                 dialog.Filter = "Excel files (.xlxs)|*.xlsx";
@@ -85,7 +85,7 @@ namespace QPAS
 
             //Find the headers and insert data for each of them
             int column = 1;
-            while(!String.IsNullOrEmpty(ws.Cells[headerRow, column].Text))
+            while (!String.IsNullOrEmpty(ws.Cells[headerRow, column].Text))
             {
                 //Parse the thing
                 string columnFormat = ws.Cells[headerRow, column].Value.ToString();
@@ -110,7 +110,7 @@ namespace QPAS
                 string colTitle = opts[3];
                 string styleSettings = opts.Length >= 5 ? opts[4] : "";
 
-                if(string.IsNullOrEmpty(tableColName))
+                if (string.IsNullOrEmpty(tableColName))
                 {
                     //Dump entire table, including headers
                     InsertFullTable(ws, headerRow, column, _ds.Tables[table], format);
@@ -247,7 +247,7 @@ namespace QPAS
         {
             if (string.IsNullOrEmpty(styleSettings)) return;
             string[] settings = styleSettings.Split("|".ToCharArray());
-            if(settings.Contains("bold"))
+            if (settings.Contains("bold"))
             {
                 ws.Cells[address.Address].Style.Font.Bold = true;
             }

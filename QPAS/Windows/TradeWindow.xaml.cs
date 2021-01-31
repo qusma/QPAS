@@ -4,6 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using MahApps.Metro.Controls;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -11,8 +12,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Documents;
 using System.Windows.Media;
-using EntityModel;
-using MahApps.Metro.Controls;
 
 namespace QPAS
 {
@@ -23,10 +22,9 @@ namespace QPAS
     {
         public TradeViewModel ViewModel { get; set; }
 
-        public Trade Trade { get; set; }
 
-        private IDBContext _context;
-
+        private readonly IContextFactory _contextFactory;
+        private readonly TradesRepository _tradesRepo;
         private double[] _fontSizes;
 
         public double[] FontSizes
@@ -37,14 +35,14 @@ namespace QPAS
             }
         }
 
-        public TradeWindow(Trade trade, IDBContext context, IDataSourcer dataSourcer)
+        public TradeWindow(TradeViewModel viewModel, IContextFactory contextFactory, TradesRepository tradesRepo)
         {
-            Trade = trade;
-            _context = context;
-
+            _contextFactory = contextFactory;
+            _tradesRepo = tradesRepo;
+            ViewModel = viewModel;
             InitializeComponent();
 
-            ViewModel = new TradeViewModel(trade, dataSourcer, context);
+
             DataContext = ViewModel;
 
             InitializeFontSizes();
@@ -58,23 +56,24 @@ namespace QPAS
 
         private void LoadNotes()
         {
-            if(string.IsNullOrEmpty(Trade.Notes)) return;
+            if (string.IsNullOrEmpty(ViewModel.Trade.Notes)) return;
 
             TextRange tr = new TextRange(NotesTextBox.Document.ContentStart, NotesTextBox.Document.ContentEnd);
-            //convert string to MemoryStream 
-            MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(Trade.Notes));
-            tr.Load(ms, DataFormats.Rtf); 
+            using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(ViewModel.Trade.Notes)))
+            {
+                tr.Load(ms, DataFormats.Rtf);
+            }
         }
 
         private void InitializeFontSizes()
         {
-            _fontSizes = new double[] { 
-		            3.0, 4.0, 5.0, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 
-		            10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 15.0,
-		            16.0, 17.0, 18.0, 19.0, 20.0, 22.0, 24.0, 26.0, 28.0, 30.0,
-		            32.0, 34.0, 36.0, 38.0, 40.0, 44.0, 48.0, 52.0, 56.0, 60.0, 64.0, 68.0, 72.0, 76.0,
-		            80.0, 88.0, 96.0, 104.0, 112.0, 120.0, 128.0, 136.0, 144.0
-		            };
+            _fontSizes = new double[] {
+                    3.0, 4.0, 5.0, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5,
+                    10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 15.0,
+                    16.0, 17.0, 18.0, 19.0, 20.0, 22.0, 24.0, 26.0, 28.0, 30.0,
+                    32.0, 34.0, 36.0, 38.0, 40.0, 44.0, 48.0, 52.0, 56.0, 60.0, 64.0, 68.0, 72.0, 76.0,
+                    80.0, 88.0, 96.0, 104.0, 112.0, 120.0, 128.0, 136.0, 144.0
+                    };
         }
 
         private void FontFamily_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -171,11 +170,16 @@ namespace QPAS
         {
             //save notes as rtf
             TextRange tr = new TextRange(NotesTextBox.Document.ContentStart, NotesTextBox.Document.ContentEnd);
-            MemoryStream ms = new MemoryStream();
-            tr.Save(ms, DataFormats.Rtf);
-            Trade.Notes = Encoding.UTF8.GetString(ms.ToArray()); 
+            using (MemoryStream ms = new MemoryStream())
+            {
+                tr.Save(ms, DataFormats.Rtf);
+                ViewModel.Trade.Notes = Encoding.UTF8.GetString(ms.ToArray());
+            }
 
-            _context.SaveChanges();
+            _tradesRepo.UpdateTrade(ViewModel.Trade).Wait();
+
+            DataContext = null;
+            ViewModel = null;
         }
 
         private async void MetroWindow_Loaded(object sender, RoutedEventArgs e)

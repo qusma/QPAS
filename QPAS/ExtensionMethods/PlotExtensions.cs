@@ -4,10 +4,10 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using OxyPlot.Wpf;
 using System.IO;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
-using OxyPlot.Wpf;
 
 namespace QPAS
 {
@@ -30,7 +30,7 @@ namespace QPAS
             {
                 return;
             }
-            
+
             BitmapSource bmp = plot.ToBitmap();
             using (FileStream stream = new FileStream(path, FileMode.Create))
             {

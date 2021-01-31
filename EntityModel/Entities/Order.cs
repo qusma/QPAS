@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -54,7 +55,6 @@ namespace EntityModel
         public string SymbolString { get; set; }
 
         [NotXmlMapped]
-        [Index]
         public DateTime TradeDate { get; set; }
 
         /// <summary>
@@ -70,6 +70,10 @@ namespace EntityModel
             }
         }
 
+
+        /// <summary>
+        /// Used for parsing
+        /// </summary>
         [NotMapped]
         [AttributeName("tradeDate", "yyyyMMdd")]
         public DateTime SetDate
@@ -80,6 +84,9 @@ namespace EntityModel
             }
         }
 
+        /// <summary>
+        /// Used for parsing
+        /// </summary>
         [NotMapped]
         [AttributeName("tradeTime", "HHmmss")]
         public DateTime SetTime
@@ -258,7 +265,6 @@ namespace EntityModel
         /// <summary>
         /// Null for fake trades.
         /// </summary>
-        [Index(IsUnique = true)]
         [AttributeName("ibOrderID")]
         public long? IBOrderID { get; set; }
 
@@ -302,7 +308,7 @@ namespace EntityModel
         public DateTime? ReferenceTime { get; set; }
 
         [NotXmlMapped]
-        public ICollection<Execution> Executions { get; set; }
+        public ICollection<Execution> Executions { get; set; } = new ObservableCollection<Execution>();
 
         /// <summary>
         /// This property is used in some situations to keep track of FIFO PnL within a single trade.

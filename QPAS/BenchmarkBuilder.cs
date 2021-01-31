@@ -4,12 +4,12 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using EntityModel;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using EntityModel;
-using NLog;
 
 namespace QPAS
 {
@@ -19,15 +19,18 @@ namespace QPAS
         /// generate EC and other curves for a benchmark
         /// </summary>
         public static async Task<(EquityCurve equityCurve, Dictionary<DateTime, double> benchmarkSeries, List<double> benchmarkReturns)> GetBenchmarkReturns(
-            int benchmarkID, 
-            DBContext context, 
-            List<DateTime> datesInPeriod, 
+            int benchmarkID,
+            IContextFactory contextFactory,
+            List<DateTime> datesInPeriod,
             IDataSourcer dataSourcer)
         {
             Logger logger = LogManager.GetCurrentClassLogger();
 
-            List<BenchmarkComponent> components = context.BenchmarkComponents.Where(x => x.BenchmarkID == benchmarkID).ToList();
-
+            List<BenchmarkComponent> components;
+            using (var dbContext = contextFactory.Get())
+            {
+                components = dbContext.BenchmarkComponents.Where(x => x.BenchmarkID == benchmarkID).ToList();
+            }
             DateTime earliestDate = datesInPeriod[0].Date;
             DateTime latestDate = datesInPeriod.Last();
 

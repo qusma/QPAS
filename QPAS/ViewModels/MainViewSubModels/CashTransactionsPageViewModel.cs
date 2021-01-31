@@ -6,51 +6,42 @@
 
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
+using ReactiveUI;
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data.Entity;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
-using ReactiveUI;
 
 namespace QPAS
 {
     public class CashTransactionsPageViewModel : ViewModelBase
     {
-        internal IDBContext Context;
         private readonly MainViewModel _mainVm;
-        internal ITradesRepository TradesRepository;
+        private readonly IContextFactory contextFactory;
 
-        public CollectionViewSource CashTransactionsSource { get; set; }
+        public CollectionViewSource CashTransactionsSource { get; }
+        public ObservableCollection<CashTransaction> CashTransactions { get; }
         public ICommand Delete { get; private set; }
 
-        public CashTransactionsPageViewModel(IDBContext context, IDataSourcer datasourcer, IDialogCoordinator dialogService, MainViewModel mainVm)
+        public CashTransactionsPageViewModel(IContextFactory contextFactory, IDataSourcer datasourcer, IDialogCoordinator dialogService, ObservableCollection<CashTransaction> cashTransactions, MainViewModel mainVm)
             : base(dialogService)
         {
-            Context = context;
             _mainVm = mainVm;
 
+            CashTransactions = cashTransactions;
             CashTransactionsSource = new CollectionViewSource();
-            CashTransactionsSource.Source = Context.CashTransactions.Local;
+            CashTransactionsSource.Source = CashTransactions;
             CashTransactionsSource.View.SortDescriptions.Add(new SortDescription("TransactionDate", ListSortDirection.Descending));
 
-            TradesRepository = mainVm.TradesRepository;
 
             CreateCommands();
+            this.contextFactory = contextFactory;
         }
 
         public override async Task Refresh()
         {
-            await Context
-                .CashTransactions
-                .Include(x => x.Trade)
-                .Include(x => x.Instrument)
-                .OrderByDescending(x => x.TransactionDate)
-                .LoadAsync().ConfigureAwait(true);
-
-            CashTransactionsSource.View.Refresh();
         }
 
         private void CreateCommands()
@@ -67,18 +58,27 @@ namespace QPAS
                 string.Format("Are you sure you want to delete {0} cash transaction(s)?", cts.Count),
                 MessageDialogStyle.AffirmativeAndNegative);
 
-            if (res == MessageDialogResult.Affirmative)
+            if (res != MessageDialogResult.Affirmative)
+            {
+                return;
+            }
+
+            using (var context = contextFactory.Get())
             {
                 foreach (CashTransaction ct in cts)
                 {
                     if (ct.Trade != null)
                     {
-                        await TradesRepository.RemoveCashTransaction(ct.Trade, ct).ConfigureAwait(true);
+                        //only delete those that are not assigned to a trade
+                        continue;
+                        //await TradesRepository.RemoveCashTransaction(ct.Trade, ct).ConfigureAwait(true);
                     }
-                    Context.CashTransactions.Remove(ct);
+                    context.CashTransactions.Remove(ct);
                 }
-                Context.SaveChanges();
+                context.SaveChanges();
             }
+
+
         }
     }
 }

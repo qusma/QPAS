@@ -1,31 +1,31 @@
 ﻿<controls:MetroWindow x:Class="QPAS.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:oxy="http://oxyplot.org/wpf"
-        xmlns:filterLibrary="clr-namespace:DataGridFilterLibrary;assembly=DataGridFilterLibrary"
+        xmlns:filterLibrary="clr-namespace:DataGridFilterLibrary;assembly=DataGridFilterCore"
         xmlns:qdms="clr-namespace:EntityModel;assembly=EntityModel"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:qpas="clr-namespace:QPAS"
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         Icon="../Resources/icon.ico"
-        TitlebarHeight="32"
+        TitleBarHeight="32"
         Title="QUSMA Performance Analytics Suite"
         BorderBrush="Black" BorderThickness="1"
         FontFamily="Segoe UI Semibold"
         Closing="MetroWindow_Closing"
-        xmlns:p="clr-namespace:QPAS.Properties"
-        xmlns:qc="http://QuickConverter.CodePlex.com/"
-        Height="{Binding Source={x:Static p:Settings.Default}, Path=Height, Mode=TwoWay}"
-        Width="{Binding Source={x:Static p:Settings.Default}, Path=Width, Mode=TwoWay}"
-        Left="{Binding Source={x:Static p:Settings.Default}, Path=Left, Mode=TwoWay}"
-        Top="{Binding Source={x:Static p:Settings.Default}, Path=Top, Mode=TwoWay}"
-        WindowState="{Binding Source={x:Static p:Settings.Default}, Path=WindowState, Mode=TwoWay}"
-                      xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
-    Dialog:DialogParticipation.Register="{Binding}">
+        SaveWindowPosition="True"
+        xmlns:qc="clr-namespace:QuickConverter;assembly=QuickConverter"
+        xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+        Dialog:DialogParticipation.Register="{Binding}">
     <controls:MetroWindow.Resources>
-        <qpas:ElementSpy x:Key="spy" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/DataGridFilterCore;component/Themes/Generic.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <qpas:ElementSpy x:Key="spy" />
 
         <qpas:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter" />
         <qpas:EnumBooleanConverter x:Key="EnumBooleanConverter" />
@@ -41,14 +41,14 @@
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
 
-        <Style x:Key="ProfitBGColorStyle" TargetType="DataGridCell">
-            <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text, Converter={StaticResource ProfitToBgColorConverter} }" />
-        </Style>
-
         <Style TargetType="DataGridColumnHeader" x:Key="FilterStyle" BasedOn="{StaticResource {ComponentResourceKey 
 		                       TypeInTargetAssembly={x:Type filterLibrary:DataGridHeaderFilterControl}, 
 		                       ResourceId=DataGridHeaderFilterControlStyle}}">
             <Setter Property="Padding" Value="5,4,4,5" />
+        </Style>
+
+        <Style x:Key="ProfitBGColorStyle" TargetType="DataGridCell">
+            <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text, Converter={StaticResource ProfitToBgColorConverter} }" />
         </Style>
 
         <MenuItem x:Key="TradesGridSetTagSubMenu" Header="Set Tag" SubmenuOpened="TradesGridSetTagMenu_SubmenuOpened">
@@ -269,7 +269,7 @@
             </MenuItem>
             <StaticResource ResourceKey="FxTransactionsGridSetTradeSubMenu" />
         </ContextMenu>
-
+        </ResourceDictionary>
     </controls:MetroWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -285,9 +285,6 @@
 
         <Menu Background="WhiteSmoke" Grid.Row="0" Grid.ColumnSpan="2">
             <MenuItem Header="_File">
-                <MenuItem Header="Backup" x:Name="BackupBtn" Click="BackupBtn_Click" />
-                <MenuItem Header="Restore backup" x:Name="RestoreBtn" Click="RestoreBtn_Click" />
-                <Separator/>
                 <MenuItem Header="_Exit" x:Name="BtnExit" Click="BtnExit_ItemClick"/>
             </MenuItem>
             <MenuItem Header="_Tools">
@@ -300,7 +297,6 @@
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="Documentation" x:Name="DocumentationBtn" Click="DocumentationBtn_OnClick"/>
-                <MenuItem Header="Check for Updates" x:Name="UpdateBtn" Click="UpdateBtn_Click" />
                 <MenuItem Header="About" x:Name="AboutBtn" Click="AboutBtn_Click"/>
             </MenuItem>
         </Menu>
@@ -452,7 +448,6 @@
                         </StackPanel>
                         <TextBlock Text="Open Positions" DockPanel.Dock="Left" Foreground="DimGray" FontSize="22"/>
                     </DockPanel>
-                    
                     <DataGrid 
                         Grid.Row="1" 
                         Grid.Column="0" 
@@ -745,15 +740,16 @@
                                                     Header="Strategy" 
                                                     filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="Strategy.Name"
                                                     filterLibrary:DataGridComboBoxExtensions.IsTextFilter="True"
-                                                    SelectedItemBinding="{Binding Path=Strategy}">
+                                                    SelectedItemBinding="{Binding Path=Strategy}"
+                                                    DisplayMemberPath="Name">
                                 <DataGridComboBoxColumn.ElementStyle>
                                     <Style TargetType="ComboBox">
-                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.TradesPageViewModel.Strategies}"/>
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.TradesPageViewModel.Strategies}"/>
                                     </Style>
                                 </DataGridComboBoxColumn.ElementStyle>
                                 <DataGridComboBoxColumn.EditingElementStyle>
                                     <Style TargetType="ComboBox">
-                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.TradesPageViewModel.Strategies}"/>
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.TradesPageViewModel.Strategies}"/>
                                     </Style>
                                 </DataGridComboBoxColumn.EditingElementStyle>
                             </DataGridComboBoxColumn>
@@ -761,7 +757,7 @@
                                                 DisplayIndex="1" Width="200"
                                                 filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True"/>
                             <DataGridCheckBoxColumn Header="Open" 
-                                                    DisplayIndex="2" Width="35"
+                                                    DisplayIndex="2" Width="40"
                                                     Binding="{Binding Open}" />
                             <DataGridTextColumn Header="Opened" Width="110" IsReadOnly="True"  
                                                 DisplayIndex="3"
@@ -780,7 +776,7 @@
                                                 DisplayIndex="7" Width="75"
                                                 Header="$ Ret." Binding="{Binding ResultDollars, StringFormat={}{0:c2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
-                                                DisplayIndex="8" Width="75"
+                                                DisplayIndex="8" Width="85"
                                                 Header="Commissions" Binding="{Binding Commissions, StringFormat={}{0:c2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
                                                 DisplayIndex="9" Width="75"
@@ -804,7 +800,7 @@
                                                 DisplayIndex="15" Width="75"
                                                 Header="$ Ret. Long" Binding="{Binding ResultDollarsLong, StringFormat={}{0:c2}}"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
-                                                DisplayIndex="16" Width="75"
+                                                DisplayIndex="16" Width="85"
                                                 Header="$ Ret. Short" Binding="{Binding ResultDollarsShort, StringFormat={}{0:c2}}"/>
 
                             <DataGridTextColumn Header="Tags" 
@@ -928,7 +924,7 @@
                                                 DisplayIndex="8" Width="75"
                                                 Header="FX Rate" Binding="{Binding FXRateToBase, StringFormat={}{0:0.#####}}" IsReadOnly="True" />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
-                                                DisplayIndex="9" Width="75"
+                                                DisplayIndex="9" Width="80"
                                                 Header="Commission" Binding="{Binding CommissionInBase, StringFormat={}{0:c2}}"  />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
                                                 DisplayIndex="10" Width="75"
@@ -938,17 +934,17 @@
                                                 Header="Net Cash" Binding="{Binding NetCash, StringFormat={}{0:c2}}" />
                             <DataGridTextColumn Header="Notes" 
                                                 DisplayIndex="12"
-                                                Binding="{Binding Notes}" IsReadOnly="True" Width="40" />
-                            <DataGridTextColumn Header="Order Type" DisplayIndex="13" Binding="{Binding OrderType}" Width="40" IsReadOnly="True" />
+                                                Binding="{Binding Notes}" IsReadOnly="True" Width="45" />
+                            <DataGridTextColumn Header="Order Type" DisplayIndex="13" Binding="{Binding OrderType}" Width="45" IsReadOnly="True" />
                             <DataGridCheckBoxColumn Header="Real" DisplayIndex="14" Width="35" Binding="{Binding IsReal}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Currency" DisplayIndex="15" Binding="{Binding Currency.Name}" Width="55" IsReadOnly="True"  />
+                            <DataGridTextColumn Header="Currency" DisplayIndex="15" Binding="{Binding Currency.Name}" Width="60" IsReadOnly="True"  />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
                                                 DisplayIndex="16" Width="75"
                                                 Header="FIFO PnL" Binding="{Binding FIFORealizedPnL, StringFormat={}{0:c2}}"  />
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
                                                 DisplayIndex="17" Width="75"
                                                 Header="MTM PnL" Binding="{Binding MTMPnL, StringFormat={}{0:c2}}"  />
-                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" DisplayIndex="18" Width="50"/>
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" DisplayIndex="18" Width="55"/>
                             <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
                                                 DisplayIndex="19" Width="75"
                                                 Header="Ref. Price" Binding="{Binding ReferencePrice,StringFormat={}{0:0.00###}}" />
@@ -960,17 +956,16 @@
                                 </DataGridTemplateColumn.CellTemplate>
                                 <DataGridTemplateColumn.CellEditingTemplate>
                                     <DataTemplate>
-                                        <xctk:DateTimePicker Format="Custom" 
-                                            FormatString="yyyy-MM-dd HH:mm:ss" 
-                                            Height="Auto" 
-                                            HorizontalAlignment="Left" 
+                                        <controls:DateTimePicker
+                                            SelectedDateFormat="Short"
+                                            Height="Auto"
+                                            HorizontalAlignment="Left"
                                             Name="ReferenceTimeDTPicker"
-                                            TimeFormat="Custom"
-                                            TimeFormatString="HH:mm:ss"
-                                            Value="{Binding ReferenceTime, 
+                                            SelectedDateTime="{Binding ReferenceTime, 
                                              ValidatesOnExceptions=True, 
-                                             NotifyOnValidationError=True}" VerticalAlignment="Top" >
-                                        </xctk:DateTimePicker>
+                                             NotifyOnValidationError=True}"
+                                            VerticalAlignment="Top"
+                                            />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
@@ -1065,7 +1060,7 @@
                                                 ElementStyle="{StaticResource CellRightAlign}"
                                                 Binding="{Binding Amount, StringFormat=c2}" />
                             <DataGridTextColumn Header="Amount in USD" IsReadOnly="True" 
-                                                DisplayIndex="3" Width="85"
+                                                DisplayIndex="3" Width="95"
                                                 ElementStyle="{StaticResource CellRightAlign}"
                                                 Binding="{Binding AmountInBase, StringFormat=c2}" />
                             <DataGridTextColumn Header="Currency" IsReadOnly="True" 
@@ -1083,7 +1078,7 @@
                                                 Binding="{Binding TransactionDate, StringFormat=yyyy-MM-dd}" />
                             <DataGridTextColumn Header="Transaction Type" Binding="{Binding Type}" DisplayIndex="7" Width="155" IsReadOnly="True" />
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" DisplayIndex="8" Width="325" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" DisplayIndex="9" IsReadOnly="True" Width="50"/>
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" DisplayIndex="9" IsReadOnly="True" Width="55"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -1156,7 +1151,7 @@
                             <DataGridTextColumn Header="Cost" IsReadOnly="True"
                                                 DisplayIndex="5" Width="75"
                                                 ElementStyle="{StaticResource CellRightAlign}" Binding="{Binding Path=Cost,StringFormat={}{0:c2}}" />
-                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" DisplayIndex="6" Width="50"/>
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" DisplayIndex="6" Width="55"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -1569,7 +1564,7 @@
                             <GroupBox Header="Monte Carlo">
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Text="Return Type:" FontSize="18" Foreground="DimGray"  />
-                                    <UniformGrid Columns="2"  Margin="5,0,5,0" IsEnabled="{Binding ElementName=PRUnitsDaysBtn,Path=IsChecked}">
+                                    <UniformGrid Columns="2"  Margin="5,0,5,0">
                                         <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital"
                                              IsChecked="{Binding ReportSettings.MCReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
                                         <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
@@ -1618,7 +1613,7 @@
                                              Text="Click to select file..." Name="BacktestFileTextBox" PreviewMouseLeftButtonDown="BacktestFileTextBox_MouseDown" />
 
                                     <TextBlock Text="Return Type:" FontSize="18" Foreground="DimGray"  />
-                                    <UniformGrid Columns="2"  Margin="5,0,5,0" IsEnabled="{Binding ElementName=PRUnitsDaysBtn,Path=IsChecked}">
+                                    <UniformGrid Columns="2"  Margin="5,0,5,0">
                                         <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital"
                                              IsChecked="{Binding ReportSettings.BacktestComparisonReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
                                         <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
@@ -1635,7 +1630,7 @@
 
                         <Button  Grid.Row="1"
                                  Command="{Binding GenerateReport}"
-                                Style="{StaticResource AccentedSquareButtonStyle}" 
+                                Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}" 
                                  Margin="5,0,5,0" 
                                  Name="BuildPerformanceReportBtn" 
                                  

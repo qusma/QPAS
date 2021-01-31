@@ -2,19 +2,19 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:qpas="clr-namespace:QPAS"
-             StartupUri="Windows/MainWindow.xaml">
+             Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        
 
-            <Style TargetType="DataGrid" BasedOn="{StaticResource MetroDataGrid}">
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <qpas:AssetClassToImageConverter x:Key="AssetClassToImageConverter" />
+
+            <Style TargetType="DataGrid" BasedOn="{StaticResource MahApps.Styles.DataGrid}">
                 <Setter Property="AlternatingRowBackground" Value="WhiteSmoke"/>
                 <Setter Property="BorderBrush" Value="#B9B9B9"/>
                 <Setter Property="BorderThickness" Value="1"/>
@@ -26,17 +26,15 @@
                 <Setter Property="FontSize" Value="11"/>
             </Style>
 
-            <Style x:Key="DataGridCheckBoxStyle" TargetType="CheckBox" BasedOn="{StaticResource MetroCheckBox}">
+            <Style x:Key="DataGridCheckBoxStyle" TargetType="CheckBox" BasedOn="{StaticResource MahApps.Styles.CheckBox.DataGrid}">
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="Margin" Value="8,0,3,0" />
             </Style>
 
-            <Style TargetType="DataGridRow" BasedOn="{StaticResource MetroDataGridRow}"  x:Key="DataGridRowStyle">
+            <Style TargetType="DataGridRow" BasedOn="{StaticResource MahApps.Styles.DataGridRow}"  x:Key="DataGridRowStyle">
                 <Setter Property="MinHeight" Value="20"/>
                 <Setter Property="MaxHeight" Value="30"/>
             </Style>
-
-            <qpas:AssetClassToImageConverter x:Key="AssetClassToImageConverter" />
 
             <Style x:Key="CellRightAlign">
                 <Setter Property="Control.HorizontalAlignment" Value="Right" />

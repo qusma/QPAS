@@ -68,7 +68,6 @@ namespace EntityModel
         public long? ConID { get; set; }
 
         [AttributeName("dateTime", "yyyyMMdd")]
-        [Index]
         public DateTime TransactionDate { get; set; }
 
         [AttributeName("amount")]
@@ -86,7 +85,6 @@ namespace EntityModel
 
         [AttributeName("type")]
         [MaxLength(255)]
-        [Index]
         public string Type { get; set; }
 
         [AttributeName("description")]

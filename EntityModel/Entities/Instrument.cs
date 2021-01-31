@@ -51,7 +51,6 @@ namespace EntityModel
         public decimal Strike { get; set; }
 
         [AttributeName("conid")]
-        [Index]
         public long ConID { get; set; }
 
         [AttributeName("assetCategory")]

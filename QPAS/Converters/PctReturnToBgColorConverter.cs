@@ -24,7 +24,7 @@ namespace QPAS
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             string[] pieces = ((string)value).Split('%');
-            if (pieces.Length > 2  || pieces.Length == 1 || !string.IsNullOrEmpty(pieces[1]) || string.IsNullOrEmpty(pieces[0]))
+            if (pieces.Length > 2 || pieces.Length == 1 || !string.IsNullOrEmpty(pieces[1]) || string.IsNullOrEmpty(pieces[0]))
             {
                 return new System.Drawing.SolidBrush(System.Drawing.Color.White);
             }

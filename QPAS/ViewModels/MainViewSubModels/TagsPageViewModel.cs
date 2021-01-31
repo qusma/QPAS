@@ -6,9 +6,9 @@
 
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
+using ReactiveUI;
 using System.Collections;
 using System.ComponentModel;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -22,45 +22,47 @@ namespace QPAS
 
         public MainViewModel Parent { get; set; }
 
-        internal IDBContext Context;
+
 
         public ICommand Delete { get; set; }
 
-        public TagsPageViewModel(IDBContext context, IDialogCoordinator dialogService, MainViewModel parent)
+        private readonly IContextFactory contextFactory;
+        private readonly DataContainer data;
+
+        public TagsPageViewModel(IContextFactory contextFactory, IDialogCoordinator dialogService, DataContainer data, MainViewModel parent)
             : base(dialogService)
         {
-            Context = context;
             Parent = parent;
 
             TagsSource = new CollectionViewSource();
-            TagsSource.Source = Context.Tags.Local;
+            TagsSource.Source = data.Tags;
             TagsSource.View.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
 
             CreateCommands();
+            this.contextFactory = contextFactory;
+            this.data = data;
         }
 
         private void CreateCommands()
         {
-            Delete = new RelayCommand<IList>(DeleteTags);
+            Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteTags(x));
         }
 
         public override async Task Refresh()
         {
-            await Context.Tags.LoadAsync().ConfigureAwait(true);
 
-            TagsSource.View.Refresh();
         }
 
-        private void DeleteTags(IList tags)
+        private async Task DeleteTags(IList tags)
         {
             if (tags == null || tags.Count == 0) return;
-            foreach (Tag t in tags)
+            foreach (Tag t in tags.Cast<Tag>().Distinct().ToList()) //something starnge happens where the selection includes the same item multiple times
             {
-                DeleteTag(t);
+                await DeleteTag(t).ConfigureAwait(false);
             }
         }
 
-        private async void DeleteTag(Tag tag)
+        private async Task DeleteTag(Tag tag)
         {
             MessageDialogResult res = await DialogService.ShowMessageAsync(Parent,
                 "Delete Tag",
@@ -69,14 +71,21 @@ namespace QPAS
             if (res != MessageDialogResult.Affirmative) return;
 
             //keep track of the trades with this tag, we need to update their tagstrings
-            var trades = Context.Trades.ToList().Where(x => x.Tags.Contains(tag)).ToList();
+            var trades = data.Trades.ToList().Where(x => x.Tags.Contains(tag)).ToList();
 
-            Context.Tags.Remove(tag);
-            Context.SaveChanges();
-
-            foreach (Trade t in trades)
+            foreach (var trade in trades)
             {
-                t.TagStringUpdated();
+                trade.Tags.Remove(tag);
+                await Parent.TradesPageViewModel.TradesRepository.UpdateTrade(trade).ConfigureAwait(false);
+                trade.TagStringUpdated();
+            }
+
+            using (var dbContext = contextFactory.Get())
+            {
+                dbContext.Tags.Remove(tag);
+                dbContext.SaveChanges();
+
+                data.Tags.Remove(tag);
             }
         }
     }

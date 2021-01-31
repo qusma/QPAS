@@ -4,11 +4,11 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using EntityModel;
+using MahApps.Metro.Controls;
 using System;
 using System.Linq;
 using System.Windows;
-using EntityModel;
-using MahApps.Metro.Controls;
 
 namespace QPAS
 {
@@ -28,17 +28,17 @@ namespace QPAS
         private void NextBtn_Click(object sender, RoutedEventArgs e)
         {
             string accountId = AccountIdTextBox.Text;
-            if(String.IsNullOrEmpty(accountId))
+            if (String.IsNullOrEmpty(accountId))
             {
                 MessageBox.Show("Cannot use an empty account.");
                 return;
             }
 
-            using(var context = new DBContext())
+            using (var context = new QpasDbContext())
             {
                 //check if this account exists, otherwise add it
                 Account account;
-                if(context.Accounts.Any(x => x.AccountId == accountId))
+                if (context.Accounts.Any(x => x.AccountId == accountId))
                 {
                     account = context.Accounts.First(x => x.AccountId == accountId);
                 }
@@ -51,7 +51,7 @@ namespace QPAS
 
                 //Now that we have the account, set it everywhere
 
-                foreach(EquitySummary es in context.EquitySummaries)
+                foreach (EquitySummary es in context.EquitySummaries)
                 {
                     es.Account = account;
                 }
@@ -61,27 +61,27 @@ namespace QPAS
                     da.Account = account;
                 }
 
-                foreach(Order o in context.Orders)
+                foreach (Order o in context.Orders)
                 {
                     o.Account = account;
                 }
 
-                foreach(Execution ex in context.Executions)
+                foreach (Execution ex in context.Executions)
                 {
                     ex.Account = account;
                 }
 
-                foreach(FXTransaction fxt in context.FXTransactions)
+                foreach (FXTransaction fxt in context.FXTransactions)
                 {
                     fxt.Account = account;
                 }
 
-                foreach(FXPosition fxp in context.FXPositions)
+                foreach (FXPosition fxp in context.FXPositions)
                 {
                     fxp.Account = account;
                 }
 
-                foreach(CashTransaction ct in context.CashTransactions)
+                foreach (CashTransaction ct in context.CashTransactions)
                 {
                     ct.Account = account;
                 }
@@ -91,7 +91,7 @@ namespace QPAS
                     op.Account = account;
                 }
 
-                foreach(PriorPosition pp in context.PriorPositions)
+                foreach (PriorPosition pp in context.PriorPositions)
                 {
                     pp.Account = account;
                 }
@@ -105,19 +105,14 @@ namespace QPAS
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if(!_appliedChanges)
+            if (!_appliedChanges)
             {
                 var res = MessageBox.Show("Any entries with an empty account field cannot be used to generate performance reports. Are you sure you want to exit without setting an account?", "Warning", MessageBoxButton.YesNo);
-                if(res == MessageBoxResult.No)
+                if (res == MessageBoxResult.No)
                 {
                     e.Cancel = true;
                 }
             }
-        }
-
-        private void BackupBtn_OnClick(object sender, RoutedEventArgs e)
-        {
-            DbBackup.Backup("qpasEntities", "qpas");
         }
     }
 }

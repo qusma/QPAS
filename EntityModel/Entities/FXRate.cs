@@ -45,7 +45,6 @@ namespace EntityModel
         public string ToCurrencyString { get; set; }
 
         [AttributeName("reportDate", "yyyyMMdd")]
-        [Index]
         public DateTime Date { get; set; }
 
         [AttributeName("rate")]

@@ -6,6 +6,7 @@
 
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
+using System.Collections.Generic;
 
 namespace QPAS
 {
@@ -19,7 +20,7 @@ namespace QPAS
         /// <summary>
         /// Parses a statement and adds the data to the database.
         /// </summary>
-        void Parse(string statement, ProgressDialogController progress);
+        Dictionary<string, DataContainer> Parse(string statement, ProgressDialogController progress, IAppSettings settings, IEnumerable<Currency> curencies);
 
         /// <summary>
         /// Returns a string of the format "[filetype name] (*.[extension])|*.[extension]"

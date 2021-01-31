@@ -4,19 +4,17 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Collections.Generic;
 using EntityModel;
+using System.Collections.Generic;
 
 namespace QPAS
 {
     public class Seed
     {
-        public static void DoSeed()
+        public static void DoSeed(IQpasDbContext context)
         {
-            var context = new DBContext();
-
             var currencies = new List<Currency>
-            { 
+            {
                 new Currency { Name = "USD" },
                 new Currency { Name = "CAD" },
                 new Currency { Name = "GBP" },
@@ -125,7 +123,7 @@ namespace QPAS
 
             context.Currencies.AddRange(currencies);
 
-            context.SaveChanges();
+            context.SaveChanges(); //todo: currency ids change after insert?
 
             var tags = new List<Tag>
             {
@@ -167,8 +165,6 @@ namespace QPAS
             context.DatasourcePreferences.AddRange(preferredDatasources);
 
             context.SaveChanges();
-
-            context.Dispose();
         }
     }
 }

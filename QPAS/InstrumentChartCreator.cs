@@ -4,14 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using OxyPlot;
 using OxyPlot.Annotations;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using QDMS;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace QPAS
 {
@@ -150,7 +150,7 @@ namespace QPAS
 
             //Y axis min/max
             model.Axes[0].Zoom((double)minPrice * 0.98, (double)maxPrice * 1.02);
-            
+
 
             //time axis min/max
             model.Axes[1].Zoom(

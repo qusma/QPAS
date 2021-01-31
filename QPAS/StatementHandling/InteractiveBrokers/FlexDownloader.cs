@@ -4,35 +4,35 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using NLog;
 using System;
-using System.ComponentModel.Composition;
+using System.Composition;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using NLog;
 
 namespace QPAS
 {
-    [Export(typeof(IStatementDownloader))]
+    [Export(nameof(IStatementDownloader), typeof(IStatementDownloader))]
     [ExportMetadata("Name", "Interactive Brokers")]
     public class FlexDownloader : IStatementDownloader
     {
         public string Name { get { return "Interactive Brokers"; } }
 
-        public async Task<string> DownloadStatement()
+        public async Task<string> DownloadStatement(IAppSettings settings)
         {
             var logger = LogManager.GetCurrentClassLogger();
 
-            string flexToken = Properties.Settings.Default.flexToken;
-            string flexID = Properties.Settings.Default.flexID;
+            string flexToken = settings.FlexToken;
+            string flexId = settings.FlexId;
             if (String.IsNullOrEmpty(flexToken))
                 throw new Exception("Flex token is empty.");
-            if (String.IsNullOrEmpty(flexID))
+            if (String.IsNullOrEmpty(flexId))
                 throw new Exception("Flex ID is empty.");
 
             //first we send a request for the statement
-            string theURL = string.Format("https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest?t={0}&q={1}&v=3", flexToken, flexID);
+            string theURL = string.Format("https://gdcdyn.interactivebrokers.com/Universal/servlet/FlexStatementService.SendRequest?t={0}&q={1}&v=3", flexToken, flexId);
             using (var client = new HttpClient())
             {
                 string contents = await client.GetStringAsync(theURL).ConfigureAwait(false);
@@ -94,7 +94,7 @@ namespace QPAS
                             logger.Log(LogLevel.Error, "Got FlexStatementResponse but had error. Contents: ");
                             logger.Log(LogLevel.Error, statementResponse.ToString());
                             throw new Exception(string.Format("Error code problem. Code: {0}", error));
-                            
+
                         }
 
                         //we have to wait more for the statement to be generated
@@ -114,7 +114,7 @@ namespace QPAS
 
                 try
                 {
-                    SaveFlexStatementToDisk(flex);
+                    SaveFlexStatementToDisk(flex, settings);
                 }
                 catch (Exception ex)
                 {
@@ -125,21 +125,21 @@ namespace QPAS
             }
         }
 
-        private static void SaveFlexStatementToDisk(string flex)
+        private static void SaveFlexStatementToDisk(string flex, IAppSettings settings)
         {
-            if (string.IsNullOrEmpty(Properties.Settings.Default.statementSaveLocation)) return;
+            if (string.IsNullOrEmpty(settings.StatementSaveLocation)) return;
 
-            if (!Directory.Exists(Properties.Settings.Default.statementSaveLocation))
+            if (!Directory.Exists(settings.StatementSaveLocation))
             {
-                Directory.CreateDirectory(Properties.Settings.Default.statementSaveLocation);
+                Directory.CreateDirectory(settings.StatementSaveLocation);
             }
-            string filename = string.Format("{0}\\{1}.xml", Properties.Settings.Default.statementSaveLocation, DateTime.Now.ToString("yyyy-MM-dd HHmmss"));
+            string filename = string.Format("{0}\\{1}.xml", settings.StatementSaveLocation, DateTime.Now.ToString("yyyy-MM-dd HHmmss"));
 
             int i = 1;
             while (File.Exists(filename))
             {
                 filename = string.Format("{0}\\{1} ({2})",
-                    Properties.Settings.Default.statementSaveLocation,
+                    settings.StatementSaveLocation,
                     DateTime.Now.ToLongDateString(),
                     i);
                 i++;

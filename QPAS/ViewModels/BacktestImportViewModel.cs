@@ -1,14 +1,11 @@
-﻿using System;
+﻿using MahApps.Metro.Controls.Dialogs;
+using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using MahApps.Metro.Controls.Dialogs;
-using ReactiveUI;
 
 namespace QPAS
 {
@@ -75,7 +72,7 @@ namespace QPAS
         {
             string file;
             bool? res = Dialogs.OpenFileDialog("CSV Files (*.csv)|*.csv", out file);
-            if(!res.HasValue || res.Value == false)
+            if (!res.HasValue || res.Value == false)
             {
                 //No file
                 return;
@@ -88,7 +85,7 @@ namespace QPAS
             {
                 RawData = File.ReadAllText(file);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _dialogService.ShowMessageAsync(this, "Error opening file.", ex.Message).Forget();
                 return;
@@ -146,10 +143,10 @@ namespace QPAS
             var equityValues = new List<double>();
 
             int count = 0;
-            foreach(var kvp in RawSplitData)
+            foreach (var kvp in RawSplitData)
             {
                 DateTime date;
-                if(!DateTime.TryParseExact(kvp.Key, DateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+                if (!DateTime.TryParseExact(kvp.Key, DateTimeFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
                 {
                     _dialogService.ShowMessageAsync(this, "Parsing error.",
                         string.Format("Failed to date value at line {0}: {1}", count, kvp.Key));
@@ -158,7 +155,7 @@ namespace QPAS
                 dates.Add(date);
 
                 double equity;
-                if(!double.TryParse(kvp.Value, out equity))
+                if (!double.TryParse(kvp.Value, out equity))
                 {
                     _dialogService.ShowMessageAsync(this, "Parsing error.",
                         string.Format("Failed to parse equity value at line {0}: {1}", count, kvp.Value));

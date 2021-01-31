@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
-using EntityModel;
+﻿using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
+using NLog;
+using ReactiveUI;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
-using ReactiveUI;
 
 namespace QPAS
 {
@@ -23,9 +24,12 @@ namespace QPAS
 
         public Order SelectedOrder { get; set; }
 
+        private readonly IContextFactory _contextFactory;
         internal IDataSourcer Datasourcer;
-        internal IDBContext Context;
-        internal ITradesRepository TradesRepository;
+        private readonly DataContainer _data;
+        private readonly IScriptRunner _scriptRunner;
+        private readonly TradesRepository TradesRepository;
+        private Logger _logger = LogManager.GetCurrentClassLogger();
         internal ExecutionStatsGenerator ExecutionStatsGenerator;
 
 
@@ -34,17 +38,18 @@ namespace QPAS
         public ICommand SetExecutionReportOrders { get; private set; }
         public ICommand RunScripts { get; private set; }
 
-        public OrdersPageViewModel(IDBContext context, IDialogCoordinator dialogService, IDataSourcer datasourcer, IMainViewModel parent)
+        public OrdersPageViewModel(IContextFactory contextFactory, IDialogCoordinator dialogService, IDataSourcer datasourcer, IAppSettings settings, DataContainer data, IScriptRunner scriptRunner, IMainViewModel parent)
             : base(dialogService)
         {
-            Context = context;
             Parent = parent;
+            _contextFactory = contextFactory;
             Datasourcer = datasourcer;
-
-            TradesRepository = parent.TradesRepository;
+            _data = data;
+            _scriptRunner = scriptRunner;
+            TradesRepository = new TradesRepository(contextFactory, datasourcer, settings);
 
             OrdersSource = new CollectionViewSource();
-            OrdersSource.Source = Context.Orders.Local;
+            OrdersSource.Source = data.Orders;
             OrdersSource.SortDescriptions.Add(new SortDescription("TradeDate", ListSortDirection.Descending));
 
             ExecutionStatsGenerator = new ExecutionStatsGenerator(datasourcer);
@@ -54,7 +59,7 @@ namespace QPAS
 
         private void CreateCommands()
         {
-            CloneSelected = new RelayCommand<int>(CloneOrder);
+            CloneSelected = new RelayCommand<int>(SplitIntoVirtualOrders);
             Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteOrders(x).ConfigureAwait(true));
             SetExecutionReportOrders = new RelayCommand<IList>(SetExecReportOrders);
             RunScripts = ReactiveCommand.CreateFromTask<IList>(async x => await RunUserScripts(x).ConfigureAwait(true));
@@ -64,7 +69,25 @@ namespace QPAS
         {
             if (orders == null || orders.Count == 0) return;
 
-            await Parent.ScriptRunner.RunOrderScripts(orders.Cast<Order>().OrderBy(x => x.TradeDate).ToList(), Context).ConfigureAwait(true);
+            List<UserScript> scripts;
+            using (var dbContext = _contextFactory.Get())
+            {
+                scripts = dbContext.UserScripts.Where(x => x.Type == UserScriptType.OrderScript).ToList();
+            }
+
+            foreach (var script in scripts)
+            {
+                try
+                {
+                    await _scriptRunner.RunOrderScript(script, orders.Cast<Order>().ToList()).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(LogLevel.Error, "User script {0} generated an exception: ", script.Name);
+                    _logger.Log(LogLevel.Error, ex);
+                    await DialogService.ShowMessageAsync(Parent, "Error", $"User script {script.Name} generated an exception: {ex.Message}. See log for more details.");
+                }
+            }
         }
 
         private void SetExecReportOrders(IList orders)
@@ -87,32 +110,44 @@ namespace QPAS
 
             if (res != MessageDialogResult.Affirmative) return;
 
+            //if the order belongs to a trade, remove it
             foreach (Order o in selectedOrders)
             {
-                //remove executions first
-                if(o.Executions != null)
-                {
-                    List<Execution> toRemove = o.Executions.ToList();
-                    foreach(Execution exec in toRemove)
-                    {
-                        Context.Executions.Remove(exec);
-                    }
-                    o.Executions.Clear();
-                }
-
-                //if the order belongs to a trade, remove it
                 if (o.Trade != null)
                 {
                     await TradesRepository.RemoveOrder(o.Trade, o).ConfigureAwait(true);
                 }
-
-                //finally delete the order
-                Context.Orders.Remove(o);
             }
-            await Context.SaveChangesAsync().ConfigureAwait(true);
+
+
+            using (var dbContext = _contextFactory.Get())
+            {
+                foreach (Order o in selectedOrders)
+                {
+                    //remove executions first
+                    if (o.Executions != null)
+                    {
+                        List<Execution> toRemove = o.Executions.ToList();
+                        foreach (Execution exec in toRemove)
+                        {
+                            dbContext.Executions.Remove(exec);
+                        }
+                        o.Executions.Clear();
+                    }
+
+                    //finally delete the order
+                    dbContext.Orders.Remove(o);
+                }
+                await dbContext.SaveChangesAsync().ConfigureAwait(true);
+            }
         }
 
-        private async void CloneOrder(int size)
+        /// <summary>
+        /// Splits one order into two different virtual orders with a given share size. 
+        /// Used when one order needs to be assigned to two trades.
+        /// </summary>
+        /// <param name="size"></param>
+        private async void SplitIntoVirtualOrders(int size)
         {
             if (SelectedOrder == null) return;
 
@@ -156,27 +191,21 @@ namespace QPAS
             cloneBuy.MTMPnL = size * (originalOrder.Price - originalOrder.ClosePrice);
             cloneSell.MTMPnL = -size * (originalOrder.Price - originalOrder.ClosePrice);
 
-            Context.Orders.Add(cloneBuy);
-            Context.Orders.Add(cloneSell);
+            using (var dbContext = _contextFactory.Get())
+            {
+                dbContext.Orders.Add(cloneBuy);
+                dbContext.Orders.Add(cloneSell);
 
-            Context.SaveChanges();
+                dbContext.SaveChanges();
 
+                _data.Orders.Add(cloneBuy);
+                _data.Orders.Add(cloneSell);
+            }
             OrdersSource.View.Refresh();
         }
 
         public override async Task Refresh()
         {
-            await Context
-                .Orders
-                .OrderByDescending(z => z.TradeDate)
-                .Include(x => x.Instrument)
-                .Include(x => x.Currency)
-                .Include(x => x.CommissionCurrency)
-                .Include(x => x.Executions)
-                .Include(x => x.Account)
-                .LoadAsync().ConfigureAwait(true);
-
-            OrdersSource.View.Refresh();
         }
     }
 }

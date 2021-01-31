@@ -5,6 +5,8 @@
 // -----------------------------------------------------------------------
 
 using MahApps.Metro.Controls;
+using System.IO;
+using System.Reflection;
 
 namespace QPAS
 {
@@ -15,14 +17,21 @@ namespace QPAS
     {
         public ChangelogWindow()
         {
-            if(string.IsNullOrEmpty(Properties.Resources.CHANGELOG))
+            string changelog;
+            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("QPAS.Resources.CHANGELOG.txt"))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                changelog = reader.ReadToEnd();
+            }
+
+            if (string.IsNullOrEmpty(changelog))
             {
                 Close();
                 return;
             }
 
             InitializeComponent();
-            ChangelogText.Text = Properties.Resources.CHANGELOG;
+            ChangelogText.Text = changelog;
         }
     }
 }

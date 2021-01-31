@@ -1,8 +1,12 @@
+1.0.0
+------------------------
+* Ported to .NET Core.
+* QPAS now uses SQLite instead of MySQL/SQL Server.
+* Tons of small fixes.
+
 0.4.0
 ------------------------
-* TODO: fix calendar
-
-* Added scripting functionality! You can now write scripts in C# that automatically create trades, add orders to trades, and set tags and strategies. See the documentation for more details: http://qusma.com/qpasdocs/index.php/Scripting
+* Added scripting functionality! You can now write scripts in C# that automatically create trades, add orders to trades, and set tags and strategies. See the documentation for more details: https://github.com/qusma/QPAS/wiki/Scripting
 * Order parsing now includes the "Order Reference" field. This is a field that can be set in the order ticket window of TWS, or through the API and can contain any text you want. This can be very useful for automating the assignment of orders to trades. NOTE: only daily flex reports include this field.
 * The performance overview page now allows you to select a currency if you want to see the performance of your account in non-USD currencies.
 * Added Average trade return by day, hour, day & hour to performance report.

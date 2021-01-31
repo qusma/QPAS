@@ -4,19 +4,15 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System.Linq;
-using System.Data.Entity;
-using System.Threading.Tasks;
 using EntityModel;
-using QPAS.Properties;
 using ReactiveUI;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace QPAS
 {
     public class TradeViewModel : ViewModelBase
     {
-        private readonly IDataSourcer _dataSourcer;
-        private readonly IDBContext _context;
         private Trade _trade;
         public Trade Trade
         {
@@ -25,41 +21,35 @@ namespace QPAS
         }
 
         private TradeTracker _tracker;
+        private IContextFactory _contextFactory;
+        private readonly IDataSourcer _dataSourcer;
+        private readonly IAppSettings _settings;
+
+        public ObservableCollection<Order> Orders { get; } = new ObservableCollection<Order>();
+        public ObservableCollection<FXTransaction> FxTransactions { get; } = new ObservableCollection<FXTransaction>();
+        public ObservableCollection<CashTransaction> CashTransactions { get; } = new ObservableCollection<CashTransaction>();
+
+
         public TradeTracker Tracker
         {
             get => _tracker;
             set => this.RaiseAndSetIfChanged(ref _tracker, value);
         }
 
-        public TradeViewModel() : base(null)
+        public TradeViewModel(Trade trade, IContextFactory contextFactory, IDataSourcer dataSourcer, IAppSettings settings) : base(null)
         {
-            Trade = new Trade();
-        }
-
-        public TradeViewModel(Trade trade, IDataSourcer dataSourcer, IDBContext context) : base(null)
-        {
+            _contextFactory = contextFactory;
             _dataSourcer = dataSourcer;
-            _context = context;
-            context.Trades
-                    .Where(x => x.ID == trade.ID)
-                    .Include(x => x.Strategy)
-                    .Include(x => x.Orders)
-                    .Include("Orders.Instrument")
-                    .Include("Orders.Currency")
-                    .Include(x => x.CashTransactions)
-                    .Include("CashTransactions.Instrument")
-                    .Include("CashTransactions.Currency")
-                    .Include(x => x.FXTransactions)
-                    .Include("FXTransactions.FunctionalCurrency")
-                    .Include("FXTransactions.FXCurrency")
-                    .Load();
-
+            _settings = settings;
             Trade = trade;
+            Orders.AddRange(trade.Orders);
+            FxTransactions.AddRange(trade.FXTransactions);
+            CashTransactions.AddRange(trade.CashTransactions);
         }
 
         public async Task SimulateTrade()
         {
-            Tracker = await TradeSim.SimulateTrade(Trade, _context, _dataSourcer, Settings.Default.optionsCapitalUsageMultiplier).ConfigureAwait(true);
+            Tracker = await TradeSim.SimulateTrade(Trade, _contextFactory, _dataSourcer, _settings.OptionsCapitalUsageMultiplier).ConfigureAwait(true);
         }
     }
 }

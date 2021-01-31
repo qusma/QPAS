@@ -4,14 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using NLog;
 using QPAS.DataSets;
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace QPAS
 {
@@ -36,7 +36,7 @@ namespace QPAS
 
             //give instrument pnl chart 30 pixels height for every bar, there's no better way of fitting it to the contents
             RealizedPLByInstrumentChart.Height = 50 + ViewModel.Data.pnlByInstrument.Rows.Count * 30;
-            ROACByInstrumentChart.Height = 50 +  ViewModel.Data.instrumentROAC.Rows.Count * 30;
+            ROACByInstrumentChart.Height = 50 + ViewModel.Data.instrumentROAC.Rows.Count * 30;
             TotalPLByTagChart.Height = 50 + ViewModel.Data.PLByTag.Rows.Count * 30;
             AvgPLByTagChart.Height = 50 + ViewModel.Data.PLByTag.Rows.Count * 30;
         }
@@ -85,12 +85,12 @@ namespace QPAS
 
         private void TradeStatsByStrategyGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
-            if ((string) e.Column.Header == "stat") e.Cancel = true;
+            if ((string)e.Column.Header == "stat") e.Cancel = true;
         }
 
         private void StrategyCorrelationsGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
-            if((string)e.Column.Header == "Name")
+            if ((string)e.Column.Header == "Name")
             {
                 e.Cancel = true;
             }
@@ -118,7 +118,7 @@ namespace QPAS
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var logger = LogManager.GetCurrentClassLogger();
                 logger.Error(ex, "Error exporting report to Excel: ");
