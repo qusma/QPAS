@@ -155,6 +155,10 @@ namespace QPAS
             progressDialog.SetTitle("Importing data");
             progressDialog.SetMessage("Importing data");
 
+            //backup db before import
+            System.IO.File.Copy("qpas.db", "qpas-backup.db", true);
+
+            //prevent gaps in data
             bool continueImport = await ImportDateCheck(newData, progressDialog);
             if (!continueImport) return;
 
@@ -243,7 +247,7 @@ namespace QPAS
                 catch (Exception ex)
                 {
                     _logger.Error(ex, "User script {0} generated an exception: ", scripts[i].Name);
-                    await DialogService.ShowMessageAsync(this, "Error", $"User script {scripts[i].Name} generated an exception. See log for more details."); //todo: test this
+                    await DialogService.ShowMessageAsync(this, "Error", $"User script {scripts[i].Name} generated an exception. See log for more details.");
                 }
             }
         }
