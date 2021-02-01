@@ -974,19 +974,6 @@ namespace QPAS
             }
         }
 
-        private void BacktestFileTextBox_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var window = new BacktestImportWindow();
-            window.ShowDialog();
-
-            if (!window.Canceled)
-            {
-                //quite ugly, but eh...
-                BacktestFileTextBox.Text = window.ViewModel.FilePath;
-                ViewModel.PerformanceReportPageViewModel.ReportSettings.BacktestData = window.ViewModel.EquityCurve;
-            }
-        }
-
         /// <summary>
         /// Starts the user script editor and exits this program. 
         /// Can't compile the user scripts library while this is running.

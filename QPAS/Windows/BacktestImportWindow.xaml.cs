@@ -30,7 +30,12 @@ namespace QPAS
 
         private void HelpBtn_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start(new ProcessStartInfo(@"http://qusma.com/qpasdocs/index.php/Importing_Backtest_Data"));
+            var psi = new ProcessStartInfo
+            {
+                FileName = "https://github.com/qusma/QPAS/wiki/Importing-Backtest-Data",
+                UseShellExecute = true
+            };
+            Process.Start(psi);
         }
 
         private void ImportBtn_Click(object sender, RoutedEventArgs e)

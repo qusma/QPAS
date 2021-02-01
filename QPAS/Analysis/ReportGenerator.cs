@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Instrument = EntityModel.Instrument;
 using Tag = EntityModel.Tag;
+using ReportSettings = EntityModel.ReportSettings;
 
 namespace QPAS
 {
@@ -151,7 +152,7 @@ namespace QPAS
         /// <param name="settings"></param>
         /// <param name="datasourcer"></param>
         /// <param name="progressDialog"></param>
-        public async Task<filterReportDS> TradeStats(List<Trade> trades, ReportSettings settings, IAppSettings appSettings, IDataSourcer datasourcer, IContextFactory contextFactory, ProgressDialogController progressDialog = null)
+        public async Task<filterReportDS> TradeStats(List<Trade> trades, ReportSettings settings, IAppSettings appSettings, IDataSourcer datasourcer, IContextFactory contextFactory, EquityCurve backtestData = null, ProgressDialogController progressDialog = null)
         {
             _settings = settings;
             _progressDialog = progressDialog;
@@ -191,7 +192,7 @@ namespace QPAS
             var fxData = AcquireFXData();
 
             //Grab backtest data
-            await AcquireBacktestData(datasourcer).ConfigureAwait(true);
+            await AcquireBacktestData(datasourcer, backtestData).ConfigureAwait(true);
 
             //also get the benchmark values for the period
             if (settings.Benchmark != null)
@@ -282,15 +283,15 @@ namespace QPAS
             return ds;
         }
 
-        private async Task AcquireBacktestData(IDataSourcer datasourcer)
+        private async Task AcquireBacktestData(IDataSourcer datasourcer, EquityCurve backtestData)
         {
             if (_settings.BacktestSource == BacktestSource.None)
             {
                 return;
             }
-            else if (_settings.BacktestSource == BacktestSource.External && _settings.Backtest?.ID != null)
+            else if (_settings.BacktestSource == BacktestSource.External && _settings.BacktestExternalInstrumentId != null)
             {
-                var data = await datasourcer.ExternalDataSource.GetData(_settings.Backtest.ID.Value, new DateTime(1950, 1, 1), DateTime.Now, BarSize.OneDay).ConfigureAwait(true);
+                var data = await datasourcer.ExternalDataSource.GetData(_settings.BacktestExternalInstrumentId.Value, new DateTime(1950, 1, 1), DateTime.Now, BarSize.OneDay).ConfigureAwait(true);
                 if (data == null || data.Count == 0)
                 {
                     _logger.Log(LogLevel.Error, "Could not retrieve backtest data.");
@@ -303,9 +304,9 @@ namespace QPAS
                     _backtestEC.AddReturn((double)(data[i].Close / data[i - 1].Close - 1), data[i].Date.ToDateTime());
                 }
             }
-            else if (_settings.BacktestSource == BacktestSource.File && _settings.BacktestData != null)
+            else if (_settings.BacktestSource == BacktestSource.File && backtestData != null)
             {
-                _backtestEC = _settings.BacktestData;
+                _backtestEC = backtestData;
             }
         }
 

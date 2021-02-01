@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace QPAS
+namespace EntityModel
 {
     public enum ExecutionBenchmark
     {

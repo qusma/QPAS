@@ -38,6 +38,7 @@ namespace EntityModel
         DbSet<DatasourcePreference> DatasourcePreferences { get; set; }
         DbSet<Account> Accounts { get; set; }
         DbSet<UserScript> UserScripts { get; set; }
+        DbSet<ReportSettings> ReportSettings { get; set; }
 
         DbSet<TEntity> Set<TEntity>() where TEntity : class;
 

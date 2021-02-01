@@ -7,7 +7,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -55,6 +57,8 @@ namespace EntityModel
 
         public DbSet<UserScript> UserScripts { get; set; }
 
+        public DbSet<ReportSettings> ReportSettings { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             foreach (var property in modelBuilder.Model.GetEntityTypes()
@@ -101,6 +105,24 @@ namespace EntityModel
 
             modelBuilder.Entity<Trade>()
                 .HasIndex(x => x.DateOpened);
+
+            modelBuilder.Entity<ReportSettings>()
+                .Property(x => x.SelectedTags)
+                .HasConversion(
+                    x => JsonConvert.SerializeObject(x),
+                    serialized => JsonConvert.DeserializeObject<List<int>>(serialized));
+
+            modelBuilder.Entity<ReportSettings>()
+                .Property(x => x.SelectedStrategies)
+                .HasConversion(
+                    x => JsonConvert.SerializeObject(x),
+                    serialized => JsonConvert.DeserializeObject<List<int>>(serialized));
+
+            modelBuilder.Entity<ReportSettings>()
+                .Property(x => x.SelectedInstruments)
+                .HasConversion(
+                    x => JsonConvert.SerializeObject(x),
+                    serialized => JsonConvert.DeserializeObject<List<int>>(serialized));
 
             //relations
             modelBuilder.Entity<Trade>()

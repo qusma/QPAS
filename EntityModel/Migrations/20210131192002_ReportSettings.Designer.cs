@@ -3,14 +3,16 @@ using System;
 using EntityModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace EntityModel.Migrations
 {
     [DbContext(typeof(QpasDbContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20210131192002_ReportSettings")]
+    partial class ReportSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

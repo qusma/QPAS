@@ -4,16 +4,16 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using EntityModel;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
-namespace QPAS
+namespace EntityModel
 {
     public class ReportSettings : INotifyPropertyChanged
     {
-
         private ReturnType _vaRReturnType;
         private ReturnType _returnsToBenchmark;
         private ReturnType _mcReturnType;
@@ -21,8 +21,16 @@ namespace QPAS
         private ReturnType _backtestComparisonReturnType;
         private BacktestSource _backtestSource;
         private QDMS.Instrument _backtest;
+        private int _vaRDays;
+        private bool _mCWithReplacement;
+        private int _mCClusterSize;
+        private int _mCRuns;
+        private int _mCPeriods;
+        private Benchmark benchmark;
 
-        public List<int> TradeIDs { get; set; }
+        public int Id { get; set; }
+
+        public string Name { get; set; }
 
         public ReturnType MCReturnType
         {
@@ -30,24 +38,53 @@ namespace QPAS
             set { _mcReturnType = value; OnPropertyChanged(); }
         }
 
-        public int MCPeriods { get; set; }
+        public int MCPeriods
+        {
+            get { return _mCPeriods; }
+            set { _mCPeriods = value; OnPropertyChanged(); }
+        }
 
-        public int MCRuns { get; set; }
+        public int MCRuns
+        {
+            get { return _mCRuns; }
+            set { _mCRuns = value; OnPropertyChanged(); }
+        }
 
-        public int MCClusterSize { get; set; }
+        public int MCClusterSize
+        {
+            get { return _mCClusterSize; }
+            set { _mCClusterSize = value; OnPropertyChanged(); }
+        }
 
-        public bool MCWithReplacement { get; set; }
+        public bool MCWithReplacement
+        {
+            get { return _mCWithReplacement; }
+            set { _mCWithReplacement = value; OnPropertyChanged(); }
+        }
 
-        public Benchmark Benchmark { get; set; }
+        public Benchmark Benchmark
+        {
+            get { return benchmark; }
+            set { benchmark = value; OnPropertyChanged(); }
+        }
+
+        public int? BenchmarkId { get; set; }
 
         /// <summary>
         /// Set an instrument to be used as a backtest series to compare against.
         /// </summary>
+        [NotMapped]
         public QDMS.Instrument Backtest
         {
             get { return _backtest; }
-            set { _backtest = value; OnPropertyChanged(); }
+            set { 
+                _backtest = value; 
+                OnPropertyChanged();
+                BacktestExternalInstrumentId = value?.ID;
+            }
         }
+
+        public int? BacktestExternalInstrumentId { get; set; }
 
         public BacktestSource BacktestSource
         {
@@ -60,11 +97,6 @@ namespace QPAS
             get { return _backtestComparisonReturnType; }
             set { _backtestComparisonReturnType = value; OnPropertyChanged(); }
         }
-
-        /// <summary>
-        /// If backtest results are loaded from a file, they're put in here.
-        /// </summary>
-        public EquityCurve BacktestData { get; set; }
 
         public ReturnType ReturnsToBenchmark
         {
@@ -84,7 +116,17 @@ namespace QPAS
             set { _autoCorrReturnType = value; OnPropertyChanged(); }
         }
 
-        public int VaRDays { get; set; }
+        public int VaRDays
+        {
+            get { return _vaRDays; }
+            set { _vaRDays = value; OnPropertyChanged(); }
+        }
+
+        public List<int> SelectedTags { get; set; } = new List<int>();
+
+        public List<int> SelectedStrategies { get; set; } = new List<int>();
+
+        public List<int> SelectedInstruments { get; set; } = new List<int>();
 
         public ReportSettings()
         {
@@ -94,7 +136,6 @@ namespace QPAS
             MCWithReplacement = true;
             MCReturnType = ReturnType.ROTC;
             ReturnsToBenchmark = ReturnType.ROTC;
-
             VaRReturnType = ReturnType.ROTC;
             VaRDays = 5;
         }

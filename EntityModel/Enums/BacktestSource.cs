@@ -1,14 +1,15 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ReturnType.cs" company="">
+// <copyright file="BacktestSource.cs" company="">
 // Copyright 2014 Alexander Soffronow Pagonidis
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace QPAS
+namespace EntityModel
 {
-    public enum ReturnType
+    public enum BacktestSource : int
     {
-        ROAC,
-        ROTC
+        None = 0,
+        External = 1,
+        File = 2
     }
 }

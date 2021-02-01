@@ -274,7 +274,14 @@ namespace QPAS
 
             var gen = new ReportGenerator();
             ProgressDialogController progressDialog = await DialogService.ShowProgressAsync(this, "Generating Report", "Generating Report").ConfigureAwait(true);
-            var ds = await Task.Run(() => gen.TradeStats(tradeIDs, PerformanceReportPageViewModel.ReportSettings, Settings, Datasourcer, _contextFactory, progressDialog)).ConfigureAwait(true);
+            var ds = await Task.Run(() => gen.TradeStats(
+                tradeIDs, 
+                PerformanceReportPageViewModel.ReportSettings, 
+                Settings, 
+                Datasourcer, 
+                _contextFactory, 
+                backtestData: PerformanceReportPageViewModel.BacktestData, 
+                progressDialog: progressDialog)).ConfigureAwait(true);
             progressDialog.CloseAsync().Forget(); //don't await it!
 
             var window = new PerformanceReportWindow(ds, PerformanceReportPageViewModel.ReportSettings);

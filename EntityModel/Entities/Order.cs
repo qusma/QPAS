@@ -4,6 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using NXmlMapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,7 +12,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
-using NXmlMapper;
 
 namespace EntityModel
 {
@@ -69,7 +69,6 @@ namespace EntityModel
                 return TradeDate.TimeOfDay;
             }
         }
-
 
         /// <summary>
         /// Used for parsing
@@ -282,7 +281,7 @@ namespace EntityModel
         public string OrderType { get; set; }
 
         /// <summary>
-        /// The order reference number as defined by the user on the order ticket. 
+        /// The order reference number as defined by the user on the order ticket.
         /// Available on daily (single-day) activity flex queries only.
         /// </summary>
         [MaxLength(255)]

@@ -2,8 +2,10 @@
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
 using ReactiveUI;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -21,8 +23,16 @@ namespace QPAS
         private string _toggleInstrumentsText;
         private IDataSourcer _datasourcer;
         private BacktestSource _backtestSource;
+        private string _backtestFilePath;
+        private ReportSettings _reportSettings;
 
-        public ReportSettings ReportSettings { get; set; }
+        public ReportSettings ReportSettings
+        {
+            get { return _reportSettings; }
+            set { this.RaiseAndSetIfChanged(ref _reportSettings, value); }
+        }
+
+        public ObservableCollection<ReportSettings> SavedReportSettings { get; } = new ObservableCollection<ReportSettings>();
 
         public TradeFilterSettings TradeFilterSettings { get; set; }
 
@@ -72,6 +82,19 @@ namespace QPAS
         public ICommand ToggleAllInstruments { get; set; }
 
         public ICommand GenerateReport { get; set; }
+        public ReactiveCommand<Unit, Unit> LoadBacktestFileCmd { get; private set; }
+        public ReactiveCommand<Unit, Unit> NewSettingsCmd { get; private set; }
+        public ReactiveCommand<Unit, Unit> SaveSettingsCmd { get; private set; }
+        public ReactiveCommand<string, Unit> LoadSettingsCmd { get; private set; }
+       
+
+        public EquityCurve BacktestData { get; private set; }
+
+        public string BacktestFilePath
+        {
+            get { return _backtestFilePath; }
+            private set { this.RaiseAndSetIfChanged(ref _backtestFilePath, value); }
+        }
 
         public PerformanceReportPageViewModel(IContextFactory contextFactory, IDialogCoordinator dialogService, IDataSourcer datasourcer, DataContainer data, IMainViewModel parent)
             : base(dialogService)
@@ -94,10 +117,15 @@ namespace QPAS
             BacktestSeries = new ObservableCollection<QDMS.Instrument>();
 
             data.Tags.CollectionChanged += Tags_CollectionChanged;
-            data.Strategies.CollectionChanged += Strategies_CollectionChanged;
+            data.Strategies.CollectionChanged += DataStrategies_CollectionChanged;
             data.Instruments.CollectionChanged += Instruments_CollectionChanged;
 
             CreateCommands();
+
+            using (var dbContext = contextFactory.Get())
+            {
+                SavedReportSettings.AddRange(dbContext.ReportSettings.ToList());
+            }
         }
 
         private void Instruments_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -121,7 +149,7 @@ namespace QPAS
             }
         }
 
-        private void Strategies_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void DataStrategies_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
             {
@@ -163,12 +191,123 @@ namespace QPAS
             }
         }
 
+
+
         private void CreateCommands()
         {
             ToggleAllTags = new RelayCommand(ToggleTags);
             ToggleAllStrategies = new RelayCommand(ToggleStrats);
             ToggleAllInstruments = new RelayCommand(ToggleInstruments);
             GenerateReport = new RelayCommand(GenReport);
+            LoadBacktestFileCmd = ReactiveCommand.Create(() => LoadBacktestFile());
+            NewSettingsCmd = ReactiveCommand.CreateFromTask(async () => await NewSettings());
+            LoadSettingsCmd = ReactiveCommand.CreateFromTask<string>(async name => await LoadSettings(name));
+            SaveSettingsCmd = ReactiveCommand.CreateFromTask(async () => await SaveSettings());
+        }
+
+        private async Task SaveSettings()
+        {
+            if (ReportSettings.Id == 0)
+            {
+                await NewSettings();
+                return;
+            }
+
+            RecordSelectionIds();
+
+            using (var dbContext = _contextFactory.Get())
+            {
+                dbContext.Entry(ReportSettings).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                dbContext.SaveChanges();
+            }
+        }
+
+        private async Task LoadSettings(string name)
+        {
+            using (var dbContext = _contextFactory.Get())
+            {
+                var loadedSettings = dbContext.ReportSettings.FirstOrDefault(x => x.Name == name);
+                if (loadedSettings == null)
+                {
+                    await DialogService.ShowMessageAsync(Parent, "Error", "Could not load selected settings");
+                    return;
+                }
+                ReportSettings = loadedSettings;
+
+                ApplySelectionIds();
+            }
+        }
+
+        private async Task NewSettings()
+        {
+            //creates a new settings object with the values of the old one?
+            string name = await DialogService.ShowInputAsync(Parent, "New Settings", "Enter name:");
+            using (var dbContext = _contextFactory.Get())
+            {
+                var existing = dbContext.ReportSettings.FirstOrDefault(x => x.Name == name);
+                if (existing != null)
+                {
+                    await DialogService.ShowMessageAsync(Parent, "Error", "A settings entry with that name already exists");
+                    return;
+                }
+                ReportSettings.Id = 0;
+                ReportSettings.Name = name;
+
+                RecordSelectionIds();
+
+                dbContext.Entry(ReportSettings).State = Microsoft.EntityFrameworkCore.EntityState.Added;
+                await dbContext.SaveChangesAsync();
+
+                SavedReportSettings.Add(ReportSettings);
+            }
+        }
+
+        /// <summary>
+        /// Takes the selections of tags, strategies, and instruments and adds the selected IDs to the Settings
+        /// </summary>
+        private void RecordSelectionIds()
+        {
+            var selectedTags = Tags.Where(x => x.IsChecked).Select(x => x.Item.ID).ToList();
+            var selectedStrategies = Strategies.Where(x => x.IsChecked).Select(x => x.Item.ID).ToList();
+            var selectedInstruments = Instruments.Where(x => x.IsChecked).Select(x => x.Item.ID).ToList();
+
+            ReportSettings.SelectedTags.AddRange(selectedTags);
+            ReportSettings.SelectedStrategies.AddRange(selectedStrategies);
+            ReportSettings.SelectedInstruments.AddRange(selectedInstruments);
+        }
+
+        /// <summary>
+        /// When loading settings, takes the tag, strategy, instrument IDs and applies the selections
+        /// </summary>
+        private void ApplySelectionIds()
+        {
+            foreach (var tagCheckItem in Tags)
+            {
+                tagCheckItem.IsChecked = ReportSettings.SelectedTags.Contains(tagCheckItem.Item.ID);
+            }
+
+            foreach (var strategyCheckItem in Strategies)
+            {
+                strategyCheckItem.IsChecked = ReportSettings.SelectedStrategies.Contains(strategyCheckItem.Item.ID);
+            }
+
+            foreach (var instrumentCheckItem in Instruments)
+            {
+                instrumentCheckItem.IsChecked = ReportSettings.SelectedInstruments.Contains(instrumentCheckItem.Item.ID);
+            }
+        }
+
+        private void LoadBacktestFile()
+        {
+            var window = new BacktestImportWindow();
+            window.ShowDialog();
+
+            if (!window.Canceled)
+            {
+                //quite ugly, but eh...
+                BacktestFilePath = window.ViewModel.FilePath;
+                BacktestData = window.ViewModel.EquityCurve;
+            }
         }
 
         private void ToggleStrats()
