@@ -89,7 +89,7 @@ namespace QPAS
         public async Task RefreshCurrentPage()
         {
             if (SelectedPageViewModel != null)
-                await SelectedPageViewModel.Refresh().ConfigureAwait(true);
+                await SelectedPageViewModel.Refresh();
         }
 
         private void CreateSubViewModels()
@@ -116,27 +116,27 @@ namespace QPAS
             LoadStatementFromWeb = ReactiveCommand.CreateFromTask<string>(async x =>
             {
                 var progressDialog = await DialogService.ShowProgressAsync(this, "Load Statement from Web", "Downloading").ConfigureAwait(false);
-                var newData = await StatementHandler.LoadFromWeb(x, progressDialog).ConfigureAwait(true);
+                var newData = await StatementHandler.LoadFromWeb(x, progressDialog);
                 if (newData == null)
                 {
-                    await progressDialog.CloseAsync().ConfigureAwait(true);
+                    await progressDialog.CloseAsync();
                     return;
                 }
 
-                await PostStatementLoadProcedures(newData, progressDialog).ConfigureAwait(true);
+                await PostStatementLoadProcedures(newData, progressDialog);
 
             });
             LoadStatementFromFile = ReactiveCommand.CreateFromTask<string>(async x =>
             {
                 var progressDialog = await DialogService.ShowProgressAsync(this, "Load Statement from File", "Opening File");
-                var newData = await StatementHandler.LoadFromFile(x, progressDialog).ConfigureAwait(true);
+                var newData = await StatementHandler.LoadFromFile(x, progressDialog);
                 if (newData == null)
                 {
-                    await progressDialog.CloseAsync().ConfigureAwait(true);
+                    await progressDialog.CloseAsync();
                     return;
                 }
 
-                await PostStatementLoadProcedures(newData, progressDialog).ConfigureAwait(true);
+                await PostStatementLoadProcedures(newData, progressDialog);
             });
 
             LoadStatementFromFile.ThrownExceptions.Subscribe(ex =>
@@ -154,6 +154,11 @@ namespace QPAS
             progressDialog.SetProgress(0);
             progressDialog.SetTitle("Importing data");
             progressDialog.SetMessage("Importing data");
+
+            bool continueImport = await ImportDateCheck(newData, progressDialog);
+            if (!continueImport) return;
+
+            //Perform the data import
             try
             {
                 foreach (var kvp in newData)
@@ -163,26 +168,60 @@ namespace QPAS
             }
             catch (Exception ex)
             {
-                await progressDialog.CloseAsync().ConfigureAwait(true);
+                await progressDialog.CloseAsync();
                 await DialogService.ShowMessageAsync(this, "Data Import Error", ex.Message);
                 _logger.Error(ex, "Data import exception");
 
                 return;
             }
 
+            //Run scripts
             progressDialog.SetProgress(0);
             progressDialog.SetTitle("Running scripts");
+
             await RunOrderScripts(Data.Orders.Where(y => y.Trade == null).OrderBy(y => y.TradeDate).ToList(), progressDialog);
-            if (!progressDialog.IsOpen)
+            await RunTradeScripts(progressDialog);
+
+            await progressDialog.CloseAsync();
+
+            await RefreshCurrentPage();
+        }
+
+        /// <summary>
+        /// warn if there are missing business days between the last data in the db and first data in the import
+        /// </summary>
+        /// <param name="newData"></param>
+        /// <param name="progressDialog"></param>
+        /// <returns>false to abort import</returns>
+        private async Task<bool> ImportDateCheck(Dictionary<string, DataContainer> newData, ProgressDialogController progressDialog)
+        {
+            DateTime? lastDateInDb;
+            using (var dbContext = _contextFactory.Get())
             {
-                //might have been closed in case of error
-                progressDialog = await DialogService.ShowProgressAsync(this, "Running scripts", "");
+                lastDateInDb = dbContext.FXRates.OrderByDescending(x => x.Date).FirstOrDefault()?.Date;
             }
-            await RunTradeScripts(progressDialog).ConfigureAwait(true);
 
-            await progressDialog.CloseAsync().ConfigureAwait(true);
+            var fxRateDateEarliestDates = newData.Select(x => x.Value.FXRates.OrderBy(x => x.Date).FirstOrDefault()).Where(x => x != null).ToList();
+            DateTime? firstDateInImport = fxRateDateEarliestDates.Count > 0 ? fxRateDateEarliestDates.OrderBy(x => x.Date).First().Date : (DateTime?)null;
 
-            await RefreshCurrentPage().ConfigureAwait(true);
+            if (lastDateInDb.HasValue && firstDateInImport.HasValue && lastDateInDb.Value < firstDateInImport.Value && 
+                Utils.CountBusinessDaysBetween(lastDateInDb.Value, firstDateInImport.Value) > 0)
+            {
+                var firstMissingBusinessDay = Utils.AddBusinessDays(lastDateInDb.Value, 1);
+
+                var result = await DialogService.ShowMessageAsync(this, "Potential Import Mistake Warning",
+                    "There are missing business days between the last data in the db and the first data in the file you are importing. " +
+                    $"It is recommended you Cancel the import and load a flex statement starting from {firstMissingBusinessDay:d}.\n\nDo you want to proceed anyway?",
+                    MessageDialogStyle.AffirmativeAndNegative);
+
+                if (result == MessageDialogResult.Negative)
+                {
+                    await progressDialog.CloseAsync();
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private async Task RunOrderScripts(List<Order> orders, ProgressDialogController progressDialog)
@@ -199,15 +238,12 @@ namespace QPAS
                 progressDialog.SetMessage("Running script: " + scripts[i].Name);
                 try
                 {
-                    await ScriptRunner.RunOrderScript(scripts[i], orders).ConfigureAwait(true);
+                    await ScriptRunner.RunOrderScript(scripts[i], orders);
                 }
                 catch (Exception ex)
                 {
-                    _logger.Log(LogLevel.Error, "User script {0} generated an exception: ", scripts[i].Name);
-                    _logger.Log(LogLevel.Error, ex);
-                    await progressDialog.CloseAsync();
-                    await DialogService.ShowMessageAsync(this, "Error", $"User script {scripts[i].Name} generated an exception. See log for more details.");
-                    progressDialog = await DialogService.ShowProgressAsync(this, "Running scripts", "");
+                    _logger.Error(ex, "User script {0} generated an exception: ", scripts[i].Name);
+                    await DialogService.ShowMessageAsync(this, "Error", $"User script {scripts[i].Name} generated an exception. See log for more details."); //todo: test this
                 }
             }
         }
@@ -231,11 +267,8 @@ namespace QPAS
                 }
                 catch (Exception ex)
                 {
-                    _logger.Log(LogLevel.Error, "User script {0} generated an exception: ", scripts[i].Name);
-                    _logger.Log(LogLevel.Error, ex);
-                    await progressDialog.CloseAsync();
+                    _logger.Error(ex, "User script {0} generated an exception: ", scripts[i].Name);
                     await DialogService.ShowMessageAsync(this, "Error", $"User script {scripts[i].Name} generated an exception. See log for more details.");
-                    progressDialog = await DialogService.ShowProgressAsync(this, "Running scripts", "");
                 }
             }
         }
@@ -268,12 +301,12 @@ namespace QPAS
             if (tradeIDs == null) throw new NullReferenceException("tradeIDs");
             if (tradeIDs.Count == 0)
             {
-                await DialogService.ShowMessageAsync(this, "Error", "No trades meet the given criteria").ConfigureAwait(true);
+                await DialogService.ShowMessageAsync(this, "Error", "No trades meet the given criteria");
                 return;
             }
 
             var gen = new ReportGenerator();
-            ProgressDialogController progressDialog = await DialogService.ShowProgressAsync(this, "Generating Report", "Generating Report").ConfigureAwait(true);
+            ProgressDialogController progressDialog = await DialogService.ShowProgressAsync(this, "Generating Report", "Generating Report");
             var ds = await Task.Run(() => gen.TradeStats(
                 tradeIDs, 
                 PerformanceReportPageViewModel.ReportSettings, 
@@ -281,7 +314,7 @@ namespace QPAS
                 Datasourcer, 
                 _contextFactory, 
                 backtestData: PerformanceReportPageViewModel.BacktestData, 
-                progressDialog: progressDialog)).ConfigureAwait(true);
+                progressDialog: progressDialog));
             progressDialog.CloseAsync().Forget(); //don't await it!
 
             var window = new PerformanceReportWindow(ds, PerformanceReportPageViewModel.ReportSettings);

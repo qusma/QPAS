@@ -6,6 +6,7 @@
 
 using EntityModel;
 using QDMS;
+using QLNet;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,6 +18,8 @@ namespace QPAS
 {
     public static class Utils
     {
+        private static UnitedStates Calendar = new UnitedStates(UnitedStates.Market.NYSE);
+
         public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
         {
             if (depObj != null)
@@ -44,7 +47,7 @@ namespace QPAS
         public static bool CheckAndSaveVersion()
         {
             var dirPath = AppDomain.CurrentDomain.BaseDirectory;
-            var filePath = Path.Combine(dirPath, "lastversion");
+            var filePath = System.IO.Path.Combine(dirPath, "lastversion");
             var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
             if (!File.Exists(filePath))
@@ -115,6 +118,40 @@ namespace QPAS
                 return parent;
             else
                 return FindVisualParent<T>(parentObject);
+        }
+
+        public static int CountBusinessDaysBetween(DateTime start, DateTime end)
+        {
+            var startDate = new Date(start);
+            var endDate = new Date(end);
+            int count = 0;
+
+            startDate += 1;
+
+            while (startDate < endDate)
+            {
+                if (Calendar.isBusinessDay(startDate))
+                {
+                    count++;
+                }
+                startDate += 1;
+            } 
+
+            return count;
+        }
+
+        public static DateTime AddBusinessDays(DateTime dt, int days)
+        {
+            int counter = days;
+            while (counter != 0)
+            {
+                dt = dt.AddDays(Math.Sign(counter));
+                if (Calendar.isBusinessDay(dt))
+                {
+                    counter -= Math.Sign(counter);
+                }
+            }
+            return dt;
         }
 
         public static string FormatTimespan(TimeSpan t)
