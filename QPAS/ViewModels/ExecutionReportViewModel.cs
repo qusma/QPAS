@@ -77,7 +77,7 @@ namespace QPAS
 
         private void CreateCommands()
         {
-            RunAnalysis = ReactiveCommand.CreateFromTask(async _ => await Run().ConfigureAwait(true));
+            RunAnalysis = ReactiveCommand.CreateFromTask(async _ => await Run());
         }
 
         private async Task Run()
@@ -91,7 +91,7 @@ namespace QPAS
                     (UseSessionsTime || !ReferenceTime.HasValue)
                         ? null
                         : (TimeSpan?)ReferenceTime.Value.TimeOfDay;
-                await StatsGenerator.GenerateExecutionStats(Benchmark, referenceTime).ConfigureAwait(true);
+                await StatsGenerator.GenerateExecutionStats(Benchmark, referenceTime);
                 SetStats();
             }
             catch (Exception ex)
@@ -101,7 +101,7 @@ namespace QPAS
 
             if (!string.IsNullOrEmpty(error))
             {
-                await DialogService.ShowMessageAsync(this, "Error", error).ConfigureAwait(true);
+                await DialogService.ShowMessageAsync(this, "Error", error);
             }
         }
 

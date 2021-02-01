@@ -64,12 +64,12 @@ namespace QPAS
         private void CreateCommands()
         {
             Delete = new RelayCommand<IList>(async x => await DeleteTrades(x));
-            Reset = ReactiveCommand.CreateFromTask<IList>(async x => await ResetTrades(x).ConfigureAwait(true));
-            UpdateStats = ReactiveCommand.CreateFromTask<IList>(async x => await UpdateTradeStats(x).ConfigureAwait(true));
-            OpenTrades = ReactiveCommand.CreateFromTask<IList>(async x => await Open(x).ConfigureAwait(true));
-            CloseTrades = ReactiveCommand.CreateFromTask<IList>(async x => await Close(x).ConfigureAwait(true));
-            RunScripts = ReactiveCommand.CreateFromTask<IList>(async x => await RunUserScripts(x).ConfigureAwait(true));
-            Create = ReactiveCommand.CreateFromTask<string, Trade>(async x => await CreateTrade(x).ConfigureAwait(true));
+            Reset = ReactiveCommand.CreateFromTask<IList>(async x => await ResetTrades(x));
+            UpdateStats = ReactiveCommand.CreateFromTask<IList>(async x => await UpdateTradeStats(x));
+            OpenTrades = ReactiveCommand.CreateFromTask<IList>(async x => await Open(x));
+            CloseTrades = ReactiveCommand.CreateFromTask<IList>(async x => await Close(x));
+            RunScripts = ReactiveCommand.CreateFromTask<IList>(async x => await RunUserScripts(x));
+            Create = ReactiveCommand.CreateFromTask<string, Trade>(async x => await CreateTrade(x));
         }
 
         public async Task<Trade> CreateTrade(string name)
@@ -78,7 +78,7 @@ namespace QPAS
             if (String.IsNullOrEmpty(name)) return null;
 
             var newTrade = new Trade { Name = name, Open = true };
-            await TradesRepository.Add(newTrade).ConfigureAwait(true);
+            await TradesRepository.Add(newTrade);
             _data.Trades.Add(newTrade);
             return newTrade;
         }
@@ -103,8 +103,8 @@ namespace QPAS
             using (var dbContext = _contextFactory.Get())
             {
                 trade.Open = newOpenState;
-                await TradesRepository.UpdateStats(trade).ConfigureAwait(true);
-                await TradesRepository.UpdateTrade(trade).ConfigureAwait(true);
+                await TradesRepository.UpdateStats(trade);
+                await TradesRepository.UpdateTrade(trade);
             }
         }
 
@@ -143,7 +143,7 @@ namespace QPAS
 
         private async Task Close(IList trades)
         {
-            await TradesRepository.CloseTrades(trades).ConfigureAwait(true);
+            await TradesRepository.CloseTrades(trades);
         }
 
         private async Task Open(IList trades)
@@ -162,7 +162,7 @@ namespace QPAS
 
             foreach (Trade t in trades)
             {
-                await TradesRepository.UpdateStats(t).ConfigureAwait(true);
+                await TradesRepository.UpdateStats(t);
             }
 
             await TradesRepository.UpdateTrade(trades: trades.Cast<Trade>());
@@ -182,7 +182,7 @@ namespace QPAS
             //reset the trades
             foreach (Trade trade in trades)
             {
-                await TradesRepository.Reset(trade).ConfigureAwait(true);
+                await TradesRepository.Reset(trade);
             }
         }
 
@@ -230,7 +230,7 @@ namespace QPAS
                     _data.Trades.Remove(trade);
                     dbContext.Trades.Remove(trade);
                 }
-                await dbContext.SaveChangesAsync().ConfigureAwait(true);
+                await dbContext.SaveChangesAsync();
             }
         }
 

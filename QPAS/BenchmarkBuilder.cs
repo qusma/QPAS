@@ -38,7 +38,7 @@ namespace QPAS
             foreach (var component in components)
             {
                 data.Add(component.QDMSInstrumentID,
-                    new TimeSeries(await dataSourcer.GetExternalData(component.QDMSInstrumentID, earliestDate, latestDate).ConfigureAwait(true)));
+                    new TimeSeries(await dataSourcer.GetExternalData(component.QDMSInstrumentID, earliestDate, latestDate)));
             }
 
 

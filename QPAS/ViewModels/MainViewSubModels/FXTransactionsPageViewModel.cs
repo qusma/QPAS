@@ -42,7 +42,7 @@ namespace QPAS
 
         private void CreateCommands()
         {
-            Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteFxTransactions(x).ConfigureAwait(true));
+            Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteFxTransactions(x));
         }
 
         private async Task DeleteFxTransactions(IList fxts)
@@ -65,7 +65,7 @@ namespace QPAS
                 {
                     if (fxt.Trade != null)
                     {
-                        await TradesRepository.RemoveFXTransaction(fxt.Trade, fxt).ConfigureAwait(true);
+                        await TradesRepository.RemoveFXTransaction(fxt.Trade, fxt);
                     }
                     dbContext.FXTransactions.Remove(fxt);
                 }

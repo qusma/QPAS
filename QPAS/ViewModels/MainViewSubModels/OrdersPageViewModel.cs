@@ -60,9 +60,9 @@ namespace QPAS
         private void CreateCommands()
         {
             CloneSelected = new RelayCommand<int>(SplitIntoVirtualOrders);
-            Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteOrders(x).ConfigureAwait(true));
+            Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteOrders(x));
             SetExecutionReportOrders = new RelayCommand<IList>(SetExecReportOrders);
-            RunScripts = ReactiveCommand.CreateFromTask<IList>(async x => await RunUserScripts(x).ConfigureAwait(true));
+            RunScripts = ReactiveCommand.CreateFromTask<IList>(async x => await RunUserScripts(x));
         }
 
         private async Task RunUserScripts(IList orders)
@@ -115,7 +115,7 @@ namespace QPAS
             {
                 if (o.Trade != null)
                 {
-                    await TradesRepository.RemoveOrder(o.Trade, o).ConfigureAwait(true);
+                    await TradesRepository.RemoveOrder(o.Trade, o);
                 }
             }
 
@@ -138,7 +138,7 @@ namespace QPAS
                     //finally delete the order
                     dbContext.Orders.Remove(o);
                 }
-                await dbContext.SaveChangesAsync().ConfigureAwait(true);
+                await dbContext.SaveChangesAsync();
             }
         }
 

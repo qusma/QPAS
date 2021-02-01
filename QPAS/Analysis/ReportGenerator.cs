@@ -186,13 +186,13 @@ namespace QPAS
             }
 
             //grab the relevant instrument data...
-            Dictionary<int, TimeSeries> data = await AcquireInstrumentData(datasourcer).ConfigureAwait(true);
+            Dictionary<int, TimeSeries> data = await AcquireInstrumentData(datasourcer);
 
             //Grab FX data
             var fxData = AcquireFXData();
 
             //Grab backtest data
-            await AcquireBacktestData(datasourcer, backtestData).ConfigureAwait(true);
+            await AcquireBacktestData(datasourcer, backtestData);
 
             //also get the benchmark values for the period
             if (settings.Benchmark != null)
@@ -291,7 +291,7 @@ namespace QPAS
             }
             else if (_settings.BacktestSource == BacktestSource.External && _settings.BacktestExternalInstrumentId != null)
             {
-                var data = await datasourcer.ExternalDataSource.GetData(_settings.BacktestExternalInstrumentId.Value, new DateTime(1950, 1, 1), DateTime.Now, BarSize.OneDay).ConfigureAwait(true);
+                var data = await datasourcer.ExternalDataSource.GetData(_settings.BacktestExternalInstrumentId.Value, new DateTime(1950, 1, 1), DateTime.Now, BarSize.OneDay);
                 if (data == null || data.Count == 0)
                 {
                     _logger.Log(LogLevel.Error, "Could not retrieve backtest data.");
@@ -345,7 +345,7 @@ namespace QPAS
                 DateTime startingDate = kvp.Value.Key;
                 DateTime endingDate = kvp.Value.Value;
 
-                var series = await datasourcer.GetData(instrument, startingDate, endingDate).ConfigureAwait(true);
+                var series = await datasourcer.GetData(instrument, startingDate, endingDate);
                 if (series == null || series.Count == 0)
                 {
                     //couldn't find data at qdms, use prior period positions

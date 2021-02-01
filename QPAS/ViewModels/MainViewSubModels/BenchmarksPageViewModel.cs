@@ -60,13 +60,13 @@ namespace QPAS
 
         private void CreateCommands()
         {
-            DeleteBenchmark = ReactiveCommand.CreateFromTask(async _ => await DeleteBench(SelectedBenchmark).ConfigureAwait(true));
-            DeleteComponent = ReactiveCommand.CreateFromTask(async _ => await DeleteComp(SelectedComponent).ConfigureAwait(true));
+            DeleteBenchmark = ReactiveCommand.CreateFromTask(async _ => await DeleteBench(SelectedBenchmark));
+            DeleteComponent = ReactiveCommand.CreateFromTask(async _ => await DeleteComp(SelectedComponent));
         }
 
         public override async Task Refresh()
         {
-            await PopulateQDMSInstruments().ConfigureAwait(true);
+            await PopulateQDMSInstruments();
 
             IsExternalClientConnected = Datasourcer.ExternalDataSource != null && Datasourcer.ExternalDataSource.Connected;
         }
@@ -79,7 +79,7 @@ namespace QPAS
                 ExternalInstruments.Clear();
                 ExternalInstruments.Add(new KeyValuePair<string, int?>("Auto", null));
 
-                foreach (var kvp in await Datasourcer.ExternalDataSource.GetInstrumentDict().ConfigureAwait(true))
+                foreach (var kvp in await Datasourcer.ExternalDataSource.GetInstrumentDict())
                 {
                     ExternalInstruments.Add(new KeyValuePair<string, int?>(kvp.Key, kvp.Value));
                 }
@@ -93,7 +93,7 @@ namespace QPAS
             using (var dbContext = _contextFactory.Get())
             {
                 dbContext.BenchmarkComponents.Remove(component);
-                await dbContext.SaveChangesAsync().ConfigureAwait(true);
+                await dbContext.SaveChangesAsync();
             }
         }
 
@@ -112,7 +112,7 @@ namespace QPAS
             using (var dbContext = _contextFactory.Get())
             {
                 dbContext.Benchmarks.Remove(benchmark);
-                await dbContext.SaveChangesAsync().ConfigureAwait(true);
+                await dbContext.SaveChangesAsync();
                 _data.Benchmarks.Remove(benchmark);
             }
         }

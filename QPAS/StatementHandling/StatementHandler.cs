@@ -147,13 +147,13 @@ namespace QPAS
 
             if (flexqText == "" || ex != null)
             {
-                await progress.CloseAsync().ConfigureAwait(true);
-                await _dialogService.ShowMessageAsync(_mainVm, "Error downloading statement", ex?.Message).ConfigureAwait(true);
+                await progress.CloseAsync();
+                await _dialogService.ShowMessageAsync(_mainVm, "Error downloading statement", ex?.Message);
 
                 return null;
             }
 
-            return await ParseStatement(parser, flexqText, progress).ConfigureAwait(true);
+            return await ParseStatement(parser, flexqText, progress);
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace QPAS
         /// <param name="name">The name of the parser.</param>
         public async Task<Dictionary<string, DataContainer>> LoadFromFile(string name, ProgressDialogController progress)
         {
-            var parser = await GetParserByName(name).ConfigureAwait(true);
+            var parser = await GetParserByName(name);
             if (parser == null) throw new Exception("Parser " + name + " not found.");
 
             string file;
@@ -180,12 +180,12 @@ namespace QPAS
             }
             catch (IOException ex)
             {
-                await progress.CloseAsync().ConfigureAwait(true);
-                await _dialogService.ShowMessageAsync(_mainVm, "Error", "Could not open file: " + ex.Message).ConfigureAwait(true);
+                await progress.CloseAsync();
+                await _dialogService.ShowMessageAsync(_mainVm, "Error", "Could not open file: " + ex.Message);
                 return null;
             }
 
-            return await ParseStatement(parser, flexqText, progress).ConfigureAwait(true);
+            return await ParseStatement(parser, flexqText, progress);
         }
 
         private async Task<Dictionary<string, DataContainer>> ParseStatement(IStatementParser parser, string flexqText, ProgressDialogController progress)
@@ -193,7 +193,7 @@ namespace QPAS
             Dictionary<string, DataContainer> newData = null;
             try
             {
-                await Task.Run(() => newData = parser.Parse(flexqText, progress, _settings, _currencies)).ConfigureAwait(true);
+                await Task.Run(() => newData = parser.Parse(flexqText, progress, _settings, _currencies));
             }
             catch (Exception ex)
             {

@@ -118,7 +118,7 @@ namespace QPAS
                 this,
                 "Delete Script",
                 "Are you sure you want to delete the script " + SelectedScript.Name + "?",
-                MessageDialogStyle.AffirmativeAndNegative).ConfigureAwait(true);
+                MessageDialogStyle.AffirmativeAndNegative);
 
             if (result == MessageDialogResult.Negative) return;
 
@@ -167,13 +167,13 @@ namespace QPAS
             {
                 if (SelectedScript.Type == UserScriptType.TradeScript)
                 {
-                    var actions = await _scriptRunner.GetTradeScriptActions(SelectedScript).ConfigureAwait(true);
+                    var actions = await _scriptRunner.GetTradeScriptActions(SelectedScript);
                     Status = "Run complete. Results: \n" + string.Join('\n', actions.Select(x => x.ToString()));
                 }
                 else if (SelectedScript.Type == UserScriptType.OrderScript)
                 {
                     var orders = _data.Orders.Where(x => x.Trade == null).ToList();
-                    var actions = await _scriptRunner.GetOrderScriptActions(SelectedScript, orders).ConfigureAwait(true);
+                    var actions = await _scriptRunner.GetOrderScriptActions(SelectedScript, orders);
                     Status = "Run complete. Results: \n" + string.Join('\n', actions.Select(x => x.ToString()));
                 }
                 StatusOk = true;
@@ -217,7 +217,7 @@ namespace QPAS
                     this,
                     "Unsaved Changes",
                     "There are unsaved changes, would you like to save them?",
-                    MessageDialogStyle.AffirmativeAndNegative).ConfigureAwait(true);
+                    MessageDialogStyle.AffirmativeAndNegative);
 
             if (res == MessageDialogResult.Affirmative)
             {

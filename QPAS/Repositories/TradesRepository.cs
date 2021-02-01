@@ -43,7 +43,7 @@ namespace QPAS
                 SetClosingDate(trade);
             }
 
-            TradeTracker tracker = await TradeSim.SimulateTrade(trade, _contextFactory, _dataSourcer, _settings.OptionsCapitalUsageMultiplier).ConfigureAwait(true);
+            TradeTracker tracker = await TradeSim.SimulateTrade(trade, _contextFactory, _dataSourcer, _settings.OptionsCapitalUsageMultiplier);
             tracker.SetTradeStats(trade);
         }
 
@@ -211,7 +211,7 @@ namespace QPAS
             {
                 try
                 {
-                    await UpdateStats(t).ConfigureAwait(true);
+                    await UpdateStats(t);
                 }
                 catch (Exception ex)
                 {
@@ -286,7 +286,7 @@ namespace QPAS
             }
 
             //remove the ct from its current trade
-            await RemoveFXTransaction(oldTrade, fxt).ConfigureAwait(true);
+            await RemoveFXTransaction(oldTrade, fxt);
 
             //and then add it to the new one
             if (trade.FXTransactions == null)
@@ -297,7 +297,7 @@ namespace QPAS
             fxt.TradeID = trade.ID;
 
             //finally update the stats of the new trade
-            await UpdateStats(fxt.Trade).ConfigureAwait(true);
+            await UpdateStats(fxt.Trade);
         }
 
         public async Task RemoveFXTransaction(Trade trade, FXTransaction fxt)
@@ -306,7 +306,7 @@ namespace QPAS
             trade.FXTransactions.Remove(fxt);
             fxt.Trade = null;
             fxt.TradeID = null;
-            await UpdateStats(trade).ConfigureAwait(true);
+            await UpdateStats(trade);
         }
 
 
@@ -333,7 +333,7 @@ namespace QPAS
                 dbTrade.FXTransactions.Clear();
                 dbTrade.Tags.Clear();
 
-                await dbContext.SaveChangesAsync().ConfigureAwait(true);
+                await dbContext.SaveChangesAsync();
             }
 
             if (trade.Orders != null)
@@ -368,7 +368,7 @@ namespace QPAS
 
             trade.Tags?.Clear();
 
-            await UpdateStats(trade).ConfigureAwait(true);
+            await UpdateStats(trade);
         }
 
         public async Task Add(Trade trade)

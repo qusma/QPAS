@@ -46,7 +46,7 @@ namespace QPAS
 
         private void CreateCommands()
         {
-            Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteCashTransactions(x).ConfigureAwait(true));
+            Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteCashTransactions(x));
         }
 
         private async Task DeleteCashTransactions(IList cts)
@@ -71,7 +71,7 @@ namespace QPAS
                     {
                         //only delete those that are not assigned to a trade
                         continue;
-                        //await TradesRepository.RemoveCashTransaction(ct.Trade, ct).ConfigureAwait(true);
+                        //await TradesRepository.RemoveCashTransaction(ct.Trade, ct);
                     }
                     context.CashTransactions.Remove(ct);
                 }

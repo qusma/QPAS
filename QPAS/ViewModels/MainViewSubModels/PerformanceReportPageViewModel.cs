@@ -14,17 +14,16 @@ namespace QPAS
 {
     public class PerformanceReportPageViewModel : ViewModelBase
     {
-        private string _toggleStratsText;
-        private string _toggleTagsText;
-
         private readonly IContextFactory _contextFactory;
         private readonly DataContainer _data;
-        internal IMainViewModel Parent;
-        private string _toggleInstrumentsText;
-        private IDataSourcer _datasourcer;
+        internal readonly IMainViewModel Parent;
+        private readonly IDataSourcer _datasourcer;
         private BacktestSource _backtestSource;
+        private string _toggleStratsText;
+        private string _toggleTagsText;
+        private string _toggleInstrumentsText;
         private string _backtestFilePath;
-        private ReportSettings _reportSettings;
+        private ReportSettings _reportSettings = new ReportSettings();
 
         public ReportSettings ReportSettings
         {
@@ -69,12 +68,6 @@ namespace QPAS
             set => this.RaiseAndSetIfChanged(ref _toggleInstrumentsText, value);
         }
 
-        public IDataSourcer Datasourcer
-        {
-            get => _datasourcer;
-            private set => this.RaiseAndSetIfChanged(ref _datasourcer, value);
-        }
-
         public ICommand ToggleAllStrategies { get; set; }
 
         public ICommand ToggleAllTags { get; set; }
@@ -101,9 +94,8 @@ namespace QPAS
         {
             _contextFactory = contextFactory;
             Parent = parent;
-            Datasourcer = datasourcer;
+            _datasourcer = datasourcer;
             _data = data;
-            ReportSettings = new ReportSettings();
             TradeFilterSettings = new TradeFilterSettings(_data.EquitySummaries);
 
             ToggleTagsText = "Select All";
@@ -374,12 +366,12 @@ namespace QPAS
         {
             //backtest results from the external data source
             BacktestSeries.Clear();
-            if (Datasourcer.ExternalDataSource != null && Datasourcer.ExternalDataSource.Connected)
+            if (_datasourcer.ExternalDataSource != null && _datasourcer.ExternalDataSource.Connected)
             {
                 BacktestSeries.AddRange(
-                    await Datasourcer
+                    await _datasourcer
                         .ExternalDataSource
-                        .GetBacktestSeries().ConfigureAwait(true));
+                        .GetBacktestSeries());
             }
         }
 

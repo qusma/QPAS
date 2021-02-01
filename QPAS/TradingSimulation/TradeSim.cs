@@ -49,7 +49,7 @@ namespace QPAS
                 : trade.FXTransactions.OrderBy(x => x.DateTime).ToList();
 
             //Grab the data
-            Dictionary<int, TimeSeries> data = await GetInstrumentData(trade, dataSourcer, startDate, endDate).ConfigureAwait(true);
+            Dictionary<int, TimeSeries> data = await GetInstrumentData(trade, dataSourcer, startDate, endDate);
             Dictionary<int, TimeSeries> fxData = GetFXData(trade, contextFactory);
 
             DateTime currentDate = startDate.Date;
@@ -105,7 +105,7 @@ namespace QPAS
             var instruments = trade.Orders.Select(x => x.Instrument).Distinct(x => x.ID).ToList();
             foreach (EntityModel.Instrument inst in instruments)
             {
-                data.Add(inst.ID, new TimeSeries(await dataSourcer.GetData(inst, startDate, endDate).ConfigureAwait(true)));
+                data.Add(inst.ID, new TimeSeries(await dataSourcer.GetData(inst, startDate, endDate)));
             }
             return data;
         }

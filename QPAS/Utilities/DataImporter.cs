@@ -231,7 +231,7 @@ namespace QPAS
                     }
                 }
 
-                await tradesRepo.UpdateOpenTrades(existingData).ConfigureAwait(true); //todo: this is slow, perhaps parallelize? qdmsclient probably doesn't like that, would need to make it thread-safe
+                await tradesRepo.UpdateOpenTrades(existingData); //todo: this is slow, perhaps parallelize? qdmsclient probably doesn't like that, would need to make it thread-safe
                 await dbContext.SaveChangesAsync();
             }
         }

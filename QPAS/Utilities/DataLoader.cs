@@ -15,19 +15,19 @@ namespace QPAS
             {
                 data.Accounts.AddRange(await context
                     .Accounts
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
 
                 data.Strategies.AddRange(await context
                     .Strategies
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
 
                 data.Instruments.AddRange(await context
                     .Instruments
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
 
                 data.Currencies.AddRange(await context
                     .Currencies
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
 
                 data.Trades.AddRange(await context.Trades
                     .Include(x => x.Strategy)
@@ -43,11 +43,11 @@ namespace QPAS
                     .Include("FXTransactions.FXCurrency")
                     .Include("FXTransactions.FunctionalCurrency")
                     .OrderByDescending(x => x.DateOpened)
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
 
                 data.Tags.AddRange(await context
                     .Tags
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
 
                 data.CashTransactions.AddRange(await context
                     .CashTransactions
@@ -55,7 +55,7 @@ namespace QPAS
                     .Include(x => x.Instrument)
                     .Include(x => x.Account)
                     .OrderByDescending(x => x.TransactionDate)
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
 
                 data.FXTransactions.AddRange(await context
                     .FXTransactions
@@ -63,7 +63,7 @@ namespace QPAS
                     .Include(x => x.FXCurrency)
                     .Include(x => x.Account)
                     .OrderByDescending(x => x.DateTime)
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
 
                 data.Orders.AddRange(await context
                     .Orders
@@ -74,25 +74,25 @@ namespace QPAS
                     .Include(x => x.Executions)
                     .Include(x => x.Account)
                     .Include(x => x.Trade)
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
 
                 data.EquitySummaries.AddRange(await context
                     .EquitySummaries
                     .OrderByDescending(x => x.Date)
                     .Include(x => x.Account)
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
 
                 data.Benchmarks.AddRange(await context.Benchmarks
                     .Include(x => x.Components)
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
 
                 data.FXRates.AddRange(await context.FXRates
                     .Include(x => x.FromCurrency)
                     .Include(x => x.ToCurrency)
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
 
                 data.DatasourcePreferences.AddRange(await context.DatasourcePreferences
-                    .ToListAsync().ConfigureAwait(true));
+                    .ToListAsync());
             }
 
             return data;

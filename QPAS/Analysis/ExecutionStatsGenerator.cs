@@ -69,7 +69,7 @@ namespace QPAS
                 }
 
                 //grab the data
-                await RequestRequiredData().ConfigureAwait(true);
+                await RequestRequiredData();
             }
 
             //generate the stats
@@ -90,7 +90,7 @@ namespace QPAS
                 DateTime fromDate = kvp.Value.Key;
                 DateTime toDate = kvp.Value.Value;
 
-                var data = await _datasourcer.GetData(instrument, fromDate, toDate).ConfigureAwait(true);
+                var data = await _datasourcer.GetData(instrument, fromDate, toDate);
                 _data.Add(instrument.ID, data);
             }
         }
@@ -128,7 +128,7 @@ namespace QPAS
             var dict = new Dictionary<int, List<InstrumentSession>>();
             foreach (var inst in instruments)
             {
-                dict.Add(inst.ID, await _datasourcer.ExternalDataSource.GetSessions(inst).ConfigureAwait(true));
+                dict.Add(inst.ID, await _datasourcer.ExternalDataSource.GetSessions(inst));
             }
 
             return dict;

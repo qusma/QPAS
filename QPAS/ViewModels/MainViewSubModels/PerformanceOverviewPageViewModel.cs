@@ -93,19 +93,19 @@ namespace QPAS
             SelectedAccount = Accounts.First();
 
             this.WhenAnyValue(x => x.SelectedAccount)
-                .Subscribe(async _ => await Refresh().ConfigureAwait(true));
+                .Subscribe(async _ => await Refresh());
 
             this.WhenAny(x => x.SelectedCurrency, x => x)
-                .Subscribe(async _ => await Refresh().ConfigureAwait(true));
+                .Subscribe(async _ => await Refresh());
         }
 
         public override async Task Refresh()
         {
             if (SelectedAccount == null) return;
 
-            await CreatePctReturnSeries().ConfigureAwait(true);
-            await CreateTotalEquitySeries().ConfigureAwait(true);
-            Stats = await GeneratePerformanceOverviewStats().ConfigureAwait(true);
+            await CreatePctReturnSeries();
+            await CreateTotalEquitySeries();
+            Stats = await GeneratePerformanceOverviewStats();
         }
 
         private async Task CreateTotalEquitySeries()
@@ -115,7 +115,7 @@ namespace QPAS
 
             decimal maxEquity = 0;
 
-            foreach (var kvp in await GetTotalCapitalSeries().ConfigureAwait(true))
+            foreach (var kvp in await GetTotalCapitalSeries())
             {
                 DateTime date = kvp.Key;
                 decimal total = kvp.Value;
@@ -141,8 +141,8 @@ namespace QPAS
             double maxEquity = 1;
 
             //adjust the % returns for deposits/withdrawals as they obviously don't affect performance
-            Dictionary<DateTime, decimal> depositsWithdrawals = await GetDepositsWithdrawals().ConfigureAwait(true);
-            Dictionary<DateTime, decimal> totalCapital = await GetTotalCapitalSeries().ConfigureAwait(true);
+            Dictionary<DateTime, decimal> depositsWithdrawals = await GetDepositsWithdrawals();
+            Dictionary<DateTime, decimal> totalCapital = await GetTotalCapitalSeries();
 
             foreach (var es in totalCapital)
             {
@@ -202,7 +202,7 @@ namespace QPAS
                     .ToDictionary(x => x.Date, x => x.Total);
             }
 
-            return await PerformCurrencyAdjustment(totalCapital).ConfigureAwait(true);
+            return await PerformCurrencyAdjustment(totalCapital);
         }
 
         private async Task<Dictionary<DateTime, decimal>> PerformCurrencyAdjustment(Dictionary<DateTime, decimal> inputSeries)
@@ -258,7 +258,7 @@ namespace QPAS
                     .ToDictionary(x => x.Key, x => x.Sum(y => y.Amount * y.FXRateToBase));
             }
 
-            return await PerformCurrencyAdjustment(depositsWithdrawals).ConfigureAwait(true);
+            return await PerformCurrencyAdjustment(depositsWithdrawals);
         }
 
         private async Task<DataTable> GeneratePerformanceOverviewStats()
@@ -269,9 +269,9 @@ namespace QPAS
             statsDT.Columns.Add("YTD", typeof(string));
             statsDT.Columns.Add("All Time", typeof(string));
 
-            Dictionary<DateTime, decimal> depositsWithdrawals = await GetDepositsWithdrawals().ConfigureAwait(true);
+            Dictionary<DateTime, decimal> depositsWithdrawals = await GetDepositsWithdrawals();
 
-            Dictionary<DateTime, decimal> totalCapital = await GetTotalCapitalSeries().ConfigureAwait(true);
+            Dictionary<DateTime, decimal> totalCapital = await GetTotalCapitalSeries();
             if (totalCapital.Count == 0) return statsDT;
 
             var last30DaysEC = EcFromEquitySummaries(

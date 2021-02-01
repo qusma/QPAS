@@ -113,7 +113,7 @@ namespace QPAS.ExternalDataSources
         {
             if (!_client.Connected) return null;
 
-            await RefreshInstrumentsList().ConfigureAwait(true);
+            await RefreshInstrumentsList();
 
             var qdmsInst = instrument.GetQDMSInstrument(_instrumentsList, _dataSourcePreferences);
             if (qdmsInst == null) //nothing like this in QDMS, just grab local data
@@ -137,7 +137,7 @@ namespace QPAS.ExternalDataSources
         {
             if (!_client.Connected) return new List<OHLCBar>();
 
-            await RefreshInstrumentsList().ConfigureAwait(true);
+            await RefreshInstrumentsList();
 
             //find instrument
             var qdmsInst = instrument.GetQDMSInstrument(_instrumentsList, _dataSourcePreferences);
@@ -157,13 +157,13 @@ namespace QPAS.ExternalDataSources
                 instrument,
                 dataInfo.EarliestDate,
                 dataInfo.LatestDate,
-                frequency).ConfigureAwait(true);
+                frequency);
         }
 
         public async Task<List<OHLCBar>> GetData(int externalInstrumentID, DateTime from, DateTime to, BarSize frequency = BarSize.OneDay)
         {
             if (!_client.Connected) return null;
-            await RefreshInstrumentsList().ConfigureAwait(true);
+            await RefreshInstrumentsList();
             var instrument = _instrumentsList.FirstOrDefault(x => x.ID == externalInstrumentID);
             if (instrument == null) return null;
             return RequestData(instrument, from, to);
@@ -231,7 +231,7 @@ namespace QPAS.ExternalDataSources
 
         public async Task<Dictionary<string, int>> GetInstrumentDict()
         {
-            await RefreshInstrumentsList().ConfigureAwait(true);
+            await RefreshInstrumentsList();
             var items = _instrumentsList
                         .OrderBy(x => x.Symbol)
                         .Where(x => x.ID.HasValue)
@@ -250,7 +250,7 @@ namespace QPAS.ExternalDataSources
         /// </summary>
         public async Task<List<InstrumentSession>> GetSessions(EntityModel.Instrument instrument)
         {
-            await RefreshInstrumentsList().ConfigureAwait(true);
+            await RefreshInstrumentsList();
             var qdmsInstrument = instrument.GetQDMSInstrument(_instrumentsList, _dataSourcePreferences);
 
             if (qdmsInstrument?.Sessions == null)
@@ -266,7 +266,7 @@ namespace QPAS.ExternalDataSources
         /// </summary>
         public async Task<List<Instrument>> GetBacktestSeries()
         {
-            await RefreshInstrumentsList().ConfigureAwait(true);
+            await RefreshInstrumentsList();
             return _instrumentsList.Where(x => x.Type == InstrumentType.Backtest).ToList();
         }
 
@@ -356,7 +356,7 @@ namespace QPAS.ExternalDataSources
 
             if (_instrumentsList.Count == 0 || (DateTime.Now - _lastInstrumentsListRefresh).TotalSeconds > 10)
             {
-                var instrumentsReq = await _client.GetInstruments().ConfigureAwait(true);
+                var instrumentsReq = await _client.GetInstruments();
                 if (!instrumentsReq.WasSuccessful)
                 {
                     _logger.Error("Error getting instrument list: " + string.Join(",", instrumentsReq.Errors));

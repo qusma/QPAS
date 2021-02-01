@@ -94,7 +94,7 @@ namespace QPAS
 
         private void CreateCommands()
         {
-            UpdateChartCommand = ReactiveCommand.CreateFromTask(async _ => await UpdateChart().ConfigureAwait(true));
+            UpdateChartCommand = ReactiveCommand.CreateFromTask(async _ => await UpdateChart());
 
             CopyChart = new RelayCommand<PlotView>(x => x.CopyToClipboard());
             SaveChart = new RelayCommand<PlotView>(x =>
@@ -130,7 +130,7 @@ namespace QPAS
             List<OHLCBar> data;
             try
             {
-                data = await Datasourcer.GetAllExternalData(SelectedInstrument).ConfigureAwait(true);
+                data = await Datasourcer.GetAllExternalData(SelectedInstrument);
 
                 //we couldn't get external data, use internal instead
                 if (data.Count == 0)
@@ -146,7 +146,7 @@ namespace QPAS
             }
             catch (Exception ex)
             {
-                await DialogService.ShowMessageAsync(_mainVm, "Error Getting Data", ex.Message).ConfigureAwait(true);
+                await DialogService.ShowMessageAsync(_mainVm, "Error Getting Data", ex.Message);
                 return;
             }
 
@@ -214,7 +214,7 @@ namespace QPAS
                 ExternalInstruments.Clear();
                 ExternalInstruments.Add(new KeyValuePair<string, int?>("Auto", null));
 
-                foreach (var kvp in await Datasourcer.ExternalDataSource.GetInstrumentDict().ConfigureAwait(true))
+                foreach (var kvp in await Datasourcer.ExternalDataSource.GetInstrumentDict())
                 {
                     ExternalInstruments.Add(new KeyValuePair<string, int?>(kvp.Key, kvp.Value));
                 }
@@ -224,7 +224,7 @@ namespace QPAS
         public override async Task Refresh()
         {
             PopulateStrategyNames();
-            await PopulateQDMSInstruments().ConfigureAwait(true);
+            await PopulateQDMSInstruments();
 
             if (Datasourcer.ExternalDataSource != null)
             {

@@ -49,7 +49,7 @@ namespace QPAS
 
         public async Task SimulateTrade()
         {
-            Tracker = await TradeSim.SimulateTrade(Trade, _contextFactory, _dataSourcer, _settings.OptionsCapitalUsageMultiplier).ConfigureAwait(true);
+            Tracker = await TradeSim.SimulateTrade(Trade, _contextFactory, _dataSourcer, _settings.OptionsCapitalUsageMultiplier);
         }
     }
 }

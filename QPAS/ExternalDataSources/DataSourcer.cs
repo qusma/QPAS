@@ -73,7 +73,7 @@ namespace QPAS
             }
 
             //If the cache is not enough, go to the external datasource
-            var data = await ExternalDataSource.GetData(inst, startTime, endTime).ConfigureAwait(true);
+            var data = await ExternalDataSource.GetData(inst, startTime, endTime);
 
             //External datasource didn't have anything, get data from prior positions
             if (data == null || data.Count == 0)
@@ -143,7 +143,7 @@ namespace QPAS
             }
 
             _logger.Log(LogLevel.Info, string.Format("Request for all external data on instrument {0}", inst));
-            return await ExternalDataSource.GetAllData(inst).ConfigureAwait(true);
+            return await ExternalDataSource.GetAllData(inst);
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace QPAS
                 return new List<OHLCBar>();
             }
 
-            return await ExternalDataSource.GetData(externalInstrumentID, startTime, endTime).ConfigureAwait(true);
+            return await ExternalDataSource.GetData(externalInstrumentID, startTime, endTime);
         }
 
         public List<OHLCBar> GetLocalData(Instrument instrument, DateTime fromDate, DateTime toDate)

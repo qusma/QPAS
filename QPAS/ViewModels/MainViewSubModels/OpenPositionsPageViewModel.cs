@@ -57,7 +57,7 @@ namespace QPAS
             CreatePlotModel();
 
             SelectedAccount = Accounts.First();
-            this.WhenAnyValue(x => x.SelectedAccount).Subscribe(async _ => await Refresh().ConfigureAwait(true));
+            this.WhenAnyValue(x => x.SelectedAccount).Subscribe(async _ => await Refresh());
         }
 
         private void CreatePlotModel()
@@ -111,13 +111,13 @@ namespace QPAS
             {
                 if (SelectedAccount.AccountId == "All")
                 {
-                    OpenPositions.AddRange(await context.OpenPositions.Include(x => x.Instrument).Include(x => x.Currency).ToListAsync().ConfigureAwait(true));
-                    FXPositions.AddRange(await context.FXPositions.Include(x => x.FXCurrency).ToListAsync().ConfigureAwait(true));
+                    OpenPositions.AddRange(await context.OpenPositions.Include(x => x.Instrument).Include(x => x.Currency).ToListAsync());
+                    FXPositions.AddRange(await context.FXPositions.Include(x => x.FXCurrency).ToListAsync());
                 }
                 else if (SelectedAccount != null)
                 {
-                    OpenPositions.AddRange(await context.OpenPositions.Where(x => x.AccountID == SelectedAccount.ID).Include(x => x.Instrument).Include(x => x.Currency).ToListAsync().ConfigureAwait(true));
-                    FXPositions.AddRange(await context.FXPositions.Where(x => x.AccountID == SelectedAccount.ID).Include(x => x.FXCurrency).ToListAsync().ConfigureAwait(true));
+                    OpenPositions.AddRange(await context.OpenPositions.Where(x => x.AccountID == SelectedAccount.ID).Include(x => x.Instrument).Include(x => x.Currency).ToListAsync());
+                    FXPositions.AddRange(await context.FXPositions.Where(x => x.AccountID == SelectedAccount.ID).Include(x => x.FXCurrency).ToListAsync());
                 }
 
                 //Add any accounts that exist in the db but are missing here

@@ -73,10 +73,10 @@ namespace QPASTest
                     It.IsAny<BarSize>()))
                     .ReturnsAsync(data);
 
-            await _datasourcer.GetData(inst, startDate, endDate).ConfigureAwait(true);
+            await _datasourcer.GetData(inst, startDate, endDate);
 
             //request a second time: should use cache instead of external source
-            await _datasourcer.GetData(inst, startDate, endDate).ConfigureAwait(true);
+            await _datasourcer.GetData(inst, startDate, endDate);
 
             _externalSourceMock.Verify(x => x.GetData(
                 It.IsAny<Instrument>(),
@@ -109,7 +109,7 @@ namespace QPASTest
                     It.IsAny<BarSize>()))
                     .ReturnsAsync(data);
 
-            var resultData = await _datasourcer.GetData(inst, startDate, endDate).ConfigureAwait(true);
+            var resultData = await _datasourcer.GetData(inst, startDate, endDate);
 
             Assert.That(resultData.Count == 3);
         }
@@ -133,7 +133,7 @@ namespace QPASTest
                     It.IsAny<BarSize>()))
                     .ReturnsAsync(new List<OHLCBar>());
 
-            var resultData = await _datasourcer.GetData(inst, startDate, endDate).ConfigureAwait(true);
+            var resultData = await _datasourcer.GetData(inst, startDate, endDate);
 
             Assert.That(resultData.Any(x => x.Date.ToDateTime() == endDate));
         }
@@ -155,7 +155,7 @@ namespace QPASTest
                     It.IsAny<BarSize>()))
                     .ReturnsAsync(new List<OHLCBar>());
 
-            var resultData = await _datasourcer.GetData(inst, startDate, endDate).ConfigureAwait(true);
+            var resultData = await _datasourcer.GetData(inst, startDate, endDate);
 
             _externalSourceMock.Verify(x => x.GetData(
                 It.IsAny<Instrument>(),
@@ -172,7 +172,7 @@ namespace QPASTest
             DateTime startDate = new DateTime(2000, 1, 1);
             DateTime endDate = new DateTime(2000, 2, 1);
 
-            await _datasourcer.GetExternalData(1, startDate, endDate).ConfigureAwait(true);
+            await _datasourcer.GetExternalData(1, startDate, endDate);
             _externalSourceMock.Verify(x => x.GetData(
                 It.Is<int>(y => y == 1),
                 It.Is<DateTime>(y => y == startDate),
@@ -191,7 +191,7 @@ namespace QPASTest
 
             _data.Currencies.Add(new Currency { ID = 2, Name = "CAD" });
 
-            var data = await _datasourcer.GetData(inst, startDate, endDate).ConfigureAwait(true);
+            var data = await _datasourcer.GetData(inst, startDate, endDate);
 
             Assert.AreEqual(1m / 1.1m, data[0].Close);
         }

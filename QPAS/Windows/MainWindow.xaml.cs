@@ -172,7 +172,7 @@ namespace QPAS
 
             var selectedTab = (TabItem)MainTabCtl.SelectedItem;
             ViewModel.SelectedPageViewModel = selectedTab.DataContext as ViewModelBase;
-            await ViewModel.RefreshCurrentPage().ConfigureAwait(true);
+            await ViewModel.RefreshCurrentPage();
 
             RefreshSelectedPage();
         }
@@ -463,7 +463,7 @@ namespace QPAS
                     await Task.Run(async () =>
                     {
                         await ViewModel.TradesPageViewModel.ChangeOpenState(newOpen.Value, trade);
-                    }).ConfigureAwait(true);
+                    });
                 }
             }
         }
@@ -513,7 +513,7 @@ namespace QPAS
                 newtrade.Open = true;
 
 
-                await ViewModel.TradesPageViewModel.AddOrders(newtrade, new List<Order> { selectedOrder }).ConfigureAwait(true);
+                await ViewModel.TradesPageViewModel.AddOrders(newtrade, new List<Order> { selectedOrder });
                 TradePickerNewTradeTextBox.Text = "";
                 OrdersGridTradePickerPopup.IsOpen = false;
                 OrdersGrid.CommitEdit();
@@ -605,7 +605,7 @@ namespace QPAS
             if (trade == null) return;
 
             var selectedOrders = new List<Order>(OrdersGrid.SelectedItems.Cast<Order>());
-            await ViewModel.TradesPageViewModel.AddOrders(trade, selectedOrders.ToList()).ConfigureAwait(true);
+            await ViewModel.TradesPageViewModel.AddOrders(trade, selectedOrders.ToList());
         }
 
         private async void OrdersGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
@@ -621,11 +621,11 @@ namespace QPAS
 
                     if (selectedTrade == null)
                     {
-                        await ViewModel.TradesPageViewModel.RemoveOrder(order.Trade, order).ConfigureAwait(true);
+                        await ViewModel.TradesPageViewModel.RemoveOrder(order.Trade, order);
                     }
                     else
                     {
-                        await ViewModel.TradesPageViewModel.AddOrders(selectedTrade.Item, new List<Order> { order }).ConfigureAwait(true);
+                        await ViewModel.TradesPageViewModel.AddOrders(selectedTrade.Item, new List<Order> { order });
                     }
                 }
                 OrdersGridTradePickerPopup.IsOpen = false;
@@ -697,11 +697,11 @@ namespace QPAS
 
                     if (selectedTrade == null)
                     {
-                        await ViewModel.TradesPageViewModel.RemoveCashTransactionsFromTrade(ct.Trade, new List<CashTransaction> { ct }).ConfigureAwait(true);
+                        await ViewModel.TradesPageViewModel.RemoveCashTransactionsFromTrade(ct.Trade, new List<CashTransaction> { ct });
                     }
                     else
                     {
-                        await ViewModel.TradesPageViewModel.AddCashTransactionsToTrade(selectedTrade.Item, new List<CashTransaction> { ct }).ConfigureAwait(true);
+                        await ViewModel.TradesPageViewModel.AddCashTransactionsToTrade(selectedTrade.Item, new List<CashTransaction> { ct });
                     }
                 }
 
@@ -759,11 +759,11 @@ namespace QPAS
 
                     if (selectedTrade == null)
                     {
-                        await ViewModel.TradesPageViewModel.RemoveFxTransactionFromTrade(fxt.Trade, fxt).ConfigureAwait(true);
+                        await ViewModel.TradesPageViewModel.RemoveFxTransactionFromTrade(fxt.Trade, fxt);
                     }
                     else
                     {
-                        await ViewModel.TradesPageViewModel.AddFxTransactionToTrade(selectedTrade.Item, fxt).ConfigureAwait(true);
+                        await ViewModel.TradesPageViewModel.AddFxTransactionToTrade(selectedTrade.Item, fxt);
                     }
                 }
 
@@ -792,7 +792,7 @@ namespace QPAS
 
             if (trade == null) return;
 
-            await ViewModel.TradesPageViewModel.AddCashTransactionsToTrade(trade, CashTransactionsGrid.SelectedItems.Cast<CashTransaction>()).ConfigureAwait(true);
+            await ViewModel.TradesPageViewModel.AddCashTransactionsToTrade(trade, CashTransactionsGrid.SelectedItems.Cast<CashTransaction>());
         }
 
         private void FxTransactionsGridContextMenu_OnOpened(object sender, RoutedEventArgs e)
@@ -818,7 +818,7 @@ namespace QPAS
 
             foreach (FXTransaction fxt in FXTransactionsGrid.SelectedItems)
             {
-                await ViewModel.TradesPageViewModel.AddFxTransactionToTrade(trade, fxt).ConfigureAwait(true);
+                await ViewModel.TradesPageViewModel.AddFxTransactionToTrade(trade, fxt);
             }
         }
 
@@ -871,7 +871,7 @@ namespace QPAS
                 trade.TagStringUpdated();
             }
 
-            await ViewModel.TradesPageViewModel.TradesRepository.UpdateTrade(trades: trades).ConfigureAwait(true);
+            await ViewModel.TradesPageViewModel.TradesRepository.UpdateTrade(trades: trades);
         }
 
         private void ContextMenu_Opened(object sender, RoutedEventArgs e)
