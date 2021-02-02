@@ -316,5 +316,26 @@ namespace QPAS
             }
             return (decimal)Math.Sqrt((double)(variance / (samples.Count - 1)));
         }
+
+        public static double StandardDeviation(this List<double> series, int Length, int offset = 0)
+        {
+            if (Length <= 1) return 0;
+
+            int n = 0;
+            double mean = 0;
+            double variance = 0;
+            for (int i = offset; i < Math.Min(offset + Length, series.Count); i++)
+            {
+                double delta = series[i] - mean;
+                double scaleDelta = delta / ++n;
+                double tmpDelta = delta * (n - 1);
+
+                mean += scaleDelta;
+
+                variance += tmpDelta * scaleDelta;
+            }
+            variance = variance / (n - 1);
+            return Math.Sqrt(variance);
+        }
     }
 }

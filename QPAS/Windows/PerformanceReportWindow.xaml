@@ -82,6 +82,7 @@
             <TreeViewItem Header="Cash Transactions" Tag="CashTransactions" />
             <TreeViewItem Header="ACF/PACF" Tag="ACFPACF" />
             <TreeViewItem Header="Risk" Tag="Risk" />
+            <TreeViewItem Header="Volatility" Tag="Volatility" />
             <TreeViewItem Header="Monte Carlo" Tag="MonteCarlo" />
             <TreeViewItem Header="Backtest Comparison" Tag="BacktestComparison" />
         </TreeView>
@@ -2004,6 +2005,99 @@
                 
                 <!-- One chart with monte carlo comparison-->
                 <!-- Stats comparison, over the relevant period-->
+            </TabItem>
+
+
+
+
+
+            <TabItem Header="Volatility">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Realized Volatility (ROTC)" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=RealizedVolatilityRotcChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=RealizedVolatilityRotcChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+
+                        <oxy:Plot Name="RealizedVolatilityRotcChart" 
+                                      LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal"
+                                      Width="700" Height="400" HorizontalAlignment="Center">
+                            <oxy:Plot.Axes>
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" StringFormat="p1" IsZoomEnabled="True" />
+                                <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" IsZoomEnabled="True" />
+                            </oxy:Plot.Axes>
+                            <oxy:Plot.Series>
+                                <oxy:LineSeries ItemsSource="{Binding Data.realizedVol}"
+                                                        Name="RealizedVolatilityRotc20Series" CanTrackerInterpolatePoints="False"
+                                                        MarkerType="None" Color="DodgerBlue" Title="20-day Annualized StDev"
+                                                        TrackerFormatString="20-day Vol: {2:yyyy-MM-dd} - {4:p2}"
+                                                        
+                                                        DataFieldX="date" DataFieldY="rotc20" />
+
+                                <oxy:LineSeries ItemsSource="{Binding Data.realizedVol}"
+                                                        Name="RealizedVolatilityRotc60Series" CanTrackerInterpolatePoints="False"
+                                                        MarkerType="None" Color="#DE0000" Title="60-day Annualized StDev"
+                                                        TrackerFormatString="60-day Vol: {2:yyyy-MM-dd} - {4:p2}"
+                                                        DataFieldX="date" DataFieldY="rotc60" />
+                            </oxy:Plot.Series>
+                        </oxy:Plot>
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Realized Volatility (ROAC)" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=RealizedVolatilityRoacChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=RealizedVolatilityRoacChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+
+                        <oxy:Plot Name="RealizedVolatilityRoacChart" 
+                                      LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal"
+                                      Width="700" Height="400" HorizontalAlignment="Center">
+                            <oxy:Plot.Axes>
+                                <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" StringFormat="p1" IsZoomEnabled="True" />
+                                <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" IsZoomEnabled="True" />
+                            </oxy:Plot.Axes>
+                            <oxy:Plot.Series>
+                                <oxy:LineSeries ItemsSource="{Binding Data.realizedVol}"
+                                                        Name="RealizedVolatilityRoac20Series" CanTrackerInterpolatePoints="False"
+                                                        MarkerType="None" Color="DodgerBlue" Title="20-day Annualized StDev"
+                                                        TrackerFormatString="20-day Vol: {2:yyyy-MM-dd} - {4:p2}"
+                                                        
+                                                        DataFieldX="date" DataFieldY="roac20" />
+
+                                <oxy:LineSeries ItemsSource="{Binding Data.realizedVol}"
+                                                        Name="RealizedVolatilityRoac60Series" CanTrackerInterpolatePoints="False"
+                                                        MarkerType="None" Color="#DE0000" Title="60-day Annualized StDev"
+                                                        TrackerFormatString="60-day Vol: {2:yyyy-MM-dd} - {4:p2}"
+                                                        DataFieldX="date" DataFieldY="roac60" />
+                            </oxy:Plot.Series>
+                        </oxy:Plot>
+
+
+                    </StackPanel>
+                </ScrollViewer>
+
+
             </TabItem>
         </TabControl>
     </Grid>

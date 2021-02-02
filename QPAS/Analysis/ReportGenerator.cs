@@ -380,7 +380,7 @@ namespace QPAS
             //add the monthly returns to the datatables and also calculate the total annual returns
             AddMonthlyPnLRows();
             AddMonthlyROACRows();
-            AddMonthlyROTCRowS();
+            AddMonthlyROTCRows();
 
             //close to close pnl curve
             DoCloseToClosePnLCurve();
@@ -488,6 +488,45 @@ namespace QPAS
 
             //trade stats by opening day/time
             DoTradeStatsByOpeningDayTime();
+
+            //Volatility
+            DoRealizedVolatility();
+        }
+
+        private void DoRealizedVolatility()
+        {
+            var ecRotc = _totalPortfolioTracker.RotcEquityCurve;
+            var ecRatc = _totalPortfolioTracker.RoacEquityCurve;
+
+            var rotcRealizedVol20 = GenerateRealizedVolatilityCurve(20, ecRotc.Returns);
+            var roacRealizedVol20 = GenerateRealizedVolatilityCurve(20, ecRatc.Returns);
+            var rotcRealizedVol60 = GenerateRealizedVolatilityCurve(60, ecRotc.Returns);
+            var roacRealizedVol60 = GenerateRealizedVolatilityCurve(60, ecRatc.Returns);
+
+            for (int i = 0; i < ecRotc.Dates.Count; i++)
+            {
+                var row = ds.realizedVol.NewrealizedVolRow();
+                row.date = ecRotc.Dates[i].Value;
+                row.rotc20 = rotcRealizedVol20[i];
+                row.roac20 = roacRealizedVol20[i];
+                row.rotc60 = rotcRealizedVol60[i];
+                row.roac60 = roacRealizedVol60[i];
+                ds.realizedVol.AddrealizedVolRow(row);
+            }
+        }
+
+        private List<double> GenerateRealizedVolatilityCurve(int days, List<double> returns)
+        {
+            var realizedVolCurve = new List<double>();
+
+            for (int i = 0; i < returns.Count; i++)
+            {
+                var stDev = returns.StandardDeviation(Math.Min(days, i), Math.Max(0, i - days));
+                var annualized = stDev * Math.Sqrt(252);
+                realizedVolCurve.Add(annualized);
+            }
+
+            return realizedVolCurve;
         }
 
         private void DoTradeStatsByOpeningDayTime()
@@ -1617,7 +1656,7 @@ namespace QPAS
             }
         }
 
-        private void AddMonthlyROTCRowS()
+        private void AddMonthlyROTCRows()
         {
             var retsByMonth = _totalPortfolioTracker.RotcEquityCurve.ReturnsByMonth;
             foreach (int year in retsByMonth.Keys)

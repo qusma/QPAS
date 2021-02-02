@@ -78,7 +78,8 @@ namespace QPAS
                 "ACFPACF",
                 "Risk",
                 "MonteCarlo",
-                "BacktestComparison"
+                "BacktestComparison",
+                "Volatility"
             };
             var title = (string)((TreeViewItem)NavigationMenu.SelectedItem).Tag;
             MainTabCtrl.SelectedIndex = pages.IndexOf(title);
