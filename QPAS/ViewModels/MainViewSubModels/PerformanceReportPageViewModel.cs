@@ -103,7 +103,7 @@ namespace QPAS
             ToggleInstrumentsText = "Deselect All";
 
             Strategies = new ObservableCollection<CheckListItem<Strategy>>(data.Strategies.Select(x => new CheckListItem<Strategy>(x)));
-            Tags = new ObservableCollection<CheckListItem<Tag>>(data.Tags.Select(x => new CheckListItem<Tag>(x)));
+            Tags = new ObservableCollection<CheckListItem<Tag>>(data.Tags.Select(x => new CheckListItem<Tag>(x, true)));
             Instruments = new ObservableCollection<CheckListItem<Instrument>>(data.Instruments.Select(x => new CheckListItem<Instrument>(x, true)));
             Benchmarks = new ObservableCollection<Benchmark>();
             BacktestSeries = new ObservableCollection<QDMS.Instrument>();
