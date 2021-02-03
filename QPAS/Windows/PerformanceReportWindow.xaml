@@ -188,7 +188,7 @@
                                                 DataFieldX="date" DataFieldY="valueLong" />
                                 <oxy:LineSeries ItemsSource="{Binding Data.dailyDollarEquityCurveLongShort}"
                                                 Name="LongShortDailyPnLChartLongDrawdownLine" CanTrackerInterpolatePoints="False"
-                                                MarkerType="Circle" Color="#DE0000" StrokeThickness="1" Title="Long Drawdown"
+                                                MarkerType="None" Color="#DE0000" StrokeThickness="1" Title="Long Drawdown"
                                                 TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:c0}"
                                                 DataFieldX="date" DataFieldY="drawdownLong" />
                                 <oxy:LineSeries ItemsSource="{Binding Data.dailyDollarEquityCurveLongShort}"
@@ -198,7 +198,7 @@
                                                 DataFieldX="date" DataFieldY="valueShort" />
                                 <oxy:LineSeries ItemsSource="{Binding Data.dailyDollarEquityCurveLongShort}"
                                                 Name="LongShortDailyPnLChartShortDrawdownLine" CanTrackerInterpolatePoints="False"
-                                                MarkerType="Circle" Color="#7E659B" StrokeThickness="1" Title="Short Drawdown"
+                                                MarkerType="None" Color="#7E659B" StrokeThickness="1" Title="Short Drawdown"
                                                 TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:c0}"
                                                 DataFieldX="date" DataFieldY="drawdownShort" />
                             </oxy:Plot.Series>
@@ -265,7 +265,7 @@
                                                     DataFieldX="date" DataFieldY="benchmark" />
                                     <oxy:LineSeries ItemsSource="{Binding Data.dailyEquityCurvePctOnAllocatedCapital}"
                                         Name="RoacECChartDrawdownLine" CanTrackerInterpolatePoints="False"
-                                                    MarkerType="Circle" Color="#DE0000" Title="Drawdown"
+                                                    MarkerType="None" Color="#DE0000" Title="Drawdown"
                                                     TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:p1}"
                                                     DataFieldX="date" DataFieldY="drawdown" />
                                 </oxy:Plot.Series>
@@ -306,7 +306,7 @@
                                                     DataFieldX="date" DataFieldY="benchmark" />
                                     <oxy:LineSeries ItemsSource="{Binding Data.dailyEquityCurvePctOnTotalCapital}"
                                         Name="RotcECChartDrawdownLine" CanTrackerInterpolatePoints="False"
-                                                    MarkerType="Circle" Color="#DE0000" Title="Drawdown"
+                                                    MarkerType="None" Color="#DE0000" Title="Drawdown"
                                                     TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:p1}"
                                                     DataFieldX="date" DataFieldY="drawdown" />
                                 </oxy:Plot.Series>
