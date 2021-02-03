@@ -491,6 +491,102 @@ namespace QPAS
 
             //Volatility
             DoRealizedVolatility();
+            DoRealizedvolatilityByStrat();
+
+            //Marginal Risk Contribution
+            DoMarginalRiskContribFull();
+            DoMarginalRiskContribMonthly();
+        }
+
+
+        /// <summary>
+        /// One-year rolling risk contribution per strategy
+        /// </summary>
+        private void DoMarginalRiskContribMonthly()
+        {
+            Dictionary<string, EquityCurve> strategyRotcECs =
+                _strategyPfolioTrackers.ToDictionary(x => x.Key, x => x.Value.RotcEquityCurve);
+
+            if (strategyRotcECs.Count == 0) return;
+
+            var stratNames = strategyRotcECs.Keys.ToList();
+
+            foreach (string stratName in stratNames)
+            {
+                ds.marginalRiskContribByStrat.Columns.Add(stratName, typeof(double));
+            }
+
+            var ecRotc = _totalPortfolioTracker.RotcEquityCurve;
+
+            //start with the full return matrix, then slice off chunks of it as desired
+            Matrix<double> retMatrix = Matrix<double>.Build.DenseOfColumnArrays(strategyRotcECs.Select(x => x.Value.Returns.ToArray()));
+
+
+            for (int i = 30; i < ecRotc.Dates.Count; i++)
+            {
+                if (ecRotc.Dates[i - 1].Value.Month != ecRotc.Dates[i].Value.Month)
+                {
+                    //we calc this once a month because it's relatively heavy
+                    var selectedRets = retMatrix.SubMatrix(Math.Max(0, i - 252), Math.Min(252, i), 0, retMatrix.ColumnCount);
+                    var covMatrix = CovMatrix(selectedRets);
+
+                    var row = ds.marginalRiskContribByStrat.NewRow();
+                    row["date"] = ecRotc.Dates[i];
+
+                    double pfolioVariance = _totalPortfolioTracker.RotcEquityCurve.Returns.GetRange(Math.Max(0, i - 252), Math.Min(252, i)).Variance();
+
+                    for (int j = 0; j < stratNames.Count; j++)
+                    {
+                        var marginalContrib = pfolioVariance == 0 ? 0 : covMatrix.Row(j).Sum() / pfolioVariance;
+                        row[stratNames[j]] = marginalContrib;
+                    }
+
+                    ds.marginalRiskContribByStrat.Rows.Add(row);
+                }
+            }
+        }
+
+        private void DoMarginalRiskContribFull()
+        {
+            Dictionary<string, EquityCurve> strategyRotcECs =
+                _strategyPfolioTrackers.ToDictionary(x => x.Key, x => x.Value.RotcEquityCurve);
+
+            if (strategyRotcECs.Count == 0) return;
+            var stratNames = strategyRotcECs.Keys.ToList();
+
+            Matrix<double> retMatrix = Matrix<double>.Build.DenseOfColumnArrays(strategyRotcECs.Select(x => x.Value.Returns.ToArray()));
+
+            var covMatrix = CovMatrix(retMatrix);
+            var pfolioVariance = _totalPortfolioTracker.RotcEquityCurve.Returns.Variance();
+
+            var absTotalRet = Math.Abs(_totalPortfolioTracker.RotcEquityCurve.Returns.Sum());
+
+            for (int i = 0; i < stratNames.Count; i++)
+            {
+                var marginalContrib = pfolioVariance == 0 ? 0 : covMatrix.Row(i).Sum() / pfolioVariance;
+
+                var row = ds.marginalRiskContribByStratFullSample.NewmarginalRiskContribByStratFullSampleRow();
+                row.strategy = stratNames[i];
+                row.marginalRiskContrib = marginalContrib;
+
+                if (absTotalRet != 0)
+                {
+                    row.returnsContrib = _strategyPfolioTrackers[stratNames[i]].RotcEquityCurve.Returns.Sum() / absTotalRet;
+                }
+                ds.marginalRiskContribByStratFullSample.AddmarginalRiskContribByStratFullSampleRow(row);
+            }
+        }
+
+        public static Matrix<double> CovMatrix(Matrix<double> origMatrix)
+        {
+            int numRows = origMatrix.RowCount;
+            var means = origMatrix.EnumerateColumns().Select(x => x.Average()).ToList();
+            var demeanedMatrix = origMatrix.MapIndexed((i, j, val) => val - means[j]);
+
+            var retMatrix = demeanedMatrix.TransposeThisAndMultiply(demeanedMatrix);
+            retMatrix = retMatrix * (1.0 / (numRows - 1));
+
+            return retMatrix;
         }
 
         private void DoRealizedVolatility()
@@ -512,6 +608,36 @@ namespace QPAS
                 row.rotc60 = rotcRealizedVol60[i];
                 row.roac60 = roacRealizedVol60[i];
                 ds.realizedVol.AddrealizedVolRow(row);
+            }
+        }
+
+        private void DoRealizedvolatilityByStrat()
+        {
+            Dictionary<string, EquityCurve> strategyRotcECs =
+                _strategyPfolioTrackers.ToDictionary(x => x.Key, x => x.Value.RotcEquityCurve);
+
+            if (strategyRotcECs.Count == 0) return;
+
+            foreach (string stratName in strategyRotcECs.Keys)
+            {
+                ds.realizedVolByStrat.Columns.Add(stratName, typeof(double));
+            }
+
+            var stratRealizedVolCurves = strategyRotcECs.ToDictionary(x => x.Key, x => GenerateRealizedVolatilityCurve(60, x.Value.Returns));
+            var stratNames = stratRealizedVolCurves.Keys;
+
+            var ecRotc = _totalPortfolioTracker.RotcEquityCurve;
+
+            for (int i = 0; i < ecRotc.Dates.Count; i++)
+            {
+                var row = ds.realizedVolByStrat.NewRow();
+                row["date"] = ecRotc.Dates[i];
+
+                foreach (var strat in stratNames)
+                {
+                    row[strat] = stratRealizedVolCurves[strat][i];
+                }
+                ds.realizedVolByStrat.Rows.Add(row);
             }
         }
 

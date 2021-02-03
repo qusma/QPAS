@@ -79,7 +79,8 @@ namespace QPAS
                 "Risk",
                 "MonteCarlo",
                 "BacktestComparison",
-                "Volatility"
+                "Volatility",
+                "RiskContribByStrat"
             };
             var title = (string)((TreeViewItem)NavigationMenu.SelectedItem).Tag;
             MainTabCtrl.SelectedIndex = pages.IndexOf(title);

@@ -82,7 +82,8 @@
             <TreeViewItem Header="Cash Transactions" Tag="CashTransactions" />
             <TreeViewItem Header="ACF/PACF" Tag="ACFPACF" />
             <TreeViewItem Header="Risk" Tag="Risk" />
-            <TreeViewItem Header="Volatility" Tag="Volatility" />
+            <TreeViewItem Header="Realized Volatility" Tag="Volatility" />
+            <TreeViewItem Header="Risk Contr. by Strategy" Tag="RiskContribByStrat" />
             <TreeViewItem Header="Monte Carlo" Tag="MonteCarlo" />
             <TreeViewItem Header="Backtest Comparison" Tag="BacktestComparison" />
         </TreeView>
@@ -1545,7 +1546,7 @@
                                                 Name="VaRChartGaussianLine" CanTrackerInterpolatePoints="False"
                                                 MarkerType="Circle" Color="#41B1E1" Title="Gaussian" 
                                                 MarkerFill="#41B1E1" MarkerSize="5"
-                                                LabelFormatString="Nrml: {}{0:p1}: {1:p1}" LabelMargin="50"
+                                                LabelFormatString="Normal: {}{0:p1}: {1:p1}" LabelMargin="50"
                                                 TrackerFormatString="Probability: {2:p1}&#x0a;Value at Risk: {4:p2}"
                                                 DataFieldX="level" DataFieldY="var" />
                                 <oxy:LineSeries ItemsSource="{Binding Data.ValueAtRisk}"
@@ -2094,10 +2095,70 @@
                         </oxy:Plot>
 
 
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                    FontSize="28" Foreground="DimGray" Content="Realized Volatility by Strategy (ROTC)" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=RealizedVolatilityByStratChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=RealizedVolatilityByStratChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+
+                        <oxy:PlotView Name="RealizedVolatilityByStratChart" 
+                                    Width="700" Height="400" HorizontalAlignment="Center" Model="{Binding RealizedVolatilityByStratModel}" />
+
+                        
+                        
                     </StackPanel>
                 </ScrollViewer>
+            </TabItem>
 
 
+            <TabItem Header="RiskContribByStrat">
+                <ScrollViewer>
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <Label HorizontalAlignment="Left"
+                                    FontSize="28" Foreground="DimGray" Content="Full Period Risk &amp; Return Contributions" />
+                        
+                        <DataGrid Name="FullRiskContribDatagrid" IsReadOnly="True" AutoGenerateColumns="False"  FontSize="12"
+                              Width="600" CanUserAddRows="False" CanUserDeleteRows="False" ItemsSource="{Binding Data.marginalRiskContribByStratFullSample}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Strategy" Binding="{Binding strategy}" FontWeight="Bold" Width="150" />
+                                <DataGridTextColumn Header="Risk Contribution" Binding="{Binding marginalRiskContrib,StringFormat=p2}" Width="200" />
+                                <DataGridTextColumn Header="Returns Contribution" Binding="{Binding returnsContrib, StringFormat=p2}" Width="200" />
+                            </DataGrid.Columns>
+                            
+                        </DataGrid>
+
+
+
+                        <StackPanel Orientation="Horizontal">
+                            <Label HorizontalAlignment="Left"
+                                       FontSize="28" Foreground="DimGray" Content="Rolling 252-day Risk Contribution (ROTC)" />
+                            <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=RollingRiskContributionByStrategyChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+                            <Button Style="{StaticResource SaveBtnStyle}" CommandParameter="{Binding ElementName=RollingRiskContributionByStrategyChart}">
+                                <Button.Content>
+                                    <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                                </Button.Content>
+                            </Button>
+
+                        </StackPanel>
+
+                        <oxy:PlotView Name="RollingRiskContributionByStrategyChart" Width="700" Height="600" HorizontalAlignment="Center"
+                                      Model="{Binding RollingRiskContribByStratModel}" />
+                        
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
     </Grid>

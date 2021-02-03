@@ -27,7 +27,10 @@ namespace QPAS
         private double _retVsSizeBestFitLineSlope;
         private double _retVsLengthBestFitLineConstant;
         private double _retVsLengthBestFitLineSlope;
+
         private PlotModel _plByStrategyModel;
+        private PlotModel _realizedVolatilityByStratModel;
+        private PlotModel _rollingRiskContribByStratModel;
         private PlotModel _capitalUsageByStrategyModel;
         private PlotModel _relativeCapitalUsageByStrategyModel;
         private PlotModel _roacByStrategyModel;
@@ -43,6 +46,18 @@ namespace QPAS
         public ICommand SaveChart { get; private set; }
 
         //Plot models
+        public PlotModel RollingRiskContribByStratModel
+        {
+            get => _rollingRiskContribByStratModel;
+            set => this.RaiseAndSetIfChanged(ref _rollingRiskContribByStratModel, value);
+        }
+
+        public PlotModel RealizedVolatilityByStratModel
+        {
+            get => _realizedVolatilityByStratModel;
+            set => this.RaiseAndSetIfChanged(ref _realizedVolatilityByStratModel, value);
+        }
+
         public PlotModel PLByStrategyModel
         {
             get => _plByStrategyModel;
@@ -250,6 +265,70 @@ namespace QPAS
             CreateRoacByStrategyChartModel();
             CreateMdsChartModel();
             CreateTradeRetsByDayAndHourChartModel();
+            CreateRealizedVolatilityByStratModel();
+            CreateRollingRiskContribByStratModel();
+        }
+
+        private void CreateRollingRiskContribByStratModel()
+        {
+            var model = new PlotModel();
+
+            var xAxis = new OxyPlot.Axes.DateTimeAxis
+            {
+                Position = OxyPlot.Axes.AxisPosition.Bottom,
+                StringFormat = "yyyy-MM-dd"
+            };
+            model.Axes.Add(xAxis);
+
+            var yAxis = new OxyPlot.Axes.LinearAxis
+            {
+                Position = OxyPlot.Axes.AxisPosition.Left,
+                StringFormat = "p2",
+                MajorGridlineStyle = LineStyle.Dash
+            };
+            model.Axes.Add(yAxis);
+
+            var riskContribTmpSum = Enumerable.Range(0, Data.marginalRiskContribByStrat.Rows.Count).Select(x => 0.0).ToList();
+
+            foreach (DataColumn column in Data.marginalRiskContribByStrat.Columns)
+            {
+                if (column.ColumnName == "date") continue;
+
+                DataColumn column1 = column;
+                List<double> sum = riskContribTmpSum;
+                var series = new OxyPlot.Series.AreaSeries
+                {
+                    ItemsSource = Data
+                    .marginalRiskContribByStrat
+                    .Select((x, i) =>
+                        new
+                        {
+                            X = x.date,
+                            Y = sum[i],
+                            Y2 = sum[i] + x.Field<double>(column1.ColumnName),
+                        }),
+
+                    Title = column.ColumnName,
+                    CanTrackerInterpolatePoints = false,
+                    TrackerFormatString = "Strategy: " + column.ColumnName + @" Date: {2:yyyy-MM-dd} Risk contribution: {4:p1}",
+                    DataFieldX = "X",
+                    DataFieldX2 = "X",
+                    DataFieldY = "Y",
+                    DataFieldY2 = "Y2",
+                    MarkerType = MarkerType.None,
+                    StrokeThickness = 1
+                };
+
+                riskContribTmpSum = Data.marginalRiskContribByStrat.Select((x, i) => x.Field<double>(column1.ColumnName) + riskContribTmpSum[i]).ToList();
+
+                model.Series.Add(series);
+            }
+
+            model.LegendPosition = LegendPosition.BottomCenter;
+            model.LegendOrientation = LegendOrientation.Horizontal;
+            model.LegendPlacement = LegendPlacement.Outside;
+
+            RollingRiskContribByStratModel = model;
         }
 
         private void CreateTradeRetsByDayAndHourChartModel()
@@ -403,6 +482,50 @@ namespace QPAS
             model.LegendPlacement = LegendPlacement.Outside;
 
             RoacByStrategyModel = model;
+        }
+
+        private void CreateRealizedVolatilityByStratModel()
+        {
+            var model = new PlotModel();
+
+            var xAxis = new OxyPlot.Axes.DateTimeAxis
+            {
+                Position = OxyPlot.Axes.AxisPosition.Bottom,
+                StringFormat = "yyyy-MM-dd"
+            };
+            model.Axes.Add(xAxis);
+
+            var yAxis = new OxyPlot.Axes.LinearAxis
+            {
+                Position = OxyPlot.Axes.AxisPosition.Left,
+                StringFormat = "p2",
+                MajorGridlineStyle = LineStyle.Dash
+            };
+            model.Axes.Add(yAxis);
+
+            foreach (DataColumn column in Data.realizedVolByStrat.Columns)
+            {
+                if (column.ColumnName == "date") continue;
+
+                DataColumn column1 = column;
+                var series = new OxyPlot.Series.LineSeries
+                {
+                    ItemsSource = Data.realizedVolByStrat.Select(x => new { X = x.date, Y = x.Field<double>(column1.ColumnName) }),
+                    Title = column.ColumnName,
+                    CanTrackerInterpolatePoints = false,
+                    TrackerFormatString = "Strategy: " + column.ColumnName + @" Date: {2:yyyy-MM-dd} 60-day Annualized Vol: {4:p2}",
+                    DataFieldX = "X",
+                    DataFieldY = "Y",
+                    MarkerType = MarkerType.None
+                };
+                model.Series.Add(series);
+            }
+
+            model.LegendPosition = LegendPosition.BottomCenter;
+            model.LegendOrientation = LegendOrientation.Horizontal;
+            model.LegendPlacement = LegendPlacement.Outside;
+
+            RealizedVolatilityByStratModel = model;
         }
 
         private void CreatePLByStrategyChartModel()
