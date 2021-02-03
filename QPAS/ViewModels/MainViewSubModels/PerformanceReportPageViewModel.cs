@@ -98,7 +98,7 @@ namespace QPAS
             _data = data;
             TradeFilterSettings = new TradeFilterSettings(_data.EquitySummaries);
 
-            ToggleTagsText = "Select All";
+            ToggleTagsText = "Deselect All";
             ToggleStratsText = "Select All";
             ToggleInstrumentsText = "Deselect All";
 

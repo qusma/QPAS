@@ -32,6 +32,9 @@ namespace QPAS.ExternalDataSources
 
         private readonly object _storageInfoLock = new object();
         private readonly object _arrivedDataLock = new object();
+        private readonly object _requestHistoricalDataLock = new object();
+
+        private readonly SemaphoreSlim _instrumentInfoReqSemaphor = new SemaphoreSlim(1,1);
 
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
@@ -120,17 +123,9 @@ namespace QPAS.ExternalDataSources
             {
                 return null;
             }
-            StoredDataInfo dataInfo = await TryGetStorageInfo(qdmsInst);
-
-            //Here we check if there's is absolutely no data available for us
-            if ((dataInfo == null || dataInfo.LatestDate < from || dataInfo.EarliestDate > to) &&
-                !_settings.QdmsAllowFreshData)
-            {
-                return null;
-            }
 
             //grab the data
-            return RequestData(qdmsInst, from, to, frequency);
+            return await RequestData(qdmsInst, from, to, frequency);
         }
 
         public async Task<List<OHLCBar>> GetAllData(EntityModel.Instrument instrument, BarSize frequency = BarSize.OneDay)
@@ -166,7 +161,7 @@ namespace QPAS.ExternalDataSources
             await RefreshInstrumentsList();
             var instrument = _instrumentsList.FirstOrDefault(x => x.ID == externalInstrumentID);
             if (instrument == null) return null;
-            return RequestData(instrument, from, to);
+            return await RequestData(instrument, from, to);
         }
 
         /// <summary>
@@ -204,21 +199,27 @@ namespace QPAS.ExternalDataSources
                 RTHOnly = true,
                 SaveDataToStorage = false
             };
-            var id = _client.RequestHistoricalData(req);
-            _requestIDs.Add(id, false);
+
+            int requestId;
+            lock (_requestHistoricalDataLock)
+            {
+                requestId = _client.RequestHistoricalData(req);
+                _requestIDs.Add(requestId, false);
+            }
+            
 
 
             //Wait until the data arrives
             int i = 0;
-            while (i < 100)
+            while (i < 300)
             {
-                Thread.Sleep(20);
+                Thread.Sleep(10);
                 lock (_arrivedDataLock)
                 {
-                    if (_requestIDs[id])
+                    if (_requestIDs[requestId])
                     {
-                        var data = _arrivedData[qdmsInst.ID.Value].Last();
-                        _arrivedData.Remove(qdmsInst.ID.Value);
+                        var data = _arrivedData[requestId].Last();
+                        _arrivedData.Remove(requestId);
                         lastDate = data.DT;
                         return (data.Close, lastDate);
                     }
@@ -297,7 +298,7 @@ namespace QPAS.ExternalDataSources
             }
         }
 
-        private List<OHLCBar> RequestData(Instrument instrument, DateTime startTime, DateTime endTime, BarSize frequency = BarSize.OneDay)
+        private async Task<List<OHLCBar>> RequestData(Instrument instrument, DateTime startTime, DateTime endTime, BarSize frequency = BarSize.OneDay)
         {
             if (!instrument.ID.HasValue) return null;
 
@@ -313,27 +314,34 @@ namespace QPAS.ExternalDataSources
                 SaveDataToStorage = true
             };
 
-            int requestID = _client.RequestHistoricalData(req);
-            _requestIDs.Add(requestID, false);
+            int requestID;
+            lock (_requestHistoricalDataLock)
+            {
+                requestID = _client.RequestHistoricalData(req);
+                _requestIDs.Add(requestID, false);
+            }
 
             //Wait until the data arrives
             int i = 0;
-            while (i < 100)
+            return await Task.Run(() =>
             {
-                Thread.Sleep(20);
-                lock (_arrivedDataLock)
+                while (i < 300)
                 {
-                    if (_requestIDs[requestID])
+                    Thread.Sleep(10);
+                    lock (_arrivedDataLock)
                     {
-                        var data = _arrivedData[instrument.ID.Value];
-                        _arrivedData.Remove(instrument.ID.Value);
-                        return data;
+                        if (_requestIDs[requestID])
+                        {
+                            var data = _arrivedData[requestID];
+                            _arrivedData.Remove(requestID);
+                            return data;
+                        }
                     }
+                    i++;
                 }
-                i++;
-            }
 
-            return new List<OHLCBar>();
+                return new List<OHLCBar>();
+            });
         }
 
         private void dataClient_HistoricalDataReceived(object sender, HistoricalDataEventArgs e)
@@ -343,7 +351,7 @@ namespace QPAS.ExternalDataSources
 
             lock (_arrivedDataLock)
             {
-                int id = e.Request.Instrument.ID.Value;
+                int id = e.Request.RequestID;
                 _arrivedData.Add(id, e.Data);
                 _requestIDs[e.Request.RequestID] = true;
             }
@@ -354,18 +362,21 @@ namespace QPAS.ExternalDataSources
         {
             if (!_client.Connected) return;
 
-            if (_instrumentsList.Count == 0 || (DateTime.Now - _lastInstrumentsListRefresh).TotalSeconds > 10)
+            await _instrumentInfoReqSemaphor.WaitAsync();
+            if (_instrumentsList.Count == 0 || (DateTime.Now - _lastInstrumentsListRefresh).TotalSeconds > 30)
             {
                 var instrumentsReq = await _client.GetInstruments();
                 if (!instrumentsReq.WasSuccessful)
                 {
                     _logger.Error("Error getting instrument list: " + string.Join(",", instrumentsReq.Errors));
+                    _instrumentInfoReqSemaphor.Release();
                     return;
                 }
 
                 _instrumentsList = instrumentsReq.Result;
                 _lastInstrumentsListRefresh = DateTime.Now;
             }
+            _instrumentInfoReqSemaphor.Release();
         }
 
         /// <summary>
@@ -377,6 +388,17 @@ namespace QPAS.ExternalDataSources
         private async Task<StoredDataInfo> TryGetStorageInfo(Instrument instrument)
         {
             if (instrument.ID == null) throw new Exception("Null instrument ID return wtf");
+            int id = instrument.ID.Value;
+
+            lock (_storageInfoLock)
+            {
+                if (_storageInfo.ContainsKey(id))
+                {
+                    return _storageInfo[id];
+                }
+            }
+
+
             var response = await _client.GetLocallyAvailableDataInfo(instrument);
 
             if (!response.WasSuccessful)
@@ -385,34 +407,19 @@ namespace QPAS.ExternalDataSources
                 return null;
             }
 
-            int id = instrument.ID.Value;
-
+            
             StoredDataInfo info = response.Result.FirstOrDefault(x => x.Frequency == BarSize.OneDay);
             if (info == null) return null;
 
-
-            if (_storageInfo.ContainsKey(id))
-                _storageInfo[id] = info;
-            else
-                _storageInfo.Add(id, info);
-
-            return info;
-        }
-
-        private void DataClient_LocallyAvailableDataInfoReceived(object sender, LocallyAvailableDataInfoReceivedEventArgs e)
-        {
-            if (e.Instrument.ID == null) throw new Exception("Null instrument ID return wtf");
-            int id = e.Instrument.ID.Value;
             lock (_storageInfoLock)
             {
-                StoredDataInfo info = e.StorageInfo.FirstOrDefault(x => x.Frequency == BarSize.OneDay);
-                if (info == null) return;
-
                 if (_storageInfo.ContainsKey(id))
                     _storageInfo[id] = info;
                 else
                     _storageInfo.Add(id, info);
             }
+
+            return info;
         }
 
         /// <summary>

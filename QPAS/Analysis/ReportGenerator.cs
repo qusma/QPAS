@@ -19,6 +19,8 @@ using System.Threading.Tasks;
 using Instrument = EntityModel.Instrument;
 using Tag = EntityModel.Tag;
 using ReportSettings = EntityModel.ReportSettings;
+using System.Threading;
+using System.Collections.Concurrent;
 
 namespace QPAS
 {
@@ -337,9 +339,10 @@ namespace QPAS
             //Instrument id - from date/to date
             Dictionary<Instrument, KeyValuePair<DateTime, DateTime>> neededDates = GetNeededDates();
 
-            var data = new Dictionary<int, TimeSeries>();
+            var data = new ConcurrentDictionary<int, TimeSeries>();
             int counter = 0;
-            foreach (var kvp in neededDates)
+
+            var dataTasks = neededDates.Select(kvp => Task.Run(async () => 
             {
                 Instrument instrument = kvp.Key;
                 DateTime startingDate = kvp.Value.Key;
@@ -350,23 +353,22 @@ namespace QPAS
                 {
                     //couldn't find data at qdms, use prior period positions
                     var pos = Context.PriorPositions.Where(x => x.InstrumentID == kvp.Key.ID).OrderBy(x => x.Date).ToList();
-                    data.Add(kvp.Key.ID, TimeSeriesFromPriorPositions(pos));
+                    data.TryAdd(kvp.Key.ID, TimeSeriesFromPriorPositions(pos));
                     _logger.Log(LogLevel.Warn, string.Format("Data for instrument {0} ({1}) not found from QDMS. Using prior positions instead.", kvp.Key.Symbol, kvp.Key.AssetCategory));
                 }
                 else
                 {
-                    data.Add(kvp.Key.ID, new TimeSeries(series));
+                    data.TryAdd(kvp.Key.ID, new TimeSeries(series));
                 }
 
-                if (counter % 5 == 0)
-                {
-                    SetProgress(string.Format("Loading Data ({0}/{1})", counter, neededDates.Count),
-                        15 * ((double)counter / (neededDates.Count)));
-                }
-                counter++;
-            }
+                SetProgress(string.Format("Loading Data ({0}/{1})", counter, neededDates.Count),
+                    15 * ((double)counter / (neededDates.Count)));
+                Interlocked.Increment(ref counter);
+            })).ToArray();
 
-            return data;
+            Task.WaitAll(dataTasks);
+
+            return data.ToDictionary(x => x.Key, x => x.Value);
         }
 
         /// <summary>

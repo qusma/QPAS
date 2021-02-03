@@ -57,8 +57,8 @@ namespace QPAS
             lock (_dataCacheLock)
             {
                 if (_dataCache.ContainsKey(inst.ID) &&
-                    _dataCache[inst.ID].First().DT <= startTime &&
-                    _dataCache[inst.ID].Last().DT >= endTime)
+                    _dataCache[inst.ID].First().DT.Date <= startTime.Date &&
+                    _dataCache[inst.ID].Last().DT.Date >= endTime.Date)
                 {
                     _logger.Log(LogLevel.Info, "Found data in cache");
                     return _dataCache[inst.ID].Where(x => x.DT >= startTime && x.DT <= endTime).ToList();
