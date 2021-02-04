@@ -68,12 +68,12 @@ namespace QPAS
 
             TradeTrackers = trades.ToDictionary(t => t.ID, t => new TradeTracker(t, optionsCapitalUsageMultiplier));
 
-            ProfitLossEquityCurve = new EquityCurve(0, firstDate);
-            ProfitLossLongEquityCurve = new EquityCurve(0, firstDate);
-            ProfitLossShortEquityCurve = new EquityCurve(0, firstDate);
+            ProfitLossEquityCurve = new EquityCurve();
+            ProfitLossLongEquityCurve = new EquityCurve();
+            ProfitLossShortEquityCurve = new EquityCurve();
 
-            RoacEquityCurve = new EquityCurve(1, firstDate);
-            RotcEquityCurve = new EquityCurve(1, firstDate);
+            RoacEquityCurve = new EquityCurve(1, firstDate.Date.AddDays(-1));
+            RotcEquityCurve = new EquityCurve(1, firstDate.Date.AddDays(-1));
 
             Capital = new AllocatedCapital();
 

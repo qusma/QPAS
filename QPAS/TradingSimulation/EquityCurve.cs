@@ -86,14 +86,35 @@ namespace QPAS
             Changes = new List<double>();
         }
 
+        public EquityCurve()
+        {
+            _maxEquity = 0;
+            Equity = new List<double>();
+            DrawdownPct = new List<double>();
+            DrawdownAmt = new List<double>();
+            Returns = new List<double>();
+            DrawdownLengths = new List<TimeSpan>();
+            Dates = new List<DateTime?>();
+            Changes = new List<double>();
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="ret">Net Return</param>
         public void AddReturn(double ret, DateTime? dt = null)
         {
-            Equity.Add(Equity.Last() * (1 + ret));
-            Changes.Add(Equity[Equity.Count - 1] - Equity[Equity.Count - 2]);
+            if (Equity.Count == 0)
+            {
+                Equity.Add(1);
+                Changes.Add(0);
+            }
+            else
+            {
+                Equity.Add(Equity.Last() * (1 + ret));
+                Changes.Add(Equity[Equity.Count - 1] - Equity[Equity.Count - 2]);
+            }
+            
             _maxEquity = Math.Max(_maxEquity, Equity.Last());
             Returns.Add(ret);
             DrawdownPct.Add(_maxEquity == 0 ? 0 : Equity.Last() / _maxEquity - 1);
@@ -107,9 +128,19 @@ namespace QPAS
 
         public void AddChange(double change, DateTime? dt = null)
         {
-            Returns.Add(Equity.Last() != 0 ? change / Equity.Last() : 0);
+            if (Equity.Count == 0)
+            {
+                Returns.Add(0);
+                Equity.Add(change);
+            }
+            else
+            {
+                Returns.Add(Equity.Last() != 0 ? change / Equity.Last() : 0);
+                Equity.Add(Equity[Equity.Count - 1] + change);
+            }
+
+            
             Changes.Add(change);
-            Equity.Add(Equity.Last() + change);
             _maxEquity = Math.Max(_maxEquity, Equity.Last());
             DrawdownPct.Add(_maxEquity == 0 ? 0 : Equity.Last() / _maxEquity - 1);
             DrawdownAmt.Add(Equity.Last() - _maxEquity);
@@ -122,9 +153,20 @@ namespace QPAS
 
         public void AddValue(double value, DateTime? dt = null)
         {
-            Returns.Add(Equity.Last() != 0 ? value / Equity.Last() - 1 : 0);
+            if (Equity.Count == 0)
+            {
+                Returns.Add(0);
+                Changes.Add(0);
+            }
+            else
+            {
+                Returns.Add(Equity.Last() != 0 ? value / Equity.Last() - 1 : 0);
+                Changes.Add(value - Equity[Equity.Count - 1]);
+            }
+
+
+            
             Equity.Add(value);
-            Changes.Add(Equity[Equity.Count - 1] - Equity[Equity.Count - 2]);
             _maxEquity = Math.Max(_maxEquity, value);
             DrawdownPct.Add(_maxEquity == 0 ? 0 : value / _maxEquity - 1);
             DrawdownAmt.Add(Equity.Last() - _maxEquity);

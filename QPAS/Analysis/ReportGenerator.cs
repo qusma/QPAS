@@ -761,7 +761,8 @@ namespace QPAS
             {
                 var dr = ds.StrategyROAC.NewRow();
 
-                dr["Date"] = _datesInPeriod[i]; foreach (var kvp in strategyRoacECs)
+                dr["Date"] = _datesInPeriod[i]; 
+                foreach (var kvp in strategyRoacECs)
                 {
                     dr[kvp.Key] = kvp.Value.Equity[i + 1] - 1;
                 }
@@ -1082,7 +1083,7 @@ namespace QPAS
                 dr["date"] = _datesInPeriod[i];
                 foreach (KeyValuePair<string, PortfolioTracker> kvp in _strategyPfolioTrackers)
                 {
-                    dr[kvp.Key] = kvp.Value.ProfitLossEquityCurve.Equity[i + 1];
+                    dr[kvp.Key] = kvp.Value.ProfitLossEquityCurve.Equity[i];
                 }
                 ds.StrategyPLCurves.Rows.Add(dr);
             }
