@@ -1502,9 +1502,9 @@
                         <GroupBox Header="Dates">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="From:" FontSize="18" Foreground="DimGray" />
-                                <DatePicker SelectedDate="{Binding TradeFilterSettings.From, Mode=TwoWay}" SelectedDateFormat="Short" Margin="5,0,5,0" />
+                                <DatePicker SelectedDate="{Binding TradeFilterSettings.From, Mode=TwoWay}" SelectedDateFormat="Short" Margin="5,0,5,0" Width="100" />
                                 <TextBlock Text="To:" FontSize="18" Foreground="DimGray" />
-                                <DatePicker SelectedDate="{Binding TradeFilterSettings.To, Mode=TwoWay}" SelectedDateFormat="Short" Name="PRDateTo"  Margin="5,0,5,0"/>
+                                <DatePicker SelectedDate="{Binding TradeFilterSettings.To, Mode=TwoWay}" SelectedDateFormat="Short" Name="PRDateTo" Width="100" Margin="5,0,5,0"/>
 
                             </StackPanel>
                         </GroupBox>
@@ -1520,7 +1520,7 @@
 
                                 <UniformGrid Columns="2" Margin="0,0,0,0" >
                                     <TextBlock Text="Days:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
-                                    <TextBox Height="15" Text="{Binding ReportSettings.VaRDays}"  Width="100"/>
+                                    <TextBox Height="15" Text="{Binding ReportSettings.VaRDays}"  Width="50"/>
                                 </UniformGrid>
                             </StackPanel>
                         </GroupBox>
@@ -1535,23 +1535,6 @@
                             </UniformGrid>
                         </GroupBox>
 
-
-                        <GroupBox Header="Benchmark" Margin="0,5,0,0">
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Text="Bench. Against:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray"  />
-                                <UniformGrid Columns="2" Margin="5,0,5,0">
-                                    <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
-                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
-                                    <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
-                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
-                                </UniformGrid>
-
-                                <TextBlock Text="Benchmark:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray"  />
-                                <ComboBox Name="RPBenchmarkComboBox" DisplayMemberPath="Name"
-                                  ItemsSource="{Binding Benchmarks}"
-                                  SelectedItem="{Binding ReportSettings.Benchmark}" Margin="5,0,5,0" />
-                            </StackPanel>
-                        </GroupBox>
 
                         <GroupBox Header="Monte Carlo" Margin="0,5,0,0">
                             <StackPanel Orientation="Vertical">
@@ -1571,18 +1554,35 @@
 
                                 <UniformGrid Columns="2" Margin="0,10,0,0">
                                     <TextBlock Text="Periods:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
-                                    <TextBox Height="15" Text="{Binding ReportSettings.MCPeriods}" />
+                                    <TextBox Height="15" Text="{Binding ReportSettings.MCPeriods}" Width="50" />
                                 </UniformGrid>
 
                                 <UniformGrid Columns="2" Margin="0,10,0,0" >
                                     <TextBlock Text="Runs:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
-                                    <TextBox Height="15" Text="{Binding ReportSettings.MCRuns}" />
+                                    <TextBox Height="15" Text="{Binding ReportSettings.MCRuns}" Width="50" />
                                 </UniformGrid>
 
                                 <UniformGrid Columns="2" Margin="0,10,0,0" >
                                     <TextBlock Text="Cluster Size:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
-                                    <TextBox Height="15" Text="{Binding ReportSettings.MCClusterSize}" />
+                                    <TextBox Height="15" Text="{Binding ReportSettings.MCClusterSize}" Width="50" />
                                 </UniformGrid>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <GroupBox Header="Benchmark" Margin="0,5,0,0">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="Bench. Against:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray"  />
+                                <UniformGrid Columns="2" Margin="5,0,5,0">
+                                    <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
+                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
+                                    <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
+                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                                </UniformGrid>
+
+                                <TextBlock Text="Benchmark:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray"  />
+                                <ComboBox Name="RPBenchmarkComboBox" DisplayMemberPath="Name"
+                                  ItemsSource="{Binding Benchmarks}"
+                                  SelectedItem="{Binding ReportSettings.Benchmark}" Margin="5,0,5,0" />
                             </StackPanel>
                         </GroupBox>
 
@@ -1641,7 +1641,7 @@
                                         <Button Content="Load" Margin="5" Command="{Binding LoadSettingsCmd}" CommandParameter="{Binding ElementName=ReportSettinsgListBox,Path=SelectedValue}" 
                                                 IsEnabled="{Binding ElementName=ReportSettinsgListBox,Path=SelectedItem, Converter={qc:QuickConverter '$P != null'}}"></Button>
                                 </StackPanel>
-
+                                    <Separator />
                                     <ListBox Name="ReportSettinsgListBox" ItemsSource="{Binding SavedReportSettings}" DisplayMemberPath="Name" SelectedValuePath="Name" Margin="5" MinHeight="500">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="MouseDoubleClick">
@@ -1687,6 +1687,7 @@
             </TabItem>
 
         </TabControl>
+
         <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="5">
             <TextBlock Text="Status:" Margin="0,0,5,0" />
             <TextBlock Name="ConnectionStatusText" Text="{Binding Datasourcer.ExternalDataSource.ConnectionStatus}" />
