@@ -1432,6 +1432,7 @@ namespace QPAS
                 endingPct = Math.Round(maxDDs.Min(), 3);
             }
             int totalCount = 0;
+            int count = 0; //in extree cases endingPct can be a ridiculous number. Make sure the loop exits in a reasonable time.
             for (double i = startingPct; i >= endingPct; i -= 0.0025)
             {
                 var mcddDR = ds.MCDrawdowns.NewMCDrawdownsRow();
@@ -1442,6 +1443,10 @@ namespace QPAS
                 mcddDR.point = pointCount;
                 mcddDR.cumulative = (double)totalCount / _settings.MCRuns;
                 ds.MCDrawdowns.Rows.Add(mcddDR);
+
+                count++;
+
+                if (count > 2000) break;
             }
 
             var sharpes = new List<double>();
