@@ -304,8 +304,8 @@ namespace QPAS
                         new
                         {
                             X = x.date,
-                            Y = sum[i],
-                            Y2 = sum[i] + x.Field<double>(column1.ColumnName),
+                            Y = Math.Min(sum[i], sum[i] + x.Field<double>(column1.ColumnName)),
+                            Y2 = Math.Max(sum[i], sum[i] + x.Field<double>(column1.ColumnName)),
                         }),
 
                     Title = column.ColumnName,
@@ -319,7 +319,7 @@ namespace QPAS
                     StrokeThickness = 1
                 };
 
-                riskContribTmpSum = Data.marginalRiskContribByStrat.Select((x, i) => x.Field<double>(column1.ColumnName) + riskContribTmpSum[i]).ToList();
+                riskContribTmpSum = Data.marginalRiskContribByStrat.Select((x, i) => Math.Max(riskContribTmpSum[i], x.Field<double>(column1.ColumnName) + riskContribTmpSum[i])).ToList();
 
                 model.Series.Add(series);
             }
