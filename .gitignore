@@ -15,7 +15,10 @@ TestResults
 *.suo
 *.user
 *.sln.docstates
+*.DotSettings
 .vs/
+.nuget/
+
 
 # Build results
 [Dd]ebug/
