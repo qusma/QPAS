@@ -1,4 +1,5 @@
-﻿using MahApps.Metro.Controls;
+﻿using ICSharpCode.AvalonEdit.Search;
+using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 
 namespace QPAS
@@ -13,6 +14,8 @@ namespace QPAS
         public ScriptingWindow(IContextFactory contextFactory, IScriptRunner scriptRunner, DataContainer data)
         {
             InitializeComponent();
+
+            SearchPanel.Install(TextEditor);
 
             ViewModel = new ScriptingViewModel(contextFactory, scriptRunner, data, DialogCoordinator.Instance);
             DataContext = ViewModel;
