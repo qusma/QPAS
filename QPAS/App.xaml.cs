@@ -27,6 +27,7 @@ namespace QPAS
 
         private ManualResetEvent ResetSplashCreated;
         private Thread SplashThread;
+
         public App()
             : base()
         {
@@ -49,18 +50,18 @@ namespace QPAS
             SQLitePCL.Batteries.Init();
 
             //Load settings
-            var Settings = SettingsUtils.LoadSettings();
+            var settings = SettingsUtils.LoadSettings();
 
             //initialize logging
-            InitializeLogging(Settings);
+            InitializeLogging(settings);
 
             //Log unhandled exceptions
             AppDomain.CurrentDomain.UnhandledException += AppDomain_CurrentDomain_UnhandledException;
 
+            //db
             var contextFactory = new DbContextFactory(() => new QpasDbContext());
 
             InitializeDb(contextFactory);
-
 
             //check for empty account fields and load preferences
             using (var dbContext = contextFactory.Get())
@@ -75,9 +76,10 @@ namespace QPAS
 
             var data = await DataLoader.LoadData(contextFactory);
 
+            var qdmsSource = new ExternalDataSources.QDMS(settings, data.DatasourcePreferences.ToList());
+            var ds = new DataSourcer(contextFactory, qdmsSource, data, settings.AllowExternalDataSource);
 
-            var window = new MainWindow(data, Settings);
-
+            var window = new MainWindow(data, settings, contextFactory, ds);
         }
 
         private void InitializeDb(IContextFactory contextFactory)
@@ -87,11 +89,8 @@ namespace QPAS
                 //create db if it doesn't exist
                 dbContext.Database.Migrate();
 
-                //check for any currencies, seed the db with initial values if nothing is found
-                if (!dbContext.Currencies.Any())
-                {
-                    Seed.DoSeed(dbContext);
-                }
+                //seed the db with initial values if nothing is found
+                Seed.DoSeed(dbContext);
             }
         }
 
@@ -150,6 +149,5 @@ namespace QPAS
             ResetSplashCreated.Set();
             System.Windows.Threading.Dispatcher.Run();
         }
-
     }
 }

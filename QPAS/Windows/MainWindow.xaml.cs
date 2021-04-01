@@ -31,9 +31,10 @@ namespace QPAS
     /// </summary>
     public partial class MainWindow : MetroWindow, IDisposable
     {
-        public IDataSourcer Datasourcer;
+        public IDataSourcer DataSourcer;
 
         private Logger _logger = LogManager.GetCurrentClassLogger();
+
         public MainViewModel ViewModel
         {
             get { return viewModel; }
@@ -42,6 +43,7 @@ namespace QPAS
                 viewModel = value;
             }
         }
+
         public DbContextFactory ContextFactory { get; private set; }
         public IAppSettings Settings { get; }
 
@@ -49,37 +51,37 @@ namespace QPAS
         /// Ridiculous hack to end the editing of a cell without commiting changes.
         /// </summary>
         private bool _tradesGridIsCellEditEnding;
+
         private MainViewModel viewModel;
 
         public void Dispose()
         {
-            if (Datasourcer != null)
+            if (DataSourcer != null)
             {
-                Datasourcer.Dispose();
-                Datasourcer = null;
+                DataSourcer.Dispose();
+                DataSourcer = null;
             }
         }
 
-        public MainWindow(DataContainer data, IAppSettings settings)
+        public MainWindow(DataContainer data, IAppSettings settings, DbContextFactory contextFactory, IDataSourcer dataSourcer)
         {
             /////////////////////////////////////////////////////////
             InitializeComponent();
             /////////////////////////////////////////////////////////
 
             Settings = settings;
-            ContextFactory = new DbContextFactory(() => new QpasDbContext());
-            var qdmsSource = new ExternalDataSources.QDMS(Settings, data.DatasourcePreferences.ToList());
-            Datasourcer = new DataSourcer(ContextFactory, qdmsSource, data, Settings.AllowExternalDataSource);
+            ContextFactory = contextFactory;
+            DataSourcer = dataSourcer;
 
-
-            ViewModel = new MainViewModel(ContextFactory, Datasourcer, DialogCoordinator.Instance, Settings, data);
+            ViewModel = new MainViewModel(ContextFactory, DataSourcer, DialogCoordinator.Instance, Settings, data);
             this.DataContext = ViewModel;
 
             PopulateStatementMenus();
+
             //Restore column ordering, widths, and sorting
             LoadDataGridLayouts();
 
-            //A hack to force the heavy stuff to load, 
+            //A hack to force the heavy stuff to load,
             //providing snappier navigation at the expense of longer startup time
 #if !DEBUG
             TradesGrid.Measure(new Size(500, 500));
@@ -99,10 +101,7 @@ namespace QPAS
             this.Show();
 
             ShowChangelog();
-
         }
-
-
 
         /// <summary>
         /// After we have loaded the IStatementParser/IStatementDownloader plugins,
@@ -128,8 +127,6 @@ namespace QPAS
                 LoadStatementFromFileBtn.Items.Add(btn);
             }
         }
-
-
 
         private void ShowChangelog()
         {
@@ -346,7 +343,7 @@ namespace QPAS
             if (cell == null) return;
 
             if (TradesGrid.SelectedItems == null || TradesGrid.SelectedItems.Count != 1) return;
-            var tradeVm = new TradeViewModel((Trade)TradesGrid.SelectedItem, ContextFactory, Datasourcer, Settings);
+            var tradeVm = new TradeViewModel((Trade)TradesGrid.SelectedItem, ContextFactory, DataSourcer, Settings);
             var tradeWindow = new TradeWindow(tradeVm, ContextFactory, ViewModel.TradesPageViewModel.TradesRepository);
             tradeWindow.ShowDialog();
         }
@@ -408,7 +405,6 @@ namespace QPAS
             }
         }
 
-
         private async void TradesGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             if (_tradesGridIsCellEditEnding) return;
@@ -446,7 +442,7 @@ namespace QPAS
 
                 if (newOpen.HasValue && newOpen.Value != originalOpen)
                 {
-                    //The user has opened or closed the trade, 
+                    //The user has opened or closed the trade,
                     //so we do a stats update to make sure the numbers are right
                     //and set the proper closing time
 
@@ -468,7 +464,7 @@ namespace QPAS
             }
         }
 
-        //The following two methods are an extremely dirty hack. The datagrid likes to steal focus 
+        //The following two methods are an extremely dirty hack. The datagrid likes to steal focus
         //from the popup and close it. So we have to intercept click events first and prevent that from happening.
         private void TagPickerPopupCheckBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -511,7 +507,6 @@ namespace QPAS
                 var selectedOrder = (Order)OrdersGrid.SelectedItem;
                 var newtrade = await ViewModel.TradesPageViewModel.CreateTrade(TradePickerNewTradeTextBox.Text);
                 newtrade.Open = true;
-
 
                 await ViewModel.TradesPageViewModel.AddOrders(newtrade, new List<Order> { selectedOrder });
                 TradePickerNewTradeTextBox.Text = "";
@@ -822,7 +817,6 @@ namespace QPAS
             }
         }
 
-
         /// <summary>
         /// When the Space key is pressed, toggle checked status on selected items.
         /// </summary>
@@ -907,7 +901,6 @@ namespace QPAS
 
                 List<Order> selectedOrders = OrdersGrid.SelectedItems.Cast<Order>().ToList();
 
-
                 var newTrade = await ViewModel.TradesPageViewModel.CreateTrade(ordersContextMenuNewTradeTextBox.Text);
                 if (newTrade != null)
                     await ViewModel.TradesPageViewModel.AddOrders(newTrade, selectedOrders);
@@ -975,7 +968,7 @@ namespace QPAS
         }
 
         /// <summary>
-        /// Starts the user script editor and exits this program. 
+        /// Starts the user script editor and exits this program.
         /// Can't compile the user scripts library while this is running.
         /// </summary>
         private void ScriptsBtn_Click(object sender, RoutedEventArgs e)

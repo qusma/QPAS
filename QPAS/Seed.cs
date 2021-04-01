@@ -6,6 +6,7 @@
 
 using EntityModel;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace QPAS
 {
@@ -13,7 +14,9 @@ namespace QPAS
     {
         public static void DoSeed(IQpasDbContext context)
         {
-            var currencies = new List<Currency>
+            if (context.Currencies.Any()) return;
+
+                var currencies = new List<Currency>
             {
                 new Currency { Name = "USD" },
                 new Currency { Name = "CAD" },
@@ -123,7 +126,7 @@ namespace QPAS
 
             context.Currencies.AddRange(currencies);
 
-            context.SaveChanges(); //todo: currency ids change after insert?
+            context.SaveChanges();
 
             var tags = new List<Tag>
             {
