@@ -29,6 +29,7 @@ namespace QPAS
 
         //ViewModels for each individual page
         public CashTransactionsPageViewModel CashTransactionsPageViewModel { get; set; }
+
         public OpenPositionsPageViewModel OpenPositionsPageViewModel { get; set; }
         public InstrumentsPageViewModel InstrumentsPageViewModel { get; set; }
         public StrategiesPageViewModel StrategiesPageViewModel { get; set; }
@@ -54,6 +55,7 @@ namespace QPAS
 
         //Commands
         public ICommand GenerateReportFromStrategy { get; set; }
+
         public ICommand GenerateReportFromTags { get; set; }
         public ICommand GenerateReportFromTrades { get; set; }
         public ICommand LoadStatementFromWeb { get; set; }
@@ -79,7 +81,6 @@ namespace QPAS
             ScriptRunner = new ScriptRunner(contextFactory, _tradesRepository, data);
 
             CreateCommands();
-
 
             CreateSubViewModels();
 
@@ -124,7 +125,6 @@ namespace QPAS
                 }
 
                 await PostStatementLoadProcedures(newData, progressDialog);
-
             });
             LoadStatementFromFile = ReactiveCommand.CreateFromTask<string>(async x =>
             {
@@ -208,7 +208,7 @@ namespace QPAS
             var fxRateDateEarliestDates = newData.Select(x => x.Value.FXRates.OrderBy(x => x.Date).FirstOrDefault()).Where(x => x != null).ToList();
             DateTime? firstDateInImport = fxRateDateEarliestDates.Count > 0 ? fxRateDateEarliestDates.OrderBy(x => x.Date).First().Date : (DateTime?)null;
 
-            if (lastDateInDb.HasValue && firstDateInImport.HasValue && lastDateInDb.Value < firstDateInImport.Value && 
+            if (lastDateInDb.HasValue && firstDateInImport.HasValue && lastDateInDb.Value < firstDateInImport.Value &&
                 Utils.CountBusinessDaysBetween(lastDateInDb.Value, firstDateInImport.Value) > 0)
             {
                 var firstMissingBusinessDay = Utils.AddBusinessDays(lastDateInDb.Value, 1);
@@ -242,7 +242,8 @@ namespace QPAS
                 progressDialog.SetMessage("Running script: " + scripts[i].Name);
                 try
                 {
-                    await ScriptRunner.RunOrderScript(scripts[i], orders);
+                    await ScriptRunner.RunOrderScript(scripts[i], orders);//todo: this will run subsequent scripts with orders set to a trade...
+                    orders = orders.Where(y => y.Trade == null).ToList();
                 }
                 catch (Exception ex)
                 {
@@ -312,17 +313,59 @@ namespace QPAS
             var gen = new ReportGenerator();
             ProgressDialogController progressDialog = await DialogService.ShowProgressAsync(this, "Generating Report", "Generating Report");
             var ds = await Task.Run(() => gen.TradeStats(
-                tradeIDs, 
-                PerformanceReportPageViewModel.ReportSettings, 
-                Settings, 
-                Datasourcer, 
-                _contextFactory, 
-                backtestData: PerformanceReportPageViewModel.BacktestData, 
+                tradeIDs,
+                PerformanceReportPageViewModel.ReportSettings,
+                Settings,
+                Datasourcer,
+                _contextFactory,
+                backtestData: PerformanceReportPageViewModel.BacktestData,
                 progressDialog: progressDialog));
             progressDialog.CloseAsync().Forget(); //don't await it!
 
             var window = new PerformanceReportWindow(ds, PerformanceReportPageViewModel.ReportSettings);
             window.Show();
+        }
+    }
+
+    public class Order_Script : OrderScriptBase
+    {
+        private List<string> _symbols = new List<string> { "SPY", "QQQ", "IWM" };
+
+        //Do not change the constructor parameters.
+        public Order_Script(DataContainer data, ILogger logger) : base(data, logger)
+        {
+        }
+
+        public override void ProcessOrders(List<Order> orders)
+        {
+            //cycle through orders that match our symbol list
+            foreach (var order in orders.Where(x => _symbols.Contains(x.Instrument.UnderlyingSymbol) && x.OrderReference.Contains("ETF-Swing")))
+            {
+                string orderInstrument = order.Instrument.UnderlyingSymbol;
+
+                //look for an open trade that fits the pattern, was opened before this orders, and uses the same instrument
+                Trade trade = OpenTrades
+                    .Where(x => x.Name.StartsWith("ETF-Swing") &&
+                                x.DateOpened < order.TradeDate &&
+                                x.Orders.Any(o => o.Instrument.UnderlyingSymbol == orderInstrument))
+                    .OrderByDescending(x => x.DateOpened)
+                    .FirstOrDefault();
+
+                if (trade != null)
+                {
+                    //if such a trade exists, add this order to it
+                    SetTrade(order, trade);
+                }
+                else
+                {
+                    //if the trade does not exist, create it
+                    var side = order.BuySell == "BUY" ? "Long" : "Short";
+                    trade = CreateTrade($"ETF-Swing {orderInstrument} {side} {order.TradeDate:yyyy--MM-dd}");
+                    SetTrade(order, trade);
+
+                    Log($"Created new trade for {orderInstrument}");
+                }
+            }
         }
     }
 }
