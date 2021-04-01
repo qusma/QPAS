@@ -75,7 +75,6 @@ namespace QPAS
 
         public override async Task Refresh()
         {
-
         }
     }
 }

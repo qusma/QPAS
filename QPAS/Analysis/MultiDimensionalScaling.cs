@@ -22,10 +22,8 @@ namespace QPAS
             Vector<double> E = DenseVector.OfEnumerable(evd.EigenValues.Select(x => x.Real));
             Matrix<double> V = evd.EigenVectors;
 
-
             DenseVector i = DenseVector.Create(E.Count, x => x);
             Sorting.Sort(E, i);
-
 
             var e = DenseVector.OfEnumerable(E.Reverse());
             i = DenseVector.OfEnumerable(i.Reverse());

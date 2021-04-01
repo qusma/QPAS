@@ -7,34 +7,33 @@
                       Title="Migration Wizard"
                       BorderBrush="Black" BorderThickness="1"
                       FontFamily="Segoe UI Semibold"
-                      Closing="MetroWindow_Closing"
-                      >
-    <Grid >
+                      Closing="MetroWindow_Closing">
+    <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="113*"/>
-            <ColumnDefinition Width="179*"/>
+            <ColumnDefinition Width="113*" />
+            <ColumnDefinition Width="179*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="170"/>
-            <RowDefinition Height="27*"/>
-            <RowDefinition Height="36"/>
+            <RowDefinition Height="170" />
+            <RowDefinition Height="27*" />
+            <RowDefinition Height="36" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="5" Grid.ColumnSpan="2">
             <TextBlock>
-                Detected items with an empty Account field. 
+                Detected items with an empty Account field.
                 <LineBreak />
-                This wizard will set the Account field for all data to a 
-                <LineBreak />single account. You should back up your data 
+                This wizard will set the Account field for all data to a
+                <LineBreak />single account. You should back up your data
                 <LineBreak />
                 before running it.
                 <LineBreak />
                 <LineBreak />
                 If you want to split the data across multiple accounts,<LineBreak />
-                you need to delete all data and re-import 
+                you need to delete all data and re-import
                 <LineBreak />the statements.
                 <LineBreak />
                 <LineBreak />
-                The account ID has the format UXXXXXXX and can be 
+                The account ID has the format UXXXXXXX and can be
                 <LineBreak />
                 found in TWS and the flex statements.
             </TextBlock>

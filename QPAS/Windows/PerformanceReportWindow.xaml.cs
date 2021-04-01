@@ -4,6 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using EntityModel;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using NLog;
@@ -12,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using EntityModel;
 
 namespace QPAS
 {
@@ -22,6 +22,7 @@ namespace QPAS
     public partial class PerformanceReportWindow : MetroWindow
     {
         public PerformanceReportViewModel ViewModel { get; set; }
+
         public PerformanceReportWindow(filterReportDS data, ReportSettings settings)
         {
             InitializeComponent();
@@ -30,7 +31,6 @@ namespace QPAS
             Style s = new Style();
             s.Setters.Add(new Setter(VisibilityProperty, Visibility.Collapsed));
             MainTabCtrl.ItemContainerStyle = s;
-
 
             ViewModel = new PerformanceReportViewModel(data, settings, DialogCoordinator.Instance);
             DataContext = ViewModel;
@@ -46,7 +46,6 @@ namespace QPAS
         {
             Close();
         }
-
 
         private void NavigationMenu_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {

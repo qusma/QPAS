@@ -16,31 +16,31 @@
     Dialog:DialogParticipation.Register="{Binding}">
     <Window.Resources>
         <qpas:EnumBooleanConverter x:Key="EnumBooleanConverter" />
-        <qpas:InvertBooleanConverter x:Key="InvertBooleanConverter"/>
+        <qpas:InvertBooleanConverter x:Key="InvertBooleanConverter" />
     </Window.Resources>
     <controls:MetroTabControl Name="TabCtrl">
         <TabItem Header="Settings">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="250"/>
-                    <ColumnDefinition Width="250"/>
-                    <ColumnDefinition Width="709*"/>
+                    <ColumnDefinition Width="250" />
+                    <ColumnDefinition Width="250" />
+                    <ColumnDefinition Width="709*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="40"/>
-                    <RowDefinition Height="33*"/>
-                    <RowDefinition Height="101*"/>
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="33*" />
+                    <RowDefinition Height="101*" />
                 </Grid.RowDefinitions>
                 <Label Grid.Column="0" Grid.Row="0" Foreground="DimGray" FontSize="28" Margin="0,-5,0,0" Content="Execution Report Settings" Grid.ColumnSpan="3" />
                 <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="0">
                     <Label Foreground="DimGray" FontSize="28" Margin="0,-5,0,0" Content="{Binding OrderCount}" />
                     <Label Foreground="DimGray" FontSize="28" Margin="0,-5,0,0" Content="Orders Selected" />
                 </StackPanel>
-                
+
                 <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
                     <TextBlock Text="Reference Time:" FontSize="20" Foreground="DimGray" Margin="0,0,0,5" />
                     <RadioButton Content="Use Sessions or Per-order Time" IsChecked="{Binding UseSessionsTime}" />
-                    <RadioButton Content="Use Fixed Reference Time:" Name="UseFixedTimeRadioBtn" 
+                    <RadioButton Content="Use Fixed Reference Time:" Name="UseFixedTimeRadioBtn"
                                  IsChecked="{Binding UseSessionsTime, Converter={StaticResource InvertBooleanConverter}}" />
                     <controls:TimePicker Name="FixedTimePicker"
                                          Margin="10,5,10,0"
@@ -51,36 +51,36 @@
                 <StackPanel Margin="5" Grid.Row="1" Grid.Column="0" Grid.RowSpan="2">
                     <TextBlock Text="Benchmark against:" FontSize="20" Foreground="DimGray" Margin="0,0,0,5" />
                     <RadioButton Content="Close" Margin="0,5,0,0"
-                                 IsChecked="{Binding Benchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Close}"/>
+                                 IsChecked="{Binding Benchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Close}" />
                     <RadioButton Content="Open" Margin="0,5,0,0"
-                                 IsChecked="{Binding Benchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Open}"/>
+                                 IsChecked="{Binding Benchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Open}" />
                     <RadioButton Content="VWAP" ToolTip="Not implemented yet." IsEnabled="False" Margin="0,5,0,0"
-                                 IsChecked="{Binding Benchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=VWAP}"/>
+                                 IsChecked="{Binding Benchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=VWAP}" />
                     <RadioButton Content="Per-order Reference Price" Margin="0,5,0,0"
-                                 IsChecked="{Binding Benchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Reference}"/>
+                                 IsChecked="{Binding Benchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Reference}" />
                 </StackPanel>
 
-                <Button Grid.Row="2" Grid.Column="1" 
-                            Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}" 
+                <Button Grid.Row="2" Grid.Column="1"
+                            Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}"
                             Click="GenerateExecutionReportBtn_Click"
                             Content="Generate Report"
                             VerticalAlignment="Top"
                             Name="GenerateExecutionReportBtn"
-                            HorizontalAlignment="Stretch" Margin="10,0,10,0"/>
+                            HorizontalAlignment="Stretch" Margin="10,0,10,0" />
             </Grid>
         </TabItem>
         <TabItem Header="Results">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="540*"/>
-                    <RowDefinition Height="191*"/>
+                    <RowDefinition Height="540*" />
+                    <RowDefinition Height="191*" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="272*"/>
-                    <ColumnDefinition Width="589*"/>
-                    <ColumnDefinition Width="330"/>
+                    <ColumnDefinition Width="272*" />
+                    <ColumnDefinition Width="589*" />
+                    <ColumnDefinition Width="330" />
                 </Grid.ColumnDefinitions>
-                
+
                 <ListBox Grid.Column="0" Grid.Row="0" Margin="5,10,5,5" Name="StatsListBox" ItemsSource="{Binding Stats}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
@@ -91,7 +91,7 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-                
+
                 <oxy:Plot Grid.Column="1" Grid.Row="0" Title="Seconds to Reference Time vs Slippage">
                     <oxy:Plot.Axes>
                         <oxy:LinearAxis Position="Bottom" StringFormat="0.00" MajorGridlineStyle="Dash" />
@@ -104,67 +104,66 @@
                                            TrackerFormatString="Time difference: {2:0.00} seconds&#x0a;Slippage: {4:p4}"
                                            Name="TimeVsSlippageScatterSeries"
                                            DataFieldX="X"
-                                           DataFieldY="Y"/>
+                                           DataFieldY="Y" />
                     </oxy:Plot.Series>
                     <oxy:Plot.Annotations>
-                        <oxy:LineAnnotation Slope="{Binding TimeDiffVsSlipBestFitLineSlope}" 
+                        <oxy:LineAnnotation Slope="{Binding TimeDiffVsSlipBestFitLineSlope}"
                                             Intercept="{Binding TimeDiffVsSlipBestFitLineConstant}"
                                             LineStyle="Solid"
                                             Color="DeepPink"
                                             Text="Best Fit"
-                                            TextColor="Black"
-                                            />
+                                            TextColor="Black" />
                     </oxy:Plot.Annotations>
                 </oxy:Plot>
                 <oxy:Plot Grid.Row="0" Grid.Column="2" Title="Slippage by Venue" Grid.RowSpan="2"
                               LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal"
                               LegendFontSize="9" Name="SlippageByVenueChart">
                     <oxy:Plot.Axes>
-                        <oxy:CategoryAxis Position="Left" Title="Venue" 
+                        <oxy:CategoryAxis Position="Left" Title="Venue"
                                           GapWidth="0.5"
                                           ItemsSource="{Binding Data.SlippageByVenue}" LabelField="Venue" />
                         <oxy:LinearAxis Position="Bottom" Key="CurrencyAxis" StringFormat="c3" />
                         <oxy:LinearAxis Position="Top" Key="PercentAxis" StringFormat="p3" />
                     </oxy:Plot.Axes>
                     <oxy:Plot.Series>
-                        <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}" 
+                        <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}"
                                LabelPlacement="Inside"
                                LabelFormatString="{}{0:c3}"
                                 TrackerFormatString="{}{4:c3}"
-                               ValueField="AvgDollarSlippage" 
+                               ValueField="AvgDollarSlippage"
                                 XAxisKey="CurrencyAxis"
                                 Title="Avg $ Slippage"
                                 FillColor="#00CFFF"
                                 Name="CentsSlippageByVenueSeries" />
                         <oxy:BarSeries />
 
-                        <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}" 
+                        <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}"
                                LabelPlacement="Inside"
                                LabelFormatString="{}{0:p3}"
                                 TrackerFormatString="{}{4:p3}"
-                               ValueField="AvgPctSlippage" 
+                               ValueField="AvgPctSlippage"
                                 XAxisKey="PercentAxis"
                                 Title="Avg % Slippage"
                                 FillColor="#0037FF"
                                 Name="PercentSlippageByVenueSeries" />
                         <oxy:BarSeries />
 
-                        <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}" 
+                        <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}"
                                LabelPlacement="Inside"
                                LabelFormatString="{}{0:c3}"
                                 TrackerFormatString="{}{4:c3}"
-                               ValueField="AvgDollarSlippageWeighted" 
+                               ValueField="AvgDollarSlippageWeighted"
                                 XAxisKey="CurrencyAxis"
                                 Title="Avg $ Slippage (Weighted)"
                                 FillColor="#FFB100"
                                 Name="WeightedCentsSlippageByVenueSeries" />
                         <oxy:BarSeries />
 
-                        <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}" 
+                        <oxy:BarSeries ItemsSource="{Binding Data.SlippageByVenue}"
                                LabelPlacement="Inside"
                                LabelFormatString="{}{0:p3}"
                                 TrackerFormatString="{}{4:p3}"
-                               ValueField="AvgPctSlippageWeighted" 
+                               ValueField="AvgPctSlippageWeighted"
                                 XAxisKey="PercentAxis"
                                 Title="Avg % Slippage (Weighted)"
                                 FillColor="#FF7F00"
@@ -173,7 +172,6 @@
                     </oxy:Plot.Series>
                 </oxy:Plot>
 
-
                 <oxy:Plot Grid.Row="1" Grid.Column="0" Title="Slippage by Order Type" Name="SlippageByOrderTypeChart" IsLegendVisible="False" Grid.ColumnSpan="2">
                     <oxy:Plot.Axes>
                         <oxy:CategoryAxis Position="Bottom" Title="Order Type" ItemsSource="{Binding Data.SlippageByOrderType}" LabelField="OrderType" />
@@ -181,36 +179,36 @@
                         <oxy:LinearAxis Position="Right" Key="PercentAxis" StringFormat="p3" />
                     </oxy:Plot.Axes>
                     <oxy:Plot.Series>
-                        <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}" 
+                        <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}"
                                 TrackerFormatString="{}{4:c3}"
-                               ValueField="AvgDollarSlippage" 
+                               ValueField="AvgDollarSlippage"
                                 YAxisKey="CurrencyAxis"
                                 Title="Avg $ Slippage"
                                 FillColor="#00CFFF"
                                 Name="CentsSlippageByOrderTypeSeries" />
                         <oxy:ColumnSeries />
 
-                        <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}" 
+                        <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}"
                                 TrackerFormatString="{}{4:p3}"
-                               ValueField="AvgPctSlippage" 
+                               ValueField="AvgPctSlippage"
                                 YAxisKey="PercentAxis"
                                 Title="Avg % Slippage"
                                 FillColor="#0037FF"
                                 Name="PercentSlippageByOrderTypeSeries" />
                         <oxy:ColumnSeries />
 
-                        <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}" 
+                        <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}"
                                 TrackerFormatString="{}{4:c3}"
-                               ValueField="AvgDollarSlippageWeighted" 
+                               ValueField="AvgDollarSlippageWeighted"
                                 YAxisKey="CurrencyAxis"
                                 Title="Avg $ Slippage (Weighted)"
                                 FillColor="#FFB100"
                                 Name="WeightedCentsSlippageByOrderTypeSeries" />
                         <oxy:ColumnSeries />
 
-                        <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}" 
+                        <oxy:ColumnSeries ItemsSource="{Binding Data.SlippageByOrderType}"
                                 TrackerFormatString="{}{4:p3}"
-                               ValueField="AvgPctSlippageWeighted" 
+                               ValueField="AvgPctSlippageWeighted"
                                 YAxisKey="PercentAxis"
                                 Title="Avg % Slippage (Weighted)"
                                 FillColor="#FF7F00"
@@ -219,7 +217,6 @@
                     </oxy:Plot.Series>
                 </oxy:Plot>
             </Grid>
-
         </TabItem>
     </controls:MetroTabControl>
 </controls:MetroWindow>

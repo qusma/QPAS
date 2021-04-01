@@ -10,15 +10,15 @@
         ResizeMode="NoResize">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
-            <ColumnDefinition Width="281*"/>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="281*" />
         </Grid.ColumnDefinitions>
-        <Image Source="../Resources/icon_big.png" Grid.ColumnSpan="1"  RenderOptions.BitmapScalingMode="NearestNeighbor"/>
-        
+        <Image Source="../Resources/icon_big.png" Grid.ColumnSpan="1"  RenderOptions.BitmapScalingMode="NearestNeighbor" />
+
         <StackPanel Grid.Column="1" Margin="10">
             <Label Content="QUSMA Performance Analytics Suite" />
             <Label Name="VersionLabel" Content="Version: 1.2.3" />
-            <TextBlock Margin="6,25,0,0" >    
+            <TextBlock Margin="6,25,0,0">
                 Source code available at <LineBreak />
                 <Hyperlink NavigateUri="https://github.com/qusma/QPAS" RequestNavigate="Hyperlink_RequestNavigate">
                     https://github.com/qusma/QPAS

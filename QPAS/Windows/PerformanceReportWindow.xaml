@@ -12,23 +12,22 @@
         TitleBarHeight="32"
         FontFamily="Segoe UI Semibold"
                       xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
-    Dialog:DialogParticipation.Register="{Binding}"
-        >
+    Dialog:DialogParticipation.Register="{Binding}">
     <Window.Resources>
         <Style x:Key="CopyBtnStyle" TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button}">
-            <Setter Property="Margin" Value="5,5,0,0"/>
+            <Setter Property="Margin" Value="5,5,0,0" />
             <Setter Property="ToolTip" Value="Copy" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Command" Value="{Binding CopyChart}" />
         </Style>
 
         <Style x:Key="SaveBtnStyle" TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button}">
-            <Setter Property="Margin" Value="5,5,0,0"/>
+            <Setter Property="Margin" Value="5,5,0,0" />
             <Setter Property="ToolTip" Value="Save" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Command" Value="{Binding SaveChart}" />
         </Style>
-        
+
         <qpas:ProfitToBgColorConverter x:Key="ProfitToBgColorConverter" />
         <Style x:Key="ProfitBGColorStyle" TargetType="DataGridCell">
             <Setter Property="Background" Value="{Binding RelativeSource={RelativeSource Self}, Path=Content.Text, Converter={StaticResource ProfitToBgColorConverter} }" />
@@ -41,23 +40,23 @@
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="510*"/>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="510*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="170"/>
-            <ColumnDefinition Width="1"/>
-            <ColumnDefinition Width="268*"/>
+            <ColumnDefinition Width="170" />
+            <ColumnDefinition Width="1" />
+            <ColumnDefinition Width="268*" />
         </Grid.ColumnDefinitions>
         <Menu Background="WhiteSmoke" Grid.Row="0" Grid.ColumnSpan="2">
             <MenuItem Header="_File">
-                <MenuItem Header="Export to PDF" x:Name="ExportPDFBtn" IsEnabled="False"/>
-                <MenuItem Header="Export to Excel" x:Name="ExportExcelBtn" IsEnabled="True" Click="ExportExcelBtn_Click"/>
-                <Separator/>
-                <MenuItem Header="_Exit" x:Name="BtnExit" Click="BtnExit_ItemClick"/>
+                <MenuItem Header="Export to PDF" x:Name="ExportPDFBtn" IsEnabled="False" />
+                <MenuItem Header="Export to Excel" x:Name="ExportExcelBtn" IsEnabled="True" Click="ExportExcelBtn_Click" />
+                <Separator />
+                <MenuItem Header="_Exit" x:Name="BtnExit" Click="BtnExit_ItemClick" />
             </MenuItem>
         </Menu>
-        
+
         <TreeView Grid.Row="1" Grid.Column="0" Name="NavigationMenu" SelectedItemChanged="NavigationMenu_SelectedItemChanged">
             <TreeViewItem Header="Cumulative P/L" Tag="CumulativePL" />
             <TreeViewItem Header="Cumulative Returns" Tag="CumulativeReturns" />
@@ -105,9 +104,8 @@
                                     <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
                                 </Button.Content>
                             </Button>
-                                
                         </StackPanel>
-                            
+
                         <oxy:Plot Name="C2CPnLChart" Width="700" Height="400" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
@@ -116,7 +114,7 @@
                             <oxy:Plot.Series>
                                 <oxy:LineSeries ItemsSource="{Binding Data.C2CPnLCurve}"
                                                 Name="C2CPnLChartPnLLine" CanTrackerInterpolatePoints="False"
-                                                MarkerType="Circle" Color="#41B1E1" MarkerFill="#41B1E1" MarkerSize="2" 
+                                                MarkerType="Circle" Color="#41B1E1" MarkerFill="#41B1E1" MarkerSize="2"
                                                 TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;P/L: {4:c0}"
                                                 DataFieldX="date" DataFieldY="value" />
                                 <oxy:AreaSeries ItemsSource="{Binding Data.C2CPnLCurve}"
@@ -204,8 +202,6 @@
                             </oxy:Plot.Series>
                         </oxy:Plot>
 
-
-
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
                                    FontSize="28" Foreground="DimGray" Content="Cumulative Profit/Loss by Strategy" />
@@ -219,13 +215,11 @@
                                     <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
                                 </Button.Content>
                             </Button>
-
                         </StackPanel>
 
                         <oxy:PlotView Name="PLByStrategyChart" Width="700" Height="400" HorizontalAlignment="Center" Model="{Binding PLByStrategyModel}" />
                     </StackPanel>
                 </ScrollViewer>
-
             </TabItem>
             <TabItem Header="CumulativeReturns">
                 <Grid>
@@ -284,7 +278,6 @@
                                         <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
                                     </Button.Content>
                                 </Button>
-
                             </StackPanel>
 
                             <oxy:Plot Name="RotcECChart" Width="700" Height="400" HorizontalAlignment="Center"
@@ -312,9 +305,6 @@
                                 </oxy:Plot.Series>
                             </oxy:Plot>
 
-
-
-
                             <StackPanel Orientation="Horizontal">
                                 <Label HorizontalAlignment="Left"
                                        FontSize="28" Foreground="DimGray" Content="ROAC by Strategy" />
@@ -331,7 +321,7 @@
                             </StackPanel>
 
                             <oxy:PlotView Name="RoacByStrategyChart" Model="{Binding RoacByStrategyModel}"
-                                          Width="700" Height="600" HorizontalAlignment="Center"/>
+                                          Width="700" Height="600" HorizontalAlignment="Center" />
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -353,7 +343,6 @@
                                         <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
                                     </Button.Content>
                                 </Button>
-
                             </StackPanel>
 
                             <oxy:Plot Name="CapitalUsageChart" Width="700" Height="600" HorizontalAlignment="Center"
@@ -382,11 +371,9 @@
                                 </oxy:Plot.Series>
                                 <oxy:Plot.Annotations>
                                     <oxy:LineAnnotation Text="" TextHorizontalAlignment="Right" Color="Black" LineStyle="Solid"
-                                                        TextColor="Black" TextOrientation="Horizontal"  Y="1" Type="Horizontal"  />
+                                                        TextColor="Black" TextOrientation="Horizontal"  Y="1" Type="Horizontal" />
                                 </oxy:Plot.Annotations>
                             </oxy:Plot>
-
-
 
                             <StackPanel Orientation="Horizontal">
                                 <Label HorizontalAlignment="Left"
@@ -401,12 +388,10 @@
                                         <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
                                     </Button.Content>
                                 </Button>
-
                             </StackPanel>
 
                             <oxy:PlotView Name="CapitalUsageByStrategyChart" Width="700" Height="600" HorizontalAlignment="Center"
                                       Model="{Binding CapitalUsageByStrategyModel}" />
-
 
                             <StackPanel Orientation="Horizontal">
                                 <Label HorizontalAlignment="Left"
@@ -421,7 +406,6 @@
                                         <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
                                     </Button.Content>
                                 </Button>
-
                             </StackPanel>
 
                             <oxy:PlotView Name="RelativeCapitalUsageByStrategyChart" Width="700" Height="600" HorizontalAlignment="Center"
@@ -435,7 +419,7 @@
                     <StackPanel>
                         <Label HorizontalAlignment="Left"
                                        FontSize="28" Foreground="DimGray" Content="All Trades" />
-                    
+
                         <DataGrid Name="TradeStatsGrid" IsReadOnly="True" AutoGenerateColumns="False" FontSize="12"
                                   Width="500" CanUserAddRows="False" CanUserDeleteRows="False" ItemsSource="{Binding Data.TradeStats}">
                             <DataGrid.Columns>
@@ -443,7 +427,6 @@
                                 <DataGridTextColumn Header="Value" Width="*" Binding="{Binding value}" />
                             </DataGrid.Columns>
                         </DataGrid>
-
 
                         <Label HorizontalAlignment="Left"
                                        FontSize="28" Foreground="DimGray" Content="By Strategy" />
@@ -494,7 +477,7 @@
                                 <DataGridTextColumn Header="Total" Binding="{Binding total, StringFormat={}{0:$0;($0);''}}"  CellStyle="{StaticResource ProfitBGColorStyle}" />
                             </DataGrid.Columns>
                         </DataGrid>
-                        
+
                         <Label HorizontalAlignment="Left" Margin="0,20,0,0"
                                        FontSize="28" Foreground="DimGray" Content="ROAC by Month" />
                         <DataGrid Name="ROACByMonthGrid"  CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
@@ -562,12 +545,12 @@
                         <oxy:Plot Name="TotalPLByTagChart" Width="700" Height="1000" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Bottom" StringFormat="c2" />
-                                <oxy:CategoryAxis Position="Left" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Left" MinorStep="1"
                                                   ItemsSource="{Binding Data.PLByTag}" LabelField="tag" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:BarSeries ItemsSource="{Binding Data.PLByTag}"
-                                                Name="TotalPLByTagBarSeries" 
+                                                Name="TotalPLByTagBarSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
@@ -576,8 +559,6 @@
                                                 ValueField="totalPL" />
                             </oxy:Plot.Series>
                         </oxy:Plot>
-
-
 
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
@@ -597,12 +578,12 @@
                         <oxy:Plot Name="AvgPLByTagChart" Width="700" Height="1000" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Bottom" StringFormat="c2" />
-                                <oxy:CategoryAxis Position="Left" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Left" MinorStep="1"
                                                   ItemsSource="{Binding Data.PLByTag}" LabelField="tag" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:BarSeries ItemsSource="{Binding Data.PLByTag}"
-                                                Name="AvgPLByTagBarSeries" 
+                                                Name="AvgPLByTagBarSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
@@ -611,8 +592,7 @@
                                                 ValueField="avgPL" />
                             </oxy:Plot.Series>
                         </oxy:Plot>
-                        
-                        
+
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
                                    FontSize="28" Foreground="DimGray" Content="Total Profit/Loss by Tag Combination" />
@@ -631,12 +611,12 @@
                         <oxy:Plot Name="TotalPLByTagComboChart" Width="700" Height="1000" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Bottom" StringFormat="c2" />
-                                <oxy:CategoryAxis Position="Left" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Left" MinorStep="1"
                                                   ItemsSource="{Binding Data.PLByTagCombo}" LabelField="tags" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:BarSeries ItemsSource="{Binding Data.PLByTagCombo}"
-                                                Name="TotalPLByTagComboBarSeries" 
+                                                Name="TotalPLByTagComboBarSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
@@ -645,8 +625,6 @@
                                                 ValueField="totalPL" />
                             </oxy:Plot.Series>
                         </oxy:Plot>
-
-
 
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
@@ -666,12 +644,12 @@
                         <oxy:Plot Name="AvgPLByTagComboChart" Width="700" Height="1000" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Bottom" StringFormat="c2" />
-                                <oxy:CategoryAxis Position="Left" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Left" MinorStep="1"
                                                   ItemsSource="{Binding Data.PLByTagCombo}" LabelField="tags" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:BarSeries ItemsSource="{Binding Data.PLByTagCombo}"
-                                                Name="AvgPLByTagComboBarSeries" 
+                                                Name="AvgPLByTagComboBarSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
@@ -694,7 +672,6 @@
                                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" FontWeight="Bold" Width="150" />
                             </DataGrid.Columns>
                         </DataGrid>
-
 
                         <Label HorizontalAlignment="Left"
                                    FontSize="28" Foreground="DimGray" Content="Principal Coordinates Analysis/Multidimensional Scaling" />
@@ -755,9 +732,8 @@
                             </Button>
                         </StackPanel>
 
-
                         <oxy:Plot Name="RollingAlphaBetaChart" Width="700" Height="400" HorizontalAlignment="Center"
-                                  LegendPosition="BottomCenter" LegendPlacement="Outside" LegendOrientation="Horizontal"> 
+                                  LegendPosition="BottomCenter" LegendPlacement="Outside" LegendOrientation="Horizontal">
                             <oxy:Plot.Axes>
                                 <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
                                 <oxy:LinearAxis Position="Left" Key="BetaAxis" Title="Beta" StringFormat="0.0" MajorGridlineStyle="Dash" />
@@ -802,25 +778,20 @@
                         <oxy:Plot Name="TradePLHistogramChart" Width="700" Height="350" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Left" StringFormat="0" />
-                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1"
                                                   AxisTickToLabelDistance="15"
                                                   ItemsSource="{Binding Data.tradeDollarRetBuckets}" Angle="20"
                                                   LabelField="limits" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding Data.tradeDollarRetBuckets}"
-                                                Name="TradePLColumnSeries" 
+                                                Name="TradePLColumnSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
                                                 ValueField="count" />
                             </oxy:Plot.Series>
                         </oxy:Plot>
-
-
-
-
-
 
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
@@ -840,14 +811,14 @@
                         <oxy:Plot Name="TradeReturnsHistogramChart" Width="700" Height="350" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Left" StringFormat="0" />
-                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1"
                                                   AxisTickToLabelDistance="15"
                                                   ItemsSource="{Binding Data.tradePctRetBuckets}" Angle="20"
                                                   LabelField="limits" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding Data.tradePctRetBuckets}"
-                                                Name="TradeReturnsColumnSeries" 
+                                                Name="TradeReturnsColumnSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
@@ -895,7 +866,6 @@
                             </oxy:Plot.Series>
                         </oxy:Plot>
 
-
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
                                    FontSize="28" Foreground="DimGray" Content="Maximum Favorable Excursion" />
@@ -909,7 +879,6 @@
                                     <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
                                 </Button.Content>
                             </Button>
-
                         </StackPanel>
 
                         <oxy:Plot Name="MFEChart" Width="700" Height="400" HorizontalAlignment="Center"
@@ -959,54 +928,50 @@
                                 <oxy:LogarithmicAxis AbsoluteMinimum="0" Minimum="0.1" MinimumPadding="0"
                                     Key="LogAxis" Position="Right" StringFormat="0" Title="Frequency" />
                                 <oxy:CategoryAxis Position="Bottom" StringFormat="" ItemsSource="{Binding Data.AverageDailyRets}" LabelField="day" />
-                                
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries
                                                   ValueField="winnersCount"
                                                   YAxisKey="LogAxis"
                                                 ItemsSource="{Binding Data.AverageDailyRets}"
-                                                Name="AvgCumulativeRetsWinnerCountSeries" 
+                                                Name="AvgCumulativeRetsWinnerCountSeries"
                                                 FillColor="#A3FFA4"
                                                 Title="Winners Count"
                                                   BaseValue="0.1"
-                                                StrokeThickness="1"/>
+                                                StrokeThickness="1" />
                                 <oxy:ColumnSeries
                                                   ValueField="losersCount"
                                                   YAxisKey="LogAxis"
                                                 ItemsSource="{Binding Data.AverageDailyRets}"
-                                                Name="AvgCumulativeRetsLosersCountSeries" 
+                                                Name="AvgCumulativeRetsLosersCountSeries"
                                                 FillColor="#FF4B4B"
                                                 Title="Losers Count"
                                                   BaseValue="0.1"
-                                                StrokeThickness="1"/>
-                                <oxy:LineSeries 
+                                                StrokeThickness="1" />
+                                <oxy:LineSeries
                                                 ItemsSource="{Binding Data.AverageDailyRets}"
-                                                Name="AvgCumulativeRetsAllReturnsSeries" 
+                                                Name="AvgCumulativeRetsAllReturnsSeries"
                                                 Color="#0066FF"
                                                 DataFieldX="day"
                                                 DataFieldY="allRets"
                                                 Title="All Cumulative Rets"
-                                                YAxisKey="PctAxis"
-                                    />
-                                <oxy:LineSeries 
+                                                YAxisKey="PctAxis" />
+                                <oxy:LineSeries
                                                 ItemsSource="{Binding AvgCumulativeWinnerRets}"
-                                                Name="AvgCumulativeRetsWinnersReturnsSeries" 
+                                                Name="AvgCumulativeRetsWinnersReturnsSeries"
                                                 Color="#66CC66"
                                                 DataFieldX="Key"
                                                 DataFieldY="Value"
                                                 Title="Winners Cumulative Rets"
-                                                YAxisKey="PctAxis"
-                                    />
-                                <oxy:LineSeries 
+                                                YAxisKey="PctAxis" />
+                                <oxy:LineSeries
                                                 ItemsSource="{Binding AvgCumulativeLoserRets}"
-                                                Name="AvgCumulativeRetsLosersReturnsSeries" 
+                                                Name="AvgCumulativeRetsLosersReturnsSeries"
                                                 Color="#FF3333"
                                                 DataFieldX="Key"
                                                 DataFieldY="Value"
                                                 Title="Losers Cumulative Rets"
-                                                YAxisKey="PctAxis"
-                                    />
+                                                YAxisKey="PctAxis" />
                             </oxy:Plot.Series>
                         </oxy:Plot>
                     </StackPanel>
@@ -1033,22 +998,20 @@
                         <oxy:Plot Name="DailyROACHistogramChart" Width="700" Height="350" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Left" StringFormat="0" />
-                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1"
                                                   AxisTickToLabelDistance="15"
                                                   ItemsSource="{Binding Data.dailyPctRetBuckets}" Angle="20"
                                                   LabelField="limits" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding Data.dailyPctRetBuckets}"
-                                                Name="DailyROACHistogramColumnSeries" 
+                                                Name="DailyROACHistogramColumnSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
                                                 ValueField="count" />
                             </oxy:Plot.Series>
                         </oxy:Plot>
-
-
 
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
@@ -1068,14 +1031,14 @@
                         <oxy:Plot Name="DailyROTCHistogramChart" Width="700" Height="350" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Left" StringFormat="0" />
-                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1"
                                                   AxisTickToLabelDistance="15"
                                                   ItemsSource="{Binding Data.dailyTotalPctRetBuckets}" Angle="20"
                                                   LabelField="limits" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding Data.dailyTotalPctRetBuckets}"
-                                                Name="DailyROTCHistogramColumnSeries" 
+                                                Name="DailyROTCHistogramColumnSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
@@ -1106,13 +1069,13 @@
                         <oxy:Plot Name="TradeLengthChart" Width="700" Height="350" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Left" StringFormat="0" />
-                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1"
                                                   ItemsSource="{Binding Data.holdingPeriodBuckets}" Angle="15"
                                                   LabelField="limits" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding Data.holdingPeriodBuckets}"
-                                                Name="TradeLengthColumnSeries" 
+                                                Name="TradeLengthColumnSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
@@ -1138,7 +1101,6 @@
                                     <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
                                 </Button.Content>
                             </Button>
-
                         </StackPanel>
 
                         <oxy:Plot Name="LengthVsReturnsChart" Width="700" Height="400" HorizontalAlignment="Center">
@@ -1154,13 +1116,12 @@
                                                 DataFieldX="length" DataFieldY="ret" />
                             </oxy:Plot.Series>
                             <oxy:Plot.Annotations>
-                                <oxy:LineAnnotation Slope="{Binding RetVsLengthBestFitLineSlope}" 
+                                <oxy:LineAnnotation Slope="{Binding RetVsLengthBestFitLineSlope}"
                                                     Intercept="{Binding RetVsLengthBestFitLineConstant}"
                                                     LineStyle="Solid"
                                                     Color="DeepPink"
                                                     Text="Best Fit"
-                                                    TextColor="Black"
-                                                    />
+                                                    TextColor="Black" />
                             </oxy:Plot.Annotations>
                         </oxy:Plot>
                     </StackPanel>
@@ -1182,7 +1143,6 @@
                                     <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
                                 </Button.Content>
                             </Button>
-
                         </StackPanel>
 
                         <oxy:Plot Name="SizingVsReturnsChart" Width="700" Height="400" HorizontalAlignment="Center">
@@ -1198,13 +1158,12 @@
                                                 DataFieldX="ret" DataFieldY="size" />
                             </oxy:Plot.Series>
                             <oxy:Plot.Annotations>
-                                <oxy:LineAnnotation Slope="{Binding RetVsSizeBestFitLineSlope}" 
+                                <oxy:LineAnnotation Slope="{Binding RetVsSizeBestFitLineSlope}"
                                                     Intercept="{Binding RetVsSizeBestFitLineConstant}"
                                                     LineStyle="Solid"
                                                     Color="DeepPink"
                                                     Text="Best Fit"
-                                                    TextColor="Black"
-                                                    />
+                                                    TextColor="Black" />
                             </oxy:Plot.Annotations>
                         </oxy:Plot>
                     </StackPanel>
@@ -1236,15 +1195,15 @@
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding Data.tradeRetsByDay}"
-                                                Name="TradeRetsByDaySeries" 
+                                                Name="TradeRetsByDaySeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
                                                 LabelFormatString="{}{0:p2}"
                                                 LabelPlacement="Inside"
                                                 ValueField="avgRet" />
-                                <!--<oxy:ScatterErrorSeries ItemsSource="{Binding Data.tradeRetsByDay}" 
-                                                        DataFieldErrorY="error" 
+                                <!--<oxy:ScatterErrorSeries ItemsSource="{Binding Data.tradeRetsByDay}"
+                                                        DataFieldErrorY="error"
                                                         DataFieldX="weekDay"
                                                         DataFieldY="avgRet"
                                                         MarkerSize="0" />-->
@@ -1269,22 +1228,22 @@
                         <oxy:Plot Name="TradeRetsByHourChart" Width="700" Height="500" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Left" StringFormat="p2" />
-                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1"
                                                   ItemsSource="{Binding Data.tradeRetsByHour}" LabelField="hour" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding Data.tradeRetsByHour}"
-                                                Name="TradeRetsByHourSeries" 
+                                                Name="TradeRetsByHourSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
                                                LabelFormatString="{}{0:p2}"
                                                LabelPlacement="Inside"
                                                 ValueField="avgRet" />
-                                <!---<oxy:ScatterErrorSeries ItemsSource="{Binding Data.tradeRetsByHour}" 
-                                                        DataFieldErrorY="error" 
+                                <!---<oxy:ScatterErrorSeries ItemsSource="{Binding Data.tradeRetsByHour}"
+                                                        DataFieldErrorY="error"
                                                         DataFieldX="hour"
-                                                        DataFieldY="avgRet" 
+                                                        DataFieldY="avgRet"
                                                         MarkerSize="0" />-->
                             </oxy:Plot.Series>
                         </oxy:Plot>
@@ -1306,12 +1265,11 @@
 
                         <oxy:PlotView Name="TradeRetsByDayAndHourChart" Width="700" Height="500" HorizontalAlignment="Center"
                                   Model="{Binding TradeRetsByDayAndHourModel}">
-                            
                         </oxy:PlotView>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            
+
             <TabItem Header="RealizedPLByInstrument">
                 <ScrollViewer>
                     <StackPanel HorizontalAlignment="Stretch">
@@ -1333,12 +1291,12 @@
                         <oxy:Plot Name="RealizedPLByInstrumentChart" Width="700" Height="1000" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Bottom" StringFormat="c2" />
-                                <oxy:CategoryAxis Position="Left" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Left" MinorStep="1"
                                                   ItemsSource="{Binding Data.pnlByInstrument}" LabelField="instrument" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:BarSeries ItemsSource="{Binding Data.pnlByInstrument}"
-                                                Name="RealizedPLByInstrumentSeries" 
+                                                Name="RealizedPLByInstrumentSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
@@ -1371,12 +1329,12 @@
                         <oxy:Plot Name="ROACByInstrumentChart" Width="700" Height="1000" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Bottom" StringFormat="p1" />
-                                <oxy:CategoryAxis Position="Left" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Left" MinorStep="1"
                                                   ItemsSource="{Binding Data.instrumentROAC}" LabelField="instrument" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:BarSeries ItemsSource="{Binding Data.instrumentROAC}"
-                                                Name="ROACByInstrumentSeries" 
+                                                Name="ROACByInstrumentSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
@@ -1410,14 +1368,14 @@
                         <oxy:Plot Name="CashTransactionsChart" Width="700" Height="350" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Left" StringFormat="c0" MajorGridlineStyle="Dash" MinorGridlineStyle="Dash" />
-                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1"
                                                   AxisTickToLabelDistance="15"
                                                   ItemsSource="{Binding Data.cashTransactionPnL}" Angle="10"
                                                   LabelField="type" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding Data.cashTransactionPnL}"
-                                                Name="CashTransactionsColumnSeries" 
+                                                Name="CashTransactionsColumnSeries"
                                                 FillColor="#41B1E1"
                                                 LabelFormatString="{}{0:c2}"
                                                 LabelPlacement="Outside"
@@ -1450,13 +1408,13 @@
                         <oxy:Plot Name="AcfChart" Width="700" Height="350" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dash" />
-                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1"
                                                   ItemsSource="{Binding Data.ACF}"
                                                   LabelField="lag" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding Data.ACF}"
-                                                Name="AcfColSeries" 
+                                                Name="AcfColSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
@@ -1483,13 +1441,13 @@
                         <oxy:Plot Name="PacfChart" Width="700" Height="350" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
                                 <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" MinorGridlineStyle="Dash" />
-                                <oxy:CategoryAxis Position="Bottom" MinorStep="1" 
+                                <oxy:CategoryAxis Position="Bottom" MinorStep="1"
                                                   ItemsSource="{Binding Data.PACF}"
                                                   LabelField="lag" GapWidth="0.5" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding Data.PACF}"
-                                                Name="PacfColSeries" 
+                                                Name="PacfColSeries"
                                                 FillColor="#41B1E1"
                                                 StrokeColor="#436EA0"
                                                 StrokeThickness="1"
@@ -1509,7 +1467,7 @@
 
                             <Label HorizontalAlignment="Left"
                                    FontSize="28" Foreground="DimGray" Content="Stats:" />
-                            
+
                         <Button Style="{StaticResource CopyBtnStyle}" CommandParameter="{Binding ElementName=VaRChart}">
                                 <Button.Content>
                                     <Image Source="../Resources/copy.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
@@ -1521,8 +1479,7 @@
                                 </Button.Content>
                             </Button>
                         </StackPanel>
-                        
-                        
+
                         <UniformGrid Columns="2" Margin="20,0,20,0">
                             <TextBlock Text="Returns source:" FontSize="20" Foreground="DimGray" />
                             <TextBlock Text="{Binding Settings.VaRReturnType}" FontSize="20" Foreground="Black" />
@@ -1531,8 +1488,6 @@
                             <TextBlock Text="Days:" FontSize="20" Foreground="DimGray" />
                             <TextBlock Text="{Binding Settings.VaRDays}" FontSize="20" Foreground="Black" />
                         </UniformGrid>
-
-
 
                         <oxy:Plot Name="VaRChart" Width="700" Height="400" HorizontalAlignment="Center"
                                   LegendPosition="BottomCenter" LegendPlacement="Outside" LegendOrientation="Horizontal">
@@ -1544,14 +1499,14 @@
                             <oxy:Plot.Series>
                                 <oxy:LineSeries ItemsSource="{Binding Data.ValueAtRisk}"
                                                 Name="VaRChartGaussianLine" CanTrackerInterpolatePoints="False"
-                                                MarkerType="Circle" Color="#41B1E1" Title="Gaussian" 
+                                                MarkerType="Circle" Color="#41B1E1" Title="Gaussian"
                                                 MarkerFill="#41B1E1" MarkerSize="5"
                                                 LabelFormatString="Normal: {}{0:p1}: {1:p1}" LabelMargin="50"
                                                 TrackerFormatString="Probability: {2:p1}&#x0a;Value at Risk: {4:p2}"
                                                 DataFieldX="level" DataFieldY="var" />
                                 <oxy:LineSeries ItemsSource="{Binding Data.ValueAtRisk}"
                                                 Name="VaRChartBootstrapLine" CanTrackerInterpolatePoints="False"
-                                                MarkerType="Circle" Color="#DE0000" Title="Historical" 
+                                                MarkerType="Circle" Color="#DE0000" Title="Historical"
                                                 MarkerFill="#DE0000" MarkerSize="5"
                                                 LabelFormatString="Historical: {}{0:p1}: {1:p1}" LabelMargin="-10"
                                                 TrackerFormatString="Probability: {2:p1}&#x0a;Value at Risk: {4:p2}"
@@ -1584,14 +1539,14 @@
                         <oxy:Plot.Series>
                             <oxy:LineSeries ItemsSource="{Binding Data.ExpectedShortfall}"
                                                 Name="ESChartGaussianLine" CanTrackerInterpolatePoints="False"
-                                                MarkerType="Circle" Color="#41B1E1" Title="Gaussian" 
+                                                MarkerType="Circle" Color="#41B1E1" Title="Gaussian"
                                                 MarkerFill="#41B1E1" MarkerSize="5"
                                                 LabelFormatString="Nrml: {}{0:p1}: {1:p1}" LabelMargin="50"
                                                 TrackerFormatString="Probability: {2:p1}&#x0a;Expected Shortfall: {4:p2}"
                                                 DataFieldX="level" DataFieldY="es" />
                             <oxy:LineSeries ItemsSource="{Binding Data.ExpectedShortfall}"
                                                 Name="ESChartBootstrapLine" CanTrackerInterpolatePoints="False"
-                                                MarkerType="Circle" Color="#DE0000" Title="Historical" 
+                                                MarkerType="Circle" Color="#DE0000" Title="Historical"
                                                 MarkerFill="#DE0000" MarkerSize="5"
                                                 LabelFormatString="Historical: {}{0:p1}: {1:p1}" LabelMargin="-10"
                                                 TrackerFormatString="Probability: {2:p1}&#x0a;Expected Shortfall: {4:p2}"
@@ -1627,7 +1582,6 @@
                             <TextBlock Text="{Binding Settings.MCWithReplacement, Converter={qc:QuickConverter '$P ? \'With Replacement\' : \'Without Replacement\''}}" FontSize="20" Foreground="Black" />
                         </UniformGrid>
 
-
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
                                    FontSize="28" Foreground="DimGray" Content="Equity Curve Confidence Intervals" />
@@ -1652,13 +1606,13 @@
                             <oxy:Plot.Series>
                                 <oxy:AreaSeries ItemsSource="{Binding Data.MCEquity}"
                                                 Name="MCReturnChartNarrowArea" CanTrackerInterpolatePoints="False"
-                                                MarkerType="None" Color="#41B1E1" Title="90% C.I." 
+                                                MarkerType="None" Color="#41B1E1" Title="90% C.I."
                                                 TrackerFormatString="Period: {2:0}&#x0a;Value: {4:0}"
                                                 DataFieldX="count" DataFieldX2="count" StrokeThickness="1"
                                                 DataFieldY="wideLow" DataFieldY2="wideHigh" />
                                 <oxy:AreaSeries ItemsSource="{Binding Data.MCEquity}"
                                                 Name="MCReturnChartWideArea" CanTrackerInterpolatePoints="False"
-                                                MarkerType="None" Color="#DE0000" Title="50% C.I." 
+                                                MarkerType="None" Color="#DE0000" Title="50% C.I."
                                                 TrackerFormatString="Period: {2:0}&#x0a;Value: {4:0}"
                                                 DataFieldX="count" DataFieldX2="count" StrokeThickness="1"
                                                 DataFieldY="narrowLow" DataFieldY2="narrowHigh" />
@@ -1680,7 +1634,6 @@
                             </Button>
                         </StackPanel>
 
-
                         <oxy:Plot Name="MCMaxDDDistributionChart" Width="700" Height="400" HorizontalAlignment="Center"
                                   LegendPosition="BottomCenter" LegendPlacement="Outside" LegendOrientation="Horizontal">
                             <oxy:Plot.Axes>
@@ -1688,13 +1641,13 @@
                                     <oxy:LinearAxis Position="Left" Minimum="0" Maximum="1"
                                                     Key="CumulativeProbAxis" StringFormat="p0"
                                                     MajorGridlineStyle="Dash" MinorGridlineStyle="Dash" />
-                                    <oxy:LinearAxis Position="Right" Key="PointFreqAxis"  />
+                                    <oxy:LinearAxis Position="Right" Key="PointFreqAxis" />
                             </oxy:Plot.Axes>
                             <oxy:Plot.Series>
                                 <oxy:AreaSeries ItemsSource="{Binding Data.MCDrawdowns}"
                                                     YAxisKey="PointFreqAxis"
                                                     Name="MCMaxDDDistributionChartPointArea" CanTrackerInterpolatePoints="False"
-                                                    MarkerType="None" Color="#41B1E1" Title="Point" 
+                                                    MarkerType="None" Color="#41B1E1" Title="Point"
                                                     TrackerFormatString="Drawdown Level: {2:p2}&#x0a;Number of instances: {4:0}"
                                                     DataFieldX="ddLevel" DataFieldX2="ddLevel" StrokeThickness="1"
                                                     DataFieldY="zero" DataFieldY2="point" />
@@ -1706,8 +1659,6 @@
                                                     DataFieldX="ddLevel" DataFieldY="cumulative" />
                             </oxy:Plot.Series>
                         </oxy:Plot>
-
-
 
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
@@ -1737,8 +1688,8 @@
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding MCSharpeHistogramBuckets}"
                                                 Name="MCSharpeChartHistogram"
-                                                FillColor="#41B1E1" StrokeColor="#436EA0" Title="Sharpe Ratio Histogram" 
-                                                ValueField="Item2" StrokeThickness="1"/>
+                                                FillColor="#41B1E1" StrokeColor="#436EA0" Title="Sharpe Ratio Histogram"
+                                                ValueField="Item2" StrokeThickness="1" />
 
                                 <oxy:LineSeries ItemsSource="{Binding Data.MCRatios}"
                                                     YAxisKey="CumulativeProbAxis"
@@ -1749,9 +1700,6 @@
                                                     DataFieldX="Sharpe" DataFieldY="SharpeCumulativePct" />
                             </oxy:Plot.Series>
                         </oxy:Plot>
-
-                        
-                        
 
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
@@ -1770,7 +1718,7 @@
 
                         <oxy:Plot Name="MCMARChart" Width="700" Height="400" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
-                                <oxy:CategoryAxis Position="Bottom" LabelField="Item1" FontSize="10" 
+                                <oxy:CategoryAxis Position="Bottom" LabelField="Item1" FontSize="10"
                                                   Angle="30" Margin="10" IsZoomEnabled="False"
                                                   ItemsSource="{Binding MCMARHistogramBuckets}" />
                                 <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" IsZoomEnabled="False" />
@@ -1781,8 +1729,8 @@
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding MCMARHistogramBuckets}"
                                                 Name="MCMARChartHistogram"
-                                                FillColor="#41B1E1" StrokeColor="#436EA0" Title="MAR Ratio Histogram" 
-                                                ValueField="Item2" StrokeThickness="1"/>
+                                                FillColor="#41B1E1" StrokeColor="#436EA0" Title="MAR Ratio Histogram"
+                                                ValueField="Item2" StrokeThickness="1" />
                                 <oxy:LineSeries ItemsSource="{Binding Data.MCRatios}"
                                                     YAxisKey="CumulativeProbAxis"
                                                     XAxisKey="ValueAxis"
@@ -1792,9 +1740,6 @@
                                                     DataFieldX="MAR" DataFieldY="MARCumulativePct" />
                             </oxy:Plot.Series>
                         </oxy:Plot>
-
-
-
 
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
@@ -1813,7 +1758,7 @@
 
                         <oxy:Plot Name="MCKRatioChart" Width="700" Height="400" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
-                                <oxy:CategoryAxis Position="Bottom" LabelField="Item1" FontSize="10" 
+                                <oxy:CategoryAxis Position="Bottom" LabelField="Item1" FontSize="10"
                                                   Angle="30" Margin="10" IsZoomEnabled="False"
                                                   ItemsSource="{Binding MCKRatioHistogramBuckets}" />
                                 <oxy:LinearAxis Position="Left" MajorGridlineStyle="Dash" IsZoomEnabled="False" />
@@ -1824,8 +1769,8 @@
                             <oxy:Plot.Series>
                                 <oxy:ColumnSeries ItemsSource="{Binding MCKRatioHistogramBuckets}"
                                                 Name="MCKRatioChartHistogram"
-                                                FillColor="#41B1E1" StrokeColor="#436EA0" Title="K Ratio Histogram" 
-                                                ValueField="Item2" StrokeThickness="1"/>
+                                                FillColor="#41B1E1" StrokeColor="#436EA0" Title="K Ratio Histogram"
+                                                ValueField="Item2" StrokeThickness="1" />
                                 <oxy:LineSeries ItemsSource="{Binding Data.MCRatios}"
                                                     YAxisKey="CumulativeProbAxis"
                                                     XAxisKey="ValueAxis"
@@ -1838,7 +1783,7 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            
+
             <TabItem Header="BacktestComparison">
                 <ScrollViewer>
                     <StackPanel HorizontalAlignment="Stretch">
@@ -1857,8 +1802,7 @@
                             </Button>
                         </StackPanel>
 
-
-                        <oxy:Plot Name="BacktestVsResultsChart" 
+                        <oxy:Plot Name="BacktestVsResultsChart"
                                       LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal"
                                       Width="700" Height="400" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
@@ -1870,7 +1814,7 @@
                                                         Name="BacktestRoacEcChartBacktestSeries" CanTrackerInterpolatePoints="False"
                                                         MarkerType="None" Color="DodgerBlue" Title="Backtest"
                                                         TrackerFormatString="Backtest: {2:yyyy-MM-dd} - {4:f1}"
-                                                        
+
                                                         DataFieldX="Date" DataFieldY="Backtest" />
 
                                 <oxy:LineSeries ItemsSource="{Binding Data.BacktestEquityCurves}"
@@ -1896,8 +1840,7 @@
                             </Button>
                         </StackPanel>
 
-
-                    <oxy:Plot Name="BacktestVsResultsCumulativeDiffChart" 
+                    <oxy:Plot Name="BacktestVsResultsCumulativeDiffChart"
                                   IsLegendVisible="False"
                                   Width="700" Height="400" HorizontalAlignment="Center">
                         <oxy:Plot.Axes>
@@ -1909,7 +1852,7 @@
                                                         Name="BacktestVsResultsCumulativeDiffSeries" CanTrackerInterpolatePoints="False"
                                                         MarkerType="None" Color="DodgerBlue" Title="Backtest"
                                                         TrackerFormatString="Difference: {2:0.00} - {4:p1}"
-                                                        
+
                                                         DataFieldX="Date" DataFieldY="CumulativeDifference" />
                         </oxy:Plot.Series>
                     </oxy:Plot>
@@ -1926,8 +1869,6 @@
                                 <DataGridTextColumn Header="Live Trading" Width="*" Binding="{Binding Result}" />
                             </DataGrid.Columns>
                         </DataGrid>
-
-
 
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
@@ -1953,32 +1894,32 @@
                             <oxy:Plot.Series>
                                 <oxy:AreaSeries ItemsSource="{Binding Data.BacktestMonteCarlo}"
                                                 Name="BacktestMcCi99" CanTrackerInterpolatePoints="False"
-                                                MarkerType="None" Color="#FF0000" Title="99% C.I." 
+                                                MarkerType="None" Color="#FF0000" Title="99% C.I."
                                                 TrackerFormatString="99% C.I. Period: {2:0}&#x0a;Value: {4:0}"
                                                 DataFieldX="Period" DataFieldX2="Period" StrokeThickness="1"
                                                 DataFieldY="_99PctileLower" DataFieldY2="_99PctileUpper" />
-                                
+
                                 <oxy:AreaSeries ItemsSource="{Binding Data.BacktestMonteCarlo}"
                                                 Name="BacktestMcCi95" CanTrackerInterpolatePoints="False"
-                                                MarkerType="None" Color="#FF9933" Title="95% C.I." 
+                                                MarkerType="None" Color="#FF9933" Title="95% C.I."
                                                 TrackerFormatString="95% C.I. Period: {2:0}&#x0a;Value: {4:0}"
                                                 DataFieldX="Period" DataFieldX2="Period" StrokeThickness="1"
                                                 DataFieldY="_95PctileLower" DataFieldY2="_95PctileUpper" />
 
                                 <oxy:AreaSeries ItemsSource="{Binding Data.BacktestMonteCarlo}"
                                                 Name="BacktestMcCi90" CanTrackerInterpolatePoints="False"
-                                                MarkerType="None" Color="#41B1E1" Title="90% C.I." 
+                                                MarkerType="None" Color="#41B1E1" Title="90% C.I."
                                                 TrackerFormatString="90% C.I. Period: {2:0}&#x0a;Value: {4:0}"
                                                 DataFieldX="Period" DataFieldX2="Period" StrokeThickness="1"
                                                 DataFieldY="_90PctileLower" DataFieldY2="_90PctileUpper" />
 
                                 <oxy:AreaSeries ItemsSource="{Binding Data.BacktestMonteCarlo}"
                                                 Name="BacktestMcCi50" CanTrackerInterpolatePoints="False"
-                                                MarkerType="None" Color="#DE0000" Title="50% C.I." 
+                                                MarkerType="None" Color="#DE0000" Title="50% C.I."
                                                 TrackerFormatString="50% C.I. Period: {2:0}&#x0a;Value: {4:0}"
                                                 DataFieldX="Period" DataFieldX2="Period" StrokeThickness="1"
                                                 DataFieldY="_50PctileLower" DataFieldY2="_50PctileUpper" />
-                                
+
                                 <oxy:LineSeries ItemsSource="{Binding Data.BacktestMonteCarlo}"
                                                 Name="BacktestMcResults"
                                                 MarkerType="None"
@@ -1986,8 +1927,7 @@
                                                 Title="Live Results"
                                                 DataFieldX="Period"
                                                 DataFieldY="Result"
-                                                TrackerFormatString="Result Period: {2:0}&#x0a;Value: {4:0}"
-                                                />
+                                                TrackerFormatString="Result Period: {2:0}&#x0a;Value: {4:0}" />
 
                                 <oxy:LineSeries ItemsSource="{Binding Data.BacktestMonteCarlo}"
                                                 Name="BacktestMcAverage"
@@ -1996,21 +1936,15 @@
                                                 Title="Average Expected"
                                                 DataFieldX="Period"
                                                 DataFieldY="Average"
-                                                TrackerFormatString="Average Period: {2:0}&#x0a;Value: {4:0}"
-                                                />
+                                                TrackerFormatString="Average Period: {2:0}&#x0a;Value: {4:0}" />
                             </oxy:Plot.Series>
                         </oxy:Plot>
                     </StackPanel>
                 </ScrollViewer>
 
-                
                 <!-- One chart with monte carlo comparison-->
                 <!-- Stats comparison, over the relevant period-->
             </TabItem>
-
-
-
-
 
             <TabItem Header="Volatility">
                 <ScrollViewer>
@@ -2030,8 +1964,7 @@
                             </Button>
                         </StackPanel>
 
-
-                        <oxy:Plot Name="RealizedVolatilityRotcChart" 
+                        <oxy:Plot Name="RealizedVolatilityRotcChart"
                                       LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal"
                                       Width="700" Height="400" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
@@ -2043,7 +1976,7 @@
                                                         Name="RealizedVolatilityRotc20Series" CanTrackerInterpolatePoints="False"
                                                         MarkerType="None" Color="DodgerBlue" Title="20-day Annualized StDev"
                                                         TrackerFormatString="20-day Vol: {2:yyyy-MM-dd} - {4:p2}"
-                                                        
+
                                                         DataFieldX="date" DataFieldY="rotc20" />
 
                                 <oxy:LineSeries ItemsSource="{Binding Data.realizedVol}"
@@ -2053,7 +1986,6 @@
                                                         DataFieldX="date" DataFieldY="rotc60" />
                             </oxy:Plot.Series>
                         </oxy:Plot>
-
 
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
@@ -2070,8 +2002,7 @@
                             </Button>
                         </StackPanel>
 
-
-                        <oxy:Plot Name="RealizedVolatilityRoacChart" 
+                        <oxy:Plot Name="RealizedVolatilityRoacChart"
                                       LegendPlacement="Outside" LegendPosition="BottomCenter" LegendOrientation="Horizontal"
                                       Width="700" Height="400" HorizontalAlignment="Center">
                             <oxy:Plot.Axes>
@@ -2083,7 +2014,7 @@
                                                         Name="RealizedVolatilityRoac20Series" CanTrackerInterpolatePoints="False"
                                                         MarkerType="None" Color="DodgerBlue" Title="20-day Annualized StDev"
                                                         TrackerFormatString="20-day Vol: {2:yyyy-MM-dd} - {4:p2}"
-                                                        
+
                                                         DataFieldX="date" DataFieldY="roac20" />
 
                                 <oxy:LineSeries ItemsSource="{Binding Data.realizedVol}"
@@ -2093,7 +2024,6 @@
                                                         DataFieldX="date" DataFieldY="roac60" />
                             </oxy:Plot.Series>
                         </oxy:Plot>
-
 
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
@@ -2110,22 +2040,18 @@
                             </Button>
                         </StackPanel>
 
-                        <oxy:PlotView Name="RealizedVolatilityByStratChart" 
+                        <oxy:PlotView Name="RealizedVolatilityByStratChart"
                                     Width="700" Height="400" HorizontalAlignment="Center" Model="{Binding RealizedVolatilityByStratModel}" />
-
-                        
-                        
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-
 
             <TabItem Header="RiskContribByStrat">
                 <ScrollViewer>
                     <StackPanel HorizontalAlignment="Stretch">
                         <Label HorizontalAlignment="Left"
                                     FontSize="28" Foreground="DimGray" Content="Full Period Risk &amp; Return Contributions" />
-                        
+
                         <DataGrid Name="FullRiskContribDatagrid" IsReadOnly="True" AutoGenerateColumns="False"  FontSize="12"
                               Width="600" CanUserAddRows="False" CanUserDeleteRows="False" ItemsSource="{Binding Data.marginalRiskContribByStratFullSample}">
                             <DataGrid.Columns>
@@ -2133,10 +2059,7 @@
                                 <DataGridTextColumn Header="Risk Contribution" Binding="{Binding marginalRiskContrib,StringFormat=p2}" Width="200" />
                                 <DataGridTextColumn Header="Returns Contribution" Binding="{Binding returnsContrib, StringFormat=p2}" Width="200" />
                             </DataGrid.Columns>
-                            
                         </DataGrid>
-
-
 
                         <StackPanel Orientation="Horizontal">
                             <Label HorizontalAlignment="Left"
@@ -2151,12 +2074,10 @@
                                     <Image Source="../Resources/save.png" Height="16" RenderOptions.BitmapScalingMode="NearestNeighbor" />
                                 </Button.Content>
                             </Button>
-
                         </StackPanel>
 
                         <oxy:PlotView Name="RollingRiskContributionByStrategyChart" Width="700" Height="600" HorizontalAlignment="Center"
                                       Model="{Binding RollingRiskContribByStratModel}" />
-                        
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

@@ -15,10 +15,15 @@ namespace QPAS
     public interface IDataSourcer : IDisposable
     {
         IExternalDataSource ExternalDataSource { get; }
+
         Task<List<OHLCBar>> GetData(Instrument inst, DateTime startTime, DateTime endTime, BarSize frequency = BarSize.OneDay);
+
         Task<List<OHLCBar>> GetAllExternalData(Instrument inst);
+
         Task<List<OHLCBar>> GetExternalData(int externalInstrumentID, DateTime startTime, DateTime endTime);
+
         List<OHLCBar> GetLocalData(Instrument instrument, DateTime fromDate, DateTime toDate);
+
         decimal? GetLastPrice(Instrument inst, out decimal fxRate, string currency = "USD");
     }
 }

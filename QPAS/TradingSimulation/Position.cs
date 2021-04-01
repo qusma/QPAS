@@ -36,6 +36,7 @@ namespace QPAS
         /// The following two fields keep track of that stuff.
         /// </summary>
         private decimal _quantityEnteredAfterEodCutoff;
+
         private decimal _avgPriceEnteredAfterEodCutoff;
 
         public Position(Instrument instrument, decimal optionsCapitalUsageMultiplier = 1)

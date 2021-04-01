@@ -52,7 +52,6 @@ namespace QPAS
                     }
                 }
 
-
                 await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
                 //Cash Transactions
@@ -70,7 +69,6 @@ namespace QPAS
                     dbContext.CashTransactions.Add(newCashTransaction);
                     existingData.CashTransactions.Add(newCashTransaction);
                 }
-
 
                 //Orders + Executions
                 DateTime lastDate = dbContext.Orders.Any(x => x.AccountID == selectedAccount.ID)
@@ -96,7 +94,6 @@ namespace QPAS
                     newOrder.Currency = currencyDict[newOrder.CurrencyString];
                     newOrder.CommissionCurrency = currencyDict[newOrder.CommissionCurrencyString];
 
-
                     //then the executions in that order
                     foreach (var exec in newOrder.Executions)
                     {
@@ -105,7 +102,6 @@ namespace QPAS
                         exec.Currency = currencyDict[exec.CurrencyString];
                         exec.CommissionCurrency = currencyDict[exec.CommissionCurrencyString];
                     }
-
 
                     //and finally add
                     existingData.Orders.Add(newOrder);
@@ -139,7 +135,6 @@ namespace QPAS
 
                     dbContext.OpenPositions.Add(op);
                 }
-
 
                 //FX Rates
                 foreach (var fxRate in newData.FXRates)

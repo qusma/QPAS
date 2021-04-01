@@ -16,6 +16,7 @@ namespace QPAS
     public partial class ExecutionReportWindow : MetroWindow
     {
         public ExecutionReportViewModel ViewModel { get; set; }
+
         public ExecutionReportWindow(ExecutionStatsGenerator statsGen)
         {
             InitializeComponent();

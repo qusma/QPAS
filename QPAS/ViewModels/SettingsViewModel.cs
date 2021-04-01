@@ -18,6 +18,7 @@ namespace QPAS
 
         //QDMS data source preferences
         public ObservableCollection<DatasourcePreference> DatasourcePreferences { get; set; }
+
         public ObservableCollection<string> Datasources { get; set; }
 
         public SettingsViewModel(IAppSettings settings, IContextFactory contextFactory) : base(null)
@@ -31,7 +32,6 @@ namespace QPAS
                     .DatasourcePreferences
                     .ToList()
                     .OrderBy(x => (int)x.AssetClass));
-
 
                 Datasources = new ObservableCollection<string>(
                     new[] {

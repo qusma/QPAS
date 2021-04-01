@@ -117,7 +117,6 @@ namespace QPAS
             var fxTransactionMapper = new Mapper<FXTransaction>(xml.Descendants("FxTransaction"));
             List<FXTransaction> fxTransactions = fxTransactionMapper.ParseAll();
 
-
             foreach (FXTransaction i in fxTransactions)
             {
                 data.FXTransactions.Add(i);
@@ -134,13 +133,11 @@ namespace QPAS
             var fxPositionsMapper = new Mapper<FXPosition>(xml.Descendants("FxPosition"));
             List<FXPosition> fxPositions = fxPositionsMapper.ParseAll();
 
-
             //then add the new ones
             foreach (FXPosition i in fxPositions)
             {
                 data.FXPositions.Add(i);
             }
-
 
             //<FxPosition accountId="U1066712" acctAlias="" assetCategory="CASH" reportDate="20140325"
             //functionalCurrency="USD" fxCurrency="CAD" quantity="22.379966" costPrice="0.890970031" costBasis="-19.939879"
@@ -152,13 +149,11 @@ namespace QPAS
             var openDividendAccrualsMapper = new Mapper<DividendAccrual>(xml.Descendants("OpenDividendAccrual"));
             List<DividendAccrual> dividendAccruals = openDividendAccrualsMapper.ParseAll();
 
-
             //then add the new ones
             foreach (DividendAccrual i in dividendAccruals)
             {
                 data.DividendAccruals.Add(i);
             }
-
 
             //<OpenDividendAccrual accountId="U1066712" currency="USD" assetCategory="STK" fxRateToBase="1" symbol="PICB"
             //description="POWERSHARES INT CORP BOND" conid="75980548" securityID="" securityIDType="" cusip="" isin=""
@@ -170,8 +165,6 @@ namespace QPAS
         {
             var priorPeriodPositionsMapper = new Mapper<PriorPosition>(xml.Descendants("PriorPeriodPosition"));
             List<PriorPosition> priorPeriodPositions = priorPeriodPositionsMapper.ParseAll();
-
-
 
             foreach (PriorPosition priorPosition in priorPeriodPositions)
             {
@@ -201,7 +194,6 @@ namespace QPAS
             if (!xml.Descendants("OpenPositions").Any()) return;
             var openPositionsMapper = new Mapper<OpenPosition>(xml.Descendants("OpenPosition").Where(x => x.Attribute("levelOfDetail").Value == "SUMMARY"));
             List<OpenPosition> openPositions = openPositionsMapper.ParseAll();
-
 
             foreach (OpenPosition op in openPositions)
             {
@@ -243,7 +235,6 @@ namespace QPAS
 
             var tradesMapper = new Mapper<Execution>(xml.Descendants("Trades").First().Descendants("Trade"));
             List<Execution> executions = tradesMapper.ParseAll();
-
 
             var orderReferenceSet = new List<long>(); //used to keep track of which orders we have set the order reference for, so we don't do it multiple times
 
@@ -301,8 +292,6 @@ namespace QPAS
             //netCash="25984.185715" orderType="LMT" />
         }
 
-
-
         private static void ParseCFDCharges(XContainer xml, DataContainer data)
         {
             var cfdTransactionsMapper = new Mapper<CashTransaction>(xml.Descendants("CFDCharge"));
@@ -310,14 +299,12 @@ namespace QPAS
             cfdTransactionsMapper.SetAttributeMap("date", "TransactionDate", "yyyy-MM-dd");
             List<CashTransaction> cfdCharges = cfdTransactionsMapper.ParseAll();
 
-
             foreach (CashTransaction i in cfdCharges)
             {
                 i.Type = "CFD Charge";
 
                 data.CashTransactions.Add(i);
             }
-
 
             //<CFDCharge accountId="U1066712F" currency="USD" assetCategory="CFD" fxRateToBase="1"
             //symbol="--" description="--" conid="--" securityID="--" securityIDType="--" cusip="--"
@@ -329,7 +316,6 @@ namespace QPAS
         {
             var cashTransactionsMapper = new Mapper<CashTransaction>(xml.Descendants("CashTransaction"));
             List<CashTransaction> cashTransactions = cashTransactionsMapper.ParseAll();
-
 
             foreach (CashTransaction i in cashTransactions)
             {

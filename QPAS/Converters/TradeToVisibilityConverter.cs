@@ -16,7 +16,7 @@ namespace QPAS
     public class TradeToVisibilityConverter : IValueConverter
     {
         /// <summary>
-        /// Converts a value. 
+        /// Converts a value.
         /// </summary>
         /// <returns>
         /// A converted value. If the method returns null, the valid null value is used.
@@ -31,7 +31,7 @@ namespace QPAS
         }
 
         /// <summary>
-        /// Converts a value. 
+        /// Converts a value.
         /// </summary>
         /// <returns>
         /// A converted value. If the method returns null, the valid null value is used.

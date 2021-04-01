@@ -5,13 +5,10 @@
 // -----------------------------------------------------------------------
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace EntityModel
 {
@@ -128,7 +125,7 @@ namespace EntityModel
             modelBuilder.Entity<Trade>()
                 .HasMany(c => c.Tags)
                 .WithMany(t => t.Trades)
-                .UsingEntity(x => x.ToTable("TagMap")); 
+                .UsingEntity(x => x.ToTable("TagMap"));
 
             modelBuilder.Entity<Order>()
                 .HasMany(x => x.Executions)
@@ -141,12 +138,10 @@ namespace EntityModel
 
         public QpasDbContext()
         {
-
         }
 
         public QpasDbContext(DbContextOptions<QpasDbContext> options) : base(options)
         {
-
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -162,7 +157,5 @@ namespace EntityModel
             //optionsBuilder.EnableSensitiveDataLogging();
 #endif
         }
-
-        
     }
 }

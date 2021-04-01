@@ -82,9 +82,9 @@ namespace EntityModel
         {
             get
             {
-                if (DateClosed.HasValue) 
+                if (DateClosed.HasValue)
                     return DateClosed.Value - DateOpened;
-                else 
+                else
                     return DateTime.Now - DateOpened;
             }
         }
@@ -241,7 +241,7 @@ namespace EntityModel
                     return string.Empty;
                 }
             }
-            
+
             //Empty set is needed so this can be edited in the datagrid
             set
             {
@@ -289,7 +289,7 @@ namespace EntityModel
             return Orders.GroupBy(x => x.ConID).Select(x => x.Sum(y => y.Quantity)).All(x => x == 0);
             //This will fail in case of splits, not sure how to work around that...
 
-            //Also note currency positions don't affect closability, 
+            //Also note currency positions don't affect closability,
             //this is because sometimes they are impossible to close completely.
         }
 

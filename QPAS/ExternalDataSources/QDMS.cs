@@ -24,7 +24,6 @@ namespace QPAS.ExternalDataSources
     {
         public string Name => "Interactive Brokers";
 
-
         private QDMSClient.QDMSClient _client;
         private List<Instrument> _instrumentsList;
         private readonly Dictionary<int, StoredDataInfo> _storageInfo;
@@ -34,7 +33,7 @@ namespace QPAS.ExternalDataSources
         private readonly object _arrivedDataLock = new object();
         private readonly object _requestHistoricalDataLock = new object();
 
-        private readonly SemaphoreSlim _instrumentInfoReqSemaphor = new SemaphoreSlim(1,1);
+        private readonly SemaphoreSlim _instrumentInfoReqSemaphor = new SemaphoreSlim(1, 1);
 
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
@@ -46,6 +45,7 @@ namespace QPAS.ExternalDataSources
         /// Value: true if the request has arrived
         /// </summary>
         private readonly Dictionary<int, bool> _requestIDs;
+
         private readonly IAppSettings _settings;
         private readonly List<EntityModel.DatasourcePreference> _dataSourcePreferences;
 
@@ -68,8 +68,6 @@ namespace QPAS.ExternalDataSources
         public QDMS(IAppSettings settings, List<EntityModel.DatasourcePreference> dataSourcePreferences)
         {
             _client = QDMSClientFactory.Get(settings);
-
-
 
             _connectionTimer = new Timer(2000);
             _connectionTimer.Elapsed += _connectionTimer_Elapsed;
@@ -104,7 +102,7 @@ namespace QPAS.ExternalDataSources
             }
         }
 
-        void _client_Error(object sender, ErrorArgs e)
+        private void _client_Error(object sender, ErrorArgs e)
         {
             ConnectionStatus = string.Format("{0} | {1}",
                 _client.Connected ? "Connected" : "Disconnected",
@@ -206,8 +204,6 @@ namespace QPAS.ExternalDataSources
                 requestId = _client.RequestHistoricalData(req);
                 _requestIDs.Add(requestId, false);
             }
-            
-
 
             //Wait until the data arrives
             int i = 0;
@@ -357,7 +353,6 @@ namespace QPAS.ExternalDataSources
             }
         }
 
-
         private async Task RefreshInstrumentsList()
         {
             if (!_client.Connected) return;
@@ -398,7 +393,6 @@ namespace QPAS.ExternalDataSources
                 }
             }
 
-
             var response = await _client.GetLocallyAvailableDataInfo(instrument);
 
             if (!response.WasSuccessful)
@@ -407,7 +401,6 @@ namespace QPAS.ExternalDataSources
                 return null;
             }
 
-            
             StoredDataInfo info = response.Result.FirstOrDefault(x => x.Frequency == BarSize.OneDay);
             if (info == null) return null;
 

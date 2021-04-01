@@ -8,7 +8,7 @@
         Height="609" Width="1280"
         BorderBrush="Black" BorderThickness="1"
         FontFamily="Segoe UI Semibold"
-        Title="{Binding Trade.Name, StringFormat=Trade: {0}}" 
+        Title="{Binding Trade.Name, StringFormat=Trade: {0}}"
         Icon="../Resources/icon.ico"
         TitleBarHeight="32"
         Closing="MetroWindow_Closing"
@@ -19,127 +19,118 @@
         <Style TargetType="Label" x:Key="OpenColor">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Trade.Open}" Value="True">
-                    <Setter Property="Foreground" Value="#4F81BD"/>
+                    <Setter Property="Foreground" Value="#4F81BD" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
         <qpas:PnLBrushConverter x:Key="PnlBrushConverter" />
         <qpas:PctBrushConverter x:Key="PctBrushConverter" />
-        
-        
     </Window.Resources>
 
     <TabControl>
         <TabItem Header="Overview" Padding="0">
-            <Grid Margin="0,-10,0,0" >
+            <Grid Margin="0,-10,0,0">
                 <!-- DataContext="{Binding Source={StaticResource DummyTradeVM}}"-->
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="38*"/>
-                    <ColumnDefinition Width="32*"/>
-                    <ColumnDefinition Width="55*"/>
+                    <ColumnDefinition Width="38*" />
+                    <ColumnDefinition Width="32*" />
+                    <ColumnDefinition Width="55*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="65"/>
-                    <RowDefinition Height="45"/>
-                    <RowDefinition Height="36*"/>
-                    <RowDefinition Height="142*"/>
-                    <RowDefinition Height="45"/>
-                    <RowDefinition Height="153*"/>
+                    <RowDefinition Height="65" />
+                    <RowDefinition Height="45" />
+                    <RowDefinition Height="36*" />
+                    <RowDefinition Height="142*" />
+                    <RowDefinition Height="45" />
+                    <RowDefinition Height="153*" />
                 </Grid.RowDefinitions>
                 <StackPanel Grid.ColumnSpan="2" Orientation="Horizontal">
                     <Label Content="Status:" FontSize="48" Padding="0" Margin="5,0,0,0" Foreground="DimGray" />
                     <Label Content="{Binding Trade.Open, Converter={qc:QuickConverter '$P ? \'Open\' : \'Closed\''}}"
-                           HorizontalAlignment="Stretch" Padding="0" Margin="10,0,0,0" 
-                           VerticalAlignment="Stretch" FontSize="48" 
+                           HorizontalAlignment="Stretch" Padding="0" Margin="10,0,0,0"
+                           VerticalAlignment="Stretch" FontSize="48"
                            Foreground="Black"
-                           Style="{StaticResource OpenColor}" 
-                            />
+                           Style="{StaticResource OpenColor}" />
                 </StackPanel>
 
                 <DockPanel Grid.Column="2" Grid.Row="0">
-                    <Label 
+                    <Label
             Content="Result:"
-               HorizontalAlignment="Left" Padding="0" Margin="8,0,0,8" 
-               VerticalAlignment="Bottom" FontSize="44" 
-               Foreground="DimGray"
-                />
+               HorizontalAlignment="Left" Padding="0" Margin="8,0,0,8"
+               VerticalAlignment="Bottom" FontSize="44"
+               Foreground="DimGray" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Label 
+                        <Label
                             Name="TestLabel"
                             Content="$"
-                               HorizontalAlignment="Right" Padding="0" Margin="10,0,0,14" 
-                               VerticalAlignment="Bottom" FontSize="26" 
-                               Foreground="{Binding Trade.TotalResultDollars, Converter={StaticResource PnlBrushConverter}}"
-                                />
-                        <Label 
-                           HorizontalAlignment="Right" Padding="0" Margin="0,-7,0,5" 
-                           FontSize="50" 
+                               HorizontalAlignment="Right" Padding="0" Margin="10,0,0,14"
+                               VerticalAlignment="Bottom" FontSize="26"
+                               Foreground="{Binding Trade.TotalResultDollars, Converter={StaticResource PnlBrushConverter}}" />
+                        <Label
+                           HorizontalAlignment="Right" Padding="0" Margin="0,-7,0,5"
+                           FontSize="50"
                            Foreground="{Binding Trade.TotalResultDollars, Converter={StaticResource PnlBrushConverter}}">
-                            <TextBlock Text="{Binding Trade.TotalResultDollars, StringFormat={}{0:0.00}, ConverterCulture=en-US}"/>
+                            <TextBlock Text="{Binding Trade.TotalResultDollars, StringFormat={}{0:0.00}, ConverterCulture=en-US}" />
                         </Label>
-                        <Label 
-                           HorizontalAlignment="Right" Padding="0" Margin="0,-7,0,5" 
+                        <Label
+                           HorizontalAlignment="Right" Padding="0" Margin="0,-7,0,5"
                            FontSize="50" Content="/" />
-                        <Label 
-                           HorizontalAlignment="Right" Padding="0" Margin="0,-7,0,5" 
-                           FontSize="50" 
+                        <Label
+                           HorizontalAlignment="Right" Padding="0" Margin="0,-7,0,5"
+                           FontSize="50"
                            Foreground="{Binding Trade.TotalResultPct, Converter={StaticResource PctBrushConverter}}">
-                            <TextBlock Text="{Binding Trade.TotalResultPct, StringFormat={}{0:p2}, ConverterCulture=en-US}"/>
+                            <TextBlock Text="{Binding Trade.TotalResultPct, StringFormat={}{0:p2}, ConverterCulture=en-US}" />
                         </Label>
                     </StackPanel>
                 </DockPanel>
 
                 <DockPanel Grid.Row="1" Grid.Column="2">
                     <StackPanel Margin="10,0,0,0">
-                        <Label 
+                        <Label
                             Content="Realized:"
                                HorizontalAlignment="Left" Padding="0"
-                               VerticalAlignment="Bottom" FontSize="16" 
-                               Foreground="DimGray"
-                                />
-                        <Label 
+                               VerticalAlignment="Bottom" FontSize="16"
+                               Foreground="DimGray" />
+                        <Label
                             Content="Unrealized:"
                                HorizontalAlignment="Left" Padding="0"
-                               VerticalAlignment="Bottom" FontSize="16" 
-                               Foreground="DimGray"
-                                />
+                               VerticalAlignment="Bottom" FontSize="16"
+                               Foreground="DimGray" />
                     </StackPanel>
 
                     <StackPanel HorizontalAlignment="Right" Margin="0,0,10,0">
                         <StackPanel Orientation="Horizontal">
-                            <Label 
+                            <Label
                                HorizontalAlignment="Right" Padding="0"
-                               VerticalAlignment="Bottom" FontSize="16" 
+                               VerticalAlignment="Bottom" FontSize="16"
                                Foreground="{Binding Trade.ResultDollars, Converter={StaticResource PnlBrushConverter}}">
                                 <TextBlock Margin="0" Padding="0" Text="{Binding Trade.ResultDollars, StringFormat={}{0:c2}, ConverterCulture=en-US}" />
                             </Label>
                             <Label Content="/" FontSize="16" Margin="1,0,1,0" Padding="0" />
-                            <Label 
+                            <Label
                                HorizontalAlignment="Right" Padding="0"
-                               VerticalAlignment="Bottom" FontSize="16" 
+                               VerticalAlignment="Bottom" FontSize="16"
                                Foreground="{Binding Trade.ResultPct, Converter={StaticResource PctBrushConverter}}">
                                 <TextBlock Margin="0" Padding="0" Text="{Binding Trade.ResultPct, StringFormat={}{0:p2}}" />
                             </Label>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <Label 
+                            <Label
                                HorizontalAlignment="Right" Padding="0"
-                               VerticalAlignment="Bottom" FontSize="16" 
-                               Foreground="{Binding Trade.UnrealizedResultDollars, Converter={StaticResource PnlBrushConverter}}"
-                                >
+                               VerticalAlignment="Bottom" FontSize="16"
+                               Foreground="{Binding Trade.UnrealizedResultDollars, Converter={StaticResource PnlBrushConverter}}">
                                 <TextBlock Margin="0" Padding="0" Text="{Binding Trade.UnrealizedResultDollars, StringFormat={}{0:c2}, ConverterCulture=en-US}" />
                             </Label>
                             <Label Content="/" FontSize="16" Margin="1,0,1,0" Padding="0" />
-                            <Label 
+                            <Label
                                    HorizontalAlignment="Right" Padding="0"
-                                   VerticalAlignment="Bottom" FontSize="16" 
+                                   VerticalAlignment="Bottom" FontSize="16"
                                    Foreground="{Binding Trade.UnrealizedResultPct, Converter={StaticResource PctBrushConverter}}">
                                 <TextBlock Margin="0" Padding="0" Text="{Binding Trade.UnrealizedResultPct, StringFormat={}{0:p2}}" />
                             </Label>
                         </StackPanel>
                     </StackPanel>
-
                 </DockPanel>
 
                 <Label Grid.Row="1" Margin="1,0,0,0" Grid.Column="0" Content="Orders" Foreground="DimGray" FontSize="26" Grid.ColumnSpan="2" />
@@ -184,12 +175,12 @@
                         <oxy:DateTimeAxis Name="XAxis" Position="Bottom" StringFormat="yyyy-MM-dd" />
                     </oxy:Plot.Axes>
                     <oxy:Plot.Series>
-                        <oxy:TwoColorLineSeries Name="CumulativePnlSeries" 
+                        <oxy:TwoColorLineSeries Name="CumulativePnlSeries"
                                                 ItemsSource="{Binding Tracker.CumulativePnL}"
-                                                Color="DodgerBlue" 
-                                                Color2="Red" 
-                                                MarkerType="None" 
-                                                DataFieldX="Key" 
+                                                Color="DodgerBlue"
+                                                Color2="Red"
+                                                MarkerType="None"
+                                                DataFieldX="Key"
                                                 DataFieldY="Value"
                                                 TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;P/L: {4:c2}"
                                                 CanTrackerInterpolatePoints="False" />
@@ -211,14 +202,12 @@
                     </Label>
                 </StackPanel>
 
-                    <Label 
-                         Grid.Row="4" Grid.Column="2" 
+                    <Label
+                         Grid.Row="4" Grid.Column="2"
         	        Content="Open Positions"
         	        HorizontalAlignment="Left"
-        	        VerticalAlignment="Top" FontSize="26" 
-        	        Foreground="DimGray" 
-                        />
-
+        	        VerticalAlignment="Top" FontSize="26"
+        	        Foreground="DimGray" />
 
                 <!--open positions from trade tracker here-->
                 <DataGrid Grid.Column="2" Grid.Row="5" IsReadOnly="True" ItemsSource="{Binding Tracker.OpenPositions}"
@@ -227,9 +216,9 @@
                         <DataGridTextColumn Header="Symbol" Binding="{Binding Path=Instrument.Symbol}" />
                         <DataGridTemplateColumn Header="Type" CellTemplate="{StaticResource InstrumentAssetClassCellTemplate}" />
                         <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Quantity" Binding="{Binding Path=Quantity}" />
-                        <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Avg Price" 
+                        <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Avg Price"
                                             Binding="{Binding Path=CostBasis, StringFormat={}{0:c2}}" Width="85" />
-                        <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Last Price" 
+                        <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="Last Price"
                                             Binding="{Binding Path=LastPrice, StringFormat={}{0:0.00####}}" />
                         <DataGridTextColumn  Header="Unrealized $" ElementStyle="{StaticResource CellRightAlign}"  Binding="{Binding Path=UnrealizedPnL, StringFormat={}{0:c2}}" />
                     </DataGrid.Columns>
@@ -240,8 +229,8 @@
         <TabItem Header="Notes" Padding="0">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="35"/>
-                    <RowDefinition Height="457*"/>
+                    <RowDefinition Height="35" />
+                    <RowDefinition Height="457*" />
                 </Grid.RowDefinitions>
                 <ToolBarTray Grid.Row="0" RenderOptions.BitmapScalingMode="NearestNeighbor">
                     <ToolBar Band="1" BandIndex="1">
@@ -252,16 +241,16 @@
                             <Image Source="../Resources/Copy.png" />
                         </Button>
                         <Button Name="PasteBtn" Command="{x:Static ApplicationCommands.Paste}" CommandTarget="{Binding ElementName=NotesTextBox}">
-                            <Image Source="../Resources/Paste.png"  />
+                            <Image Source="../Resources/Paste.png" />
                         </Button>
-                        <Separator/>
+                        <Separator />
                         <Button  Name="UndoBtn" Command="{x:Static ApplicationCommands.Undo}" CommandTarget="{Binding ElementName=NotesTextBox}">
                             <Image Source="../Resources/Undo.png" />
                         </Button>
                         <Button Name="RedoBtn" Command="{x:Static ApplicationCommands.Redo}" CommandTarget="{Binding ElementName=NotesTextBox}">
                             <Image Source="../Resources/Redo.png" />
                         </Button>
-                        <Separator/>
+                        <Separator />
                         <ToggleButton Name="BoldBtn" Command="{x:Static EditingCommands.ToggleBold}" CommandTarget="{Binding ElementName=NotesTextBox}">
                             <Image Source="../Resources/Bold.png" />
                         </ToggleButton>
@@ -271,12 +260,12 @@
                         <ToggleButton Name="UnderlineBtn" Command="{x:Static EditingCommands.ToggleUnderline}" CommandTarget="{Binding ElementName=NotesTextBox}">
                             <Image Source="../Resources/Underline.png" />
                         </ToggleButton>
-                        <Separator/>
+                        <Separator />
                         <ComboBox x:Name="FontFamilyComboBox" IsEditable="True" Width="110"
-                                  SelectionChanged="FontFamily_SelectionChanged"/>
+                                  SelectionChanged="FontFamily_SelectionChanged" />
                         <ComboBox x:Name="FontSizeComboBox" IsEditable="True" Width="45"
-                                  SelectionChanged="FontSize_SelectionChanged"/>
-                        <Separator/>
+                                  SelectionChanged="FontSize_SelectionChanged" />
+                        <Separator />
                         <ToggleButton Name="LeftBtn" Command="{x:Static EditingCommands.AlignLeft}" CommandTarget="{Binding ElementName=NotesTextBox}">
                             <Image Source="../Resources/LeftJustify.png" />
                         </ToggleButton>
@@ -289,7 +278,7 @@
                         <ToggleButton Name="JustifyBtn" Command="{x:Static EditingCommands.AlignJustify}" CommandTarget="{Binding ElementName=NotesTextBox}">
                             <Image Source="../Resources/Justify.png" />
                         </ToggleButton>
-                        <Separator/>
+                        <Separator />
                         <ToggleButton Name="BulletsBtn" Command="{x:Static EditingCommands.ToggleBullets}" CommandTarget="{Binding ElementName=NotesTextBox}">
                             <Image Source="../Resources/Bullets.png" />
                         </ToggleButton>
@@ -302,5 +291,4 @@
             </Grid>
         </TabItem>
     </TabControl>
-
 </controls:MetroWindow>

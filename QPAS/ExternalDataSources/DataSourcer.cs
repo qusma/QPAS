@@ -82,7 +82,7 @@ namespace QPAS
                 return GetLocalData(inst, startTime, endTime);
             }
 
-            //QDMS data does NOT cover the entire period requested. 
+            //QDMS data does NOT cover the entire period requested.
             //Try to supplement the data with the prices from prior positions
             if (frequency == BarSize.OneDay && (data.First().DT.Date > startTime.Date || data.Last().DT.Date < endTime))
             {

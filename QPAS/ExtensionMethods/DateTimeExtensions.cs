@@ -6,7 +6,7 @@ namespace QPAS
     public static class DateTimeExtensions
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>

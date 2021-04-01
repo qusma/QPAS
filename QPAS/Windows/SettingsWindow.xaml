@@ -8,7 +8,7 @@
         Title="Settings" Height="600" Width="396"
         Icon="../Resources/icon.ico"
         TitleBarHeight="32" ResizeMode="NoResize"
-        BorderBrush="Black" BorderThickness="1" 
+        BorderBrush="Black" BorderThickness="1"
                       FontFamily="Segoe UI Semibold"
         RenderOptions.BitmapScalingMode="NearestNeighbor">
     <Window.Resources>
@@ -16,35 +16,35 @@
 
         <ObjectDataProvider x:Key="AssetClasses" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type Type="qdms:AssetClass"/>
+                <x:Type Type="qdms:AssetClass" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
     </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="80*"/>
-            <RowDefinition Height="32"/>
+            <RowDefinition Height="80*" />
+            <RowDefinition Height="32" />
         </Grid.RowDefinitions>
         <TabControl>
             <TabItem Header="General">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition/>
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="89*"/>
-                        <ColumnDefinition Width="69*"/>
+                        <ColumnDefinition Width="89*" />
+                        <ColumnDefinition Width="69*" />
                     </Grid.ColumnDefinitions>
 
                     <Label Content="Assume interest rate:" Grid.Row="0" Grid.Column="0" Margin="0,5,0,0" />
@@ -63,24 +63,24 @@
                     <Label Content="Use QDMS:" ToolTip="Leaving this unchecked will result in using Flex statement data only. Some features such as benchmarks will be unavailable." Grid.Row="5" Grid.Column="0" Margin="0,5,0,0" />
                     <CheckBox Name="UseQDMSCheckBox" IsChecked="{Binding Settings.AllowExternalDataSource}" Grid.Row="5" Grid.Column="1" Margin="70,0,0,0" />
 
-                    <Label Content="Prevent Duplicate Data Import" 
+                    <Label Content="Prevent Duplicate Data Import"
                            Grid.Row="7" Grid.Column="0" Margin="0,5,0,0">
                         <Label.ToolTip>
                             <TextBlock>
                                   If this is checked, data older than the newest data in the db will not be imported.
-                                  <LineBreak /> 
+                                  <LineBreak />
                                   Uncheck if you need to import older data that is missing from your database.
                             </TextBlock>
                         </Label.ToolTip>
                     </Label>
                     <CheckBox Name="PreventDupesCheckBox" IsChecked="{Binding Settings.PreventDuplicateImports}" Grid.Row="7" Grid.Column="1" Margin="70,0,0,0" />
 
-                    <Label Content="Always use all accounts for total capital" 
+                    <Label Content="Always use all accounts for total capital"
                            Grid.Row="8" Grid.Column="0" Margin="0,5,0,0">
                         <Label.ToolTip>
                             <TextBlock>
                                   If this is checked, the "total capital" used for reports will be the sum of all accounts.
-                                  <LineBreak /> 
+                                  <LineBreak />
                                   If unchecked, only the accounts whose orders/cash transactions are included in the report will be used to calculate total capital.
                             </TextBlock>
                         </Label.ToolTip>
@@ -103,25 +103,25 @@
             <TabItem Header="QDMS">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="50*"/>
-                        <ColumnDefinition Width="50*"/>
+                        <ColumnDefinition Width="50*" />
+                        <ColumnDefinition Width="50*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="72*"/>
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="72*" />
                     </Grid.RowDefinitions>
 
-                    <CheckBox Grid.Row="0" ToolTip="It is recommended to leave this unchecked and use the QDMS scheduler to keep data up to date." 
+                    <CheckBox Grid.Row="0" ToolTip="It is recommended to leave this unchecked and use the QDMS scheduler to keep data up to date."
                               Content="QDMS requests: allow external data download." Margin="5,0" Grid.ColumnSpan="2"
-                              IsChecked="{Binding Settings.QdmsAllowFreshData}"/>
+                              IsChecked="{Binding Settings.QdmsAllowFreshData}" />
 
                     <Label Grid.Row="1" Grid.Column="0" Content="QDMS Host:" Margin="0,5,0,0" />
                     <TextBox Grid.Row="1" Grid.Column="1" Margin="4" Text="{Binding Settings.QdmsHost}" />
@@ -144,13 +144,13 @@
                     <Label Grid.Row="7" Grid.Column="0" Content="API Key:" Margin="0,5,0,0" />
                     <TextBox Grid.Row="7" Grid.Column="1" Margin="4" Text="{Binding Settings.QdmsApiKey}" />
 
-                    <Label Grid.Column="0" Grid.Row="8" Content="Default data source by instrument type:" Margin="0,10,0,0" Grid.ColumnSpan="2"/>
-                    <DataGrid Name="DefaultSourcesGrid" 
+                    <Label Grid.Column="0" Grid.Row="8" Content="Default data source by instrument type:" Margin="0,10,0,0" Grid.ColumnSpan="2" />
+                    <DataGrid Name="DefaultSourcesGrid"
                               ItemsSource="{Binding DatasourcePreferences}"
                               AutoGenerateColumns="False"
                               Grid.Row="9" Grid.Column="0" CanUserAddRows="False" CanUserDeleteRows="False" Grid.ColumnSpan="2">
                         <DataGrid.Columns>
-                            <DataGridComboBoxColumn Header="Type" 
+                            <DataGridComboBoxColumn Header="Type"
                                                     ItemsSource="{Binding Source={StaticResource AssetClasses}}"
                                                     SelectedItemBinding="{Binding AssetClass}"
                                                     IsReadOnly="True"
@@ -177,27 +177,27 @@
                 <Grid>
                     <Grid.RowDefinitions>
 
-                        <RowDefinition Height="60*"/>
+                        <RowDefinition Height="60*" />
                     </Grid.RowDefinitions>
 
                     <TabControl Grid.Row="1" Name="DbSettingsTabCtrl">
-                        
+
                         <TabItem Header="SQLite">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="25*"/>
-                                    <ColumnDefinition Width="50*"/>
+                                    <ColumnDefinition Width="25*" />
+                                    <ColumnDefinition Width="50*" />
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="50"/>
-                                    <RowDefinition Height="46*"/>
+                                    <RowDefinition Height="50" />
+                                    <RowDefinition Height="46*" />
                                 </Grid.RowDefinitions>
                                 <Label Grid.Row="0" Grid.Column="0" Content="Password:"
-                                       HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="118"/>
-                                <PasswordBox Grid.Row="0" Name="SqlitePasswordBox" HorizontalAlignment="Left" Height="23" 
+                                       HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="118" />
+                                <PasswordBox Grid.Row="0" Name="SqlitePasswordBox" HorizontalAlignment="Left" Height="23"
                                          Margin="10,10,0,0"
                                          VerticalAlignment="Top" Width="179" Grid.Column="1"
-                                         IsEnabled="False"   />
+                                         IsEnabled="False" />
                             </Grid>
                         </TabItem>
                     </TabControl>

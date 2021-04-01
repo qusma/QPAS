@@ -19,6 +19,7 @@ namespace QPAS
                 return CheckList.Where(x => x.IsChecked).Select(x => (string)x.Tag).ToList();
             }
         }
+
         public ObservableCollection<CheckListItem<string>> CheckList { get; private set; }
 
         private Dictionary<string, string> _optionToTitleMap;

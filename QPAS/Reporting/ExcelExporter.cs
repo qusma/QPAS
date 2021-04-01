@@ -24,7 +24,7 @@ namespace QPAS
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ds"></param>
         /// <param name="options"></param>
@@ -214,7 +214,6 @@ namespace QPAS
         /// </summary>
         private void SetChartSeriesLengths(ExcelWorksheet ws, int headerRow, int rowCount)
         {
-
             foreach (var excelDrawing in ws.Drawings.Where(x => x.GetType().IsSubclassOf(typeof(ExcelChart))))
             {
                 var chart = (ExcelChart)excelDrawing;
@@ -237,7 +236,7 @@ namespace QPAS
         }
 
         /// <summary>
-        /// Parses the style field and applies any settings within it. 
+        /// Parses the style field and applies any settings within it.
         /// Style selections should be separated by the | character.
         /// </summary>
         /// <param name="ws"></param>

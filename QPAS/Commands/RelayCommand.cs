@@ -11,8 +11,8 @@ namespace QPAS
 {
     public class RelayCommand<T> : ICommand
     {
-        readonly Action<T> _execute;
-        readonly Predicate<T> _canExecute;
+        private readonly Action<T> _execute;
+        private readonly Predicate<T> _canExecute;
 
         public RelayCommand(Action<T> execute, Predicate<T> canExecute = null)
         {
@@ -38,7 +38,7 @@ namespace QPAS
 
     public class RelayCommand : ICommand
     {
-        readonly Action _execute;
+        private readonly Action _execute;
 
         public RelayCommand(Action execute)
         {

@@ -46,7 +46,6 @@ namespace QPAS
         {
             if (strategy == null) return;
 
-
             int tradesCount = data.Trades.Count(x => x.StrategyID == strategy.ID);
 
             if (tradesCount > 0)

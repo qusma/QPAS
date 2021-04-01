@@ -108,7 +108,6 @@ namespace QPAS
 
             if (result != MessageDialogResult.Affirmative) return;
 
-
             using (var dbContext = _contextFactory.Get())
             {
                 dbContext.Benchmarks.Remove(benchmark);

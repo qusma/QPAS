@@ -4,6 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
 using MathNet.Numerics.Statistics;
 using OxyPlot;
@@ -17,7 +18,6 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using EntityModel;
 
 namespace QPAS
 {
@@ -157,15 +157,15 @@ namespace QPAS
             set => this.RaiseAndSetIfChanged(ref _retVsLengthBestFitLineSlope, value);
         }
 
-
-
         //Histograms
         public List<Tuple<string, double>> MCSharpeHistogramBuckets { get; set; }
+
         public List<Tuple<string, double>> MCMARHistogramBuckets { get; set; }
         public List<Tuple<string, double>> MCKRatioHistogramBuckets { get; set; }
 
         //Benchmark stuff
         public string BenchmarkInstrument { get; set; }
+
         public double BenchmarkAlpha { get; set; }
         public double BenchmarkBeta { get; set; }
         public double BenchmarkRSquare { get; set; }
@@ -177,6 +177,7 @@ namespace QPAS
         //We need to hack around the datatable dbnull issue by using the following two series
         //Since they don't have points across the entire range
         public List<KeyValuePair<int, double>> AvgCumulativeWinnerRets { get; set; }
+
         public List<KeyValuePair<int, double>> AvgCumulativeLoserRets { get; set; }
 
         public PerformanceReportViewModel(filterReportDS data, ReportSettings settings, IDialogCoordinator dialogService) : base(null)
@@ -633,7 +634,6 @@ namespace QPAS
 
             CapitalUsageByStrategyModel = model;
         }
-
 
         private void CreateRelativeCapitalUsageByStrategyChartModel()
         {

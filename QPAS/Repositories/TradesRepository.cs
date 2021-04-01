@@ -95,7 +95,6 @@ namespace QPAS
             }
         }
 
-
         internal async Task CloseTrades(IList trades)
         {
             if (trades == null || trades.Count == 0) return;
@@ -270,8 +269,6 @@ namespace QPAS
             await UpdateTrade(trade).ConfigureAwait(false);
         }
 
-
-
         public async Task AddFXTransaction(Trade trade, FXTransaction fxt)
         {
             if (trade == null) throw new ArgumentNullException(nameof(trade));
@@ -308,7 +305,6 @@ namespace QPAS
             fxt.TradeID = null;
             await UpdateStats(trade);
         }
-
 
         /// <summary>
         /// Does not save the operation
@@ -395,7 +391,6 @@ namespace QPAS
                 trades = new List<Trade> { trade };
             }
 
-
             //The reason we need these: when we hit SaveChanges(), EF sets the Trade
             //to the instance we get from the db, not the one we are using locally
             //so we keep track of the objects in order to reverse that change later
@@ -415,7 +410,6 @@ namespace QPAS
                     {
                         throw new Exception("Trade must already be in db");
                     }
-
 
                     var dbTrade = await dbContext
                         .Trades
@@ -467,7 +461,6 @@ namespace QPAS
                         }
                     }
 
-
                     // ORDERS
                     var toAddOrders = t.Orders.Where(x => !dbTrade.Orders.Any(y => y.ID == x.ID)).ToList();
                     var toRemoveOrders = dbTrade.Orders.Where(x => !t.Orders.Any(y => y.ID == x.ID)).ToList();
@@ -484,7 +477,6 @@ namespace QPAS
                             dbTrade.Orders.Remove(order);
                         }
                     }
-
 
                     // FX TRANSACTIONS
                     var toAddFxts = t.FXTransactions.Where(x => !dbTrade.FXTransactions.Any(y => y.ID == x.ID)).ToList();

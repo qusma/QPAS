@@ -9,53 +9,49 @@
     BorderBrush="Black"
     BorderThickness="1"
     xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
-    Dialog:DialogParticipation.Register="{Binding}"
-    >
+    Dialog:DialogParticipation.Register="{Binding}">
 
     <controls:MetroWindow.Resources>
-
     </controls:MetroWindow.Resources>
-
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
-            <RowDefinition Height="100*"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="100*"/>
-            <RowDefinition Height="34"/>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="100*" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="100*" />
+            <RowDefinition Height="34" />
         </Grid.RowDefinitions>
-        <Label Content="File:" HorizontalAlignment="Left" Margin="10,7,0,0" VerticalAlignment="Top"/>
-        <TextBox IsEnabled="False" Name="FilePathTextBox" Grid.Row="0" 
+        <Label Content="File:" HorizontalAlignment="Left" Margin="10,7,0,0" VerticalAlignment="Top" />
+        <TextBox IsEnabled="False" Name="FilePathTextBox" Grid.Row="0"
                  Text="{Binding FilePath,Mode=OneWay}"
-                 HorizontalAlignment="Left" Height="20" Margin="47,5,0,0" 
-                 TextWrapping="Wrap" VerticalAlignment="Top" Width="426"/>
-        <Button x:Name="SelectFileBtn" Command="{Binding OpenFileCmd}" Grid.Row="0" 
-                Height="20" Content="Select File" HorizontalAlignment="Left" Margin="495,6,0,0" VerticalAlignment="Top" Width="75"/>
+                 HorizontalAlignment="Left" Height="20" Margin="47,5,0,0"
+                 TextWrapping="Wrap" VerticalAlignment="Top" Width="426" />
+        <Button x:Name="SelectFileBtn" Command="{Binding OpenFileCmd}" Grid.Row="0"
+                Height="20" Content="Select File" HorizontalAlignment="Left" Margin="495,6,0,0" VerticalAlignment="Top" Width="75" />
         <Button Grid.Row="0" Content="Help" HorizontalAlignment="Right" Margin="5" Name="HelpBtn" Click="HelpBtn_Click" />
-        <TextBox Name="FileContentsTextBox" AcceptsReturn="True" 
-                 HorizontalAlignment="Stretch" Margin="10,28,10,4" Grid.Row="1" 
+        <TextBox Name="FileContentsTextBox" AcceptsReturn="True"
+                 HorizontalAlignment="Stretch" Margin="10,28,10,4" Grid.Row="1"
                  TextWrapping="NoWrap" VerticalAlignment="Stretch" Text="{Binding RawData,Mode=OneWay}" />
-        <Label Content="Contents:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Grid.Row="1"/>
-        <Label Content="Start At Line:" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="2" VerticalAlignment="Top"/>
-        <Label Content="Delimiter:" HorizontalAlignment="Left" Margin="84,2,0,0" Grid.Row="2" VerticalAlignment="Top"/>
+        <Label Content="Contents:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Grid.Row="1" />
+        <Label Content="Start At Line:" HorizontalAlignment="Left" Margin="5,0,0,0" Grid.Row="2" VerticalAlignment="Top" />
+        <Label Content="Delimiter:" HorizontalAlignment="Left" Margin="84,2,0,0" Grid.Row="2" VerticalAlignment="Top" />
 
-        <DataGrid Name="TheDataGrid" ItemsSource="{Binding RawSplitData}" AutoGenerateColumns="False" 
+        <DataGrid Name="TheDataGrid" ItemsSource="{Binding RawSplitData}" AutoGenerateColumns="False"
                   HorizontalAlignment="Stretch" Margin="10,10,10,5" Grid.Row="4" VerticalAlignment="Stretch">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Date" Binding="{Binding Key}" />
                 <DataGridTextColumn Header="Value" Binding="{Binding Value}" />
             </DataGrid.Columns>
         </DataGrid>
-        <Button Name="ImportBtn" Click="ImportBtn_Click" Content="Import" Margin="0,7,90,0" 
-                Grid.Row="5" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75"/>
-        <Button x:Name="CancelBtn" Click="CancelBtn_Click" Content="Cancel" Margin="0,7,10,0" 
-                Grid.Row="5" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75"/>
+        <Button Name="ImportBtn" Click="ImportBtn_Click" Content="Import" Margin="0,7,90,0"
+                Grid.Row="5" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" />
+        <Button x:Name="CancelBtn" Click="CancelBtn_Click" Content="Cancel" Margin="0,7,10,0"
+                Grid.Row="5" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" />
 
-
-        <ComboBox Name="DelimiterBox" HorizontalAlignment="Left" Margin="84,5,0,0" 
-                  Grid.Row="3" VerticalAlignment="Top" Width="57" 
+        <ComboBox Name="DelimiterBox" HorizontalAlignment="Left" Margin="84,5,0,0"
+                  Grid.Row="3" VerticalAlignment="Top" Width="57"
                   SelectedIndex="0"
                   SelectedItem="{Binding SelectedDelimiter}"
                   Grid.RowSpan="2">
@@ -66,17 +62,15 @@
             <system:String>:</system:String>
             <system:String>Space</system:String>
         </ComboBox>
-        <TextBox Name="StartingLine" HorizontalAlignment="Left" 
+        <TextBox Name="StartingLine" HorizontalAlignment="Left"
                  Text="{Binding SkipLines}"
-                 Margin="10,6,0,0" Grid.Row="3" VerticalAlignment="Top" Width="26" Grid.RowSpan="2"/>
-
+                 Margin="10,6,0,0" Grid.Row="3" VerticalAlignment="Top" Width="26" Grid.RowSpan="2" />
 
         <Label Content="Date Format:" HorizontalAlignment="Left"
-               Margin="5,5,0,0" Grid.Row="5" VerticalAlignment="Top"/>
-        <TextBox Name="DateFormatTextBox" HorizontalAlignment="Left" 
-                 Height="19" Margin="84,6,0,0" Grid.Row="5" 
-                 TextWrapping="Wrap" Text="{Binding DateTimeFormat}" 
-                 VerticalAlignment="Top" Width="179" FontSize="9"/>
-
+               Margin="5,5,0,0" Grid.Row="5" VerticalAlignment="Top" />
+        <TextBox Name="DateFormatTextBox" HorizontalAlignment="Left"
+                 Height="19" Margin="84,6,0,0" Grid.Row="5"
+                 TextWrapping="Wrap" Text="{Binding DateTimeFormat}"
+                 VerticalAlignment="Top" Width="179" FontSize="9" />
     </Grid>
 </controls:MetroWindow>

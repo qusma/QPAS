@@ -54,8 +54,6 @@ namespace QPAS
                 stats.Add("Average Loss ($)", tradePL.Where(x => x <= 0).Average().ToString("c2"));
             }
 
-
-
             if (tradeReturns.Any(x => x > 0) && tradeReturns.Any(x => x < 0))
             {
                 stats.Add("Risk:Reward (%)",
@@ -174,8 +172,6 @@ namespace QPAS
             stats.Add("Worst day", ds.Minimum.ToString("p2"));
             stats.Add("Average Up Day", ec.Returns.Any(x => x > 0) ? ec.Returns.Where(x => x > 0).Average().ToString("p2") : "-");
             stats.Add("Average Down Day", ec.Returns.Any(x => x < 0) ? ec.Returns.Where(x => x < 0).Average().ToString("p2") : "-");
-
-
 
             if (ec.Returns.Any(x => x > 0) && ec.Returns.Any(x => x < 0))
             {

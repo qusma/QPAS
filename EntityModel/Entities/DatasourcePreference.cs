@@ -14,6 +14,7 @@ namespace EntityModel
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
+
         public AssetClass AssetClass { get; set; }
 
         [MaxLength(255)]

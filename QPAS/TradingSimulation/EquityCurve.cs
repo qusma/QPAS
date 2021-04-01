@@ -65,7 +65,6 @@ namespace QPAS
             }
         }
 
-
         /// <summary>
         /// Length between peaks in calendar days.
         /// </summary>
@@ -99,7 +98,7 @@ namespace QPAS
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ret">Net Return</param>
         public void AddReturn(double ret, DateTime? dt = null)
@@ -114,7 +113,7 @@ namespace QPAS
                 Equity.Add(Equity.Last() * (1 + ret));
                 Changes.Add(Equity[Equity.Count - 1] - Equity[Equity.Count - 2]);
             }
-            
+
             _maxEquity = Math.Max(_maxEquity, Equity.Last());
             Returns.Add(ret);
             DrawdownPct.Add(_maxEquity == 0 ? 0 : Equity.Last() / _maxEquity - 1);
@@ -139,7 +138,6 @@ namespace QPAS
                 Equity.Add(Equity[Equity.Count - 1] + change);
             }
 
-            
             Changes.Add(change);
             _maxEquity = Math.Max(_maxEquity, Equity.Last());
             DrawdownPct.Add(_maxEquity == 0 ? 0 : Equity.Last() / _maxEquity - 1);
@@ -164,8 +162,6 @@ namespace QPAS
                 Changes.Add(value - Equity[Equity.Count - 1]);
             }
 
-
-            
             Equity.Add(value);
             _maxEquity = Math.Max(_maxEquity, value);
             DrawdownPct.Add(_maxEquity == 0 ? 0 : value / _maxEquity - 1);

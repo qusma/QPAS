@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
 
 namespace EntityModel
 {
@@ -77,8 +76,9 @@ namespace EntityModel
         public QDMS.Instrument Backtest
         {
             get { return _backtest; }
-            set { 
-                _backtest = value; 
+            set
+            {
+                _backtest = value;
                 OnPropertyChanged();
                 BacktestExternalInstrumentId = value?.ID;
             }

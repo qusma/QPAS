@@ -29,6 +29,5 @@ namespace QPAS
         {
             Dispatcher.InvokeShutdown();
         }
-
     }
 }

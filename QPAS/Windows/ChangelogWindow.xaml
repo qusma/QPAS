@@ -4,9 +4,8 @@
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         Title="Changelog" Height="474" Width="570"
         BorderBrush="Black"
-        BorderThickness="1"
-        >
+        BorderThickness="1">
     <Grid>
-        <TextBox Margin="5" Name="ChangelogText" TextWrapping="Wrap"/>
+        <TextBox Margin="5" Name="ChangelogText" TextWrapping="Wrap" />
     </Grid>
 </controls:MetroWindow>

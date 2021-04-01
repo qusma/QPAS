@@ -117,7 +117,6 @@ namespace QPAS
                 return;
             }
 
-
             await this.ShowMessageAsync(
                 "Done",
                 "Data deleted. The application will now shut down.");

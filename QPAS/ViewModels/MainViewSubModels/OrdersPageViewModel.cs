@@ -32,7 +32,6 @@ namespace QPAS
         private Logger _logger = LogManager.GetCurrentClassLogger();
         internal ExecutionStatsGenerator ExecutionStatsGenerator;
 
-
         public ICommand Delete { get; private set; }
         public ICommand CloneSelected { get; private set; }
         public ICommand SetExecutionReportOrders { get; private set; }
@@ -119,7 +118,6 @@ namespace QPAS
                 }
             }
 
-
             using (var dbContext = _contextFactory.Get())
             {
                 foreach (Order o in selectedOrders)
@@ -143,7 +141,7 @@ namespace QPAS
         }
 
         /// <summary>
-        /// Splits one order into two different virtual orders with a given share size. 
+        /// Splits one order into two different virtual orders with a given share size.
         /// Used when one order needs to be assigned to two trades.
         /// </summary>
         /// <param name="size"></param>

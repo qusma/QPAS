@@ -4,7 +4,6 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-
 using EntityModel;
 using NLog;
 using System;
@@ -38,6 +37,7 @@ namespace QPAS
         /// Key: instrument ID
         /// </summary>
         private readonly Dictionary<int, TimeSeries> _data;
+
         private readonly Dictionary<int, TimeSeries> _fxData;
 
         private readonly Dictionary<DateTime, List<CashTransaction>> _cashTransactionsByDate;
@@ -107,7 +107,6 @@ namespace QPAS
         {
             //select the orders from today
             var todaysOrders = _allOrders.Where(x => x.TradeDate.Date == date).ToList();
-
 
             foreach (Order o in todaysOrders)
             {

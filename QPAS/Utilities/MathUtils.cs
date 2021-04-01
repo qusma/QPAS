@@ -18,7 +18,7 @@ namespace QPAS
     public static class MathUtils
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="values"></param>
         /// <param name="percentile"></param>

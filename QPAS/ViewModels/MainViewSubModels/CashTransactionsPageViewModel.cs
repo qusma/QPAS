@@ -35,7 +35,6 @@ namespace QPAS
             CashTransactionsSource.Source = CashTransactions;
             CashTransactionsSource.View.SortDescriptions.Add(new SortDescription("TransactionDate", ListSortDirection.Descending));
 
-
             CreateCommands();
             this.contextFactory = contextFactory;
         }
@@ -77,8 +76,6 @@ namespace QPAS
                 }
                 context.SaveChanges();
             }
-
-
         }
     }
 }

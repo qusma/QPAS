@@ -1,5 +1,4 @@
-﻿
-using System.Windows;
+﻿using System.Windows;
 
 namespace QPAS
 {
@@ -26,6 +25,7 @@ namespace QPAS
         /// Allow querying of external datasources rather than the local db only
         /// </summary>
         public bool QdmsAllowFreshData { get; set; } = false;
+
         public bool AllowExternalDataSource { get; set; } = false;
         public decimal OptionsCapitalUsageMultiplier { get; set; } = 0.1m;
         public bool TotalCapitalAlwaysUsesAllAccounts { get; set; } = true;
@@ -36,6 +36,5 @@ namespace QPAS
         public double Top { get; set; }
         public double Left { get; set; }
         public WindowState WindowState { get; set; }
-
     }
 }

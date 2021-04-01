@@ -135,7 +135,7 @@ namespace QPAS
                     count++;
                 }
                 startDate += 1;
-            } 
+            }
 
             return count;
         }

@@ -55,11 +55,11 @@ namespace QPAS
                 case FilterMethod.Any:
                     trades = trades.Where(x => selectedStrategies.Contains(x.Strategy)).ToList();
                     break;
+
                 case FilterMethod.Exclude:
                     trades = trades.Where(x => !selectedStrategies.Contains(x.Strategy)).ToList();
                     break;
             }
-
 
             //filter by tags
             switch (settings.TagFilterMethod)
@@ -67,9 +67,11 @@ namespace QPAS
                 case FilterMethod.Any:
                     trades = trades.Where(x => selectedTags.Intersect(x.Tags).Any()).ToList();
                     break;
+
                 case FilterMethod.All:
                     trades = trades.Where(x => selectedTags.Intersect(x.Tags).Count() == selectedTags.Count).ToList();
                     break;
+
                 case FilterMethod.Exclude:
                     trades = trades.Where(x => !selectedTags.Intersect(x.Tags).Any()).ToList();
                     break;

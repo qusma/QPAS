@@ -38,12 +38,12 @@
 
         <ObjectDataProvider x:Key="AssetClasses" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type Type="qdms:AssetClass"/>
+                <x:Type Type="qdms:AssetClass" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
 
-        <Style TargetType="DataGridColumnHeader" x:Key="FilterStyle" BasedOn="{StaticResource {ComponentResourceKey 
-		                       TypeInTargetAssembly={x:Type filterLibrary:DataGridHeaderFilterControl}, 
+        <Style TargetType="DataGridColumnHeader" x:Key="FilterStyle" BasedOn="{StaticResource {ComponentResourceKey
+		                       TypeInTargetAssembly={x:Type filterLibrary:DataGridHeaderFilterControl},
 		                       ResourceId=DataGridHeaderFilterControlStyle}}">
             <Setter Property="Padding" Value="5,4,4,5" />
         </Style>
@@ -74,7 +74,7 @@
                 <ControlTemplate>
                     <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
                         <TextBlock Text="New Trade: "  Margin="0,5,0,0" />
-                        <TextBox Width="150" Margin="10,0,0,0" 
+                        <TextBox Width="150" Margin="10,0,0,0"
                                      KeyDown="OrdersContextMenuNewTradeTextBox_KeyDown"
                                      Name="OrdersContextMenuNewTradeTextBox" />
                     </StackPanel>
@@ -96,21 +96,21 @@
                     <ControlTemplate>
                         <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
                             <TextBlock Text="Create Virtual Trades, Size: "  Margin="0,5,0,0" />
-                            <TextBox Width="30" Margin="10,0,0,0" 
+                            <TextBox Width="30" Margin="10,0,0,0"
                                      KeyDown="VirtualTradeSizeTextBox_KeyDown"
                                      Name="VirtualTradeSizeTextBox" />
                         </StackPanel>
                     </ControlTemplate>
                 </MenuItem.Template>
             </MenuItem>
-            <MenuItem Header="Run User Scripts" Name="OrdersGridUserScriptsBtn" 
+            <MenuItem Header="Run User Scripts" Name="OrdersGridUserScriptsBtn"
                       Command="{Binding RunScripts}"
                       CommandParameter="{Binding ElementName=OrdersGrid,Path=SelectedItems}">
                 <MenuItem.Icon>
                     <Image Source="../Resources/script.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            
+
             <MenuItem Header="Generate Execution Report" Name="OrdersGridGenExecutionReportBtn"
                       Command="{Binding SetExecutionReportOrders}"
                       CommandParameter="{Binding ElementName=OrdersGrid,Path=SelectedItems}">
@@ -121,7 +121,7 @@
         </ContextMenu>
 
         <ContextMenu x:Key="TagsGridContextMenu" qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
-            <MenuItem Header="Delete" Name="TagsGridContextMenuDeleteBtn" 
+            <MenuItem Header="Delete" Name="TagsGridContextMenuDeleteBtn"
                       Command="{Binding Delete}"
                       CommandParameter="{Binding ElementName=TagsGrid,Path=SelectedItems}">
                 <MenuItem.Icon>
@@ -129,7 +129,7 @@
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
-            <MenuItem Header="Report For Selected Tag(s)" Name="TagsGridContextMenuReportBtn" 
+            <MenuItem Header="Report For Selected Tag(s)" Name="TagsGridContextMenuReportBtn"
                       Command="{Binding Parent.GenerateReportFromTags}"
                       CommandParameter="{Binding ElementName=TagsGrid,Path=SelectedItems}">
                 <MenuItem.Icon>
@@ -168,8 +168,8 @@
         <ContextMenu x:Key="TradesGridContextMenu" Opened="ContextMenu_Opened" qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
             <StaticResource ResourceKey="TradesGridSetTagSubMenu" />
             <StaticResource ResourceKey="TradesGridSetStrategySubMenu" />
-            
-            <MenuItem Header="Delete" Name="TradesGridContextMenuDeleteBtn" 
+
+            <MenuItem Header="Delete" Name="TradesGridContextMenuDeleteBtn"
                       Command="{Binding Delete}"
                       CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
                 <MenuItem.Icon>
@@ -190,15 +190,15 @@
                     <Image Source="../Resources/Refresh.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Run User Scripts" Name="TradesGridUserScriptsBtn" 
+            <MenuItem Header="Run User Scripts" Name="TradesGridUserScriptsBtn"
                       Command="{Binding RunScripts}"
                       CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
                 <MenuItem.Icon>
                     <Image Source="../Resources/script.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <Separator/>
-            
+            <Separator />
+
             <MenuItem Header="Open" Name="TradesGridContextMenuOpenBtn"
                       Command="{Binding OpenTrades}"
                       CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
@@ -207,12 +207,11 @@
                       Command="{Binding CloseTrades}"
                       CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
             </MenuItem>
-            
-            <Separator/>
+
+            <Separator />
             <MenuItem Header="Copy Tags" Name="TradesGridContextMenuCopyTagsBtn"
                       Click="TradesGridContextMenuCopyTagsBtn_Click"
-                      IsEnabled="{Binding ElementName=TradesGrid,Path=SelectedItems.Count, Converter={qc:QuickConverter '$P == 1'}}"
-                      >
+                      IsEnabled="{Binding ElementName=TradesGrid,Path=SelectedItems.Count, Converter={qc:QuickConverter '$P == 1'}}">
                 <MenuItem.Icon>
                     <Image Source="../Resources/Copy.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
                 </MenuItem.Icon>
@@ -224,7 +223,7 @@
                 </MenuItem.Icon>
             </MenuItem>
 
-            <Separator/>
+            <Separator />
             <MenuItem Header="Report From Selected Trades" Name="TradesGridContextMenuReportBtn"
                         Command="{Binding Parent.GenerateReportFromTrades}"
                       CommandParameter="{Binding ElementName=TradesGrid,Path=SelectedItems}">
@@ -241,7 +240,7 @@
         </MenuItem>
 
         <ContextMenu x:Key="CashTransactionsGridContextMenu" Opened="CashTransactionsGridContextMenu_OnOpened" qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
-            <MenuItem Name="DeleteCashTransactionBtn" Header="Delete" 
+            <MenuItem Name="DeleteCashTransactionBtn" Header="Delete"
                       Command="{Binding Delete}"
                       CommandParameter="{Binding ElementName=CashTransactionsGrid, Path=SelectedItems}">
                 <MenuItem.Icon>
@@ -251,9 +250,6 @@
             <StaticResource ResourceKey="CashTransactionsGridSetTradeSubMenu" />
         </ContextMenu>
 
-        
-        
-        
         <MenuItem x:Key="FxTransactionsGridSetTradeSubMenu" Header="Set Trade">
             <MenuItem.Icon>
                 <Image Source="../Resources/TradesIcon.png" RenderOptions.BitmapScalingMode="NearestNeighbor" Height="16" />
@@ -261,7 +257,7 @@
         </MenuItem>
 
         <ContextMenu x:Key="FxTransactionsGridContextMenu" Opened="FxTransactionsGridContextMenu_OnOpened" qpas:ElementSpy.NameScopeSource="{StaticResource spy}">
-            <MenuItem Name="DeleteFxTransactionBtn" Header="Delete" 
+            <MenuItem Name="DeleteFxTransactionBtn" Header="Delete"
                       Command="{Binding Delete}"
                       CommandParameter="{Binding ElementName=FXTransactionsGrid, Path=SelectedItems}">
                 <MenuItem.Icon>
@@ -274,37 +270,36 @@
     </controls:MetroWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="470*"/>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="470*" />
+            <RowDefinition Height="30" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="185"/>
-            <ColumnDefinition Width="1"/>
-            <ColumnDefinition Width="696*"/>
+            <ColumnDefinition Width="185" />
+            <ColumnDefinition Width="1" />
+            <ColumnDefinition Width="696*" />
         </Grid.ColumnDefinitions>
 
         <Menu Background="WhiteSmoke" Grid.Row="0" Grid.ColumnSpan="2">
             <MenuItem Header="_File">
-                <MenuItem Header="_Exit" x:Name="BtnExit" Click="BtnExit_ItemClick"/>
+                <MenuItem Header="_Exit" x:Name="BtnExit" Click="BtnExit_ItemClick" />
             </MenuItem>
             <MenuItem Header="_Tools">
                 <MenuItem Header="Load Statement From Web" x:Name="LoadStatementFromWebBtn" />
                 <MenuItem Header="Load Statement From File" x:Name="LoadStatementFromFileBtn" />
-                <Separator/>
+                <Separator />
                 <MenuItem Header="Scripts" x:Name="ScriptsBtn" Click="ScriptsBtn_Click" />
-                <Separator/>
+                <Separator />
                 <MenuItem Header="Settings" x:Name="SettingsBtn" Click="SettingsBtn_Click" />
             </MenuItem>
             <MenuItem Header="_Help">
-                <MenuItem Header="Documentation" x:Name="DocumentationBtn" Click="DocumentationBtn_OnClick"/>
-                <MenuItem Header="About" x:Name="AboutBtn" Click="AboutBtn_Click"/>
+                <MenuItem Header="Documentation" x:Name="DocumentationBtn" Click="DocumentationBtn_OnClick" />
+                <MenuItem Header="About" x:Name="AboutBtn" Click="AboutBtn_Click" />
             </MenuItem>
         </Menu>
 
-
         <TreeView Grid.Column="0" Grid.Row="1" RenderOptions.BitmapScalingMode="NearestNeighbor"
-                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" SelectedItemChanged="TreeView_SelectedItemChanged" >
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" SelectedItemChanged="TreeView_SelectedItemChanged">
             <TreeViewItem IsExpanded="True">
                 <TreeViewItem.Header>
                     <StackPanel Orientation="Horizontal">
@@ -428,38 +423,37 @@
         <Rectangle Stroke="Black" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
         <TabControl Grid.Column="2"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="MainTabCtl" Grid.Row="0" Grid.RowSpan="2" >
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="MainTabCtl" Grid.Row="0" Grid.RowSpan="2">
             <TabItem Header="OpenPositions" DataContext="{Binding OpenPositionsPageViewModel}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="254*"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="70*"/>
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="254*" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="70*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="75*"/>
-                        <ColumnDefinition Width="25*"/>
+                        <ColumnDefinition Width="75*" />
+                        <ColumnDefinition Width="25*" />
                     </Grid.ColumnDefinitions>
-                    
+
                     <DockPanel Grid.Row="0" Grid.Column="0">
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                            <TextBlock Text="Account:" Foreground="DimGray" FontSize="22"/>
-                            <ComboBox Margin="5,3,5,3" ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="AccountId"  />
+                            <TextBlock Text="Account:" Foreground="DimGray" FontSize="22" />
+                            <ComboBox Margin="5,3,5,3" ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="AccountId" />
                         </StackPanel>
-                        <TextBlock Text="Open Positions" DockPanel.Dock="Left" Foreground="DimGray" FontSize="22"/>
+                        <TextBlock Text="Open Positions" DockPanel.Dock="Left" Foreground="DimGray" FontSize="22" />
                     </DockPanel>
-                    <DataGrid 
-                        Grid.Row="1" 
-                        Grid.Column="0" 
-                        Name="OpenPositionsGrid" 
-                        IsReadOnly="True" 
-                        Margin="0,10,0,0" 
+                    <DataGrid
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Name="OpenPositionsGrid"
+                        IsReadOnly="True"
+                        Margin="0,10,0,0"
                         AutoGenerateColumns="False"
                         CanUserAddRows="False"
                         CanUserDeleteRows="False"
-                        ItemsSource="{Binding OpenPositions}"
-                        >
+                        ItemsSource="{Binding OpenPositions}">
 
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Side" SortMemberPath="Side" ClipboardContentBinding="{Binding Side}"
@@ -475,45 +469,45 @@
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Symbol" Binding="{Binding Instrument.Symbol}"
-                                                DisplayIndex="1" Width="70"/>
-                            <DataGridTemplateColumn SortMemberPath="Instrument.AssetCategory" 
+                                                DisplayIndex="1" Width="70" />
+                            <DataGridTemplateColumn SortMemberPath="Instrument.AssetCategory"
                                                     DisplayIndex="2" Width="52"
                                                     ClipboardContentBinding="{Binding Instrument.AssetCategory}"
-                                                    Header="Type" 
+                                                    Header="Type"
                                                     CellTemplate="{StaticResource InstrumentAssetClassCellTemplate}" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="3" Width="80"
                                                 Header="Position" Binding="{Binding Quantity}" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="4" Width="60"
                                                 Header="Value" Binding="{Binding PositionValue, StringFormat={}{0:c2}}" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="5" Width="120"
                                                 CellStyle="{StaticResource ProfitBGColorStyle}"
                                                 Header="Unrealized PnL" Binding="{Binding UnrealizedPnL, StringFormat={}{0:c2}}" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="6" Width="90"
                                                 Header="Cost Basis" Binding="{Binding CostBasisDollars, StringFormat={}{0:c2}}" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="7" Width="95"
                                                 Header="Mark Price" Binding="{Binding MarkPrice, StringFormat={}{0:0.00###}}" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="% of NAV" 
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" Header="% of NAV"
                                                 DisplayIndex="8" Width="80"
                                                 Binding="{Binding PercentOfNAV, Converter={StaticResource DivideByHundredConverter}, StringFormat={}{0:p1}}" />
                             <DataGridTextColumn Header="Currency" Binding="{Binding Currency.Name}"
-                                                DisplayIndex="9" Width="85"/>
+                                                DisplayIndex="9" Width="85" />
                             <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}"
-                                                DisplayIndex="10" Width="80"/>
+                                                DisplayIndex="10" Width="80" />
                         </DataGrid.Columns>
                     </DataGrid>
 
                     <Label Content="FX Positions" FontSize="22" Grid.Row="2" Grid.Column="0" Foreground="DimGray" Margin="0,-5,0,0" />
 
                     <DataGrid Name="ForexPositionsGrid"
-                        Grid.Row="3" 
-                        Grid.Column="0" 
-                        IsReadOnly="True" 
-                        Margin="0,10,0,0" 
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        IsReadOnly="True"
+                        Margin="0,10,0,0"
                         AutoGenerateColumns="False"
                         CanUserAddRows="False"
                         CanUserDeleteRows="False"
@@ -528,7 +522,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <oxy:PlotView Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" 
+                    <oxy:PlotView Grid.Column="1" Grid.Row="0" Grid.RowSpan="4"
                                   Model="{Binding UnrealizedPnLChartModel}"
                                   Name="UnrealizedPnLChart" IsMouseWheelEnabled="False" />
                 </Grid>
@@ -536,35 +530,34 @@
             <TabItem Header="Instruments" DataContext="{Binding InstrumentsPageViewModel}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="300*"/>
+                        <RowDefinition Height="300*" />
                         <RowDefinition Height="4" MaxHeight="4" MinHeight="4" />
-                        <RowDefinition Height="150*"/>
+                        <RowDefinition Height="150*" />
                     </Grid.RowDefinitions>
 
                     <DataGrid Grid.RowSpan="1" Name="InstrumentsGrid" AutoGenerateColumns="False"
                               filterLibrary:DataGridExtensions.UseBackgroundWorkerForFiltering="True"
                               ColumnHeaderStyle="{StaticResource FilterStyle}"
                               SelectedItem="{Binding SelectedInstrument, Mode=OneWayToSource}"
-                              CanUserAddRows="False" 
+                              CanUserAddRows="False"
                               CanUserDeleteRows="False"
                               Margin="0,-5,0,5"
-                              RowEditEnding="DataGrid_RowEditEnding" 
+                              RowEditEnding="DataGrid_RowEditEnding"
                               Grid.ColumnSpan="2"
                               ItemsSource="{Binding InstrumentsSource.View}"
-                              SelectionChanged="InstrumentsGrid_SelectionChanged"
-                              >
+                              SelectionChanged="InstrumentsGrid_SelectionChanged">
 
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Width="40" 
+                            <DataGridTextColumn Header="ID" Width="40"
                                                 DisplayIndex="0"
                                                 Binding="{Binding Path=ID}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Symbol" 
+                            <DataGridTextColumn Header="Symbol"
                                                 DisplayIndex="1" Width="130"
                                                 Binding="{Binding Path=Symbol}" SortDirection="Ascending" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Underlying" 
+                            <DataGridTextColumn Header="Underlying"
                                                 DisplayIndex="2" Width="75"
                                                 Binding="{Binding Path=UnderlyingSymbol}" IsReadOnly="True" />
-                            <DataGridComboBoxColumn Header="Type" 
+                            <DataGridComboBoxColumn Header="Type"
                                                     DisplayIndex="3" Width="75"
                                                     filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="AssetCategory"
                                                     ItemsSource="{Binding Source={StaticResource AssetClasses}}"
@@ -572,51 +565,51 @@
                                                     IsReadOnly="True"
                                                     ElementStyle="{StaticResource AssetClassComboBox}">
                             </DataGridComboBoxColumn>
-                            <DataGridTextColumn Header="Description" 
+                            <DataGridTextColumn Header="Description"
                                                 DisplayIndex="4" Width="190"
                                                 Binding="{Binding Path=Description}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Mult" 
+                            <DataGridTextColumn Header="Mult"
                                                 DisplayIndex="5" Width="75"
                                                 Binding="{Binding Path=Multiplier}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Expiration" 
+                            <DataGridTextColumn Header="Expiration"
                                                 DisplayIndex="6" Width="135"
                                                 Binding="{Binding Path=Expiration, StringFormat=yyyy-MM-dd}" IsReadOnly="True" />
 
-                            <DataGridTextColumn Header="Opt. Type" 
+                            <DataGridTextColumn Header="Opt. Type"
                                                 DisplayIndex="7" Width="75"
                                                 Binding="{Binding Path=OptionType}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Strike" 
+                            <DataGridTextColumn Header="Strike"
                                                 DisplayIndex="8" Width="75"
                                                 Binding="{Binding Path=Strike, StringFormat={}{0:#.#####;;}}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="ConID" 
+                            <DataGridTextColumn Header="ConID"
                                                 DisplayIndex="9" Width="75"
                                                 Binding="{Binding Path=ConID}" IsReadOnly="True" />
 
-                            <DataGridComboBoxColumn filterLibrary:DataGridColumnExtensions.DoNotGenerateFilterControl="True"  
+                            <DataGridComboBoxColumn filterLibrary:DataGridColumnExtensions.DoNotGenerateFilterControl="True"
                                                     DisplayIndex="10" Width="170"
-                                                    x:Name="QDMSInstrumentComboBox" 
+                                                    x:Name="QDMSInstrumentComboBox"
                                                     DisplayMemberPath="Key"
                                                     SelectedValuePath="Value"
                                                     SelectedValueBinding="{Binding QDMSInstrumentID}"
                                                     Header="QDMS Instrument">
                                 <DataGridComboBoxColumn.ElementStyle>
                                     <Style TargetType="ComboBox">
-                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.InstrumentsPageViewModel.ExternalInstruments}"/>
-                                        <Setter Property="IsReadOnly" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.InstrumentsPageViewModel.IsExternalClientConnected, Converter={StaticResource InvertBooleanConverter}}"/>
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.InstrumentsPageViewModel.ExternalInstruments}" />
+                                        <Setter Property="IsReadOnly" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.InstrumentsPageViewModel.IsExternalClientConnected, Converter={StaticResource InvertBooleanConverter}}" />
                                     </Style>
                                 </DataGridComboBoxColumn.ElementStyle>
                                 <DataGridComboBoxColumn.EditingElementStyle>
                                     <Style TargetType="ComboBox">
-                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.InstrumentsPageViewModel.ExternalInstruments}"/>
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.InstrumentsPageViewModel.ExternalInstruments}" />
                                     </Style>
                                 </DataGridComboBoxColumn.EditingElementStyle>
                             </DataGridComboBoxColumn>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <GridSplitter Grid.Row="1" Height="4" 
+                    <GridSplitter Grid.Row="1" Height="4"
                                   ResizeBehavior="PreviousAndNext"
                                   ResizeDirection="Rows"
-                                  VerticalAlignment="Top" 
+                                  VerticalAlignment="Top"
                                   HorizontalAlignment="Stretch" Grid.ColumnSpan="2" />
 
                     <Grid Grid.Row="2" Grid.ColumnSpan="2">
@@ -642,7 +635,7 @@
                             </Button>
 
                             <TextBlock FontSize="18" Margin="15,2,0,0">Strategy:</TextBlock>
-                            <ComboBox Name="InstrumentsChartStrategyFilterComboBox" 
+                            <ComboBox Name="InstrumentsChartStrategyFilterComboBox"
                                       SelectedItem="{Binding SelectedStrategyName, Mode=OneWayToSource}"
                                       ItemsSource="{Binding StrategyNames}"
                                         SelectedIndex="0" Height="20" Margin="5,0">
@@ -652,20 +645,19 @@
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
                             </ComboBox>
-                            <Separator Margin="15,0,10,0"/>
+                            <Separator Margin="15,0,10,0" />
 
-                            <CheckBox Name="InstrumentsChartAnnotationsCheckBox" 
+                            <CheckBox Name="InstrumentsChartAnnotationsCheckBox"
                                         Command="{Binding UpdateChartCommand}"
-                                      IsChecked="{Binding ShowOrderAnnotations}"
-                                      />
+                                      IsChecked="{Binding ShowOrderAnnotations}" />
                             <TextBlock FontSize="18" Margin="5,2,0,0">Show Order Annotations</TextBlock>
 
-                            <Separator Margin="10,0,10,0"/>
+                            <Separator Margin="10,0,10,0" />
 
-                            <CheckBox Name="InstrumentsChartAnnotationQuantitiesCheckBox" 
+                            <CheckBox Name="InstrumentsChartAnnotationQuantitiesCheckBox"
                                         Command="{Binding UpdateChartCommand}"
                                       IsChecked="{Binding ShowQuantityAnnotations}"
-                                      IsEnabled="{Binding ElementName=InstrumentsChartAnnotationsCheckBox,Path=IsChecked}"/>
+                                      IsEnabled="{Binding ElementName=InstrumentsChartAnnotationsCheckBox,Path=IsChecked}" />
                             <TextBlock FontSize="18" Margin="5,2,0,0">Show Quantities</TextBlock>
                         </StackPanel>
 
@@ -676,23 +668,22 @@
             </TabItem>
             <TabItem Header="Strategies" DataContext="{Binding StrategiesPageViewModel}">
                 <Grid>
-                    <DataGrid Name="StrategiesGrid" 
+                    <DataGrid Name="StrategiesGrid"
                               AutoGenerateColumns="False"
-                              CanUserAddRows="True" 
+                              CanUserAddRows="True"
                               CanUserDeleteRows="False"
                               Margin="0"
                               RowEditEnding="DataGrid_RowEditEnding"
                               ItemsSource="{Binding StrategiesSource.View}"
                               SelectionMode="Single"
-                              ContextMenu="{StaticResource StrategiesGridContextMenu}"
-                              >
+                              ContextMenu="{StaticResource StrategiesGridContextMenu}">
                         <DataGrid.InputBindings>
-                            <KeyBinding Key="Delete" 
-                                        Command="{Binding Delete}" 
+                            <KeyBinding Key="Delete"
+                                        Command="{Binding Delete}"
                                         CommandParameter="{Binding ElementName=StrategiesGrid, Path=SelectedItem}" />
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" DisplayIndex="0" Width="36" Binding="{Binding Path=ID}" IsReadOnly="True"  />
+                            <DataGridTextColumn Header="ID" DisplayIndex="0" Width="36" Binding="{Binding Path=ID}" IsReadOnly="True" />
                             <DataGridTextColumn Header="Name" DisplayIndex="1" Width="150" Binding="{Binding Path=Name}" IsReadOnly="False" />
                         </DataGrid.Columns>
                     </DataGrid>
@@ -715,7 +706,7 @@
                         </Border>
                     </Popup>
 
-                    <DataGrid Name="TradesGrid" 
+                    <DataGrid Name="TradesGrid"
                             AutoGenerateColumns="False"
                             filterLibrary:DataGridExtensions.UseBackgroundWorkerForFiltering="True"
                             ColumnHeaderStyle="{StaticResource FilterStyle}"
@@ -727,88 +718,86 @@
                             CellEditEnding="TradesGrid_CellEditEnding"
                             ItemsSource="{Binding TradesSource.View}"
                             ContextMenu="{StaticResource TradesGridContextMenu}"
-                             MouseDoubleClick="TradesGrid_MouseDoubleClick"
-                             >
+                             MouseDoubleClick="TradesGrid_MouseDoubleClick">
                         <DataGrid.InputBindings>
-                            <KeyBinding Key="Delete" 
-                                        Command="{Binding Delete}" 
+                            <KeyBinding Key="Delete"
+                                        Command="{Binding Delete}"
                                         CommandParameter="{Binding ElementName=TradesGrid, Path=SelectedItems}" />
                         </DataGrid.InputBindings>
 
                         <DataGrid.Columns>
-                            <DataGridComboBoxColumn x:Name="TradesGridStrategyColumn"  
+                            <DataGridComboBoxColumn x:Name="TradesGridStrategyColumn"
                                                     DisplayIndex="0" Width="85"
-                                                    Header="Strategy" 
+                                                    Header="Strategy"
                                                     filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="Strategy.Name"
                                                     filterLibrary:DataGridComboBoxExtensions.IsTextFilter="True"
                                                     SelectedItemBinding="{Binding Path=Strategy}"
                                                     DisplayMemberPath="Name">
                                 <DataGridComboBoxColumn.ElementStyle>
                                     <Style TargetType="ComboBox">
-                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.TradesPageViewModel.Strategies}"/>
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.TradesPageViewModel.Strategies}" />
                                     </Style>
                                 </DataGridComboBoxColumn.ElementStyle>
                                 <DataGridComboBoxColumn.EditingElementStyle>
                                     <Style TargetType="ComboBox">
-                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.TradesPageViewModel.Strategies}"/>
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.TradesPageViewModel.Strategies}" />
                                     </Style>
                                 </DataGridComboBoxColumn.EditingElementStyle>
                             </DataGridComboBoxColumn>
-                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" 
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}"
                                                 DisplayIndex="1" Width="200"
-                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True"/>
-                            <DataGridCheckBoxColumn Header="Open" 
+                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True" />
+                            <DataGridCheckBoxColumn Header="Open"
                                                     DisplayIndex="2" Width="40"
                                                     Binding="{Binding Open}" />
-                            <DataGridTextColumn Header="Opened" Width="110" IsReadOnly="True"  
+                            <DataGridTextColumn Header="Opened" Width="110" IsReadOnly="True"
                                                 DisplayIndex="3"
                                                 Binding="{Binding DateOpened, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"
-                                                SortDirection="Descending"/>
-                            <DataGridTextColumn Header="Closed" Width="110" IsReadOnly="True" 
+                                                SortDirection="Descending" />
+                            <DataGridTextColumn Header="Closed" Width="110" IsReadOnly="True"
                                                 DisplayIndex="4"
-                                                Binding="{Binding DateClosed, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}"/>
-                            <DataGridTextColumn Header="Length" IsReadOnly="True" 
+                                                Binding="{Binding DateClosed, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
+                            <DataGridTextColumn Header="Length" IsReadOnly="True"
                                                 DisplayIndex="5" Width="95"
-                                                Binding="{Binding Length, Converter={StaticResource TimeSpanToStringConverter}}"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Binding="{Binding Length, Converter={StaticResource TimeSpanToStringConverter}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True"
                                                 DisplayIndex="6" Width="75"
-                                                Header="% Ret." Binding="{Binding ResultPct, StringFormat={}{0:p2}}"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="% Ret." Binding="{Binding ResultPct, StringFormat={}{0:p2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True"
                                                 DisplayIndex="7" Width="75"
-                                                Header="$ Ret." Binding="{Binding ResultDollars, StringFormat={}{0:c2}}"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="$ Ret." Binding="{Binding ResultDollars, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True"
                                                 DisplayIndex="8" Width="85"
-                                                Header="Commissions" Binding="{Binding Commissions, StringFormat={}{0:c2}}"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Commissions" Binding="{Binding Commissions, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True"
                                                 DisplayIndex="9" Width="75"
-                                                Header="Capital Long" Binding="{Binding CapitalLong, StringFormat={}{0:c2}}"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Capital Long" Binding="{Binding CapitalLong, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True"
                                                 DisplayIndex="10" Width="75"
-                                                Header="Capital Short" Binding="{Binding CapitalShort, StringFormat={}{0:c2}}"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Capital Short" Binding="{Binding CapitalShort, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True"
                                                 DisplayIndex="11" Width="75"
-                                                Header="Total Capital" Binding="{Binding CapitalTotal, StringFormat={}{0:c2}}"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Total Capital" Binding="{Binding CapitalTotal, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True"
                                                 DisplayIndex="12" Width="75"
-                                                Header="Net Capital" Binding="{Binding CapitalNet, StringFormat={}{0:c2}}"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Net Capital" Binding="{Binding CapitalNet, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True"
                                                 DisplayIndex="13" Width="75"
-                                                Header="Unr. $ Ret." Binding="{Binding UnrealizedResultDollars, StringFormat={}{0:c2}}"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Unr. $ Ret." Binding="{Binding UnrealizedResultDollars, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True"
                                                 DisplayIndex="14" Width="75"
-                                                Header="Unr. % Ret." Binding="{Binding UnrealizedResultPct, StringFormat={}{0:p2}}"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="Unr. % Ret." Binding="{Binding UnrealizedResultPct, StringFormat={}{0:p2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True"
                                                 DisplayIndex="15" Width="75"
-                                                Header="$ Ret. Long" Binding="{Binding ResultDollarsLong, StringFormat={}{0:c2}}"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True" 
+                                                Header="$ Ret. Long" Binding="{Binding ResultDollarsLong, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" IsReadOnly="True"
                                                 DisplayIndex="16" Width="85"
-                                                Header="$ Ret. Short" Binding="{Binding ResultDollarsShort, StringFormat={}{0:c2}}"/>
+                                                Header="$ Ret. Short" Binding="{Binding ResultDollarsShort, StringFormat={}{0:c2}}" />
 
-                            <DataGridTextColumn Header="Tags" 
-                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True" 
+                            <DataGridTextColumn Header="Tags"
+                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True"
                                                 DisplayIndex="17" Width="345"
-                                                Binding="{Binding TagString}"
-                                                 />
+                                                Binding="{Binding TagString}" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -816,16 +805,16 @@
             <TabItem Header="Orders" DataContext="{Binding OrdersPageViewModel}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="150*"/>
-                        <RowDefinition Height="30"/>
-                        <RowDefinition Height="50*"/>
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="150*" />
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="50*" />
                     </Grid.RowDefinitions>
 
-                    <Popup Name="OrdersGridTradePickerPopup" 
-                           Height="600" 
-                           Width="300" 
-                           Focusable="True" 
+                    <Popup Name="OrdersGridTradePickerPopup"
+                           Height="600"
+                           Width="300"
+                           Focusable="True"
                            StaysOpen="True">
                         <Border BorderBrush="Black" BorderThickness="1">
                             <Grid>
@@ -848,7 +837,7 @@
                                 <Rectangle Stroke="Black" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
                                 <DockPanel Grid.Row="2" HorizontalAlignment="Stretch" Background="White">
-                                    <TextBlock DockPanel.Dock="Left" Margin="5" Text="Add New:"/>
+                                    <TextBlock DockPanel.Dock="Left" Margin="5" Text="Add New:" />
                                     <TextBox Name="TradePickerNewTradeTextBox" Margin="5" PreviewMouseDown="TradePickerNewTradeTextBox_PreviewMouseDown"
                                              HorizontalAlignment="Stretch" KeyDown="TradePickerNewTradeTextBox_KeyDown" />
                                 </DockPanel>
@@ -869,13 +858,13 @@
                         RowEditEnding="DataGrid_RowEditEnding"
                         BeginningEdit="OrdersGrid_BeginningEdit"
                         CellEditEnding="OrdersGrid_CellEditEnding"
-                        ContextMenu="{StaticResource OrdersGridContextMenu}" 
+                        ContextMenu="{StaticResource OrdersGridContextMenu}"
                         ItemsSource="{Binding OrdersSource.View}"
                         SelectedItem="{Binding SelectedOrder,Mode=OneWayToSource}"
                         Grid.Row="1">
                         <DataGrid.InputBindings>
-                            <KeyBinding Key="Delete" 
-                                        Command="{Binding Delete}" 
+                            <KeyBinding Key="Delete"
+                                        Command="{Binding Delete}"
                                         CommandParameter="{Binding ElementName=OrdersGrid, Path=SelectedItems}" />
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
@@ -885,11 +874,11 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Source="../Resources/lock.png" 
-                                                   RenderOptions.BitmapScalingMode="NearestNeighbor" 
+                                            <Image Source="../Resources/lock.png"
+                                                   RenderOptions.BitmapScalingMode="NearestNeighbor"
                                                    Height="12"
                                                    Visibility="{Binding Trade, Converter={StaticResource OrderToVisibilityConverter}}"
-                                                   Margin="0,0,5,0"/>
+                                                   Margin="0,0,5,0" />
                                             <TextBlock Text="{Binding Trade.Name}" />
                                         </StackPanel>
                                     </DataTemplate>
@@ -900,10 +889,10 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTextColumn Header="Symbol" 
+                            <DataGridTextColumn Header="Symbol"
                                                 DisplayIndex="1" Width="75"
                                                 Binding="{Binding Instrument.Symbol}" IsReadOnly="True" />
-                            <DataGridComboBoxColumn Header="Type" 
+                            <DataGridComboBoxColumn Header="Type"
                                                     DisplayIndex="2" Width="75"
                                                     filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="Instrument.AssetCategory"
                                                     ItemsSource="{Binding Source={StaticResource AssetClasses}}"
@@ -914,42 +903,42 @@
                             <DataGridTextColumn Header="Date" DisplayIndex="4" Width="65" SortDirection="Descending"
                                                 Binding="{Binding TradeDate, StringFormat={}{0:yyyy-MM-dd}}" IsReadOnly="True" />
                             <DataGridTextColumn Header="Time" DisplayIndex="5" Width="65" Binding="{Binding TradeTime}" IsReadOnly="True"
-                                                filterLibrary:DataGridColumnExtensions.DoNotGenerateFilterControl="True"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                filterLibrary:DataGridColumnExtensions.DoNotGenerateFilterControl="True" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="6" Width="75"
                                                 Header="Quant" Binding="{Binding Quantity}" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="7" Width="75"
                                                 Header="Price" Binding="{Binding Price, StringFormat={}{0:0.00###}}" IsReadOnly="True" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="8" Width="75"
                                                 Header="FX Rate" Binding="{Binding FXRateToBase, StringFormat={}{0:0.#####}}" IsReadOnly="True" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="9" Width="80"
-                                                Header="Commission" Binding="{Binding CommissionInBase, StringFormat={}{0:c2}}"  />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                Header="Commission" Binding="{Binding CommissionInBase, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="10" Width="75"
                                                 Header="Mult" Binding="{Binding Multiplier}" IsReadOnly="True" />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="11" Width="75"
                                                 Header="Net Cash" Binding="{Binding NetCash, StringFormat={}{0:c2}}" />
-                            <DataGridTextColumn Header="Notes" 
+                            <DataGridTextColumn Header="Notes"
                                                 DisplayIndex="12"
                                                 Binding="{Binding Notes}" IsReadOnly="True" Width="45" />
                             <DataGridTextColumn Header="Order Type" DisplayIndex="13" Binding="{Binding OrderType}" Width="45" IsReadOnly="True" />
                             <DataGridCheckBoxColumn Header="Real" DisplayIndex="14" Width="35" Binding="{Binding IsReal}" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Currency" DisplayIndex="15" Binding="{Binding Currency.Name}" Width="60" IsReadOnly="True"  />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                            <DataGridTextColumn Header="Currency" DisplayIndex="15" Binding="{Binding Currency.Name}" Width="60" IsReadOnly="True" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="16" Width="75"
-                                                Header="FIFO PnL" Binding="{Binding FIFORealizedPnL, StringFormat={}{0:c2}}"  />
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                Header="FIFO PnL" Binding="{Binding FIFORealizedPnL, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="17" Width="75"
-                                                Header="MTM PnL" Binding="{Binding MTMPnL, StringFormat={}{0:c2}}"  />
-                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" DisplayIndex="18" Width="55"/>
-                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}" 
+                                                Header="MTM PnL" Binding="{Binding MTMPnL, StringFormat={}{0:c2}}" />
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" DisplayIndex="18" Width="55" />
+                            <DataGridTextColumn ElementStyle="{StaticResource CellRightAlign}"
                                                 DisplayIndex="19" Width="75"
                                                 Header="Ref. Price" Binding="{Binding ReferencePrice,StringFormat={}{0:0.00###}}" />
-                            <DataGridTemplateColumn Header="Ref. Time" DisplayIndex="20" Width="135" >
+                            <DataGridTemplateColumn Header="Ref. Time" DisplayIndex="20" Width="135">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding ReferenceTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
@@ -962,11 +951,10 @@
                                             Height="Auto"
                                             HorizontalAlignment="Left"
                                             Name="ReferenceTimeDTPicker"
-                                            SelectedDateTime="{Binding ReferenceTime, 
-                                             ValidatesOnExceptions=True, 
+                                            SelectedDateTime="{Binding ReferenceTime,
+                                             ValidatesOnExceptions=True,
                                              NotifyOnValidationError=True}"
-                                            VerticalAlignment="Top"
-                                            />
+                                            VerticalAlignment="Top" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
@@ -974,7 +962,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <DataGrid Name="ExecutionsGrid" 
+                    <DataGrid Name="ExecutionsGrid"
                                 Grid.Row="3"
                                 CanUserAddRows="False"
                                 HorizontalScrollBarVisibility="Auto"
@@ -995,16 +983,15 @@
                             <DataGridTextColumn Header="O/C" Width="45" Binding="{Binding OpenClose}" />
                             <DataGridTextColumn Header="Notes" Width="65" Binding="{Binding Notes}" />
                         </DataGrid.Columns>
-
                     </DataGrid>
                 </Grid>
             </TabItem>
             <TabItem Header="CashTransactions" DataContext="{Binding CashTransactionsPageViewModel}" Name="CashTransactionsTabItem">
                 <Grid>
-                    <Popup Name="CashTransactionsGridTradePickerPopup" 
-                           Height="600" 
-                           Width="300" 
-                           Focusable="True" 
+                    <Popup Name="CashTransactionsGridTradePickerPopup"
+                           Height="600"
+                           Width="300"
+                           Focusable="True"
                            StaysOpen="True">
                         <Border BorderBrush="Black" BorderThickness="1">
                             <Grid>
@@ -1021,9 +1008,8 @@
                             </Grid>
                         </Border>
                     </Popup>
-                    
-                    
-                    <DataGrid Name="CashTransactionsGrid" 
+
+                    <DataGrid Name="CashTransactionsGrid"
                         ItemsSource="{Binding CashTransactionsSource.View}"
                         AutoGenerateColumns="False"
                         filterLibrary:DataGridExtensions.UseBackgroundWorkerForFiltering="True"
@@ -1036,8 +1022,8 @@
                         RowEditEnding="DataGrid_RowEditEnding"
                         ContextMenu="{StaticResource CashTransactionsGridContextMenu}">
                         <DataGrid.InputBindings>
-                            <KeyBinding Key="Delete" 
-                                        Command="{Binding Delete}" 
+                            <KeyBinding Key="Delete"
+                                        Command="{Binding Delete}"
                                         CommandParameter="{Binding ElementName=CashTransactionsGrid, Path=SelectedItems}" />
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
@@ -1056,18 +1042,18 @@
                                 </DataGridTemplateColumn.CellEditingTemplate>
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Symbol" DisplayIndex="1" Width="75" IsReadOnly="True" Binding="{Binding Instrument.Symbol}" />
-                            <DataGridTextColumn Header="Amount" IsReadOnly="True" 
+                            <DataGridTextColumn Header="Amount" IsReadOnly="True"
                                                 DisplayIndex="2" Width="85"
                                                 ElementStyle="{StaticResource CellRightAlign}"
                                                 Binding="{Binding Amount, StringFormat=c2}" />
-                            <DataGridTextColumn Header="Amount in USD" IsReadOnly="True" 
+                            <DataGridTextColumn Header="Amount in USD" IsReadOnly="True"
                                                 DisplayIndex="3" Width="95"
                                                 ElementStyle="{StaticResource CellRightAlign}"
                                                 Binding="{Binding AmountInBase, StringFormat=c2}" />
-                            <DataGridTextColumn Header="Currency" IsReadOnly="True" 
+                            <DataGridTextColumn Header="Currency" IsReadOnly="True"
                                                 DisplayIndex="4" Width="75"
                                                 Binding="{Binding Currency.Name}" />
-                            <DataGridComboBoxColumn Header="Type" 
+                            <DataGridComboBoxColumn Header="Type"
                                                     DisplayIndex="5" Width="75"
                                                     filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="Instrument.AssetCategory"
                                                     ItemsSource="{Binding Source={StaticResource AssetClasses}}"
@@ -1079,17 +1065,17 @@
                                                 Binding="{Binding TransactionDate, StringFormat=yyyy-MM-dd}" />
                             <DataGridTextColumn Header="Transaction Type" Binding="{Binding Type}" DisplayIndex="7" Width="155" IsReadOnly="True" />
                             <DataGridTextColumn Header="Description" Binding="{Binding Description}" DisplayIndex="8" Width="325" IsReadOnly="True" />
-                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" DisplayIndex="9" IsReadOnly="True" Width="55"/>
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" DisplayIndex="9" IsReadOnly="True" Width="55" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
             </TabItem>
             <TabItem Header="FXTransactions" DataContext="{Binding FXTransactionsPageViewModel}">
                 <Grid>
-                    <Popup Name="FxTransactionsGridTradePickerPopup" 
-                           Height="600" 
-                           Width="300" 
-                           Focusable="True" 
+                    <Popup Name="FxTransactionsGridTradePickerPopup"
+                           Height="600"
+                           Width="300"
+                           Focusable="True"
                            StaysOpen="True">
                         <Border BorderBrush="Black" BorderThickness="1">
                             <Grid>
@@ -1106,8 +1092,7 @@
                             </Grid>
                         </Border>
                     </Popup>
-                    
-                    
+
                     <DataGrid Name="FXTransactionsGrid"
                         AutoGenerateColumns="False"
                         ContextMenu="{StaticResource FxTransactionsGridContextMenu}"
@@ -1121,8 +1106,8 @@
                         CellEditEnding="FXTransactionsGrid_OnCellEditEnding"
                         RowEditEnding="DataGrid_RowEditEnding">
                         <DataGrid.InputBindings>
-                            <KeyBinding Key="Delete" 
-                                        Command="{Binding Delete}" 
+                            <KeyBinding Key="Delete"
+                                        Command="{Binding Delete}"
                                         CommandParameter="{Binding ElementName=FXTransactionsGrid, Path=SelectedItems}" />
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
@@ -1142,7 +1127,7 @@
                             </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Currency" DisplayIndex="1" Width="75" Binding="{Binding FXCurrency.Name}" IsReadOnly="True" />
                             <DataGridTextColumn Header="Description" DisplayIndex="2" Width="300" Binding="{Binding Path=Description}" IsReadOnly="True"
-                                            filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True"/>
+                                            filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True" />
                             <DataGridTextColumn Header="Date" IsReadOnly="True"
                                                 DisplayIndex="3" Width="135"
                                                 Binding="{Binding Path=DateTime,StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" SortDirection="Descending" />
@@ -1152,30 +1137,29 @@
                             <DataGridTextColumn Header="Cost" IsReadOnly="True"
                                                 DisplayIndex="5" Width="75"
                                                 ElementStyle="{StaticResource CellRightAlign}" Binding="{Binding Path=Cost,StringFormat={}{0:c2}}" />
-                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" DisplayIndex="6" Width="55"/>
+                            <DataGridTextColumn Header="Account" Binding="{Binding Account.AccountId}" IsReadOnly="True" DisplayIndex="6" Width="55" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
             </TabItem>
             <TabItem Header="Tags" DataContext="{Binding TagsPageViewModel}">
                 <Grid>
-                    <DataGrid Name="TagsGrid" 
+                    <DataGrid Name="TagsGrid"
                               AutoGenerateColumns="False"
-                              CanUserAddRows="True" 
+                              CanUserAddRows="True"
                               CanUserDeleteRows="False"
                               Margin="0"
                               RowEditEnding="DataGrid_RowEditEnding"
                               SelectionMode="Extended"
                               ItemsSource="{Binding TagsSource.View}"
-                              ContextMenu="{StaticResource TagsGridContextMenu}"
-                              >
+                              ContextMenu="{StaticResource TagsGridContextMenu}">
                         <DataGrid.InputBindings>
-                            <KeyBinding Key="Delete" 
-                                        Command="{Binding Delete}" 
+                            <KeyBinding Key="Delete"
+                                        Command="{Binding Delete}"
                                         CommandParameter="{Binding ElementName=TagsGrid, Path=SelectedItems}" />
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" DisplayIndex="0" Width="40" Binding="{Binding Path=ID}" IsReadOnly="True"  />
+                            <DataGridTextColumn Header="ID" DisplayIndex="0" Width="40" Binding="{Binding Path=ID}" IsReadOnly="True" />
                             <DataGridTextColumn Header="Name" DisplayIndex="1" Width="200" Binding="{Binding Path=Name}" SortDirection="Ascending" IsReadOnly="False" />
                         </DataGrid.Columns>
                     </DataGrid>
@@ -1184,20 +1168,20 @@
             <TabItem Header="Benchmarks" DataContext="{Binding BenchmarksPageViewModel}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="45"/>
-                        <RowDefinition Height="541*"/>
+                        <RowDefinition Height="45" />
+                        <RowDefinition Height="541*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="30*"/>
-                        <ColumnDefinition Width="80*"/>
+                        <ColumnDefinition Width="30*" />
+                        <ColumnDefinition Width="80*" />
                     </Grid.ColumnDefinitions>
 
                     <Label Grid.Row="0" Grid.Column="0" Content="Benchmarks" FontSize="30" Foreground="DimGray" />
                     <Label Grid.Row="0" Grid.Column="1" Content="Components" FontSize="30" Foreground="DimGray" />
 
-                    <DataGrid Grid.Row="1" Grid.Column="0" 
+                    <DataGrid Grid.Row="1" Grid.Column="0"
                               Margin="10"
-                              Name="BenchmarksGrid" 
+                              Name="BenchmarksGrid"
                               AutoGenerateColumns="False"
                               CanUserAddRows="True"
                               CanUserDeleteRows="False"
@@ -1208,18 +1192,18 @@
                               IsEnabled="{Binding IsExternalClientConnected}"
                               SelectionMode="Single">
                         <DataGrid.InputBindings>
-                            <KeyBinding Key="Delete" 
+                            <KeyBinding Key="Delete"
                                         Command="{Binding DeleteBenchmark}" />
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}" IsReadOnly="True"  />
+                            <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}" IsReadOnly="True" />
                             <DataGridTextColumn Header="Name" Binding="{Binding Path=Name}" IsReadOnly="False" />
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <DataGrid Grid.Row="1" Grid.Column="1" 
+                    <DataGrid Grid.Row="1" Grid.Column="1"
                               Margin="10"
-                              Name="BenchmarkComponentsGrid" 
+                              Name="BenchmarkComponentsGrid"
                               AutoGenerateColumns="False"
                               CanUserAddRows="True"
                               CanUserDeleteRows="False"
@@ -1229,28 +1213,28 @@
                               IsEnabled="{Binding IsExternalClientConnected}"
                               ItemsSource="{Binding ElementName=BenchmarksGrid,Path=SelectedItem.Components}">
                         <DataGrid.InputBindings>
-                            <KeyBinding Key="Delete" 
-                                        Command="{Binding DeleteComponent}"/>
+                            <KeyBinding Key="Delete"
+                                        Command="{Binding DeleteComponent}" />
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}" IsReadOnly="True"  />
+                            <DataGridTextColumn Header="ID" Binding="{Binding Path=ID}" IsReadOnly="True" />
                             <DataGridTextColumn Header="Weight" Binding="{Binding Path=Weight,StringFormat={}{0:p1}}" IsReadOnly="False" />
-                            <DataGridComboBoxColumn Header="Instrument" 
-                                                    filterLibrary:DataGridColumnExtensions.DoNotGenerateFilterControl="True"  
-                                                    x:Name="BenchmarksGridQDMSInstrumentComboBox" 
+                            <DataGridComboBoxColumn Header="Instrument"
+                                                    filterLibrary:DataGridColumnExtensions.DoNotGenerateFilterControl="True"
+                                                    x:Name="BenchmarksGridQDMSInstrumentComboBox"
                                                     DisplayMemberPath="Key"
                                                     SelectedValueBinding="{Binding QDMSInstrumentID}"
                                                     SelectedValuePath="Value"
                                                     IsReadOnly="False">
                                 <DataGridComboBoxColumn.ElementStyle>
                                     <Style TargetType="ComboBox">
-                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.BenchmarksPageViewModel.ExternalInstruments}"/>
-                                        <Setter Property="IsReadOnly" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.BenchmarksPageViewModel.IsExternalClientConnected, Converter={StaticResource InvertBooleanConverter}}"/>
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.BenchmarksPageViewModel.ExternalInstruments}" />
+                                        <Setter Property="IsReadOnly" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.BenchmarksPageViewModel.IsExternalClientConnected, Converter={StaticResource InvertBooleanConverter}}" />
                                     </Style>
                                 </DataGridComboBoxColumn.ElementStyle>
                                 <DataGridComboBoxColumn.EditingElementStyle>
                                     <Style TargetType="ComboBox">
-                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.BenchmarksPageViewModel.ExternalInstruments}"/>
+                                        <Setter Property="ItemsSource" Value="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.BenchmarksPageViewModel.ExternalInstruments}" />
                                     </Style>
                                 </DataGridComboBoxColumn.EditingElementStyle>
                             </DataGridComboBoxColumn>
@@ -1262,54 +1246,51 @@
             <TabItem Header="PerformanceOverview" DataContext="{Binding PerformanceOverviewPageViewModel}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="50*"/>
-                        <RowDefinition Height="35"/>
-                        <RowDefinition Height="50*"/>
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="50*" />
+                        <RowDefinition Height="35" />
+                        <RowDefinition Height="50*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="60*"/>
-                        <ColumnDefinition Width="40*"/>
+                        <ColumnDefinition Width="60*" />
+                        <ColumnDefinition Width="40*" />
                     </Grid.ColumnDefinitions>
                     <DockPanel Grid.Row="0" Grid.Column="0">
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                            <TextBlock Text="Account:" Foreground="DimGray" FontSize="22"/>
-                            <ComboBox Margin="5,3,5,3" ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="AccountId"  />
-                            
-                            <TextBlock Text="Currency:" Foreground="DimGray" FontSize="22"/>
-                            <ComboBox Margin="5,3,5,3" ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}" DisplayMemberPath="Name"  />
+                            <TextBlock Text="Account:" Foreground="DimGray" FontSize="22" />
+                            <ComboBox Margin="5,3,5,3" ItemsSource="{Binding Accounts}" SelectedItem="{Binding SelectedAccount}" DisplayMemberPath="AccountId" />
 
+                            <TextBlock Text="Currency:" Foreground="DimGray" FontSize="22" />
+                            <ComboBox Margin="5,3,5,3" ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}" DisplayMemberPath="Name" />
                         </StackPanel>
-                        <Label Content="Total Equity:"  FontSize="26" Foreground="DimGray" Margin="0,-10" DockPanel.Dock="Left" />
+                        <Label Content="Total Equity"  FontSize="26" Foreground="DimGray" Margin="0,-10" DockPanel.Dock="Left" />
                     </DockPanel>
-                    
-                    <Label Content="Stats:"  Grid.Row="0" Grid.Column="1" FontSize="26" Foreground="DimGray" Margin="0,-10" />
-                    <Label Content="Cumulative Returns:" Grid.Row="2" Grid.Column="0"  FontSize="26" Foreground="DimGray" Margin="0,-10" />
+
+                    <Label Content="Stats"  Grid.Row="0" Grid.Column="1" FontSize="26" Foreground="DimGray" Margin="0,-10" />
+                    <Label Content="Cumulative Returns" Grid.Row="2" Grid.Column="0"  FontSize="26" Foreground="DimGray" Margin="0,-10" />
 
                     <Border BorderThickness="1" Grid.Column="0" Grid.Row="1" Margin="5" BorderBrush="DimGray">
                         <oxy:Plot Grid.Row="0" Name="EquitySummaryDollarChart">
                             <oxy:Plot.Series>
-                                <oxy:AreaSeries Name="EquitySummaryDollarSeries" 
-                                                    Color="#4F81BD" 
-                                                    DataFieldX="X" 
+                                <oxy:AreaSeries Name="EquitySummaryDollarSeries"
+                                                    Color="#4F81BD"
+                                                    DataFieldX="X"
                                                     DataFieldY="Y1"
                                                     DataFieldX2="X"
                                                     DataFieldY2="Y2"
                                                     StrokeThickness="1"
                                                     TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Total Equity: {4:c0}"
-                                                    ItemsSource="{Binding TotalEquitySeries}"
-                                                    />
+                                                    ItemsSource="{Binding TotalEquitySeries}" />
 
-                                <oxy:AreaSeries Name="EquitySummaryDollarDrawdownSeries" 
-                                                    Color="#CC0000" 
-                                                    DataFieldX="X" 
+                                <oxy:AreaSeries Name="EquitySummaryDollarDrawdownSeries"
+                                                    Color="#CC0000"
+                                                    DataFieldX="X"
                                                     DataFieldX2="X"
                                                     DataFieldY="Y1"
                                                     DataFieldY2="Y2"
                                                     StrokeThickness="1"
                                                     TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:c0}"
-                                                    ItemsSource="{Binding TotalEquityDrawdownSeries}"
-                                                    />
+                                                    ItemsSource="{Binding TotalEquityDrawdownSeries}" />
                             </oxy:Plot.Series>
                             <oxy:Plot.Axes>
                                 <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
@@ -1322,38 +1303,35 @@
                     <Border BorderThickness="1" BorderBrush="DimGray" Grid.Column="0" Grid.Row="3" Margin="5">
                         <oxy:Plot Grid.Row="0" Name="EquitySummaryPercentChart">
                             <oxy:Plot.Series>
-                                <oxy:AreaSeries Name="EquitySummaryPercentSeries" Color="#4F81BD" 
-                                                DataFieldX="X" 
+                                <oxy:AreaSeries Name="EquitySummaryPercentSeries" Color="#4F81BD"
+                                                DataFieldX="X"
                                                 DataFieldY="Y1"
                                                 DataFieldX2="X"
                                                 DataFieldY2="Y2"
                                                 StrokeThickness="1"
                                                 TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Return: {4:p1}"
-                                                ItemsSource="{Binding EquitySummaryPercentSeries}"
-                                                />
+                                                ItemsSource="{Binding EquitySummaryPercentSeries}" />
 
-                                <oxy:AreaSeries Name="EquitySummaryPercentDrawdownSeries" Color="#CC0000" 
-                                                DataFieldX="X" 
+                                <oxy:AreaSeries Name="EquitySummaryPercentDrawdownSeries" Color="#CC0000"
+                                                DataFieldX="X"
                                                 DataFieldY="Y1"
                                                 DataFieldX2="X"
                                                 DataFieldY2="Y2"
                                                 StrokeThickness="1"
                                                 TrackerFormatString="Date: {2:yyyy-MM-dd}&#x0a;Drawdown: {4:p1}"
-                                                ItemsSource="{Binding EquitySummaryPercentDrawdownSeries}"
-                                                />
+                                                ItemsSource="{Binding EquitySummaryPercentDrawdownSeries}" />
                             </oxy:Plot.Series>
                             <oxy:Plot.Axes>
                                 <oxy:DateTimeAxis Position="Bottom" StringFormat="yyyy-MM-dd" />
-                                <oxy:LinearAxis Position="Right" StringFormat="p1" 
+                                <oxy:LinearAxis Position="Right" StringFormat="p1"
                                                 MinorGridlineStyle="Dash" MajorGridlineStyle="Dash" />
                             </oxy:Plot.Axes>
                         </oxy:Plot>
                     </Border>
 
-
-                    <DataGrid Grid.Row="1" 
-                              Grid.Column="1" 
-                              Grid.RowSpan="3" 
+                    <DataGrid Grid.Row="1"
+                              Grid.Column="1"
+                              Grid.RowSpan="3"
                               BorderThickness="0"
                               Name="PerformanceOverviewStatsGrid"
                               CanUserAddRows="False"
@@ -1366,7 +1344,6 @@
                             <DataGridTextColumn Header="Last 30 Days" Width="*" Binding="{Binding 'Last 30 Days'}" />
                             <DataGridTextColumn Header="YTD" Width="*" Binding="{Binding 'YTD'}" />
                             <DataGridTextColumn Header="All Time" Width="*" Binding="{Binding 'All Time'}" />
-
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -1375,15 +1352,15 @@
             <TabItem Header="PerformanceReport" DataContext="{Binding PerformanceReportPageViewModel}">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100*"/>
-                        <ColumnDefinition Width="100*"/>
-                        <ColumnDefinition Width="100*"/>
-                        <ColumnDefinition Width="100*"/>
-                        <ColumnDefinition Width="100*"/>
+                        <ColumnDefinition Width="100*" />
+                        <ColumnDefinition Width="100*" />
+                        <ColumnDefinition Width="100*" />
+                        <ColumnDefinition Width="100*" />
+                        <ColumnDefinition Width="100*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="40"/>
-                        <RowDefinition Height="545*"/>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="545*" />
                     </Grid.RowDefinitions>
 
                     <Label Grid.Row="0" Grid.Column="2" Content="Instruments" FontSize="30" Margin="0,-10,0,0" Foreground="DimGray" />
@@ -1392,34 +1369,34 @@
 
                     <Grid Grid.Row="1" Grid.Column="2" Margin="5">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="35"/>
-                            <RowDefinition Height="495*"/>
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="35" />
+                            <RowDefinition Height="495*" />
                         </Grid.RowDefinitions>
 
                         <UniformGrid Columns="3" Grid.Row="0" Margin="5,0,5,0">
-                            <RadioButton Content="Any" 
-                                         IsChecked="{Binding TradeFilterSettings.InstrumentFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Any}"/>
+                            <RadioButton Content="Any"
+                                         IsChecked="{Binding TradeFilterSettings.InstrumentFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Any}" />
                             <RadioButton Content="All"
-                                         IsChecked="{Binding TradeFilterSettings.InstrumentFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=All}"/>
+                                         IsChecked="{Binding TradeFilterSettings.InstrumentFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=All}" />
                             <RadioButton Content="Exclude"
-                                         IsChecked="{Binding TradeFilterSettings.InstrumentFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Exclude}"/>
+                                         IsChecked="{Binding TradeFilterSettings.InstrumentFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Exclude}" />
                         </UniformGrid>
 
-                        <Button Content="{Binding ToggleInstrumentsText}" 
+                        <Button Content="{Binding ToggleInstrumentsText}"
                                 Command="{Binding ToggleAllInstruments}"
-                                Name="PRSelectAllInstrumentsBtn" 
+                                Name="PRSelectAllInstrumentsBtn"
                                 Grid.Row="1" Margin="5" />
 
-                        <ListBox Name="PRInstrumentsListBox" Margin="0,5,0,0" Grid.Row="2" 
+                        <ListBox Name="PRInstrumentsListBox" Margin="0,5,0,0" Grid.Row="2"
                                  PreviewKeyDown="CheckItemListBox_PreviewKeyDown"
                                  IsTextSearchEnabled="True"
-                                 TextSearch.TextPath="Item.Symbol" 
+                                 TextSearch.TextPath="Item.Symbol"
                                  SelectionMode="Extended" ItemsSource="{Binding Instruments}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <CheckBox IsChecked="{Binding IsChecked}"  />
+                                        <CheckBox IsChecked="{Binding IsChecked}" />
                                         <TextBlock Text="{Binding Item.Symbol}" />
                                     </StackPanel>
                                 </DataTemplate>
@@ -1429,26 +1406,26 @@
 
                     <Grid Grid.Column="0" Grid.Row="1" Margin="5">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="35"/>
-                            <RowDefinition Height="253*"/>
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="35" />
+                            <RowDefinition Height="253*" />
                         </Grid.RowDefinitions>
 
                         <UniformGrid Grid.Row="0" Columns="2" Margin="5,0,5,0">
-                            <RadioButton Content="Any" 
+                            <RadioButton Content="Any"
                                          IsChecked="{Binding TradeFilterSettings.StrategyFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Any}" />
                             <RadioButton Content="Exclude"
-                                         IsChecked="{Binding TradeFilterSettings.StrategyFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Exclude}"/>
+                                         IsChecked="{Binding TradeFilterSettings.StrategyFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Exclude}" />
                         </UniformGrid>
 
-                        <Button Content="{Binding ToggleStratsText}" 
+                        <Button Content="{Binding ToggleStratsText}"
                                 Command="{Binding ToggleAllStrategies}"
-                                Name="PRSelectAllStrategiesBtn" 
+                                Name="PRSelectAllStrategiesBtn"
                                 Grid.Row="1" Margin="5" />
 
                         <ListBox Grid.Row="2" Name="PRStrategyListBox" Margin="0,5,0,0" SelectionMode="Extended"
                                  IsTextSearchEnabled="True"
-                                 TextSearch.TextPath="Item.Name" 
+                                 TextSearch.TextPath="Item.Name"
                                  PreviewKeyDown="CheckItemListBox_PreviewKeyDown" ItemsSource="{Binding Strategies}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
@@ -1463,28 +1440,28 @@
 
                     <Grid Grid.Row="1" Grid.Column="1" Margin="5">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="30"/>
-                            <RowDefinition Height="35"/>
-                            <RowDefinition Height="495*"/>
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="35" />
+                            <RowDefinition Height="495*" />
                         </Grid.RowDefinitions>
 
                         <UniformGrid Columns="3" Grid.Row="0" Margin="5,0,5,0">
-                            <RadioButton Content="Any" 
-                                         IsChecked="{Binding TradeFilterSettings.TagFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Any}"/>
+                            <RadioButton Content="Any"
+                                         IsChecked="{Binding TradeFilterSettings.TagFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Any}" />
                             <RadioButton Content="All"
-                                         IsChecked="{Binding TradeFilterSettings.TagFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=All}"/>
+                                         IsChecked="{Binding TradeFilterSettings.TagFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=All}" />
                             <RadioButton Content="Exclude"
-                                         IsChecked="{Binding TradeFilterSettings.TagFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Exclude}"/>
+                                         IsChecked="{Binding TradeFilterSettings.TagFilterMethod, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=Exclude}" />
                         </UniformGrid>
 
-                        <Button Content="{Binding ToggleTagsText}" 
+                        <Button Content="{Binding ToggleTagsText}"
                                 Command="{Binding ToggleAllTags}"
-                                Name="PRSelectAllTagsBtn" 
+                                Name="PRSelectAllTagsBtn"
                                 Grid.Row="1" Margin="5" />
 
                         <ListBox Name="PRTagsListBox" Margin="0,5,0,0" Grid.Row="2" SelectionMode="Extended"
                                  IsTextSearchEnabled="True"
-                                 TextSearch.TextPath="Item.Name" 
+                                 TextSearch.TextPath="Item.Name"
                                  PreviewKeyDown="CheckItemListBox_PreviewKeyDown" ItemsSource="{Binding Tags}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
@@ -1504,8 +1481,7 @@
                                 <TextBlock Text="From:" FontSize="18" Foreground="DimGray" />
                                 <DatePicker SelectedDate="{Binding TradeFilterSettings.From, Mode=TwoWay}" SelectedDateFormat="Short" Margin="5,0,5,0" Width="100" />
                                 <TextBlock Text="To:" FontSize="18" Foreground="DimGray" />
-                                <DatePicker SelectedDate="{Binding TradeFilterSettings.To, Mode=TwoWay}" SelectedDateFormat="Short" Name="PRDateTo" Width="100" Margin="5,0,5,0"/>
-
+                                <DatePicker SelectedDate="{Binding TradeFilterSettings.To, Mode=TwoWay}" SelectedDateFormat="Short" Name="PRDateTo" Width="100" Margin="5,0,5,0" />
                             </StackPanel>
                         </GroupBox>
 
@@ -1513,43 +1489,41 @@
                             <StackPanel Orientation="Horizontal">
                                 <UniformGrid Columns="2" Margin="5,0,5,0">
                                     <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" Margin="5"
-                                         IsChecked="{Binding ReportSettings.VaRReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
+                                         IsChecked="{Binding ReportSettings.VaRReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}" />
                                     <RadioButton Content="ROTC" ToolTip="Return on Total Capital" Margin="5"
-                                         IsChecked="{Binding ReportSettings.VaRReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                                         IsChecked="{Binding ReportSettings.VaRReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}" />
                                 </UniformGrid>
 
-                                <UniformGrid Columns="2" Margin="0,0,0,0" >
+                                <UniformGrid Columns="2" Margin="0,0,0,0">
                                     <TextBlock Text="Days:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
-                                    <TextBox Height="15" Text="{Binding ReportSettings.VaRDays}"  Width="50"/>
+                                    <TextBox Height="15" Text="{Binding ReportSettings.VaRDays}"  Width="50" />
                                 </UniformGrid>
                             </StackPanel>
                         </GroupBox>
 
-
                         <GroupBox Header="ACF/PACF" Margin="0,5,0,0">
                             <UniformGrid Columns="2" Margin="5,0,5,0">
-                                <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
-                                         IsChecked="{Binding ReportSettings.AutoCorrReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
+                                <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital"
+                                         IsChecked="{Binding ReportSettings.AutoCorrReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}" />
                                 <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
-                                         IsChecked="{Binding ReportSettings.AutoCorrReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                                         IsChecked="{Binding ReportSettings.AutoCorrReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}" />
                             </UniformGrid>
                         </GroupBox>
 
-
                         <GroupBox Header="Monte Carlo" Margin="0,5,0,0">
                             <StackPanel Orientation="Vertical">
-                                <TextBlock Text="Return Type:" FontSize="18" Foreground="DimGray"  />
+                                <TextBlock Text="Return Type:" FontSize="18" Foreground="DimGray" />
                                 <UniformGrid Columns="2"  Margin="5,0,5,0">
                                     <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital"
-                                             IsChecked="{Binding ReportSettings.MCReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
+                                             IsChecked="{Binding ReportSettings.MCReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}" />
                                     <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
-                                             IsChecked="{Binding ReportSettings.MCReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                                             IsChecked="{Binding ReportSettings.MCReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}" />
                                 </UniformGrid>
 
-                                <TextBlock Text="Replacement:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray"  />
+                                <TextBlock Text="Replacement:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray" />
                                 <UniformGrid Columns="2"  Margin="5,0,5,0">
-                                    <RadioButton Content="With" IsChecked="{Binding ReportSettings.MCWithReplacement}"/>
-                                    <RadioButton Content="Without" IsChecked="{Binding ReportSettings.MCWithReplacement, Converter={StaticResource InvertBooleanConverter}}"/>
+                                    <RadioButton Content="With" IsChecked="{Binding ReportSettings.MCWithReplacement}" />
+                                    <RadioButton Content="Without" IsChecked="{Binding ReportSettings.MCWithReplacement, Converter={StaticResource InvertBooleanConverter}}" />
                                 </UniformGrid>
 
                                 <UniformGrid Columns="2" Margin="0,10,0,0">
@@ -1557,12 +1531,12 @@
                                     <TextBox Height="15" Text="{Binding ReportSettings.MCPeriods}" Width="50" />
                                 </UniformGrid>
 
-                                <UniformGrid Columns="2" Margin="0,10,0,0" >
+                                <UniformGrid Columns="2" Margin="0,10,0,0">
                                     <TextBlock Text="Runs:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
                                     <TextBox Height="15" Text="{Binding ReportSettings.MCRuns}" Width="50" />
                                 </UniformGrid>
 
-                                <UniformGrid Columns="2" Margin="0,10,0,0" >
+                                <UniformGrid Columns="2" Margin="0,10,0,0">
                                     <TextBlock Text="Cluster Size:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
                                     <TextBox Height="15" Text="{Binding ReportSettings.MCClusterSize}" Width="50" />
                                 </UniformGrid>
@@ -1571,15 +1545,15 @@
 
                         <GroupBox Header="Benchmark" Margin="0,5,0,0">
                             <StackPanel Orientation="Vertical">
-                                <TextBlock Text="Bench. Against:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray"  />
+                                <TextBlock Text="Bench. Against:" FontSize="18" Margin="0,0,0,0" Foreground="DimGray" />
                                 <UniformGrid Columns="2" Margin="5,0,5,0">
-                                    <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital" 
-                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
+                                    <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital"
+                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}" />
                                     <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
-                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                                         IsChecked="{Binding ReportSettings.ReturnsToBenchmark, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}" />
                                 </UniformGrid>
 
-                                <TextBlock Text="Benchmark:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray"  />
+                                <TextBlock Text="Benchmark:" FontSize="18" Margin="0,10,0,0" Foreground="DimGray" />
                                 <ComboBox Name="RPBenchmarkComboBox" DisplayMemberPath="Name"
                                   ItemsSource="{Binding Benchmarks}"
                                   SelectedItem="{Binding ReportSettings.Benchmark}" Margin="5,0,5,0" />
@@ -1588,19 +1562,19 @@
 
                         <GroupBox Header="Backtest Comparison"  Margin="0,5,0,0">
                             <StackPanel Orientation="Vertical">
-                                <RadioButton Content="None" IsChecked="{Binding ReportSettings.BacktestSource, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=None}"  Margin="5"/>
-                                <RadioButton Content="From External Datasource:" Margin="5" 
+                                <RadioButton Content="None" IsChecked="{Binding ReportSettings.BacktestSource, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=None}"  Margin="5" />
+                                <RadioButton Content="From External Datasource:" Margin="5"
                                                  IsChecked="{Binding ReportSettings.BacktestSource, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=External}"
                                                  Name="BacktestFromExternalSourceRadioBtn" />
-                                <ComboBox Name="RPBacktestComboBox" 
+                                <ComboBox Name="RPBacktestComboBox"
                                       DisplayMemberPath="Symbol"
-                                      IsEnabled="{qc:MultiBinding '$P0 &amp;&amp; $P1', P0 = {Binding Datasourcer.ExternalDataSource.Connected}, P1 = {Binding ElementName=BacktestFromExternalSourceRadioBtn,Path=IsChecked} }" 
+                                      IsEnabled="{qc:MultiBinding '$P0 &amp;&amp; $P1', P0 = {Binding Datasourcer.ExternalDataSource.Connected}, P1 = {Binding ElementName=BacktestFromExternalSourceRadioBtn,Path=IsChecked} }"
                                       ItemsSource="{Binding BacktestSeries}"
                                       SelectedItem="{Binding ReportSettings.Backtest}" Margin="5,0,5,0" />
-                                <RadioButton Content="From File:" 
+                                <RadioButton Content="From File:"
                                                  IsChecked="{Binding ReportSettings.BacktestSource, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=File}"
                                                  Name="BacktestFromFileSourceRadioBtn" Margin="5" />
-                                <TextBox Margin="5" 
+                                <TextBox Margin="5"
                                              IsEnabled="{Binding ElementName=BacktestFromFileSourceRadioBtn,Path=IsChecked}"
                                              Text="Click to select file..." Name="BacktestFileTextBox">
                                     <TextBox.InputBindings>
@@ -1608,12 +1582,12 @@
                                     </TextBox.InputBindings>
                                 </TextBox>
 
-                                <TextBlock Text="Return Type:" FontSize="18" Foreground="DimGray"  />
+                                <TextBlock Text="Return Type:" FontSize="18" Foreground="DimGray" />
                                 <UniformGrid Columns="2"  Margin="5,0,5,0">
                                     <RadioButton Content="ROAC" ToolTip="Return on Allocated Capital"
-                                             IsChecked="{Binding ReportSettings.BacktestComparisonReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}"/>
+                                             IsChecked="{Binding ReportSettings.BacktestComparisonReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROAC}" />
                                     <RadioButton Content="ROTC" ToolTip="Return on Total Capital"
-                                             IsChecked="{Binding ReportSettings.BacktestComparisonReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}"/>
+                                             IsChecked="{Binding ReportSettings.BacktestComparisonReturnType, Converter={StaticResource EnumBooleanConverter}, ConverterParameter=ROTC}" />
                                 </UniformGrid>
                             </StackPanel>
                         </GroupBox>
@@ -1621,16 +1595,12 @@
                         <GroupBox Header="Other Settings" Margin="0,5,0,0">
                             <CheckBox IsChecked="{Binding TradeFilterSettings.ClosedTradesOnly}" Margin="5,10,0,0" Content="Closed Trades Only" />
                         </GroupBox>
-                        
-                        
                     </StackPanel>
-                    
-                    
 
                     <Grid Grid.Row="0" Grid.Column="4" Grid.RowSpan="2">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="1*"/>
-                            <RowDefinition Height="35"/>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="35" />
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0">
                             <GroupBox  Margin="5,0,5,0" Header="Save/Load Report Settings">
@@ -1638,7 +1608,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="New" Margin="5" Command="{Binding NewSettingsCmd}"></Button>
                                     <Button Content="Save" Margin="5" Command="{Binding SaveSettingsCmd}"></Button>
-                                        <Button Content="Load" Margin="5" Command="{Binding LoadSettingsCmd}" CommandParameter="{Binding ElementName=ReportSettinsgListBox,Path=SelectedValue}" 
+                                        <Button Content="Load" Margin="5" Command="{Binding LoadSettingsCmd}" CommandParameter="{Binding ElementName=ReportSettinsgListBox,Path=SelectedValue}"
                                                 IsEnabled="{Binding ElementName=ReportSettinsgListBox,Path=SelectedItem, Converter={qc:QuickConverter '$P != null'}}"></Button>
                                 </StackPanel>
                                     <Separator />
@@ -1651,17 +1621,14 @@
                                     </ListBox>
                                 </StackPanel>
                             </GroupBox>
-
-                           
-
                         </StackPanel>
 
                         <Button  Grid.Row="1"
                                  Command="{Binding GenerateReport}"
-                                Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}" 
-                                 Margin="5,0,5,0" 
-                                 Name="BuildPerformanceReportBtn" 
-                                 
+                                Style="{DynamicResource MahApps.Styles.Button.AccentedSquare}"
+                                 Margin="5,0,5,0"
+                                 Name="BuildPerformanceReportBtn"
+
                                  Content="Build Report" />
                     </Grid>
                 </Grid>
@@ -1685,7 +1652,6 @@
             <TabItem Header="TaxReport">
                 <TextBlock>Nothing to see here yet.</TextBlock>
             </TabItem>
-
         </TabControl>
 
         <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="5">

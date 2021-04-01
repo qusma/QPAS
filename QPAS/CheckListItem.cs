@@ -42,6 +42,7 @@ namespace QPAS
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
         protected void NotifyPropertyChanged(string propertyName)
         {
             if (PropertyChanged != null)

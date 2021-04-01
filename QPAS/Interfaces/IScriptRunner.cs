@@ -14,8 +14,11 @@ namespace QPAS
     public interface IScriptRunner
     {
         Task<List<OrderScriptAction>> GetOrderScriptActions(UserScript script, List<Order> orders);
+
         Task<List<TradeScriptAction>> GetTradeScriptActions(UserScript script, List<Trade> trades = null);
+
         Task RunOrderScript(UserScript script, List<Order> orders);
+
         Task RunTradeScript(UserScript script, List<Trade> trades = null);
     }
 }

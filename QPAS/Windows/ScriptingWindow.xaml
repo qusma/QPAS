@@ -10,7 +10,7 @@
         Title="Scripts" Height="1100" Width="1080"
         Icon="../Resources/icon.ico"
         TitleBarHeight="32"
-        BorderBrush="Black" BorderThickness="1" 
+        BorderBrush="Black" BorderThickness="1"
         FontFamily="Segoe UI Semibold"
         RenderOptions.BitmapScalingMode="NearestNeighbor"
         xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
@@ -20,42 +20,42 @@
     </controls:MetroWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="200"/>
+            <RowDefinition Height="35" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="200" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="4*"/>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left">
             <Button Margin="5" Content="New Script..." Command="{Binding NewScript}" />
         </StackPanel>
-        
+
         <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Margin="5" Content="Test" Command="{Binding Test}" ToolTip="Runs the script without executing its changes, for testing purposes."
-                    IsEnabled="{quickConverter:Binding '$P != null', P={Binding SelectedScript}}"/>
+                    IsEnabled="{quickConverter:Binding '$P != null', P={Binding SelectedScript}}" />
 
             <Button Margin="5" Content="Save" Command="{Binding Save}"
-                    IsEnabled="{quickConverter:Binding '$P != null', P={Binding SelectedScript}}"/>
+                    IsEnabled="{quickConverter:Binding '$P != null', P={Binding SelectedScript}}" />
             <Button Margin="5" Content="Help" Command="{Binding LaunchHelp}" />
         </StackPanel>
 
-        <ListBox Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" 
+        <ListBox Grid.Row="1" Grid.Column="0" Grid.RowSpan="2"
                  ItemsSource="{Binding Scripts}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Path=Name}" 
-                   Width="{Binding Path=ActualWidth, 
-                             RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}" >
+                    <TextBlock Text="{Binding Path=Name}"
+                   Width="{Binding Path=ActualWidth,
+                             RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}">
                         <TextBlock.InputBindings>
                             <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding DataContext.Open,
-                                        RelativeSource={RelativeSource FindAncestor, 
+                                        RelativeSource={RelativeSource FindAncestor,
                                         AncestorType={x:Type ListBox}}}"
-                                      CommandParameter="{Binding .}"/>
+                                      CommandParameter="{Binding .}" />
                         </TextBlock.InputBindings>
                     </TextBlock>
                 </DataTemplate>
@@ -63,7 +63,7 @@
         </ListBox>
 
         <Border Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" BorderBrush="Black" BorderThickness="1">
-            <qpas:MvvmTextEditor 
+            <qpas:MvvmTextEditor
             IsEnabled="{quickConverter:Binding '$P != null', P={Binding SelectedScript}}"
             BorderBrush="Black"
             BorderThickness="1"
@@ -88,12 +88,12 @@
 
         <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal" Height="35" VerticalAlignment="Top">
             <Button Margin="5" Content="Add" Command="{Binding AddReference}" />
-            <Button Margin="5" Content="Remove" 
-                    Command="{Binding RemoveReference}" 
+            <Button Margin="5" Content="Remove"
+                    Command="{Binding RemoveReference}"
                     CommandParameter="{Binding ElementName=ReferencesListBox,Path=SelectedItem}" />
         </StackPanel>
 
         <TextBox Text="{Binding Status, Mode=OneWay}" Grid.Row="3" Grid.Column="1" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
-                 Background="{Binding StatusOk, Converter={StaticResource BoolToStatusColorConverter}}"/>
+                 Background="{Binding StatusOk, Converter={StaticResource BoolToStatusColorConverter}}" />
     </Grid>
 </controls:MetroWindow>

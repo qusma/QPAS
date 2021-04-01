@@ -4,10 +4,10 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using NXmlMapper;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using NXmlMapper;
 
 namespace EntityModel
 {
@@ -219,7 +219,7 @@ namespace EntityModel
         public long IBOrderID { get; set; }
 
         /// <summary>
-        /// The order reference number as defined by the user on the order ticket. 
+        /// The order reference number as defined by the user on the order ticket.
         /// Available on daily (single-day) activity flex queries only.
         /// </summary>
         [MaxLength(255)]

@@ -22,8 +22,6 @@ namespace QPAS
 
         public MainViewModel Parent { get; set; }
 
-
-
         public ICommand Delete { get; set; }
 
         private readonly IContextFactory contextFactory;
@@ -50,7 +48,6 @@ namespace QPAS
 
         public override async Task Refresh()
         {
-
         }
 
         private async Task DeleteTags(IList tags)

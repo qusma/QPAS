@@ -94,7 +94,6 @@ namespace QPAS
                             logger.Log(LogLevel.Error, "Got FlexStatementResponse but had error. Contents: ");
                             logger.Log(LogLevel.Error, statementResponse.ToString());
                             throw new Exception(string.Format("Error code problem. Code: {0}", error));
-
                         }
 
                         //we have to wait more for the statement to be generated
@@ -105,7 +104,6 @@ namespace QPAS
                     }
                     else
                     {
-
                         var flexQueryResponse = xdoc.Element("FlexQueryResponse");
                         if (flexQueryResponse != null)
                             retrieved = true;

@@ -81,6 +81,7 @@ namespace QPAS
 
             return child;
         }
+
         public static string SerializeLayout(this DataGrid grid)
         {
             var allSettings = grid.Columns.Select(c => new ColumnOptions

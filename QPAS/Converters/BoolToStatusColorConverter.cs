@@ -12,7 +12,6 @@ namespace QPAS
             if ((bool)value)
             {
                 return new SolidColorBrush(Color.FromRgb(0, 153, 0));
-
             }
             else
             {

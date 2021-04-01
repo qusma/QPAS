@@ -261,7 +261,6 @@ namespace QPAS
                     string scriptType = (orderRadioBtn.IsChecked.HasValue && orderRadioBtn.IsChecked.Value) ? "Order" : "Trade";
                     CreateNewScript(textBox.Text, scriptType);
                     _dialogService.HideMetroDialogAsync(this, dialog);
-
                 };
 
             Button cancelBtn = new Button { Content = "Cancel", Margin = new Thickness(5) };
@@ -272,7 +271,6 @@ namespace QPAS
 
             btnPanel.Children.Add(nextBtn);
             btnPanel.Children.Add(cancelBtn);
-
 
             panel.Children.Add(label);
             panel.Children.Add(textBox);
@@ -390,7 +388,7 @@ public class {0} : TradeScriptBase
         //logic goes here
         //Existing tags and strategies can be found in the Tags and Strategies properties of this object.
         //Do not manipulate trades/orders/etc directly.
-        //Available functions: 
+        //Available functions:
         //  void SetTag(Trade, string), void SetTag(Trade, Tag)
         //  void SetStrategy(Trade, string), void SetStrategy(Trade, Strategy)
         //  void CloseTrade(Trade)

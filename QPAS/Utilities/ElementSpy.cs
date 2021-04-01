@@ -7,7 +7,7 @@ using System.Windows.Threading;
 namespace QPAS
 {
     /// <summary>
-    /// When placed into an element's Resources collection the 
+    /// When placed into an element's Resources collection the
     /// spy's Element property returns that containing element.
     /// Use the  NameScopeSource attached property to bridge an
     /// element's NameScope to other elements.
@@ -17,7 +17,7 @@ namespace QPAS
     {
         #region Element
 
-        DependencyObject _element;
+        private DependencyObject _element;
 
         public DependencyObject Element
         {
@@ -40,7 +40,7 @@ namespace QPAS
             }
         }
 
-        #endregion // Element
+        #endregion Element
 
         #region NameScopeSource
 
@@ -65,7 +65,7 @@ namespace QPAS
             new UIPropertyMetadata(
                 null, OnNameScopeSourceChanged));
 
-        static void OnNameScopeSourceChanged(
+        private static void OnNameScopeSourceChanged(
             DependencyObject depObj,
             DependencyPropertyChangedEventArgs e)
         {
@@ -86,7 +86,7 @@ namespace QPAS
                 });
         }
 
-        #endregion // NameScopeSource
+        #endregion NameScopeSource
 
         #region CreateInstanceCore
 
@@ -96,6 +96,6 @@ namespace QPAS
             throw new System.NotSupportedException();
         }
 
-        #endregion // CreateInstanceCore
+        #endregion CreateInstanceCore
     }
 }

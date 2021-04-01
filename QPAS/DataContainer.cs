@@ -29,8 +29,8 @@ namespace QPAS
 
         //below do not hold global state
         public ObservableCollection<OpenPosition> OpenPositions { get; } = new ObservableCollection<OpenPosition>();
+
         public ObservableCollection<FXPosition> FXPositions { get; } = new ObservableCollection<FXPosition>();
         public ObservableCollection<DatasourcePreference> DatasourcePreferences { get; } = new ObservableCollection<DatasourcePreference>();
-
     }
 }

@@ -14,6 +14,7 @@ namespace QPAS
     public class TradeViewModel : ViewModelBase
     {
         private Trade _trade;
+
         public Trade Trade
         {
             get => _trade;
@@ -28,7 +29,6 @@ namespace QPAS
         public ObservableCollection<Order> Orders { get; } = new ObservableCollection<Order>();
         public ObservableCollection<FXTransaction> FxTransactions { get; } = new ObservableCollection<FXTransaction>();
         public ObservableCollection<CashTransaction> CashTransactions { get; } = new ObservableCollection<CashTransaction>();
-
 
         public TradeTracker Tracker
         {

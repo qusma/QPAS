@@ -41,7 +41,6 @@ namespace QPAS
                     new TimeSeries(await dataSourcer.GetExternalData(component.QDMSInstrumentID, earliestDate, latestDate)));
             }
 
-
             Dictionary<int, decimal> weights = components.ToDictionary(x => x.QDMSInstrumentID, x => (decimal)x.Weight);
 
             var benchmarkSeries = new Dictionary<DateTime, double>();

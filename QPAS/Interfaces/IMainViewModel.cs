@@ -36,8 +36,11 @@ namespace QPAS
         ICommand GenerateReportFromTrades { get; set; }
         ICommand LoadStatementFromWeb { get; set; }
         ReactiveCommand<string, Unit> LoadStatementFromFile { get; set; }
+
         Task RefreshCurrentPage();
+
         Task Refresh();
+
         event PropertyChangedEventHandler PropertyChanged;
     }
 }

@@ -36,7 +36,6 @@ namespace QPAS
         /// </summary>
         public decimal TotalPnL { get; set; }
 
-
         /// <summary>
         /// Keeps track of cost basis based on transactions.
         /// </summary>
@@ -66,7 +65,6 @@ namespace QPAS
             Transactions.Add(transaction);
 
             decimal fxRate = transaction.Proceeds / transaction.Quantity;
-
 
             //profit/loss
             if ((transaction.Quantity < 0 && Quantity > 0) ||

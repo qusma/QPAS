@@ -4,18 +4,19 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EntityModel
 {
     public interface IQpasDbContext : IDisposable
     {
         DatabaseFacade Database { get; }
+
         EntityEntry<TEntity> Attach<TEntity>(TEntity entity) where TEntity : class;
 
         DbSet<Benchmark> Benchmarks { get; set; }
@@ -43,6 +44,7 @@ namespace EntityModel
         DbSet<TEntity> Set<TEntity>() where TEntity : class;
 
         int SaveChanges();
+
         //
         // Summary:
         //     Saves all changes made in this context to the database.
@@ -76,6 +78,7 @@ namespace EntityModel
         //     This is usually because the data in the database has been modified since it was
         //     loaded into memory.
         Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default);
+
         //
         // Summary:
         //     Saves all changes made in this context to the database.
@@ -105,6 +108,7 @@ namespace EntityModel
         //     This is usually because the data in the database has been modified since it was
         //     loaded into memory.
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+
         EntityEntry Entry(object obj);
     }
 }

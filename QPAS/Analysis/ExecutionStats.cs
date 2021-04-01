@@ -24,6 +24,7 @@ namespace QPAS
         public decimal Slippage;
 
         public double SlippagePct;
+
         /// <summary>
         /// The difference in seconds between the reference time and execution time.
         /// </summary>

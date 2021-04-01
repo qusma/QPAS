@@ -15,15 +15,15 @@
             <qpas:AssetClassToImageConverter x:Key="AssetClassToImageConverter" />
 
             <Style TargetType="DataGrid" BasedOn="{StaticResource MahApps.Styles.DataGrid}">
-                <Setter Property="AlternatingRowBackground" Value="WhiteSmoke"/>
-                <Setter Property="BorderBrush" Value="#B9B9B9"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="AlternationCount" Value="2"/>
-                <Setter Property="HorizontalGridLinesBrush" Value="#B9B9B9"/>
-                <Setter Property="VerticalGridLinesBrush" Value="#B9B9B9"/>
-                <Setter Property="GridLinesVisibility" Value="All"/>
-                <Setter Property="FontFamily" Value="Tahoma"/>
-                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="AlternatingRowBackground" Value="WhiteSmoke" />
+                <Setter Property="BorderBrush" Value="#B9B9B9" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="AlternationCount" Value="2" />
+                <Setter Property="HorizontalGridLinesBrush" Value="#B9B9B9" />
+                <Setter Property="VerticalGridLinesBrush" Value="#B9B9B9" />
+                <Setter Property="GridLinesVisibility" Value="All" />
+                <Setter Property="FontFamily" Value="Tahoma" />
+                <Setter Property="FontSize" Value="11" />
             </Style>
 
             <Style x:Key="DataGridCheckBoxStyle" TargetType="CheckBox" BasedOn="{StaticResource MahApps.Styles.CheckBox.DataGrid}">
@@ -32,8 +32,8 @@
             </Style>
 
             <Style TargetType="DataGridRow" BasedOn="{StaticResource MahApps.Styles.DataGridRow}"  x:Key="DataGridRowStyle">
-                <Setter Property="MinHeight" Value="20"/>
-                <Setter Property="MaxHeight" Value="30"/>
+                <Setter Property="MinHeight" Value="20" />
+                <Setter Property="MaxHeight" Value="30" />
             </Style>
 
             <Style x:Key="CellRightAlign">
@@ -43,7 +43,7 @@
 
             <DataTemplate x:Key="InstrumentAssetClassCellTemplate">
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="{Binding Instrument.AssetCategory,Converter={StaticResource AssetClassToImageConverter}}" 
+                    <Image Source="{Binding Instrument.AssetCategory,Converter={StaticResource AssetClassToImageConverter}}"
                            Margin="0,0,2,0"
                            RenderOptions.BitmapScalingMode="NearestNeighbor" />
                     <TextBlock Text="{Binding Instrument.AssetCategory}" />
@@ -52,7 +52,7 @@
 
             <DataTemplate x:Key="AssetClassCellTemplate">
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="{Binding AssetCategory,Converter={StaticResource AssetClassToImageConverter}}" 
+                    <Image Source="{Binding AssetCategory,Converter={StaticResource AssetClassToImageConverter}}"
                            Margin="0,0,2,0"
                            RenderOptions.BitmapScalingMode="NearestNeighbor" />
                     <TextBlock Text="{Binding AssetCategory}" />
@@ -61,7 +61,7 @@
 
             <DataTemplate x:Key="AssetClassCellComboBoxColTemplate" DataType="ComboBoxItem">
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="{Binding AssetCategory,Converter={StaticResource AssetClassToImageConverter}}" 
+                    <Image Source="{Binding AssetCategory,Converter={StaticResource AssetClassToImageConverter}}"
                            Margin="0,0,2,0"
                            RenderOptions.BitmapScalingMode="NearestNeighbor" />
                     <TextBlock Text="{Binding AssetCategory}" />
@@ -73,16 +73,15 @@
                     <Setter.Value>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="{Binding Converter={StaticResource AssetClassToImageConverter}}" 
+                                <Image Source="{Binding Converter={StaticResource AssetClassToImageConverter}}"
                                                         Margin="0,0,2,0"
                                                         RenderOptions.BitmapScalingMode="NearestNeighbor" />
-                                <TextBlock FontSize="12" Foreground="Black" Text="{Binding}"/>
+                                <TextBlock FontSize="12" Foreground="Black" Text="{Binding}" />
                             </StackPanel>
                         </DataTemplate>
                     </Setter.Value>
                 </Setter>
             </Style>
-
         </ResourceDictionary>
     </Application.Resources>
 </Application>

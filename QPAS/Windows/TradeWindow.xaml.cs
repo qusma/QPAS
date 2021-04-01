@@ -22,7 +22,6 @@ namespace QPAS
     {
         public TradeViewModel ViewModel { get; set; }
 
-
         private readonly IContextFactory _contextFactory;
         private readonly TradesRepository _tradesRepo;
         private double[] _fontSizes;
@@ -41,7 +40,6 @@ namespace QPAS
             _tradesRepo = tradesRepo;
             ViewModel = viewModel;
             InitializeComponent();
-
 
             DataContext = ViewModel;
 
@@ -87,7 +85,7 @@ namespace QPAS
             ApplyPropertyValueToSelectedText(TextElement.FontSizeProperty, e.AddedItems[0]);
         }
 
-        void ApplyPropertyValueToSelectedText(DependencyProperty formattingProperty, object value)
+        private void ApplyPropertyValueToSelectedText(DependencyProperty formattingProperty, object value)
         {
             if (value == null)
                 return;
@@ -108,7 +106,7 @@ namespace QPAS
             UpdateSelectedFontSize();
         }
 
-        void UpdateItemCheckedState(ToggleButton button, DependencyProperty formattingProperty, object expectedValue)
+        private void UpdateItemCheckedState(ToggleButton button, DependencyProperty formattingProperty, object expectedValue)
         {
             object currentValue = NotesTextBox.Selection.GetPropertyValue(formattingProperty);
             button.IsChecked = (currentValue == DependencyProperty.UnsetValue) ? false : currentValue != null && currentValue.Equals(expectedValue);
@@ -164,7 +162,6 @@ namespace QPAS
             object value = NotesTextBox.Selection.GetPropertyValue(TextElement.FontSizeProperty);
             FontSizeComboBox.SelectedValue = (value == DependencyProperty.UnsetValue) ? null : value;
         }
-
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {

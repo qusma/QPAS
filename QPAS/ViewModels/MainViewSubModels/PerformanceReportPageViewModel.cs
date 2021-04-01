@@ -2,7 +2,6 @@
 using EntityModel;
 using MahApps.Metro.Controls.Dialogs;
 using ReactiveUI;
-using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
@@ -79,7 +78,6 @@ namespace QPAS
         public ReactiveCommand<Unit, Unit> NewSettingsCmd { get; private set; }
         public ReactiveCommand<Unit, Unit> SaveSettingsCmd { get; private set; }
         public ReactiveCommand<string, Unit> LoadSettingsCmd { get; private set; }
-       
 
         public EquityCurve BacktestData { get; private set; }
 
@@ -182,8 +180,6 @@ namespace QPAS
                 }
             }
         }
-
-
 
         private void CreateCommands()
         {

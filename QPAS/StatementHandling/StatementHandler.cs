@@ -53,7 +53,6 @@ namespace QPAS
                 _currencies = dbContext.Currencies.ToList();
             }
 
-
             AssembleComponents();
 
             DownloaderNames = StatementDownloaders.Select(x => x.Metadata.Name).ToList();
@@ -65,7 +64,6 @@ namespace QPAS
         /// </summary>
         private void AssembleComponents()
         {
-
             var configuration = new ContainerConfiguration();
 
             var pluginsDirPath = Path.Combine(Environment.CurrentDirectory + "\\Plugins");
@@ -84,8 +82,6 @@ namespace QPAS
             }
 
             configuration.WithAssembly(Assembly.GetExecutingAssembly());
-
-
 
             try
             {
@@ -202,7 +198,6 @@ namespace QPAS
                 _logger.Error(ex, "Flex file parse error");
                 return null;
             }
-
 
             progress.SetMessage("Updating open trades");
 

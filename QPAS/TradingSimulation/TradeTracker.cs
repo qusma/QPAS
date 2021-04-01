@@ -100,7 +100,6 @@ namespace QPAS
                 trade.Commissions = trade.Orders.Sum(x => x.CommissionInBase);
             }
 
-
             //Unrealized result stats
             trade.UnrealizedResultDollars = TotalPnL - RealizedPnL;
             trade.UnrealizedResultDollarsLong = positions.Sum(x => x.PnLLong - x.RealizedPnLLong);
@@ -196,7 +195,7 @@ namespace QPAS
             }
             else
             {
-                //InstrumentID is null. This happens frequently 
+                //InstrumentID is null. This happens frequently
                 //as many cash transactions are not related to a particular instrument
                 Positions[NullInstrumentId].AddCashTransaction(ct);
             }

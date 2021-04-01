@@ -12,15 +12,15 @@ using NLog;
 using QDMS;
 using QPAS.DataSets;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Instrument = EntityModel.Instrument;
-using Tag = EntityModel.Tag;
 using ReportSettings = EntityModel.ReportSettings;
-using System.Threading;
-using System.Collections.Concurrent;
+using Tag = EntityModel.Tag;
 
 namespace QPAS
 {
@@ -51,7 +51,6 @@ namespace QPAS
 
         //Backtest
         private EquityCurve _backtestEC;
-
 
         private DateTime _minDate;
         private DateTime _maxDate;
@@ -128,7 +127,7 @@ namespace QPAS
 
                 accountIDs = accountIDs.Distinct().ToList();
 
-                //grab dates in period and total capital at each of them           
+                //grab dates in period and total capital at each of them
                 //What we do here is the following: grab the equity summary for all accounts for the specified dates
                 //then filter the selected accounts
                 //and finally determine total capital for each day by summing up all the equitysummaries' Total field at that date
@@ -162,7 +161,6 @@ namespace QPAS
 
             SetProgress("Loading Data", 0);
             Context = contextFactory.Get();
-
 
             _trades = trades;
             if (_trades.Count == 0) return ds;
@@ -213,7 +211,6 @@ namespace QPAS
                     x => x.Name,
                     x => new PortfolioTracker(data, fxData, _trades.Where(t => t.StrategyID == x.ID).ToList(), x.Name, _datesInPeriod.First(), appSettings.OptionsCapitalUsageMultiplier));
 
-
             //then we do the calcs
             //the capital in use in one day is calculated as the capital that was in use at the end of the previous day
             //plus any positions opened today before an arbitrary cut-off point (for now I'll use 15:40:00 ET)
@@ -228,7 +225,6 @@ namespace QPAS
             var instrumentDnCaptured = new Dictionary<string, double>();
             var instrumentUpLost = new Dictionary<string, double>();
             var instrumentDnLost = new Dictionary<string, double>();
-
 
             //then we start doing the actual work..
             for (int i = 0; i < _datesInPeriod.Count; i++)
@@ -342,7 +338,7 @@ namespace QPAS
             var data = new ConcurrentDictionary<int, TimeSeries>();
             int counter = 0;
 
-            var dataTasks = neededDates.Select(kvp => Task.Run(async () => 
+            var dataTasks = neededDates.Select(kvp => Task.Run(async () =>
             {
                 Instrument instrument = kvp.Key;
                 DateTime startingDate = kvp.Value.Key;
@@ -500,7 +496,6 @@ namespace QPAS
             DoMarginalRiskContribMonthly();
         }
 
-
         /// <summary>
         /// One-year rolling risk contribution per strategy
         /// </summary>
@@ -522,7 +517,6 @@ namespace QPAS
 
             //start with the full return matrix, then slice off chunks of it as desired
             Matrix<double> retMatrix = Matrix<double>.Build.DenseOfColumnArrays(strategyRotcECs.Select(x => x.Value.Returns.ToArray()));
-
 
             for (int i = 30; i < ecRotc.Dates.Count; i++)
             {
@@ -761,7 +755,7 @@ namespace QPAS
             {
                 var dr = ds.StrategyROAC.NewRow();
 
-                dr["Date"] = _datesInPeriod[i]; 
+                dr["Date"] = _datesInPeriod[i];
                 foreach (var kvp in strategyRoacECs)
                 {
                     dr[kvp.Key] = kvp.Value.Equity[i + 1] - 1;
@@ -916,7 +910,6 @@ namespace QPAS
                 Dictionary<string, string> resultsStats = PerformanceMeasurement.EquityCurveStats(selectedData, liveDays, settings.AssumedInterestRate);
                 Dictionary<string, string> backtestLiveStats = PerformanceMeasurement.EquityCurveStats(backtestDuring, backtestLiveDays, settings.AssumedInterestRate);
 
-
                 foreach (var kvp in resultsStats)
                 {
                     var dr = ds.BacktestStats.NewBacktestStatsRow();
@@ -953,7 +946,6 @@ namespace QPAS
                 return;
             }
 
-
             double mult = 1;
             double cumulativeDiff = 0;
             for (int i = 0; i < _backtestEC.Dates.Count; i++)
@@ -983,7 +975,6 @@ namespace QPAS
                     dr.Result = double.NaN;
                     dr.CumulativeDifference = double.NaN;
                 }
-
 
                 dr.Date = dateTime.Date;
                 dr.Backtest = _backtestEC.Equity[i];
@@ -1195,8 +1186,6 @@ namespace QPAS
             }
         }
 
-
-
         private IEnumerable<int> GetNeededFxIDs()
         {
             var currencyIDs =
@@ -1339,8 +1328,6 @@ namespace QPAS
             }
 
             int periods = selectedData.Dates.Count;
-
-
 
             MonteCarlo.Bootstrap(
                 periods,
@@ -1805,7 +1792,6 @@ namespace QPAS
                             ? retsByMonth[year][j]
                             : 0;
 
-
                     total *= (1 + thisMonthsRet);
                     dr[month] = thisMonthsRet;
                 }
@@ -1830,7 +1816,6 @@ namespace QPAS
                         retsByMonth[year].ContainsKey(j)
                             ? retsByMonth[year][j]
                             : 0;
-
 
                     total *= (1 + thisMonthsRet);
                     dr[month] = thisMonthsRet;
@@ -1927,8 +1912,6 @@ namespace QPAS
                 ds.pnlByInstrument.AddpnlByInstrumentRow(pnlbiDR);
             }
         }
-
-
 
         /// <summary>
         /// determine what dates we need each instrument for

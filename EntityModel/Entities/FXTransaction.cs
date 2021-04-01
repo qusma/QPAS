@@ -4,12 +4,12 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using NXmlMapper;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
-using NXmlMapper;
 
 namespace EntityModel
 {
@@ -86,7 +86,7 @@ namespace EntityModel
         ///  For spot trades, the amount is the value of the nonfunctional currency expressed in your functional currency using the spot rate on the trade date.
         ///  For securities trades, the amount is the value of the nonfunctional currency expressed in your functional currency using the spot rate on the trade date.
         ///  For interest, dividends or deposits, the amount is the spot rate on the day of the transaction.
-        /// 
+        ///
         ///  When gaining currency, proceeds are positive and when losing currency, proceeds are negative. Proceeds equals quantity * the conversion rate from non-functional currency to functional currency for the report date of the transaction.
         /// </summary>
         [AttributeName("proceeds")]

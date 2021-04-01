@@ -26,7 +26,7 @@ namespace EntityModel
         public string Code
         {
             get { return _code; }
-            set { _code = value; OnPropertyChanged();  }
+            set { _code = value; OnPropertyChanged(); }
         }
 
         [MaxLength(255)]
@@ -50,7 +50,7 @@ namespace EntityModel
             set
             {
                 ReferencedAssemblies.Clear();
-                foreach(string s in value.Split('|'))
+                foreach (string s in value.Split('|'))
                 {
                     ReferencedAssemblies.Add(s);
                 }

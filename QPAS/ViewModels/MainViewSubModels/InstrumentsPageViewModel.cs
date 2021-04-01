@@ -91,7 +91,6 @@ namespace QPAS
             this.contextFactory = contextFactory;
         }
 
-
         private void CreateCommands()
         {
             UpdateChartCommand = ReactiveCommand.CreateFromTask(async _ => await UpdateChart());

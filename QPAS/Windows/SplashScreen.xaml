@@ -9,10 +9,10 @@
                       TitleBarHeight="0">
     <Grid Background="#41B1E1">
         <Grid.RowDefinitions>
-            <RowDefinition Height="235"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="235" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Image Source="../Resources/icon_big.png" Grid.Row="0"  RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+        <Image Source="../Resources/icon_big.png" Grid.Row="0"  RenderOptions.BitmapScalingMode="NearestNeighbor" />
         <controls:ProgressRing IsActive="True" Grid.Row="1" Foreground="White" />
     </Grid>
 </controls:MetroWindow>
