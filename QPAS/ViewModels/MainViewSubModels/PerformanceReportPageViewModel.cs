@@ -103,7 +103,7 @@ namespace QPAS
             Strategies = new ObservableCollection<CheckListItem<Strategy>>(data.Strategies.Select(x => new CheckListItem<Strategy>(x)));
             Tags = new ObservableCollection<CheckListItem<Tag>>(data.Tags.OrderBy(x => x.Name).Select(x => new CheckListItem<Tag>(x, true)));
             Instruments = new ObservableCollection<CheckListItem<Instrument>>(data.Instruments.Select(x => new CheckListItem<Instrument>(x, true)));
-            Benchmarks = new ObservableCollection<Benchmark>();
+            Benchmarks = new ObservableCollection<Benchmark>(data.Benchmarks);
             BacktestSeries = new ObservableCollection<QDMS.Instrument>();
 
             data.Tags.CollectionChanged += Tags_CollectionChanged;
