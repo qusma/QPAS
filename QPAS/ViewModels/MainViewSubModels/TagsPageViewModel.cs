@@ -46,10 +46,6 @@ namespace QPAS
             Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteTags(x));
         }
 
-        public override async Task Refresh()
-        {
-        }
-
         private async Task DeleteTags(IList tags)
         {
             if (tags == null || tags.Count == 0) return;

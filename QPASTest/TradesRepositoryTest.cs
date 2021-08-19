@@ -226,7 +226,7 @@ namespace QPASTest
         }
 
         [Test]
-        public async Task IsClosableReturnsTrueIfAllPositionsAreZero()
+        public void IsClosableReturnsTrueIfAllPositionsAreZero()
         {
             _t.Orders.Add(new Order { Quantity = 10, Instrument = _inst, Price = 100, FXRateToBase = 1, BuySell = "BUY", TradeDate = new DateTime(2000, 1, 1) });
             _t.Orders.Add(new Order { Quantity = -10, Instrument = _inst, Price = 105, FXRateToBase = 1, BuySell = "SELL", TradeDate = new DateTime(2000, 1, 1) });
@@ -235,7 +235,7 @@ namespace QPASTest
         }
 
         [Test]
-        public async Task IsClosableReturnsFalseIfThereAreNonzeroPositions()
+        public void IsClosableReturnsFalseIfThereAreNonzeroPositions()
         {
             _t.Orders.Add(new Order { Quantity = 10, Instrument = _inst, Price = 100, FXRateToBase = 1, BuySell = "BUY", TradeDate = new DateTime(2000, 1, 1) });
             _t.Orders.Add(new Order { Quantity = -15, Instrument = _inst, Price = 105, FXRateToBase = 1, BuySell = "SELL", TradeDate = new DateTime(2000, 1, 1) });

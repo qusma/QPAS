@@ -362,7 +362,7 @@ namespace QPAS
                 Interlocked.Increment(ref counter);
             })).ToArray();
 
-            Task.WaitAll(dataTasks);
+            await Task.WhenAll(dataTasks); //todo: test
 
             return data.ToDictionary(x => x.Key, x => x.Value);
         }

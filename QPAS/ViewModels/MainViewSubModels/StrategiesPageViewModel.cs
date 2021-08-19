@@ -38,10 +38,6 @@ namespace QPAS
             Delete = ReactiveCommand.CreateFromTask<Strategy>(async x => await DeleteStrategy(x));
         }
 
-        public override async Task Refresh()
-        {
-        }
-
         private async Task DeleteStrategy(Strategy strategy)
         {
             if (strategy == null) return;

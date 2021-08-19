@@ -39,10 +39,6 @@ namespace QPAS
             this.contextFactory = contextFactory;
         }
 
-        public override async Task Refresh()
-        {
-        }
-
         private void CreateCommands()
         {
             Delete = ReactiveCommand.CreateFromTask<IList>(async x => await DeleteCashTransactions(x));

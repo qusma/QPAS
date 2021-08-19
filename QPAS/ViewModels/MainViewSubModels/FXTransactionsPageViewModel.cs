@@ -72,9 +72,5 @@ namespace QPAS
                 dbContext.SaveChanges();
             }
         }
-
-        public override async Task Refresh()
-        {
-        }
     }
 }

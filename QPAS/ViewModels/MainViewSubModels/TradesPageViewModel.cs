@@ -137,10 +137,6 @@ namespace QPAS
             }
         }
 
-        public override async Task Refresh()
-        {
-        }
-
         private async Task Close(IList trades)
         {
             await TradesRepository.CloseTrades(trades);

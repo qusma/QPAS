@@ -201,9 +201,5 @@ namespace QPAS
             }
             OrdersSource.View.Refresh();
         }
-
-        public override async Task Refresh()
-        {
-        }
     }
 }

@@ -20,7 +20,6 @@ namespace QPAS
     {
         private List<AreaPoint> _equitySummaryPercentSeries;
         private List<AreaPoint> _equitySummaryPercentDrawdownSeries;
-
         private List<AreaPoint> _totalEquitySeries;
         private List<AreaPoint> _totalEquityDrawdownSeries;
         private DataTable _stats;
@@ -103,19 +102,19 @@ namespace QPAS
         {
             if (SelectedAccount == null) return;
 
-            await CreatePctReturnSeries();
-            await CreateTotalEquitySeries();
-            Stats = await GeneratePerformanceOverviewStats();
+            CreatePctReturnSeries();
+            CreateTotalEquitySeries();
+            Stats = GeneratePerformanceOverviewStats();
         }
 
-        private async Task CreateTotalEquitySeries()
+        private void CreateTotalEquitySeries()
         {
             var equityPoints = new List<AreaPoint>();
             var drawdownPoints = new List<AreaPoint>();
 
             decimal maxEquity = 0;
 
-            foreach (var kvp in await GetTotalCapitalSeries())
+            foreach (var kvp in GetTotalCapitalSeries())
             {
                 DateTime date = kvp.Key;
                 decimal total = kvp.Value;
@@ -128,7 +127,7 @@ namespace QPAS
             TotalEquityDrawdownSeries = drawdownPoints;
         }
 
-        private async Task CreatePctReturnSeries()
+        private void CreatePctReturnSeries()
         {
             var returnsPoints = new List<AreaPoint>();
             var drawdownPoints = new List<AreaPoint>();
@@ -141,8 +140,8 @@ namespace QPAS
             double maxEquity = 1;
 
             //adjust the % returns for deposits/withdrawals as they obviously don't affect performance
-            Dictionary<DateTime, decimal> depositsWithdrawals = await GetDepositsWithdrawals();
-            Dictionary<DateTime, decimal> totalCapital = await GetTotalCapitalSeries();
+            Dictionary<DateTime, decimal> depositsWithdrawals = GetDepositsWithdrawals();
+            Dictionary<DateTime, decimal> totalCapital = GetTotalCapitalSeries();
 
             foreach (var es in totalCapital)
             {
@@ -182,7 +181,7 @@ namespace QPAS
             EquitySummaryPercentDrawdownSeries = drawdownPoints;
         }
 
-        private async Task<Dictionary<DateTime, decimal>> GetTotalCapitalSeries()
+        private Dictionary<DateTime, decimal> GetTotalCapitalSeries()
         {
             Dictionary<DateTime, decimal> totalCapital;
             if (SelectedAccount.AccountId == "All")
@@ -202,10 +201,10 @@ namespace QPAS
                     .ToDictionary(x => x.Date, x => x.Total);
             }
 
-            return await PerformCurrencyAdjustment(totalCapital);
+            return PerformCurrencyAdjustment(totalCapital);
         }
 
-        private async Task<Dictionary<DateTime, decimal>> PerformCurrencyAdjustment(Dictionary<DateTime, decimal> inputSeries)
+        private Dictionary<DateTime, decimal> PerformCurrencyAdjustment(Dictionary<DateTime, decimal> inputSeries)
         {
             if (SelectedCurrency == null || SelectedCurrency.Name == "USD")
             {
@@ -235,7 +234,7 @@ namespace QPAS
             }
         }
 
-        private async Task<Dictionary<DateTime, decimal>> GetDepositsWithdrawals()
+        private Dictionary<DateTime, decimal> GetDepositsWithdrawals()
         {
             Dictionary<DateTime, decimal> depositsWithdrawals;
             if (SelectedAccount.AccountId == "All")
@@ -258,10 +257,10 @@ namespace QPAS
                     .ToDictionary(x => x.Key, x => x.Sum(y => y.Amount * y.FXRateToBase));
             }
 
-            return await PerformCurrencyAdjustment(depositsWithdrawals);
+            return PerformCurrencyAdjustment(depositsWithdrawals);
         }
 
-        private async Task<DataTable> GeneratePerformanceOverviewStats()
+        private DataTable GeneratePerformanceOverviewStats()
         {
             var statsDT = new DataTable();
             statsDT.Columns.Add("Stat", typeof(string));
@@ -269,9 +268,9 @@ namespace QPAS
             statsDT.Columns.Add("YTD", typeof(string));
             statsDT.Columns.Add("All Time", typeof(string));
 
-            Dictionary<DateTime, decimal> depositsWithdrawals = await GetDepositsWithdrawals();
+            Dictionary<DateTime, decimal> depositsWithdrawals = GetDepositsWithdrawals();
 
-            Dictionary<DateTime, decimal> totalCapital = await GetTotalCapitalSeries();
+            Dictionary<DateTime, decimal> totalCapital = GetTotalCapitalSeries();
             if (totalCapital.Count == 0) return statsDT;
 
             var last30DaysEC = EcFromEquitySummaries(
