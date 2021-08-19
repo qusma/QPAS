@@ -870,7 +870,8 @@
                         <DataGrid.Columns>
                             <DataGridTemplateColumn Header="Trade"
                                                     DisplayIndex="0" Width="200"
-                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True">
+                                                filterLibrary:DataGridColumnExtensions.ContainsSearchProperty="True"
+                                                    filterLibrary:DataGridColumnExtensions.FilterMemberPathProperty="Trade.Name">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
