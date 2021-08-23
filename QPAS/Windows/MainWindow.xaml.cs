@@ -315,10 +315,18 @@ namespace QPAS
                         }
                         else
                         {
-                            using (var dbContext = ContextFactory.Get())
+                            try
                             {
-                                dbContext.Entry(e.Row.Item).State = EntityState.Modified;
-                                dbContext.SaveChanges();
+                                using (var dbContext = ContextFactory.Get())
+                                {
+                                    dbContext.Entry(e.Row.Item).State = EntityState.Modified;
+                                    dbContext.SaveChanges();
+                                }
+                            }
+                            catch (InvalidOperationException) 
+                            {
+                                //hack to avoid crashing due to a weird WPF bug that passes a NamedObject {DisconnectedItem} item here,
+                                //no clue how to fix.
                             }
                         }
                         return null;
