@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace QPAS
 {
-    public class TradesRepository
+    public class TradesRepository : ITradesRepository
     {
         private IContextFactory _contextFactory;
         private readonly IDataSourcer _dataSourcer;
