@@ -326,46 +326,4 @@ namespace QPAS
             window.Show();
         }
     }
-
-    public class Order_Script : OrderScriptBase
-    {
-        private List<string> _symbols = new List<string> { "SPY", "QQQ", "IWM" };
-
-        //Do not change the constructor parameters.
-        public Order_Script(DataContainer data, ILogger logger) : base(data, logger)
-        {
-        }
-
-        public override void ProcessOrders(List<Order> orders)
-        {
-            //cycle through orders that match our symbol list
-            foreach (var order in orders.Where(x => _symbols.Contains(x.Instrument.UnderlyingSymbol) && x.OrderReference.Contains("ETF-Swing")))
-            {
-                string orderInstrument = order.Instrument.UnderlyingSymbol;
-
-                //look for an open trade that fits the pattern, was opened before this orders, and uses the same instrument
-                Trade trade = OpenTrades
-                    .Where(x => x.Name.StartsWith("ETF-Swing") &&
-                                x.DateOpened < order.TradeDate &&
-                                x.Orders.Any(o => o.Instrument.UnderlyingSymbol == orderInstrument))
-                    .OrderByDescending(x => x.DateOpened)
-                    .FirstOrDefault();
-
-                if (trade != null)
-                {
-                    //if such a trade exists, add this order to it
-                    SetTrade(order, trade);
-                }
-                else
-                {
-                    //if the trade does not exist, create it
-                    var side = order.BuySell == "BUY" ? "Long" : "Short";
-                    trade = CreateTrade($"ETF-Swing {orderInstrument} {side} {order.TradeDate:yyyy--MM-dd}");
-                    SetTrade(order, trade);
-
-                    Log($"Created new trade for {orderInstrument}");
-                }
-            }
-        }
-    }
 }

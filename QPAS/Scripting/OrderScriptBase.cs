@@ -77,6 +77,10 @@ namespace QPAS.Scripting
                 return false;
             }
 
+            //temporarily add the order to the trade so that everything looks normal from the script's perspective
+            //these are then removed in the cleanup, and finally added properly by the ActionExecutor
+            trade.Orders.Add(order);
+
             _actions.Add(new SetTrade(order, trade));
 
             Logger.Log(LogLevel.Info, "User script {0} added order {1} to trade {2}", this.GetType().Name, order, trade);
@@ -99,6 +103,14 @@ namespace QPAS.Scripting
         {
             ProcessOrders(orders);
             return _actions;
+        }
+
+        public void Cleanup()
+        {
+            foreach (SetTrade action in _actions.Where(x => x is SetTrade))
+            {
+                action.Trade.Orders.Remove(action.Order);
+            }
         }
     }
 }

@@ -93,7 +93,9 @@ namespace QPAS.Scripting
         {
             var scriptToExecute = script.Code + @"
                 var script = new " + script.Name + @"(Data, Logger);
-                return script.GenerateActions(Orders);";
+                var actions = script.GenerateActions(Orders);
+                script.Cleanup();
+                return actions;";
 
             var globals = new Globals { Data = _data, Orders = orders, Logger = _logger };
             var options = ScriptOptions.Default
